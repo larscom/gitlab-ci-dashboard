@@ -39,12 +39,13 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://gitlab.com -e GITLAB_API_TOKE
 
 ## Environment variables
 
-| Variable              | Description                                                                                            | Required |
-| --------------------- | ------------------------------------------------------------------------------------------------------ | -------- |
-| GITLAB_BASE_URL       | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |
-| GITLAB_API_TOKEN      | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |
-| GITLAB_GROUP_ONLY_IDS | Provide a comma seperated string of group ids which will only be visibile (e.g: 123,789,888)           | no       |
-| GITLAB_GROUP_SKIP_IDS | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |
+| Variable                    | Type    | Description                                                                                            | Required |
+| --------------------------- | ------- | ------------------------------------------------------------------------------------------------------ | -------- |
+| GITLAB_BASE_URL             | string  | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |
+| GITLAB_API_TOKEN            | string  | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |
+| GITLAB_GROUP_ONLY_IDS       | string  | Provide a comma seperated string of group ids which will only be visibile (e.g: 123,789,888)           | no       |
+| GITLAB_GROUP_SKIP_IDS       | string  | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |
+| GITLAB_GROUP_ONLY_TOP_LEVEL | boolean | Show only top level groups (no child groups)                                                           | no       |
 
 ## Why?
 
