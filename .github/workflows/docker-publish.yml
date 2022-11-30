@@ -8,6 +8,7 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -27,10 +28,10 @@ jobs:
           push: true
           tags: larscom/gitlab-ci-dashboard:latest,larscom/gitlab-ci-dashboard:${{ github.ref_name }}
       -
-        name: Update description
+        name: Update README
         uses: peter-evans/dockerhub-description@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: larscom/gitlab-ci-dashboard
           short-description: ${{ github.event.repository.description }}
