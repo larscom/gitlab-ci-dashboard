@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  gitlab-ci-dashboard:
+    image: gitlab-ci-dashboard
+    build: .
+    env_file:
+      - ./api/.local.env 
+    ports:
+      - '8080:8080'

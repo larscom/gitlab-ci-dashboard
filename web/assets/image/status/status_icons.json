@@ -1,0 +1,16 @@
+[
+  "status_canceled",
+  "status_closed",
+  "status_created",
+  "status_failed",
+  "status_manual",
+  "status_unknown",
+  "status_open",
+  "status_pending",
+  "status_preparing",
+  "status_running",
+  "status_scheduled",
+  "status_skipped",
+  "status_success",
+  "status_warning"
+]

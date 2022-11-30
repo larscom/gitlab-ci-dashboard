@@ -1,0 +1,19 @@
+<ng-container *ngIf="loading$ | async; else projects">
+  <mat-progress-bar class="mt-1"
+    color="accent"
+    mode="indeterminate"></mat-progress-bar>
+</ng-container>
+<ng-template #projects>
+  <mat-tab-group class="mt-4"
+    animationDuration="0ms">
+    <ng-container *ngFor="let tab of tabs$ | async">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon [svgIcon]="'status_'+tab.status"></mat-icon>
+          {{ tab.status }} ({{ tab.projects.length }})
+        </ng-template>
+        <gcd-project-table [projects]="tab.projects"></gcd-project-table>
+      </mat-tab>
+    </ng-container>
+  </mat-tab-group>
+</ng-template>

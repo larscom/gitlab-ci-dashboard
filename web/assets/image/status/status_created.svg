@@ -1,0 +1,7 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <g fill-rule="evenodd">
+    <path fill="#333238" d="M0 7a7 7 0 1 1 14 0A7 7 0 0 1 0 7z" />
+    <path fill="#212121" d="M13 7A6 6 0 1 0 1 7a6 6 0 0 0 12 0z" />
+    <circle fill="#333238" cx="7" cy="7" r="3.25" />
+  </g>
+</svg>

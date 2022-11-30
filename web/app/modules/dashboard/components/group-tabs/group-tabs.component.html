@@ -1,0 +1,16 @@
+<ng-container *ngIf="groupsLoading$ | async; else groups">
+  <mat-progress-bar color="accent"
+    mode="indeterminate"></mat-progress-bar>
+</ng-container>
+<ng-template #groups>
+  <mat-tab-group backgroundColor="primary"
+    animationDuration="0ms">
+    <ng-container *ngFor="let tab of tabs$ | async">
+      <mat-tab [label]="tab.name">
+        <ng-template matTabContent>
+          <gcd-pipeline-status-tabs [groupId]="tab.groupId"></gcd-pipeline-status-tabs>
+        </ng-template>
+      </mat-tab>
+    </ng-container>
+  </mat-tab-group>
+</ng-template>

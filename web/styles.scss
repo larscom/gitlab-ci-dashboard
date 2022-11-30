@@ -1,0 +1,33 @@
+@import '@fontsource/roboto/300.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import 'material-icons/iconfont/filled.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  height: 93vh;
+}
+
+body {
+  overflow: hidden;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background-color: #212121;
+  color: whitesmoke;
+}
+
+::-webkit-scrollbar {
+  width: 0.2rem;
+  height: 0.2rem;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #9E9E9E;
+}
