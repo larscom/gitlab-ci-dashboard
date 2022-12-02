@@ -13,7 +13,7 @@ npm-debug.log
 yarn-error.log
 
 # local env files
-*.env*
+*local.env*
 
 # IDEs and editors
 .idea/

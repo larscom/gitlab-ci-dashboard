@@ -30,6 +30,11 @@
     </tr>
 
     <tr mat-row
+      [ngClass]="{
+        'cursor-not-allowed' : !projectWithPipelines.pipelines[0],
+        'cursor-pointer': projectWithPipelines.pipelines[0],
+        'hover': projectWithPipelines.pipelines[0]
+      }"
       (click)="openGitlab(projectWithPipelines)"
       *matRowDef="let projectWithPipelines; columns: displayedColumns;">
     </tr>

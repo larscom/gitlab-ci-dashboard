@@ -17,10 +17,5 @@ func NewGroupController(groupService *GroupService) *GroupController {
 }
 
 func (g *GroupController) GetGroups(c echo.Context) error {
-	groups, errDto := g.groupService.GetGroups()
-	if errDto != nil {
-		return c.JSON(errDto.StatusCode, errDto)
-	}
-
-	return c.JSON(http.StatusOK, groups)
+	return c.JSON(http.StatusOK, g.groupService.GetGroups())
 }

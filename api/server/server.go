@@ -1,6 +1,7 @@
 package server
 
 import (
+	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -9,34 +10,34 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/group"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/project"
+	"github.com/rs/zerolog"
 	"github.com/xanzy/go-gitlab"
 )
 
-func NewServer(client *gitlab.Client, appCofig *config.AppConfig) *echo.Echo {
+func NewServer(client *gitlab.Client, serverConfig *config.ServerConfig, gitlabConfig *config.GitlabConfig) *echo.Echo {
 	server := echo.New()
-	server.Debug = true
+	server.Debug = serverConfig.Debug
 
 	server.Use(middleware.Static("./statics"))
 	server.Use(middleware.Recover())
+	server.Use(NewCacheMiddleware(time.Duration(serverConfig.CacheTTLSeconds) * time.Second).Middleware())
 
-	cache := NewCacheMiddleware(time.Duration(10) * time.Second).Middleware()
+	logger := zerolog.New(os.Stdout)
 
-	pipelineService := pipeline.NewPipelineService(client)
+	pipelineService := pipeline.NewPipelineService(client, logger)
 
 	apiGroup := server.Group("/api")
 	{
 		groupsGroup := apiGroup.Group("/groups")
 		{
-			groupsGroup.Use(cache)
-
 			// path: /api/groups
-			handler := group.NewGroupController(group.NewGroupService(client, appCofig))
+			handler := group.NewGroupController(group.NewGroupService(client, logger, gitlabConfig))
 			groupsGroup.GET("", handler.GetGroups)
 
 			projectsGroup := groupsGroup.Group("/:groupId/projects")
 			{
 				// path: /api/groups/{gid}/projects
-				handler := project.NewProjectController(project.NewProjectService(client, pipelineService))
+				handler := project.NewProjectController(project.NewProjectService(client, logger, pipelineService))
 				projectsGroup.GET("", handler.GetProjectsWithPipelines)
 
 				pipelinesGroup := projectsGroup.Group("/:projectId/pipelines")
@@ -49,7 +50,16 @@ func NewServer(client *gitlab.Client, appCofig *config.AppConfig) *echo.Echo {
 		}
 	}
 
-	server.Use(middleware.Logger())
+	if serverConfig.Debug {
+		server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+			LogURI:    true,
+			LogStatus: true,
+			LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+				logger.Debug().Timestamp().Str("URI", v.URI).Int("status", v.Status).Msg(c.Request().Method)
+				return nil
+			},
+		}))
+	}
 
 	return server
 }

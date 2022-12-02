@@ -1,41 +1,32 @@
 package project
 
 import (
+	"fmt"
+
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/rs/zerolog"
 	"github.com/xanzy/go-gitlab"
 )
 
 type ProjectService struct {
 	client          *gitlab.Client
+	logger          zerolog.Logger
 	pipelineService *pipeline.PipelineService
 }
 
-type ProjectPageProcessorResult struct {
-	projects []*gitlab.Project
-	err      *model.Error
-}
-
-type ProjectProcessorResult struct {
-	projects *model.ProjectPipelines
-	err      *model.Error
-}
-
-func NewProjectService(client *gitlab.Client, pipelineService *pipeline.PipelineService) *ProjectService {
+func NewProjectService(client *gitlab.Client, logger zerolog.Logger, pipelineService *pipeline.PipelineService) *ProjectService {
 	return &ProjectService{
 		client:          client,
+		logger:          logger,
 		pipelineService: pipelineService,
 	}
 }
 
-func (p *ProjectService) GetProjectsWithPipelines(groupId int) ([]*model.ProjectPipelines, *model.Error) {
-	projects, err := p.getProjects(groupId)
-	if err != nil {
-		return nil, err
-	}
-
+func (p *ProjectService) GetProjectsWithPipelines(groupId int) []*model.ProjectWithPipelines {
+	projects := p.getProjects(groupId)
 	jobs := make(chan *gitlab.Project, len(projects))
-	results := make(chan *ProjectProcessorResult, len(projects))
+	results := make(chan *model.ProjectWithPipelines, len(projects))
 
 	for _, project := range projects {
 		go p.projectProcessor(jobs, results)
@@ -43,67 +34,67 @@ func (p *ProjectService) GetProjectsWithPipelines(groupId int) ([]*model.Project
 	}
 	close(jobs)
 
-	projectsWithPipelines := []*model.ProjectPipelines{}
-
+	projectsWithPipelines := []*model.ProjectWithPipelines{}
 	for range projects {
 		result := <-results
-		if result.err != nil {
-			return nil, err
+		if result != nil {
+			projectsWithPipelines = append(projectsWithPipelines, result)
 		}
-		projectsWithPipelines = append(projectsWithPipelines, result.projects)
 	}
 
-	return projectsWithPipelines, nil
+	return projectsWithPipelines
 }
 
-func (p *ProjectService) getProjects(groupId int) ([]*gitlab.Project, *model.Error) {
+func (p *ProjectService) getProjects(groupId int) []*gitlab.Project {
 	projects, resp, err := p.client.Groups.ListGroupProjects(groupId, p.createListGroupProjectsOptions(1))
 	if err != nil {
-		return nil, model.NewError(resp.StatusCode, resp.Status)
+		p.logger.
+			Warn().
+			Int("status", resp.StatusCode).
+			Err(err).
+			Msg(fmt.Sprintf("Error while retrieving projects for groupId: %d", groupId))
+		return make([]*gitlab.Project, 0)
 	}
 	if resp.NextPage == 0 || resp.TotalPages == 0 {
-		return projects, nil
+		return projects
 	}
 
 	capacity := resp.TotalPages - 1
 	jobs := make(chan int, capacity)
-	results := make(chan *ProjectPageProcessorResult, capacity)
+	results := make(chan []*gitlab.Project, capacity)
 
 	for page := resp.NextPage; page <= resp.TotalPages; page++ {
-		go p.pageProcessor(jobs, results, groupId)
+		go p.pageProcessor(groupId, jobs, results)
 		jobs <- page
 	}
 	close(jobs)
 
 	for i := 0; i < capacity; i++ {
-		result := <-results
-		if result.err != nil {
-			return nil, result.err
-		}
-		projects = append(projects, result.projects...)
+		projects = append(projects, <-results...)
 	}
 
-	return projects, nil
+	return projects
 }
 
-func (p *ProjectService) projectProcessor(projects <-chan *gitlab.Project, result chan<- *ProjectProcessorResult) {
+func (p *ProjectService) projectProcessor(projects <-chan *gitlab.Project, result chan<- *model.ProjectWithPipelines) {
 	for project := range projects {
-		pipelines, err := p.pipelineService.GetPipelines(project.ID, project.DefaultBranch)
-		if err != nil {
-			result <- &ProjectProcessorResult{err: err}
-		} else {
-			result <- &ProjectProcessorResult{projects: &model.ProjectPipelines{Project: project, Pipelines: pipelines}}
-		}
+		pipelines := p.pipelineService.GetPipelines(project.ID, project.DefaultBranch)
+		result <- &model.ProjectWithPipelines{Project: project, Pipelines: pipelines}
 	}
 }
 
-func (p *ProjectService) pageProcessor(pageNumbers <-chan int, result chan<- *ProjectPageProcessorResult, groupId int) {
+func (p *ProjectService) pageProcessor(groupId int, pageNumbers <-chan int, result chan<- []*gitlab.Project) {
 	for pageNumber := range pageNumbers {
 		projects, resp, err := p.client.Groups.ListGroupProjects(groupId, p.createListGroupProjectsOptions(pageNumber))
 		if err != nil {
-			result <- &ProjectPageProcessorResult{err: model.NewError(resp.StatusCode, resp.Status)}
+			p.logger.
+				Warn().
+				Int("status", resp.StatusCode).
+				Err(err).
+				Msg(fmt.Sprintf("Error while retrieving projects for groupId: %d", groupId))
+			result <- make([]*gitlab.Project, 0)
 		} else {
-			result <- &ProjectPageProcessorResult{projects: projects}
+			result <- projects
 		}
 	}
 }

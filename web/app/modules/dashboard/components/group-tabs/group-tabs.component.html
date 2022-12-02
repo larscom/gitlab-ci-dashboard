@@ -3,7 +3,8 @@
     mode="indeterminate"></mat-progress-bar>
 </ng-container>
 <ng-template #groups>
-  <mat-tab-group backgroundColor="primary"
+  <mat-tab-group [mat-stretch-tabs]="false"
+    backgroundColor="primary"
     animationDuration="0ms">
     <ng-container *ngFor="let tab of tabs$ | async">
       <mat-tab [label]="tab.name">

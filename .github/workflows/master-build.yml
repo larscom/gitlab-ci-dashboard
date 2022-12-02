@@ -9,7 +9,7 @@ name: master
       - master
 
 jobs:
-  build_and_publish:
+  build_and_publish_dockerhub:
     runs-on: ubuntu-latest
     steps:
       -
@@ -25,8 +25,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Build/Push to Docker Hub
         uses: docker/build-push-action@v3
         with:
           push: true
           tags: larscom/gitlab-ci-dashboard:master
+
+  build_and_publish_gcr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      -
+        name: Build/Push to Google Cloud Registry
+        uses: RafikFarhad/push-to-gcr-github-action@v5-beta
+        with:
+          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          registry: gcr.io
+          project_id: gitlab-ci-dashboard-370412
+          image_name: larscom/gitlab-ci-dashboard
+          image_tag: master

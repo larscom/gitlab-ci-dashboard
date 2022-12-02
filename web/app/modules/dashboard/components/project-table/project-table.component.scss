@@ -1,11 +1,9 @@
-.mat-mdc-row .mat-mdc-cell {
-  cursor: pointer;
-}
-
 .mat-mdc-header-row {
   background-color: #616161;
 }
 
-.mat-mdc-row:hover .mat-mdc-cell {
-  border-color: currentColor;
+.hover {
+  &:hover {
+    background-color: #616161 !important;
+  }
 }

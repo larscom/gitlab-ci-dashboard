@@ -4,16 +4,23 @@
     mode="indeterminate"></mat-progress-bar>
 </ng-container>
 <ng-template #projects>
-  <mat-tab-group class="mt-4"
-    animationDuration="0ms">
-    <ng-container *ngFor="let tab of tabs$ | async">
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon [svgIcon]="'status_'+tab.status"></mat-icon>
-          {{ tab.status }} ({{ tab.projects.length }})
-        </ng-template>
-        <gcd-project-table [projects]="tab.projects"></gcd-project-table>
-      </mat-tab>
+  <ng-container *ngIf="tabs$ | async as tabs">
+    <ng-container *ngIf="tabs.length; else noTabs">
+      <mat-tab-group [mat-stretch-tabs]="false" class="mt-4">
+        <ng-container *ngFor="let tab of tabs">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon [svgIcon]="'status_'+tab.status"></mat-icon>
+              {{ tab.status }} ({{ tab.projects.length }})
+            </ng-template>
+            <gcd-project-table [projects]="tab.projects"></gcd-project-table>
+          </mat-tab>
+        </ng-container>
+      </mat-tab-group>
     </ng-container>
-  </mat-tab-group>
+    <ng-template #noTabs>
+      <p>No projects found...</p>
+    </ng-template>
+  </ng-container>
+
 </ng-template>

@@ -14,12 +14,14 @@ func main() {
 	fmt.Println("Loading environment: .local.env")
 	godotenv.Load(".local.env")
 
-	appConfig := config.NewAppConfig()
+	appConfig := config.NewGitlabConfig()
 	gitlabClient, err := gitlab.NewClient(appConfig.GitlabToken, gitlab.WithBaseURL(appConfig.GitlabUrl))
 	if err != nil {
 		log.Fatalf("Failed to create gitlabClient: %v", err)
 	}
-	echo := server.NewServer(gitlabClient, appConfig)
+
+	serverConfig := config.NewServerConfig()
+	echo := server.NewServer(gitlabClient, serverConfig, appConfig)
 
 	echo.Logger.Fatal(echo.Start(":8080"))
 }

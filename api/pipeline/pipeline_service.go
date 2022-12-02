@@ -1,38 +1,42 @@
 package pipeline
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/model"
+	"fmt"
+
+	"github.com/rs/zerolog"
 	"github.com/xanzy/go-gitlab"
 )
 
 type PipelineService struct {
 	client *gitlab.Client
+	logger zerolog.Logger
 }
 
-type PipelinePageProcessorResult struct {
-	pipelines []*gitlab.PipelineInfo
-	err       *model.Error
-}
-
-func NewPipelineService(client *gitlab.Client) *PipelineService {
+func NewPipelineService(client *gitlab.Client, logger zerolog.Logger) *PipelineService {
 	return &PipelineService{
 		client: client,
+		logger: logger,
 	}
 }
 
-func (p *PipelineService) GetPipelines(projectId int, ref string) ([]*gitlab.PipelineInfo, *model.Error) {
+func (p *PipelineService) GetPipelines(projectId int, ref string) []*gitlab.PipelineInfo {
 	options := &gitlab.ListProjectPipelinesOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
 			PerPage: 10,
 		},
-		Ref: gitlab.String(ref),
+		Ref: &ref,
 	}
 
 	pipelines, resp, err := p.client.Pipelines.ListProjectPipelines(projectId, options)
 	if err != nil {
-		return nil, model.NewError(resp.StatusCode, resp.Status)
+		p.logger.
+			Warn().
+			Int("status", resp.StatusCode).
+			Err(err).
+			Msg(fmt.Sprintf("Error while retrieving pipelines for projectId: %d and ref: %s", projectId, ref))
+		return make([]*gitlab.PipelineInfo, 0)
 	}
 
-	return pipelines, nil
+	return pipelines
 }

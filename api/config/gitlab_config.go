@@ -8,26 +8,26 @@ import (
 	"strings"
 )
 
-type AppConfig struct {
+type GitlabConfig struct {
 	GitlabToken             string
 	GitlabUrl               string
-	GitlabGroupSkipIds      []int
-	GitlabGroupOnlyIds      []int
+	GitlabGroupSkipIds      *[]int
+	GitlabGroupOnlyIds      *[]int
 	GitlabGroupOnlyTopLevel bool
 }
 
-func NewAppConfig() *AppConfig {
+func NewGitlabConfig() *GitlabConfig {
 	gitlabUrl := getBaseUrl()
 	gitlabToken := getToken()
 	gitlabGroupSkipIds := getSkippedGroupIds()
 	gitlabGroupOnlyIds := getOnlyGroupIds()
 	gitlabGroupOnlyTopLevel := getOnlyTopLevelGroups()
 
-	return &AppConfig{
+	return &GitlabConfig{
 		GitlabUrl:               gitlabUrl,
 		GitlabToken:             gitlabToken,
-		GitlabGroupSkipIds:      *gitlabGroupSkipIds,
-		GitlabGroupOnlyIds:      *gitlabGroupOnlyIds,
+		GitlabGroupSkipIds:      gitlabGroupSkipIds,
+		GitlabGroupOnlyIds:      gitlabGroupOnlyIds,
 		GitlabGroupOnlyTopLevel: gitlabGroupOnlyTopLevel,
 	}
 }
@@ -94,7 +94,7 @@ func getOnlyTopLevelGroups() bool {
 		var err error = nil
 		onlyTopLevelGroups, err = strconv.ParseBool(onlyTopLevelString)
 		if err != nil {
-			log.Fatal("'GITLAB_GROUP_ONLY_TOP_LEVEL' should be of type: boolean")
+			log.Fatalf("GITLAB_GROUP_ONLY_TOP_LEVEL contains: '%s' which is not a boolean", onlyTopLevelString)
 		}
 		fmt.Printf("GITLAB_GROUP_ONLY_TOP_LEVEL=%t\n", onlyTopLevelGroups)
 	}

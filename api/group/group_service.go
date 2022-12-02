@@ -1,55 +1,53 @@
 package group
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/rs/zerolog"
 
 	"github.com/xanzy/go-gitlab"
 )
 
 type GroupService struct {
 	client *gitlab.Client
-	config *config.AppConfig
+	config *config.GitlabConfig
+	logger zerolog.Logger
 }
 
-type GroupIdProcessorResult struct {
-	group *gitlab.Group
-	err   *model.Error
-}
-
-type GroupPageProcessorResult struct {
-	groups []*gitlab.Group
-	err    *model.Error
-}
-
-func NewGroupService(client *gitlab.Client, config *config.AppConfig) *GroupService {
+func NewGroupService(client *gitlab.Client, logger zerolog.Logger, config *config.GitlabConfig) *GroupService {
 	return &GroupService{
 		client: client,
 		config: config,
+		logger: logger,
 	}
 }
 
-func (g *GroupService) GetGroups() ([]*gitlab.Group, *model.Error) {
-	if len(g.config.GitlabGroupOnlyIds) > 0 {
-		return g.getGroupsById(g.config.GitlabGroupOnlyIds)
+func (g *GroupService) GetGroups() []*gitlab.Group {
+	if len(*g.config.GitlabGroupOnlyIds) > 0 {
+		return g.getGroupsById(*g.config.GitlabGroupOnlyIds)
 	}
 	return g.getAllGroups()
 }
 
-func (g *GroupService) getAllGroups() ([]*gitlab.Group, *model.Error) {
+func (g *GroupService) getAllGroups() []*gitlab.Group {
 	groups, resp, err := g.client.Groups.ListGroups(g.createListGroupOptions(1))
 	if err != nil {
-		return nil, model.NewError(resp.StatusCode, resp.Status)
+		g.logger.
+			Warn().
+			Int("status", resp.StatusCode).
+			Err(err).
+			Msg("Error while retrieving groups")
+		return make([]*gitlab.Group, 0)
 	}
 	if resp.NextPage == 0 || resp.TotalPages == 0 {
-		return groups, nil
+		return groups
 	}
 
 	capacity := resp.TotalPages - 1
 	jobs := make(chan int, capacity)
-	results := make(chan *GroupPageProcessorResult, capacity)
+	results := make(chan []*gitlab.Group, capacity)
 
 	for page := resp.NextPage; page <= resp.TotalPages; page++ {
 		go g.pageProcessor(jobs, results)
@@ -58,19 +56,15 @@ func (g *GroupService) getAllGroups() ([]*gitlab.Group, *model.Error) {
 	close(jobs)
 
 	for i := 0; i < capacity; i++ {
-		result := <-results
-		if result.err != nil {
-			return nil, result.err
-		}
-		groups = append(groups, result.groups...)
+		groups = append(groups, <-results...)
 	}
 
-	return groups, nil
+	return groups
 }
 
-func (g *GroupService) getGroupsById(groupIds []int) ([]*gitlab.Group, *model.Error) {
+func (g *GroupService) getGroupsById(groupIds []int) []*gitlab.Group {
 	jobs := make(chan int, len(groupIds))
-	results := make(chan *GroupIdProcessorResult, len(groupIds))
+	results := make(chan *gitlab.Group, len(groupIds))
 
 	for _, groupId := range groupIds {
 		go g.groupIdProcessor(jobs, results, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
@@ -81,37 +75,46 @@ func (g *GroupService) getGroupsById(groupIds []int) ([]*gitlab.Group, *model.Er
 	groups := []*gitlab.Group{}
 	for range groupIds {
 		result := <-results
-		if result.err != nil {
-			return nil, result.err
+		if result != nil {
+			groups = append(groups, result)
 		}
-		groups = append(groups, result.group)
 	}
 
 	sort.Slice(groups[:], func(i, j int) bool {
 		return groups[i].Name < groups[j].Name
 	})
 
-	return groups, nil
+	return groups
 }
 
-func (g *GroupService) groupIdProcessor(groupIds <-chan int, result chan<- *GroupIdProcessorResult, options *gitlab.GetGroupOptions) {
+func (g *GroupService) groupIdProcessor(groupIds <-chan int, result chan<- *gitlab.Group, options *gitlab.GetGroupOptions) {
 	for groupId := range groupIds {
 		group, resp, err := g.client.Groups.GetGroup(groupId, options)
 		if err != nil {
-			result <- &GroupIdProcessorResult{err: model.NewError(resp.StatusCode, resp.Status)}
+			g.logger.
+				Warn().
+				Int("status", resp.StatusCode).
+				Err(err).
+				Msg(fmt.Sprintf("Error while retrieving group with id: %d", groupId))
+			result <- nil
 		} else {
-			result <- &GroupIdProcessorResult{group: group}
+			result <- group
 		}
 	}
 }
 
-func (g *GroupService) pageProcessor(pageNumbers <-chan int, result chan<- *GroupPageProcessorResult) {
+func (g *GroupService) pageProcessor(pageNumbers <-chan int, result chan<- []*gitlab.Group) {
 	for pageNumber := range pageNumbers {
 		groups, resp, err := g.client.Groups.ListGroups(g.createListGroupOptions(pageNumber))
 		if err != nil {
-			result <- &GroupPageProcessorResult{err: model.NewError(resp.StatusCode, resp.Status)}
+			g.logger.
+				Warn().
+				Int("status", resp.StatusCode).
+				Err(err).
+				Msg("Error while retrieving groups")
+			result <- make([]*gitlab.Group, 0)
 		} else {
-			result <- &GroupPageProcessorResult{groups: groups}
+			result <- groups
 		}
 	}
 }
@@ -122,7 +125,7 @@ func (g *GroupService) createListGroupOptions(pageNumber int) *gitlab.ListGroups
 			Page:    pageNumber,
 			PerPage: 100,
 		},
-		TopLevelOnly: gitlab.Bool(g.config.GitlabGroupOnlyTopLevel),
-		SkipGroups:   &g.config.GitlabGroupSkipIds,
+		TopLevelOnly: &g.config.GitlabGroupOnlyTopLevel,
+		SkipGroups:   g.config.GitlabGroupSkipIds,
 	}
 }
