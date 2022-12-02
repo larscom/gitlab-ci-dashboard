@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net/http"
 	"os"
 	"time"
 
@@ -28,6 +29,11 @@ func NewServer(client *gitlab.Client, serverConfig *config.ServerConfig, gitlabC
 
 	apiGroup := server.Group("/api")
 	{
+		// path: /api/version
+		apiGroup.GET("/version", func(c echo.Context) error {
+			return c.String(http.StatusOK, os.Getenv("APP_VERSION"))
+		})
+
 		groupsGroup := apiGroup.Group("/groups")
 		{
 			// path: /api/groups

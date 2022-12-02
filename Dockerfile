@@ -17,6 +17,8 @@ RUN go build -o ./dist/api ./cmd/main.go
 
 FROM alpine:3.17
 WORKDIR /app
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 COPY --from=angular /builder/dist/gitlab-ci-dashboard ./statics
 COPY --from=golang /builder/dist/api ./api
 EXPOSE 8080

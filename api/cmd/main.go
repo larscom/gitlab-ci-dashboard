@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/larscom/gitlab-ci-dashboard/config"
@@ -11,7 +12,9 @@ import (
 )
 
 func main() {
+	fmt.Printf(":: Gitlab CI Dashboard :: (%s)\n", os.Getenv("APP_VERSION"))
 	fmt.Println("Loading environment: .local.env")
+
 	godotenv.Load(".local.env")
 
 	appConfig := config.NewGitlabConfig()

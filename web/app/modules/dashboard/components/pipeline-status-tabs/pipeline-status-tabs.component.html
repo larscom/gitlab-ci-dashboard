@@ -11,7 +11,7 @@
           <mat-tab>
             <ng-template mat-tab-label>
               <mat-icon [svgIcon]="'status_'+tab.status"></mat-icon>
-              {{ tab.status }} ({{ tab.projects.length }})
+              <span class="capitalize">{{ tab.status }} ({{ tab.projects.length }})</span>
             </ng-template>
             <gcd-project-table [projects]="tab.projects"></gcd-project-table>
           </mat-tab>
