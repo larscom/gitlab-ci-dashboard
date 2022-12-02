@@ -6,13 +6,14 @@
 [![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master-build.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
 [![Docker Image Version By Date](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?color=violet&label=latest%20build&sort=date)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard/tags?page=1&name=master)
 
-## :fire: Notice
-
-This app is under heavy development, not all features might be fully implemented yet :wink:
 
 > Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
 
 ### ✨ [Demo Dashboard](https://gitlab-ci-dashboard-g2yczvalwa-ez.a.run.app)
+
+## :fire: Notice
+
+This app is under heavy development, not all features might be fully implemented yet :wink:
 
 ## Highlights
 
