@@ -57,3 +57,4 @@ jobs:
         with:
           image: 'gcr.io/gitlab-ci-dashboard-370412/larscom/gitlab-ci-dashboard:master'
           service: 'gitlab-ci-dashboard'
+          region: 'europe-west4'
