@@ -24,17 +24,26 @@
         *matCellDef="let projectWithPipelines">{{ projectWithPipelines.project.default_branch }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="Source">
+      <th mat-header-cell
+        *matHeaderCellDef>Triggered by</th>
+      <td mat-cell
+        *matCellDef="let projectWithPipelines">{{ projectWithPipelines.pipelines[0]?.source || '-'}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="When">
+      <th mat-header-cell
+        *matHeaderCellDef>When</th>
+      <td mat-cell
+        *matCellDef="let projectWithPipelines">{{ (projectWithPipelines.pipelines[0]?.updated_at | displayTime) || '-'}}
+      </td>
+    </ng-container>
 
     <tr mat-header-row
       *matHeaderRowDef="displayedColumns; sticky: true">
     </tr>
 
     <tr mat-row
-      [ngClass]="{
-        'cursor-not-allowed' : !projectWithPipelines.pipelines[0],
-        'cursor-pointer': projectWithPipelines.pipelines[0],
-        'hover': projectWithPipelines.pipelines[0]
-      }"
       (click)="openGitlab(projectWithPipelines)"
       *matRowDef="let projectWithPipelines; columns: displayedColumns;">
     </tr>

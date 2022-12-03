@@ -6,7 +6,7 @@ import { DomSanitizer } from '@angular/platform-browser'
 import { ComponentsModule } from './components/components.module'
 
 @NgModule({
-  imports: [CommonModule, ComponentsModule, HttpClientModule, MatIconModule],
+  imports: [CommonModule, HttpClientModule, MatIconModule],
   exports: [ComponentsModule],
 })
 export class CoreModule {

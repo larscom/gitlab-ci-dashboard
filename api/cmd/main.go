@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	fmt.Printf(":: Gitlab CI Dashboard :: (%s)\n", os.Getenv("APP_VERSION"))
+	fmt.Printf(":: Gitlab CI Dashboard :: (%s)\n", os.Getenv("VERSION"))
 	fmt.Println("Loading environment: .local.env")
 
 	godotenv.Load(".local.env")

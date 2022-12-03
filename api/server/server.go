@@ -31,7 +31,7 @@ func NewServer(client *gitlab.Client, serverConfig *config.ServerConfig, gitlabC
 	{
 		// path: /api/version
 		apiGroup.GET("/version", func(c echo.Context) error {
-			return c.String(http.StatusOK, os.Getenv("APP_VERSION"))
+			return c.String(http.StatusOK, os.Getenv("VERSION"))
 		})
 
 		groupsGroup := apiGroup.Group("/groups")

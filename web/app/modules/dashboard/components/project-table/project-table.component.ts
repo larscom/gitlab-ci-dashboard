@@ -10,12 +10,14 @@ import { ProjectWithPipelines } from '../../models/project-with-pipelines'
 export class ProjectTableComponent {
   @Input() projects: ProjectWithPipelines[] = []
 
-  displayedColumns = ['Id', 'Name', 'Branch']
+  displayedColumns = ['Id', 'Name', 'Branch', 'Source', 'When']
 
-  openGitlab({ pipelines }: ProjectWithPipelines): void {
+  openGitlab({ pipelines, project }: ProjectWithPipelines): void {
     const latest = pipelines[0]
     if (latest) {
       window.open(latest.web_url, '_blank')
+    } else {
+      window.open(`${project.web_url}/-/pipelines`, '_blank')
     }
   }
 }

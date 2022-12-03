@@ -30,7 +30,7 @@ jobs:
         with:
           push: true
           tags: larscom/gitlab-ci-dashboard:master
-          build-args: "APP_VERSION=larscom/gitlab-ci-dashboard:master"
+          build-args: "VERSION=larscom/gitlab-ci-dashboard:master"
 
   build_and_publish_gcr:
     runs-on: ubuntu-latest
@@ -45,4 +45,4 @@ jobs:
           project_id: gitlab-ci-dashboard-370412
           image_name: larscom/gitlab-ci-dashboard
           image_tag: master
-          build_args: "APP_VERSION=larscom/gitlab-ci-dashboard:master"
+          build_args: "VERSION=larscom/gitlab-ci-dashboard:master"

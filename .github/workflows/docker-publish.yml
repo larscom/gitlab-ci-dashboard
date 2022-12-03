@@ -27,7 +27,7 @@ jobs:
         with:
           push: true
           tags: larscom/gitlab-ci-dashboard:latest,larscom/gitlab-ci-dashboard:${{ github.ref_name }}
-          build-args: APP_VERSION=larscom/gitlab-ci-dashboard:${{ github.ref_name }}
+          build-args: VERSION=larscom/gitlab-ci-dashboard:${{ github.ref_name }}
       -
         name: Update README
         uses: peter-evans/dockerhub-description@v2

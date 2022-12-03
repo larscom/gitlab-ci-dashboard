@@ -6,7 +6,7 @@ services:
     build:
       context: .
       args:
-        APP_VERSION: larscom/gitlab-ci-dashboard:dev
+        VERSION: larscom/gitlab-ci-dashboard:dev
     env_file:
       - ./api/.local.env
     ports:
