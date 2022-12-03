@@ -37,12 +37,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       -
+        name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: '${{ secrets.B64_GCLOUD_SERVICE_ACCOUNT_JSON }}'
+      -
         name: Build/Push to Google Cloud Registry
         uses: RafikFarhad/push-to-gcr-github-action@v5-beta
         with:
-          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
           registry: gcr.io
           project_id: gitlab-ci-dashboard-370412
           image_name: larscom/gitlab-ci-dashboard
           image_tag: master
           build_args: "VERSION=larscom/gitlab-ci-dashboard:master"
+      -
+        name: Deploy to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v1'
+        with:
+          image: 'gcr.io/gitlab-ci-dashboard-370412/larscom/gitlab-ci-dashboard:master'
+          service: 'gitlab-ci-dashboard'
