@@ -6,12 +6,12 @@ import {
 } from '@angular/core'
 import { map, Observable } from 'rxjs'
 import { GroupId } from '../../models/group'
-import { ProjectWithPipelines } from '../../models/project-with-pipelines'
+import { ProjectWithLatestPipeline } from '../../models/project-with-pipeline'
 import { ProjectService } from '../../services/project.service'
 
 interface Tab {
   status: string
-  projects: ProjectWithPipelines[]
+  projects: ProjectWithLatestPipeline[]
   groupId: GroupId
 }
 
@@ -29,18 +29,16 @@ export class PipelineStatusTabsComponent implements OnInit {
   constructor(private readonly projectService: ProjectService) {}
 
   ngOnInit(): void {
-    this.tabs$ = this.projectService
-      .getProjectsGroupedByStatus(this.groupId)
-      .pipe(
-        map((allProjects) =>
-          Object.entries(allProjects)
-            .map(([status, projects]) => ({
-              status,
-              projects,
-              groupId: this.groupId,
-            }))
-            .sort((a, b) => a.status.localeCompare(b.status))
-        )
+    this.tabs$ = this.projectService.getProjects(this.groupId).pipe(
+      map((all) =>
+        Object.entries(all)
+          .map(([status, projects]) => ({
+            status,
+            projects,
+            groupId: this.groupId,
+          }))
+          .sort((a, b) => a.status.localeCompare(b.status))
       )
+    )
   }
 }

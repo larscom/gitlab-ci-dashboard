@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
-import { ProjectWithPipelines } from '../../models/project-with-pipelines'
+import { ProjectWithLatestPipeline } from '../../models/project-with-pipeline'
 
 @Component({
   selector: 'gcd-project-table',
@@ -8,14 +8,13 @@ import { ProjectWithPipelines } from '../../models/project-with-pipelines'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectTableComponent {
-  @Input() projects: ProjectWithPipelines[] = []
+  @Input() projects: ProjectWithLatestPipeline[] = []
 
   displayedColumns = ['Id', 'Name', 'Branch', 'Source', 'When']
 
-  openGitlab({ pipelines, project }: ProjectWithPipelines): void {
-    const latest = pipelines[0]
-    if (latest) {
-      window.open(latest.web_url, '_blank')
+  openGitlab({ pipeline, project }: ProjectWithLatestPipeline): void {
+    if (pipeline) {
+      window.open(pipeline.web_url, '_blank')
     } else {
       window.open(`${project.web_url}/-/pipelines`, '_blank')
     }

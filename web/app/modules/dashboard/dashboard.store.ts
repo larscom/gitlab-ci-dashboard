@@ -8,11 +8,12 @@ import {
 } from '@ngneat/elf-requests'
 import { map } from 'rxjs'
 import { Group, GroupId } from './models/group'
-import { ProjectWithPipelines } from './models/project-with-pipelines'
+import { Status } from './models/pipeline'
+import { ProjectWithLatestPipeline } from './models/project-with-pipeline'
 
 export interface DashboardState {
   groups: Group[]
-  projects: Record<GroupId, ProjectWithPipelines[]>
+  projects: Record<GroupId, Record<Status, ProjectWithLatestPipeline[]>>
 }
 
 const { state, config } = createState(
@@ -40,14 +41,16 @@ export class DashboardStore {
   )
 
   updateGroups(groups: Group[]): void {
-    console.info('??')
     dashboardStore.update(
       (state) => ({ ...state, groups }),
       updateRequestStatus('groups', 'success')
     )
   }
 
-  updateProjects(groupId: GroupId, projects: ProjectWithPipelines[]): void {
+  updateProjects(
+    groupId: GroupId,
+    projects: Record<Status, ProjectWithLatestPipeline[]>
+  ): void {
     dashboardStore.update(
       (state) => ({
         ...state,

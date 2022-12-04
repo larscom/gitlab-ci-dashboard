@@ -23,7 +23,7 @@ func (p *PipelineService) GetPipelines(projectId int, ref string) []*gitlab.Pipe
 	options := &gitlab.ListProjectPipelinesOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
-			PerPage: 10,
+			PerPage: 5,
 		},
 		Ref: &ref,
 	}

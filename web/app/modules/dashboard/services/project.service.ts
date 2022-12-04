@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { firstValueFrom, map, Observable } from 'rxjs'
+import { map, Observable } from 'rxjs'
 import { DashboardStore, trackRequestsStatus } from '../dashboard.store'
 import { GroupId } from '../models/group'
 import { Status } from '../models/pipeline'
-import { ProjectWithPipelines } from '../models/project-with-pipelines'
+import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
 
 @Injectable()
 export class ProjectService {
@@ -18,35 +18,11 @@ export class ProjectService {
    *
    * @see DashboardStore
    */
-  getProjectsGroupedByStatus(
+  getProjects(
     groupId: GroupId
-  ): Observable<Record<Status, ProjectWithPipelines[]>> {
-    return this.getProjects(groupId).pipe(
-      map((projects) =>
-        projects.reduce((result, current) => {
-          const latest = current.pipelines[0]
-          if (!latest) {
-            result['unknown'] = result['unknown']
-              ? [...result['unknown'], current]
-              : [current]
-          } else if (result[latest.status]) {
-            result[latest.status] = [...result[latest.status], current]
-          } else {
-            result[latest.status] = [current]
-          }
-          return result
-        }, {} as Record<Status, ProjectWithPipelines[]>)
-      )
-    )
-  }
-
-  isLoading(): Observable<boolean> {
-    return this.dashboardStore.projectsLoading$
-  }
-
-  private getProjects(groupId: GroupId): Observable<ProjectWithPipelines[]> {
+  ): Observable<Record<Status, ProjectWithLatestPipeline[]>> {
     this.http
-      .get<ProjectWithPipelines[]>(
+      .get<Record<Status, ProjectWithLatestPipeline[]>>(
         `${location.origin}/api/groups/${groupId}/projects`
       )
       .pipe(trackRequestsStatus('projects'))
@@ -55,7 +31,11 @@ export class ProjectService {
       )
 
     return this.dashboardStore.projects$.pipe(
-      map((projects) => projects[groupId] || [])
+      map((projects) => projects[groupId] || {})
     )
+  }
+
+  isLoading(): Observable<boolean> {
+    return this.dashboardStore.projectsLoading$
   }
 }

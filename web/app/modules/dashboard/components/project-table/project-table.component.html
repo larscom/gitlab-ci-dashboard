@@ -8,35 +8,35 @@
       <th mat-header-cell
         *matHeaderCellDef>Id</th>
       <td mat-cell
-        *matCellDef="let projectWithPipelines">{{ projectWithPipelines.project.id }}</td>
+        *matCellDef="let projectWithPipeline">{{ projectWithPipeline.project.id }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Name">
       <th mat-header-cell
         *matHeaderCellDef>Name</th>
       <td mat-cell
-        *matCellDef="let projectWithPipelines">{{ projectWithPipelines.project.name }}</td>
+        *matCellDef="let projectWithPipeline">{{ projectWithPipeline.project.name }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Branch">
       <th mat-header-cell
         *matHeaderCellDef>Branch</th>
       <td mat-cell
-        *matCellDef="let projectWithPipelines">{{ projectWithPipelines.project.default_branch }}</td>
+        *matCellDef="let projectWithPipeline">{{ projectWithPipeline.project.default_branch }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Source">
       <th mat-header-cell
         *matHeaderCellDef>Triggered by</th>
       <td mat-cell
-        *matCellDef="let projectWithPipelines">{{ projectWithPipelines.pipelines[0]?.source || '-'}}</td>
+        *matCellDef="let projectWithPipeline">{{ projectWithPipeline.pipeline?.source || '-'}}</td>
     </ng-container>
 
     <ng-container matColumnDef="When">
       <th mat-header-cell
         *matHeaderCellDef>When</th>
       <td mat-cell
-        *matCellDef="let projectWithPipelines">{{ (projectWithPipelines.pipelines[0]?.updated_at | formatTime) || '-'}}
+        *matCellDef="let projectWithPipeline">{{ (projectWithPipeline.pipeline?.updated_at | formatTime) || '-'}}
       </td>
     </ng-container>
 
@@ -45,8 +45,8 @@
     </tr>
 
     <tr mat-row
-      (click)="openGitlab(projectWithPipelines)"
-      *matRowDef="let projectWithPipelines; columns: displayedColumns;">
+      (click)="openGitlab(projectWithPipeline)"
+      *matRowDef="let projectWithPipeline; columns: displayedColumns;">
     </tr>
 
   </table>

@@ -6,17 +6,22 @@
 </ng-container>
 <ng-template #projects>
   <ng-container *ngIf="tabs$ | async as tabs">
-    <mat-tab-group [mat-stretch-tabs]="false"
-      class="mt-4">
-      <ng-container *ngFor="let tab of tabs">
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon [svgIcon]="'status_'+tab.status"></mat-icon>
-            <span class="capitalize">{{ tab.status }} ({{ tab.projects.length }})</span>
-          </ng-template>
-          <gcd-project-table [projects]="tab.projects"></gcd-project-table>
-        </mat-tab>
-      </ng-container>
-    </mat-tab-group>
+    <ng-container *ngIf="tabs.length; else noTabs">
+      <mat-tab-group [mat-stretch-tabs]="false"
+        class="mt-4">
+        <ng-container *ngFor="let tab of tabs">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon [svgIcon]="'status_'+tab.status"></mat-icon>
+              <span class="capitalize">{{ tab.status }} ({{ tab.projects.length }})</span>
+            </ng-template>
+            <gcd-project-table [projects]="tab.projects"></gcd-project-table>
+          </mat-tab>
+        </ng-container>
+      </mat-tab-group>
+    </ng-container>
   </ng-container>
+  <ng-template #noTabs>
+    <p>No projects found...</p>
+  </ng-template>
 </ng-template>

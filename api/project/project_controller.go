@@ -17,7 +17,7 @@ func NewProjectController(projectService *ProjectService) *ProjectController {
 	}
 }
 
-func (p *ProjectController) GetProjectsWithPipelines(c echo.Context) error {
+func (p *ProjectController) GetProjectsGroupedByStatus(c echo.Context) error {
 	groupId, _ := strconv.Atoi(c.Param("groupId"))
-	return c.JSON(http.StatusOK, p.projectService.GetProjectsWithPipelines(groupId))
+	return c.JSON(http.StatusOK, p.projectService.GetProjectsGroupedByStatus(groupId))
 }
