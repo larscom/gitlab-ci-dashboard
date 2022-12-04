@@ -3,10 +3,10 @@ name: master
 'on':
   pull_request:
     branches:
-      - master
+      - $default-branch
   push:
     branches:
-      - master
+      - $default-branch
 
 jobs:
   build_and_publish_dockerhub:
@@ -30,7 +30,7 @@ jobs:
         with:
           push: true
           tags: larscom/gitlab-ci-dashboard:master
-          build-args: "VERSION=larscom/gitlab-ci-dashboard:master"
+          build-args: "VERSION_ARG=larscom/gitlab-ci-dashboard:master"
 
   build_and_publish_gcr:
     runs-on: ubuntu-latest
@@ -44,15 +44,17 @@ jobs:
           credentials_json: '${{ secrets.B64_GCLOUD_SERVICE_ACCOUNT_JSON }}'
       -
         name: Build/Push to Google Cloud Registry
+        id: push
         uses: RafikFarhad/push-to-gcr-github-action@v5-beta
         with:
           registry: gcr.io
           project_id: gitlab-ci-dashboard-370412
           image_name: larscom/gitlab-ci-dashboard
           image_tag: master
-          build_args: "VERSION=larscom/gitlab-ci-dashboard:master"
+          build_args: "VERSION_ARG=larscom/gitlab-ci-dashboard:master"
       -
         name: Deploy to Cloud Run
+        id: deploy
         uses: 'google-github-actions/deploy-cloudrun@v1'
         with:
           image: 'gcr.io/gitlab-ci-dashboard-370412/larscom/gitlab-ci-dashboard:master'
