@@ -8,7 +8,7 @@
     <span>Gitlab CI Dashboard</span>
   </div>
   <div class="flex gap-2 items-center">
-    <div class="text-xs hidden sm:block">{{ (version$ | async) || 'dev' }}</div>
+    <div class="text-xs hidden sm:block">{{ version$ | async }}</div>
     <img class="cursor-pointer"
       matTooltip="Open Github (source code)"
       matTooltipShowDelay="500"

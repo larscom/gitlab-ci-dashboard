@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   gitlab-ci-dashboard:
-    image: larscom/gitlab-ci-dashboard:dev
-    build:
-      context: .
-      args:
-        VERSION: larscom/gitlab-ci-dashboard:dev
+    image: larscom/gitlab-ci-dashboard
+    build: .
     env_file:
       - ./api/.local.env
     ports:

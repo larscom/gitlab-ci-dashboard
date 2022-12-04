@@ -23,7 +23,7 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["web/favicon.svg", "web/assets"],
+            "assets": ["web/favicon.svg", "web/manifest.json", "web/assets"],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
               "web/styles.scss"

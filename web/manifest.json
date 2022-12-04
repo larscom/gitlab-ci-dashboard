@@ -1,0 +1,13 @@
+{
+  "name": "Gitlab CI Dashboard",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "24x24",
+      "type": "svg+xml"
+    }
+  ],
+  "theme_color": "#212121",
+  "background_color": "#212121",
+  "display": "standalone"
+}
