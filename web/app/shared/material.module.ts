@@ -5,11 +5,13 @@ import { MatTableModule } from '@angular/material/table'
 import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { MatInputModule } from '@angular/material/input'
 
 const modules = [
   MatIconModule,
   MatTabsModule,
   MatTableModule,
+  MatInputModule,
   MatToolbarModule,
   MatTooltipModule,
   MatProgressBarModule,

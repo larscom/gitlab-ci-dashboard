@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs'
+import { map, Observable, share, shareReplay } from 'rxjs'
 import { DashboardStore, trackRequestsStatus } from '../dashboard.store'
 import { Group } from '../models/group'
 
@@ -16,13 +16,27 @@ export class GroupService {
    *
    * @see DashboardStore
    */
-  getGroups(): Observable<Group[]> {
+  fetchGroups(): Observable<Group[]> {
     this.http
       .get<Group[]>(`${location.origin}/api/groups`)
       .pipe(trackRequestsStatus('groups'))
       .subscribe((groups) => this.dashboardStore.updateGroups(groups))
 
     return this.dashboardStore.groups$
+  }
+
+  /**
+   * Search for groups inside store
+   *
+   * @see DashboardStore
+   */
+  search(query: string): Observable<Group[]> {
+    const filterBy = (value: string) =>
+      value.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+
+    return this.dashboardStore.groups$.pipe(
+      map((groups) => groups.filter(({ name }) => filterBy(name)))
+    )
   }
 
   isLoading(): Observable<boolean> {

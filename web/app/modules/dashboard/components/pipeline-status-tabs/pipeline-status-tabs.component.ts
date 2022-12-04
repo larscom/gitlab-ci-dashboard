@@ -29,7 +29,7 @@ export class PipelineStatusTabsComponent implements OnInit {
   constructor(private readonly projectService: ProjectService) {}
 
   ngOnInit(): void {
-    this.tabs$ = this.projectService.getProjects(this.groupId).pipe(
+    this.tabs$ = this.projectService.fetchProjects(this.groupId).pipe(
       map((all) =>
         Object.entries(all)
           .map(([status, projects]) => ({

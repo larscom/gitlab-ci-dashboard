@@ -18,7 +18,7 @@ export class ProjectService {
    *
    * @see DashboardStore
    */
-  getProjects(
+  fetchProjects(
     groupId: GroupId
   ): Observable<Record<Status, ProjectWithLatestPipeline[]>> {
     this.http
