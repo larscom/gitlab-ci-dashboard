@@ -1,12 +1,10 @@
 import { Component } from '@angular/core'
-import { GroupService } from './services/group.service'
 
 @Component({
   selector: 'gcd-dashboard-page',
-  templateUrl: './dashboard.page.html',
+  template: `
+    <h1>Groups</h1>
+    <gcd-group-tabs></gcd-group-tabs>
+  `,
 })
-export class DashboardPage {
-  constructor(private readonly groupService: GroupService) {
-    this.groupService.fetchGroups()
-  }
-}
+export class DashboardPage {}

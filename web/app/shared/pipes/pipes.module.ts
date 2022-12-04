@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
-import { DisplayTimePipe } from './display-time.pipe'
+import { FormatTimePipe } from './format-time.pipe'
 
-const pipes = [DisplayTimePipe]
+const pipes = [FormatTimePipe]
 
 @NgModule({ declarations: pipes, exports: pipes })
 export class PipesModule {}

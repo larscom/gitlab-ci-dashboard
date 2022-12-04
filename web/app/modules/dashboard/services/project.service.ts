@@ -13,12 +13,11 @@ export class ProjectService {
     private readonly http: HttpClient
   ) {}
 
-  getProjects(groupId: GroupId): Observable<ProjectWithPipelines[]> {
-    return this.dashboardStore.projects$.pipe(
-      map((projects) => projects[groupId] || [])
-    )
-  }
-
+  /**
+   * Fetch Projects with Pipelines from API and save to store
+   *
+   * @see DashboardStore
+   */
   getProjectsGroupedByStatus(
     groupId: GroupId
   ): Observable<Record<Status, ProjectWithPipelines[]>> {
@@ -45,19 +44,18 @@ export class ProjectService {
     return this.dashboardStore.projectsLoading$
   }
 
-  /**
-   * Fetch Projects with Pipelines from API and save to store
-   *
-   * @see DashboardStore
-   */
-  async fetchProjectsWithPipelines(groupId: GroupId): Promise<void> {
-    const projects = await firstValueFrom(
-      this.http
-        .get<ProjectWithPipelines[]>(
-          `${location.origin}/api/groups/${groupId}/projects`
-        )
-        .pipe(trackRequestsStatus('projects'))
+  private getProjects(groupId: GroupId): Observable<ProjectWithPipelines[]> {
+    this.http
+      .get<ProjectWithPipelines[]>(
+        `${location.origin}/api/groups/${groupId}/projects`
+      )
+      .pipe(trackRequestsStatus('projects'))
+      .subscribe((projects) =>
+        this.dashboardStore.updateProjects(groupId, projects)
+      )
+
+    return this.dashboardStore.projects$.pipe(
+      map((projects) => projects[groupId] || [])
     )
-    this.dashboardStore.updateProjects(groupId, projects)
   }
 }

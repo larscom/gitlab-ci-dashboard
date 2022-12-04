@@ -4,7 +4,7 @@ import {
   Input,
   OnInit,
 } from '@angular/core'
-import { map, Observable, of } from 'rxjs'
+import { map, Observable } from 'rxjs'
 import { GroupId } from '../../models/group'
 import { ProjectWithPipelines } from '../../models/project-with-pipelines'
 import { ProjectService } from '../../services/project.service'
@@ -23,13 +23,12 @@ interface Tab {
 export class PipelineStatusTabsComponent implements OnInit {
   @Input() groupId!: GroupId
 
-  tabs$: Observable<Tab[]> = of([])
+  tabs$!: Observable<Tab[]>
   loading$ = this.projectService.isLoading()
 
   constructor(private readonly projectService: ProjectService) {}
 
   ngOnInit(): void {
-    this.projectService.fetchProjectsWithPipelines(this.groupId)
     this.tabs$ = this.projectService
       .getProjectsGroupedByStatus(this.groupId)
       .pipe(

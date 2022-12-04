@@ -1,7 +1,8 @@
 <div class="mt-4 h-96 overflow-auto max-w-full">
+
   <table class="mat-elevation-z8 w-full"
-    mat-table
-    [dataSource]="projects">
+    [dataSource]="projects"
+    mat-table>
 
     <ng-container matColumnDef="Id">
       <th mat-header-cell
@@ -35,7 +36,7 @@
       <th mat-header-cell
         *matHeaderCellDef>When</th>
       <td mat-cell
-        *matCellDef="let projectWithPipelines">{{ (projectWithPipelines.pipelines[0]?.updated_at | displayTime) || '-'}}
+        *matCellDef="let projectWithPipelines">{{ (projectWithPipelines.pipelines[0]?.updated_at | formatTime) || '-'}}
       </td>
     </ng-container>
 
@@ -49,4 +50,5 @@
     </tr>
 
   </table>
+
 </div>

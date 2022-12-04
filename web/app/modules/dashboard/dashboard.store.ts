@@ -40,6 +40,7 @@ export class DashboardStore {
   )
 
   updateGroups(groups: Group[]): void {
+    console.info('??')
     dashboardStore.update(
       (state) => ({ ...state, groups }),
       updateRequestStatus('groups', 'success')

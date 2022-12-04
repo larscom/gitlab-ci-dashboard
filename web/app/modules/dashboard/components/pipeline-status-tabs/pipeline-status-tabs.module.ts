@@ -1,14 +1,12 @@
+import { MaterialModule } from '@/shared/material.module'
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { MatIconModule } from '@angular/material/icon'
-import { MatTabsModule } from '@angular/material/tabs'
 import { ProjectTableModule } from '../project-table/project-table.module'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs.component'
-import { MatProgressBarModule } from '@angular/material/progress-bar'
 
 @NgModule({
   declarations: [PipelineStatusTabsComponent],
-  imports: [CommonModule, MatTabsModule, MatIconModule, ProjectTableModule, MatProgressBarModule],
+  imports: [CommonModule, ProjectTableModule, MaterialModule],
   exports: [PipelineStatusTabsComponent],
 })
 export class PipelineStatusTabsModule {}

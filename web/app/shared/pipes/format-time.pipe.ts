@@ -9,8 +9,8 @@ const format: Intl.DateTimeFormatOptions = {
   second: 'numeric',
 }
 
-@Pipe({ name: 'displayTime' })
-export class DisplayTimePipe implements PipeTransform {
+@Pipe({ name: 'formatTime' })
+export class FormatTimePipe implements PipeTransform {
   transform(dateTime?: string): string | undefined {
     const languages = [...(navigator?.languages || ['en-US'])]
     return dateTime
