@@ -3,15 +3,22 @@
     mode="indeterminate"></mat-progress-bar>
 </ng-container>
 <ng-template #groups>
-  <mat-tab-group [mat-stretch-tabs]="false"
-    backgroundColor="primary"
-    animationDuration="0ms">
-    <ng-container *ngFor="let tab of tabs$ | async">
-      <mat-tab [label]="tab.name">
-        <ng-template matTabContent>
-          <gcd-pipeline-status-tabs [groupId]="tab.groupId"></gcd-pipeline-status-tabs>
-        </ng-template>
-      </mat-tab>
+  <ng-container *ngIf="tabs$ | async as tabs">
+    <ng-container *ngIf="tabs.length; else noTabs">
+      <mat-tab-group [mat-stretch-tabs]="false"
+        backgroundColor="primary"
+        animationDuration="0ms">
+        <ng-container *ngFor="let tab of tabs$ | async">
+          <mat-tab [label]="tab.name">
+            <ng-template matTabContent>
+              <gcd-pipeline-status-tabs [groupId]="tab.groupId"></gcd-pipeline-status-tabs>
+            </ng-template>
+          </mat-tab>
+        </ng-container>
+      </mat-tab-group>
     </ng-container>
-  </mat-tab-group>
+  </ng-container>
+  <ng-template #noTabs>
+    <p>No groups found...</p>
+  </ng-template>
 </ng-template>
