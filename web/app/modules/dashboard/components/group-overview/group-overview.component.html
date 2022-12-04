@@ -1,0 +1,17 @@
+<mat-form-field appearance="outline">
+  <input type="text"
+    [formControl]="search"
+    placeholder="Search Groups..."
+    matInput />
+  <button matTooltip="Clear search field"
+    matTooltipShowDelay="500"
+    matTooltipPosition="right"
+    mat-button
+    matSuffix
+    (click)="search.reset('')">
+    <mat-icon>restart_alt</mat-icon>
+  </button>
+</mat-form-field>
+<ng-container *ngIf="groups$ | async as groups">
+  <gcd-group-tabs [groups]="groups"></gcd-group-tabs>
+</ng-container>

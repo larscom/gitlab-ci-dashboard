@@ -18,7 +18,7 @@ interface Tab {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupTabsComponent implements OnChanges {
-  @Input() groups: Group[] = []
+  @Input() groups!: Group[]
 
   tabs: Tab[] | undefined
 
