@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { map, Observable } from 'rxjs'
-import { DashboardStore, trackRequestsStatus } from '../dashboard.store'
+import { Observable } from 'rxjs'
 import { GroupId } from '../models/group'
 import { Status } from '../models/pipeline'
 import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
+import { ProjectStore, trackRequestsStatus } from '../store/project-store'
 
 @Injectable()
 export class ProjectService {
   constructor(
-    private readonly dashboardStore: DashboardStore,
+    private readonly projectStore: ProjectStore,
     private readonly http: HttpClient
   ) {}
 
@@ -26,16 +26,25 @@ export class ProjectService {
         `${location.origin}/api/groups/${groupId}/projects`
       )
       .pipe(trackRequestsStatus('projects'))
-      .subscribe((projects) =>
-        this.dashboardStore.updateProjects(groupId, projects)
-      )
+      .subscribe((projects) => this.projectStore.update(projects))
 
-    return this.dashboardStore.projects$.pipe(
-      map((projects) => projects[groupId] || {})
-    )
+    return this.projectStore.projects$
+  }
+
+  filteredProjects(): Observable<Record<Status, ProjectWithLatestPipeline[]>> {
+    return this.projectStore.foundProjects$
+  }
+
+  /**
+   * Search for projects inside store
+   *
+   * @see DashboardStore
+   */
+  search(query: string): void {
+    this.projectStore.search(query)
   }
 
   isLoading(): Observable<boolean> {
-    return this.dashboardStore.projectsLoading$
+    return this.projectStore.projectsLoading$
   }
 }

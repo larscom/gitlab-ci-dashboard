@@ -1,0 +1,32 @@
+<div class="flex gap-2">
+  <mat-form-field appearance="outline">
+    <input type="text"
+      [formControl]="searchGroups"
+      placeholder="Search groups..."
+      matInput />
+    <button [disabled]="loading$ | async"
+      matTooltip="Clear search field"
+      matTooltipShowDelay="500"
+      matTooltipPosition="right"
+      mat-button
+      matSuffix
+      (click)="searchGroups.reset('')">
+      <mat-icon>restart_alt</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <input type="text"
+      [formControl]="searchProjects"
+      placeholder="Search projects..."
+      matInput />
+    <button [disabled]="loading$ | async"
+      matTooltip="Clear search field"
+      matTooltipShowDelay="500"
+      matTooltipPosition="right"
+      mat-button
+      matSuffix
+      (click)="searchProjects.reset('')">
+      <mat-icon>restart_alt</mat-icon>
+    </button>
+  </mat-form-field>
+</div>

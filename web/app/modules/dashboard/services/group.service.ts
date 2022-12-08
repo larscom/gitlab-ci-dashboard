@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { map, Observable, share, shareReplay } from 'rxjs'
-import { DashboardStore, trackRequestsStatus } from '../dashboard.store'
+import { Observable } from 'rxjs'
 import { Group } from '../models/group'
+import { GroupStore, trackRequestsStatus } from '../store/group-store'
 
 @Injectable()
 export class GroupService {
   constructor(
-    private readonly dashboardStore: DashboardStore,
+    private readonly groupStore: GroupStore,
     private readonly http: HttpClient
   ) {}
 
@@ -20,9 +20,17 @@ export class GroupService {
     this.http
       .get<Group[]>(`${location.origin}/api/groups`)
       .pipe(trackRequestsStatus('groups'))
-      .subscribe((groups) => this.dashboardStore.updateGroups(groups))
+      .subscribe((groups) => this.groupStore.update(groups))
 
-    return this.dashboardStore.groups$
+    return this.groupStore.groups$
+  }
+
+  filteredGroups(): Observable<Group[]> {
+    return this.groupStore.foundGroups$
+  }
+
+  isLoading(): Observable<boolean> {
+    return this.groupStore.groupsLoading$
   }
 
   /**
@@ -30,16 +38,7 @@ export class GroupService {
    *
    * @see DashboardStore
    */
-  search(query: string): Observable<Group[]> {
-    const filterBy = (value: string) =>
-      value.toLocaleLowerCase().includes(query.toLocaleLowerCase())
-
-    return this.dashboardStore.groups$.pipe(
-      map((groups) => groups.filter(({ name }) => filterBy(name)))
-    )
-  }
-
-  isLoading(): Observable<boolean> {
-    return this.dashboardStore.groupsLoading$
+  search(query: string): void {
+    this.groupStore.search(query)
   }
 }

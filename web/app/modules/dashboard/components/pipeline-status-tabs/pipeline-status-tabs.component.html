@@ -7,7 +7,8 @@
 <ng-template #projects>
   <ng-container *ngIf="tabs$ | async as tabs">
     <ng-container *ngIf="tabs.length; else noTabs">
-      <mat-tab-group [mat-stretch-tabs]="false"
+      <mat-tab-group animationDuration="0ms"
+        [mat-stretch-tabs]="false"
         class="mt-4">
         <ng-container *ngFor="let tab of tabs">
           <mat-tab>

@@ -23,10 +23,10 @@ func NewProjectService(client *gitlab.Client, logger zerolog.Logger, pipelineSer
 	}
 }
 
-func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) *map[string][]*model.ProjectWithLatestPipeline {
+func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]*model.ProjectWithLatestPipeline {
 	projects := p.getProjects(groupId)
 	jobs := make(chan *gitlab.Project, len(projects))
-	results := make(chan *map[string]*model.ProjectWithLatestPipeline, len(projects))
+	results := make(chan map[string]*model.ProjectWithLatestPipeline, len(projects))
 
 	for _, project := range projects {
 		go p.projectProcessor(jobs, results)
@@ -34,19 +34,19 @@ func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) *map[string][]*
 	}
 	close(jobs)
 
-	projectsWithPipelines := make(map[string][]*model.ProjectWithLatestPipeline)
+	projectsGroupedByStatus := make(map[string][]*model.ProjectWithLatestPipeline)
 	for range projects {
-		for key, value := range *<-results {
-			current, hasKey := projectsWithPipelines[key]
+		for key, value := range <-results {
+			current, hasKey := projectsGroupedByStatus[key]
 			if hasKey {
-				projectsWithPipelines[key] = append(current, value)
+				projectsGroupedByStatus[key] = append(current, value)
 			} else {
-				projectsWithPipelines[key] = []*model.ProjectWithLatestPipeline{value}
+				projectsGroupedByStatus[key] = []*model.ProjectWithLatestPipeline{value}
 			}
 		}
 	}
 
-	return &projectsWithPipelines
+	return projectsGroupedByStatus
 }
 
 func (p *ProjectService) getProjects(groupId int) []*gitlab.Project {
@@ -80,14 +80,14 @@ func (p *ProjectService) getProjects(groupId int) []*gitlab.Project {
 	return projects
 }
 
-func (p *ProjectService) projectProcessor(projects <-chan *gitlab.Project, result chan<- *map[string]*model.ProjectWithLatestPipeline) {
+func (p *ProjectService) projectProcessor(projects <-chan *gitlab.Project, result chan<- map[string]*model.ProjectWithLatestPipeline) {
 	for project := range projects {
 		pipelines := p.pipelineService.GetPipelines(project.ID, project.DefaultBranch)
 		if len(pipelines) > 0 {
 			latest := pipelines[0]
-			result <- &map[string]*model.ProjectWithLatestPipeline{latest.Status: {Project: project, Pipeline: latest}}
+			result <- map[string]*model.ProjectWithLatestPipeline{latest.Status: {Project: project, Pipeline: latest}}
 		} else {
-			result <- &map[string]*model.ProjectWithLatestPipeline{"unknown": {Project: project}}
+			result <- map[string]*model.ProjectWithLatestPipeline{"unknown": {Project: project}}
 		}
 	}
 }

@@ -3,7 +3,7 @@
     mode="indeterminate"></mat-progress-bar>
 </ng-container>
 <ng-template #groups>
-  <ng-container *ngIf="tabs">
+  <ng-container *ngIf="tabs$ | async as tabs">
     <ng-container *ngIf="tabs.length; else noTabs">
       <mat-tab-group [mat-stretch-tabs]="false"
         backgroundColor="primary"

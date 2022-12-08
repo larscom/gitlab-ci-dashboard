@@ -4,7 +4,7 @@ import {
   Input,
   OnInit,
 } from '@angular/core'
-import { map, Observable } from 'rxjs'
+import { filter, map, Observable } from 'rxjs'
 import { GroupId } from '../../models/group'
 import { ProjectWithLatestPipeline } from '../../models/project-with-pipeline'
 import { ProjectService } from '../../services/project.service'
@@ -29,15 +29,19 @@ export class PipelineStatusTabsComponent implements OnInit {
   constructor(private readonly projectService: ProjectService) {}
 
   ngOnInit(): void {
-    this.tabs$ = this.projectService.fetchProjects(this.groupId).pipe(
-      map((all) =>
-        Object.entries(all)
-          .map(([status, projects]) => ({
-            status,
-            projects,
-            groupId: this.groupId,
-          }))
-          .sort((a, b) => a.status.localeCompare(b.status))
+    this.projectService.fetchProjects(this.groupId)
+    this.tabs$ = this.projectService.filteredProjects().pipe(
+      map(
+        (all) =>
+          Object.entries(all)
+            .filter(([_, projects]) => projects.length > 0)
+            .map(([status, projects]) => ({
+              status,
+              projects,
+              groupId: this.groupId,
+            }))
+
+            .sort((a, b) => a.status.localeCompare(b.status)) as any
       )
     )
   }
