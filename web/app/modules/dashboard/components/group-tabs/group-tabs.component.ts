@@ -30,6 +30,4 @@ export class GroupTabsComponent implements OnInit {
       )
     )
   }
-
-  ngOnChanges(): void {}
 }
