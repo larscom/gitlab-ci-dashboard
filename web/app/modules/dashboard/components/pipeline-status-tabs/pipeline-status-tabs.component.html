@@ -5,6 +5,7 @@
   </mat-progress-bar>
 </ng-container>
 <ng-template #projects>
+  <gcd-project-filter></gcd-project-filter>
   <ng-container *ngIf="tabs$ | async as tabs">
     <ng-container *ngIf="tabs.length; else noTabs">
       <mat-tab-group animationDuration="0ms"

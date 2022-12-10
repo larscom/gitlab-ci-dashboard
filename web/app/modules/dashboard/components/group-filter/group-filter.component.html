@@ -1,0 +1,16 @@
+<mat-form-field appearance="outline">
+  <input type="text"
+    [formControl]="search"
+    [readonly]="loading$ | async"
+    placeholder="Search groups..."
+    matInput />
+  <button [disabled]="loading$ | async"
+    matTooltip="Clear search field"
+    matTooltipShowDelay="500"
+    matTooltipPosition="right"
+    mat-button
+    matSuffix
+    (click)="search.reset('')">
+    <mat-icon>restart_alt</mat-icon>
+  </button>
+</mat-form-field>
