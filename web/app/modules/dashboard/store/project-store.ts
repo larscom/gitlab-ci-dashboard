@@ -1,4 +1,3 @@
-import { filterBy } from '@/app/shared/util/filters'
 import { Injectable } from '@angular/core'
 import { createState, select, Store, withProps } from '@ngneat/elf'
 import {
@@ -7,17 +6,22 @@ import {
   updateRequestStatus,
   withRequestsStatus,
 } from '@ngneat/elf-requests'
-import { map, Observable, withLatestFrom } from 'rxjs'
+import { map } from 'rxjs'
 import { Status } from '../models/pipeline'
 import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
 
 export interface ProjectState {
   readonly projects: Record<Status, ProjectWithLatestPipeline[]>
-  readonly query: string
+  readonly filterText: string
+  readonly filterTopics: string[]
 }
 
 const { state, config } = createState(
-  withProps<ProjectState>({ projects: Object(), query: '' }),
+  withProps<ProjectState>({
+    projects: Object(),
+    filterText: '',
+    filterTopics: [],
+  }),
   withRequestsStatus()
 )
 
@@ -34,32 +38,25 @@ export class ProjectStore {
     map(({ value }) => value === 'pending')
   )
 
-  readonly foundProjects$: Observable<
-    Record<Status, ProjectWithLatestPipeline[]>
-  > = projectStore.pipe(
-    select(({ query }) => query),
-    withLatestFrom(this.projects$),
-    map(([query, all]) => {
-      return Object.keys(all).reduce((result, key) => {
-        const projects = Object(all)[key] as ProjectWithLatestPipeline[]
-        return {
-          ...result,
-          [key]: projects.filter(({ project: { name } }) =>
-            filterBy(name, query)
-          ),
-        }
-      }, {} as Record<Status, ProjectWithLatestPipeline[]>)
-    })
+  readonly filterText$ = projectStore.pipe(
+    select(({ filterText }) => filterText)
+  )
+  readonly filterTopics$ = projectStore.pipe(
+    select(({ filterTopics }) => filterTopics)
   )
 
-  update(projects: Record<Status, ProjectWithLatestPipeline[]>): void {
+  setProjects(projects: Record<Status, ProjectWithLatestPipeline[]>): void {
     projectStore.update(
       (state) => ({ ...state, projects }),
       updateRequestStatus('projects', 'success')
     )
   }
 
-  search(query: string): void {
-    projectStore.update((state) => ({ ...state, query }))
+  setFilterText(filterText: string): void {
+    projectStore.update((state) => ({ ...state, filterText }))
+  }
+
+  setFilterTopics(filterTopics: string[]): void {
+    projectStore.update((state) => ({ ...state, filterTopics }))
   }
 }

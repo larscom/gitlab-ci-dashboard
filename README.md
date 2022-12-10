@@ -6,7 +6,6 @@
 [![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master-build.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
 [![Docker Image Version By Date](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?color=violet&label=latest%20build&sort=date)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard/tags?page=1&name=master)
 
-
 > Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
 
 ### ✨ [Demo Dashboard](https://gitlab-ci-dashboard-g2yczvalwa-ez.a.run.app)
@@ -60,10 +59,10 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 
 ## Server specific env variables
 
-| Variable                      | Type    | Description                                             | Default |
-| ----------------------------- | ------- | ------------------------------------------------------- | ------- |
-| SERVER_REST_CACHE_TTL_SECONDS | integer | Time to Live (in seconds) for projects/groups/pipelines | 10      |
-| SERVER_DEBUG                  | boolean | Gives you more logging to see what is happening         | false   |
+| Variable                 | Type    | Description                                             | Default |
+| ------------------------ | ------- | ------------------------------------------------------- | ------- |
+| SERVER_CACHE_TTL_SECONDS | integer | Time to Live (in seconds) for projects/groups/pipelines | 10      |
+| SERVER_DEBUG             | boolean | Gives you more logging to see what is happening         | false   |
 
 ## Why?
 
@@ -74,6 +73,7 @@ This dashboard is `not` a replacement for Gitlab, it is supposed to give you a `
 ## Run without docker (development)
 
 Be sure you have the following dependencies installed
+
 - Node 14+
 - Go 1.19+
 

@@ -1,6 +1,7 @@
 import { GroupService } from '@/modules/dashboard/services/group.service'
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { FormControl } from '@angular/forms'
+import { MatChipListboxChange } from '@angular/material/chips'
 import {
   combineLatest,
   debounceTime,
@@ -25,6 +26,8 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     this.projectService.isLoading(),
   ]).pipe(map((values) => values.some((value) => value)))
 
+  readonly topics$ = this.projectService.getTopics()
+
   private readonly destroy = new Subject<void>()
 
   constructor(
@@ -35,15 +38,19 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.searchGroups.valueChanges
       .pipe(takeUntil(this.destroy), debounceTime(200), distinctUntilChanged())
-      .subscribe((value) => this.groupService.search(value!))
+      .subscribe((value) => this.groupService.setFilterText(value!))
 
     this.searchProjects.valueChanges
       .pipe(takeUntil(this.destroy), debounceTime(200), distinctUntilChanged())
-      .subscribe((value) => this.projectService.search(value!))
+      .subscribe((value) => this.projectService.setFilterText(value!))
   }
 
   ngOnDestroy(): void {
     this.destroy.next()
     this.destroy.complete()
+  }
+
+  onTopicsChange({ value: topics }: MatChipListboxChange): void {
+    this.projectService.setFilterTopics(topics)
   }
 }

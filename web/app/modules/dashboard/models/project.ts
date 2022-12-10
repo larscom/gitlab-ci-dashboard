@@ -12,4 +12,5 @@ export interface Project {
   default_branch: string
   web_url: string
   namespace: Namespace
+  topics: string[]
 }

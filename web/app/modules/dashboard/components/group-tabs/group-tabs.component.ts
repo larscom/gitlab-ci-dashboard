@@ -17,12 +17,11 @@ export class GroupTabsComponent implements OnInit {
 
   readonly groupsLoading$ = this.groupService.isLoading()
 
-  constructor(private readonly groupService: GroupService) {
-    this.groupService.fetchGroups().subscribe()
-  }
+  constructor(private readonly groupService: GroupService) {}
 
   ngOnInit(): void {
-    this.tabs$ = this.groupService.filteredGroups().pipe(
+    this.groupService.fetchGroups()
+    this.tabs$ = this.groupService.getFilteredGroups().pipe(
       map((groups) =>
         groups.map(({ name, id: groupId }) => ({
           name: name.toLocaleUpperCase(),

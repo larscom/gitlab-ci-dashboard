@@ -4,7 +4,7 @@ import {
   Input,
   OnInit,
 } from '@angular/core'
-import { filter, map, Observable } from 'rxjs'
+import { map, Observable } from 'rxjs'
 import { GroupId } from '../../models/group'
 import { ProjectWithLatestPipeline } from '../../models/project-with-pipeline'
 import { ProjectService } from '../../services/project.service'
@@ -30,7 +30,7 @@ export class PipelineStatusTabsComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectService.fetchProjects(this.groupId)
-    this.tabs$ = this.projectService.filteredProjects().pipe(
+    this.tabs$ = this.projectService.getFilteredProjects().pipe(
       map(
         (all) =>
           Object.entries(all)

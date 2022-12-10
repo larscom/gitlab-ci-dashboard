@@ -1,32 +1,45 @@
-<div class="flex gap-2">
-  <mat-form-field appearance="outline">
-    <input type="text"
-      [formControl]="searchGroups"
-      placeholder="Search groups..."
-      matInput />
-    <button [disabled]="loading$ | async"
-      matTooltip="Clear search field"
-      matTooltipShowDelay="500"
-      matTooltipPosition="right"
-      mat-button
-      matSuffix
-      (click)="searchGroups.reset('')">
-      <mat-icon>restart_alt</mat-icon>
-    </button>
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <input type="text"
-      [formControl]="searchProjects"
-      placeholder="Search projects..."
-      matInput />
-    <button [disabled]="loading$ | async"
-      matTooltip="Clear search field"
-      matTooltipShowDelay="500"
-      matTooltipPosition="right"
-      mat-button
-      matSuffix
-      (click)="searchProjects.reset('')">
-      <mat-icon>restart_alt</mat-icon>
-    </button>
-  </mat-form-field>
+<div class="flex justify-between">
+  <div class="flex gap-2">
+    <mat-form-field appearance="outline">
+      <input type="text"
+        [formControl]="searchGroups"
+        placeholder="Search groups..."
+        matInput />
+      <button [disabled]="loading$ | async"
+        matTooltip="Clear search field"
+        matTooltipShowDelay="500"
+        matTooltipPosition="right"
+        mat-button
+        matSuffix
+        (click)="searchGroups.reset('')">
+        <mat-icon>restart_alt</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <input type="text"
+        [formControl]="searchProjects"
+        placeholder="Search projects..."
+        matInput />
+      <button [disabled]="loading$ | async"
+        matTooltip="Clear search field"
+        matTooltipShowDelay="500"
+        matTooltipPosition="right"
+        mat-button
+        matSuffix
+        (click)="searchProjects.reset('')">
+        <mat-icon>restart_alt</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+  <ng-container *ngIf="topics$ | async as topics">
+    <ng-container *ngIf="topics.size">
+      <mat-chip-listbox (change)="onTopicsChange($event)"
+        [multiple]="true">
+        <ng-container *ngFor="let topic of topics">
+          <mat-chip-option [disabled]="loading$ | async"
+            color="accent"><span class="lowercase">{{ topic }}</span></mat-chip-option>
+        </ng-container>
+      </mat-chip-listbox>
+    </ng-container>
+  </ng-container>
 </div>

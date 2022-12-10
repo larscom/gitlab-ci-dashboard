@@ -22,14 +22,14 @@ func NewServerConfig() *ServerConfig {
 func getCacheTTLSeconds() int {
 	var cacheTTL = 10
 
-	ttlString, found := os.LookupEnv("SERVER_REST_CACHE_TTL_SECONDS")
+	ttlString, found := os.LookupEnv("SERVER_CACHE_TTL_SECONDS")
 	if found {
 		val, err := strconv.Atoi(ttlString)
 		if err != nil {
-			log.Fatalf("SERVER_REST_CACHE_TTL_SECONDS contains: '%s' which is not an integer", ttlString)
+			log.Fatalf("SERVER_CACHE_TTL_SECONDS contains: '%s' which is not an integer", ttlString)
 		}
 		cacheTTL = val
-		fmt.Printf("SERVER_REST_CACHE_TTL_SECONDS=%d\n", cacheTTL)
+		fmt.Printf("SERVER_CACHE_TTL_SECONDS=%d\n", cacheTTL)
 	}
 
 	return cacheTTL
