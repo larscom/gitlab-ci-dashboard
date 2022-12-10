@@ -43,7 +43,7 @@ func NewServer(client *gitlab.Client, serverConfig *config.ServerConfig, gitlabC
 			projectsGroup := groupsGroup.Group("/:groupId/projects")
 			{
 				// path: /api/groups/{gid}/projects
-				handler := project.NewProjectController(project.NewProjectService(client, logger, pipelineService))
+				handler := project.NewProjectController(project.NewProjectService(client, logger, pipelineService, gitlabConfig))
 				projectsGroup.GET("", handler.GetProjectsGroupedByStatus)
 
 				pipelinesGroup := projectsGroup.Group("/:projectId/pipelines")

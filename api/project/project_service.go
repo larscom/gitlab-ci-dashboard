@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 
+	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/rs/zerolog"
@@ -13,13 +14,15 @@ type ProjectService struct {
 	client          *gitlab.Client
 	logger          zerolog.Logger
 	pipelineService *pipeline.PipelineService
+	config          *config.GitlabConfig
 }
 
-func NewProjectService(client *gitlab.Client, logger zerolog.Logger, pipelineService *pipeline.PipelineService) *ProjectService {
+func NewProjectService(client *gitlab.Client, logger zerolog.Logger, pipelineService *pipeline.PipelineService, config *config.GitlabConfig) *ProjectService {
 	return &ProjectService{
 		client:          client,
 		logger:          logger,
 		pipelineService: pipelineService,
+		config:          config,
 	}
 }
 
@@ -36,12 +39,15 @@ func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]*m
 
 	projectsGroupedByStatus := make(map[string][]*model.ProjectWithLatestPipeline)
 	for range projects {
-		for key, value := range <-results {
-			current, hasKey := projectsGroupedByStatus[key]
-			if hasKey {
-				projectsGroupedByStatus[key] = append(current, value)
+		for status, project := range <-results {
+			if status == "unknown" && p.config.GitlabProjectHideUnknown {
+				continue
+			}
+			current, hasStatus := projectsGroupedByStatus[status]
+			if hasStatus {
+				projectsGroupedByStatus[status] = append(current, project)
 			} else {
-				projectsGroupedByStatus[key] = []*model.ProjectWithLatestPipeline{value}
+				projectsGroupedByStatus[status] = []*model.ProjectWithLatestPipeline{project}
 			}
 		}
 	}

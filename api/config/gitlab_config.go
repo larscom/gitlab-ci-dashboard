@@ -9,26 +9,32 @@ import (
 )
 
 type GitlabConfig struct {
-	GitlabToken             string
-	GitlabUrl               string
+	GitlabToken string
+	GitlabUrl   string
+
 	GitlabGroupSkipIds      *[]int
 	GitlabGroupOnlyIds      *[]int
 	GitlabGroupOnlyTopLevel bool
+
+	GitlabProjectHideUnknown bool
 }
 
 func NewGitlabConfig() *GitlabConfig {
 	gitlabUrl := getBaseUrl()
 	gitlabToken := getToken()
+
 	gitlabGroupSkipIds := getSkippedGroupIds()
 	gitlabGroupOnlyIds := getOnlyGroupIds()
 	gitlabGroupOnlyTopLevel := getOnlyTopLevelGroups()
+	gitlabProjectHideUnknown := getHideUnknownProjects()
 
 	return &GitlabConfig{
-		GitlabUrl:               gitlabUrl,
-		GitlabToken:             gitlabToken,
-		GitlabGroupSkipIds:      gitlabGroupSkipIds,
-		GitlabGroupOnlyIds:      gitlabGroupOnlyIds,
-		GitlabGroupOnlyTopLevel: gitlabGroupOnlyTopLevel,
+		GitlabUrl:                gitlabUrl,
+		GitlabToken:              gitlabToken,
+		GitlabGroupSkipIds:       gitlabGroupSkipIds,
+		GitlabGroupOnlyIds:       gitlabGroupOnlyIds,
+		GitlabGroupOnlyTopLevel:  gitlabGroupOnlyTopLevel,
+		GitlabProjectHideUnknown: gitlabProjectHideUnknown,
 	}
 }
 
@@ -100,4 +106,20 @@ func getOnlyTopLevelGroups() bool {
 	}
 
 	return onlyTopLevelGroups
+}
+
+func getHideUnknownProjects() bool {
+	var hideUnknown = false
+
+	hideUnknownString, found := os.LookupEnv("GITLAB_PROJECT_HIDE_UNKNOWN")
+	if found {
+		var err error = nil
+		hideUnknown, err = strconv.ParseBool(hideUnknownString)
+		if err != nil {
+			log.Fatalf("GITLAB_PROJECT_HIDE_UNKNOWN contains: '%s' which is not a boolean", hideUnknownString)
+		}
+		fmt.Printf("GITLAB_PROJECT_HIDE_UNKNOWN=%t\n", hideUnknown)
+	}
+
+	return hideUnknown
 }

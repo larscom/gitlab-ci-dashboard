@@ -56,6 +56,7 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 | GITLAB_GROUP_ONLY_IDS       | string  | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |         |
 | GITLAB_GROUP_SKIP_IDS       | string  | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |         |
 | GITLAB_GROUP_ONLY_TOP_LEVEL | boolean | Show only top level groups                                                                             | no       | false   |
+| GITLAB_PROJECT_HIDE_UNKNOWN | boolean | Hide projects with 'unknown' pipeline status                                                           | no       | false   |
 
 ## Server specific env variables
 
