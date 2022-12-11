@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { FormControl } from '@angular/forms'
 import { MatChipListboxChange } from '@angular/material/chips'
+import { ProjectService } from '@modules/dashboard/project/services/project.service'
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs'
-import { ProjectService } from '../../services/project.service'
 
 @Component({
   selector: 'gcd-project-filter',

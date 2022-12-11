@@ -1,5 +1,5 @@
+import { ProjectWithLatestPipeline } from '@app/core/models/project-with-pipeline'
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
-import { ProjectWithLatestPipeline } from '../../models/project-with-pipeline'
 
 @Component({
   selector: 'gcd-project-table',

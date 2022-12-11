@@ -1,11 +1,14 @@
-import { filterBy } from '@/app/shared/util/filters'
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
+import { GroupId } from '@app/core/models/group'
+import { Status } from '@app/core/models/pipeline'
+import { ProjectWithLatestPipeline } from '@app/core/models/project-with-pipeline'
+import { filterBy } from '@app/shared/util/filters'
+import {
+  ProjectStore,
+  trackRequestsStatus,
+} from '@modules/dashboard/project/store/project-store'
 import { combineLatest, firstValueFrom, map, Observable } from 'rxjs'
-import { GroupId } from '../models/group'
-import { Status } from '../models/pipeline'
-import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
-import { ProjectStore, trackRequestsStatus } from '../store/project-store'
 
 @Injectable()
 export class ProjectService {

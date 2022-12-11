@@ -1,6 +1,6 @@
-import { GroupService } from '@/modules/dashboard/services/group.service'
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { FormControl } from '@angular/forms'
+import { GroupService } from '@modules/dashboard/group/services/group.service'
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs'
 
 @Component({

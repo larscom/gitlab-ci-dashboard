@@ -1,9 +1,12 @@
-import { filterBy } from '@/app/shared/util/filters'
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
+import { Group } from '@app/core/models/group'
+import { filterBy } from '@app/shared/util/filters'
+import {
+  GroupStore,
+  trackRequestsStatus,
+} from '@modules/dashboard/group/store/group-store'
 import { combineLatest, firstValueFrom, map, Observable } from 'rxjs'
-import { Group } from '../models/group'
-import { GroupStore, trackRequestsStatus } from '../store/group-store'
 
 @Injectable()
 export class GroupService {

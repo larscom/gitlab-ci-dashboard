@@ -1,3 +1,5 @@
+import { Status } from '@app/core/models/pipeline'
+import { ProjectWithLatestPipeline } from '@app/core/models/project-with-pipeline'
 import { Injectable } from '@angular/core'
 import { createState, select, Store, withProps } from '@ngneat/elf'
 import {
@@ -7,8 +9,6 @@ import {
   withRequestsStatus,
 } from '@ngneat/elf-requests'
 import { map } from 'rxjs'
-import { Status } from '../models/pipeline'
-import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
 
 export interface ProjectState {
   readonly projects: Record<Status, ProjectWithLatestPipeline[]>

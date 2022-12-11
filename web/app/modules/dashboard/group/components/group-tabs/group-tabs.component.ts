@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
+import { GroupId } from '@app/core/models/group'
+import { GroupService } from '@modules/dashboard/group/services/group.service'
 import { map, Observable } from 'rxjs'
-import { GroupId } from '../../models/group'
-import { GroupService } from '../../services/group.service'
 
 interface Tab {
   name: string

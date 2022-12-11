@@ -1,3 +1,4 @@
+import { Group } from '@app/core/models/group'
 import { Injectable } from '@angular/core'
 import { createState, select, Store, withProps } from '@ngneat/elf'
 import {
@@ -7,7 +8,6 @@ import {
   withRequestsStatus,
 } from '@ngneat/elf-requests'
 import { map } from 'rxjs'
-import { Group } from '../models/group'
 
 export interface GroupState {
   readonly groups: Group[]

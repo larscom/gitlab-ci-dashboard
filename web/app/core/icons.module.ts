@@ -1,4 +1,4 @@
-import { MaterialModule } from '@/shared/material.module'
+import { MaterialModule } from '@shared/material.module'
 import { HttpClient } from '@angular/common/http'
 import { NgModule } from '@angular/core'
 import { MatIconRegistry } from '@angular/material/icon'

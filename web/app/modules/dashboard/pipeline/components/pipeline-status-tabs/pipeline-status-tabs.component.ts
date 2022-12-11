@@ -1,3 +1,6 @@
+import { GroupId } from '@app/core/models/group'
+import { ProjectWithLatestPipeline } from '@app/core/models/project-with-pipeline'
+import { ProjectService } from '@modules/dashboard/project/services/project.service'
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,9 +8,6 @@ import {
   OnInit,
 } from '@angular/core'
 import { map, Observable } from 'rxjs'
-import { GroupId } from '../../models/group'
-import { ProjectWithLatestPipeline } from '../../models/project-with-pipeline'
-import { ProjectService } from '../../services/project.service'
 
 interface Tab {
   status: string
