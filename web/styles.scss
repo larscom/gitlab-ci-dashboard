@@ -2,6 +2,7 @@
 @import '@fontsource/roboto/400.css';
 @import '@fontsource/roboto/500.css';
 @import 'material-icons/iconfont/filled.css';
+@import 'input.scss';
 
 @tailwind base;
 @tailwind components;
@@ -32,8 +33,4 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background-color: #9e9e9e;
-}
-
-mat-form-field {
-  margin-bottom: -1.25em;
 }
