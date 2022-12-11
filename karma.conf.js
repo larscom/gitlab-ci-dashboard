@@ -44,7 +44,7 @@ module.exports = function (config) {
           '--disable-extensions',
           '--no-sandbox',
           '--disable-gpu',
-          ' --remote-debugging-port=9222'
+          '--remote-debugging-port=9222'
         ]
       }
     },

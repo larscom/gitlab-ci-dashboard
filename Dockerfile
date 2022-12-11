@@ -6,7 +6,6 @@ WORKDIR /builder
 COPY . .
 
 RUN npm ci --legacy-peer-deps --ignore-scripts && \
-    npm run test:ci && \
     npm run build
 
 FROM golang:1.19.3-alpine AS golang

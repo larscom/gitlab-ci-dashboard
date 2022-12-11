@@ -9,26 +9,35 @@ name: master
       - master
 
 jobs:
-  build_and_publish_dockerhub:
+  test_and_codecov:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci --ignore-scripts --legacy-peer-deps
+      - run: npm run test:ci
+      - run: $(npm bin)/codecov --disable=gcov -f coverage/coverage-final.json
+
+  build_and_publish_dockerhub:
+    needs: test_and_codecov
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build/Push to Docker Hub
-        uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v3
         with:
           push: true
           tags: larscom/gitlab-ci-dashboard:master
           build-args: VERSION_ARG=${{ github.sha }}
 
   build_and_publish_gcr:
+    needs: test_and_codecov
     env:
       PROJECT_ID: gitlab-ci-dashboard-370412
       SERVICE: gitlab-ci-dashboard
@@ -37,23 +46,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v0
+      - uses: google-github-actions/auth@v0
         with:
           credentials_json: '${{ secrets.B64_GCLOUD_SERVICE_ACCOUNT_JSON }}'
-      - name: Build/Push to Google Cloud Registry
-        id: push
-        uses: RafikFarhad/push-to-gcr-github-action@v5-beta
+      - uses: RafikFarhad/push-to-gcr-github-action@v5-beta
         with:
           registry: ${{ env.REGISTRY }}
           project_id: ${{ env.PROJECT_ID }}
           image_name: larscom/gitlab-ci-dashboard
           image_tag: master
           build_args: VERSION_ARG=${{ github.sha }}
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v1
+      - uses: google-github-actions/deploy-cloudrun@v1
         with:
           image: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/larscom/gitlab-ci-dashboard:master
           service: ${{ env.SERVICE }}
