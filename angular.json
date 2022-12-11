@@ -83,6 +83,7 @@
           "options": {
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
             "assets": ["web/favicon.svg", "web/manifest.json", "web/assets"],
             "styles": [
