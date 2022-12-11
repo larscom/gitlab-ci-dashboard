@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 import { map, Observable } from 'rxjs'
 import { GroupId } from '../../models/group'
 import { GroupService } from '../../services/group.service'
@@ -15,7 +15,7 @@ interface Tab {
 export class GroupTabsComponent implements OnInit {
   tabs$!: Observable<Tab[]>
 
-  readonly groupsLoading$ = this.groupService.isLoading()
+  readonly loading$ = this.groupService.isLoading()
 
   constructor(private readonly groupService: GroupService) {}
 
@@ -29,5 +29,13 @@ export class GroupTabsComponent implements OnInit {
         }))
       )
     )
+  }
+
+  get selectedIndex(): number {
+    return Number(localStorage.getItem('gcd-group-tabs.selectedIndex') || 0)
+  }
+
+  set selectedIndex(index: number) {
+    localStorage.setItem('gcd-group-tabs.selectedIndex', String(index))
   }
 }

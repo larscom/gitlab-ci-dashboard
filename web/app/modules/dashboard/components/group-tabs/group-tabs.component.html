@@ -1,12 +1,13 @@
 <div class="mt-2">
-  <ng-container *ngIf="groupsLoading$ | async; else groups">
+  <ng-container *ngIf="loading$ | async; else groups">
     <mat-progress-bar color="accent"
       mode="indeterminate"></mat-progress-bar>
   </ng-container>
   <ng-template #groups>
     <ng-container *ngIf="tabs$ | async as tabs">
       <ng-container *ngIf="tabs.length; else noTabs">
-        <mat-tab-group [mat-stretch-tabs]="false"
+        <mat-tab-group [(selectedIndex)]="selectedIndex"
+          [mat-stretch-tabs]="false"
           backgroundColor="primary"
           animationDuration="0ms">
           <ng-container *ngFor="let tab of tabs">
