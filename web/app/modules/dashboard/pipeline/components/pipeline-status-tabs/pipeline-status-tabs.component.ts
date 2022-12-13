@@ -31,17 +31,15 @@ export class PipelineStatusTabsComponent implements OnInit {
   ngOnInit(): void {
     this.projectService.fetchProjects(this.groupId)
     this.tabs$ = this.projectService.getFilteredProjects().pipe(
-      map(
-        (all) =>
-          Object.entries(all)
-            .filter(([_, projects]) => projects.length > 0)
-            .map(([status, projects]) => ({
-              status,
-              projects,
-              groupId: this.groupId,
-            }))
-
-            .sort((a, b) => a.status.localeCompare(b.status)) as any
+      map((all) =>
+        Object.entries(all)
+          .filter(([_, projects]) => projects.length > 0)
+          .map(([status, projects]) => ({
+            status,
+            projects,
+            groupId: this.groupId,
+          }))
+          .sort((a, b) => a.status.localeCompare(b.status))
       )
     )
   }

@@ -10,7 +10,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
 export class ProjectTableComponent {
   @Input() projects: ProjectWithLatestPipeline[] = []
 
-  displayedColumns = ['Id', 'Name', 'Branch', 'Source', 'When']
+  displayedColumns = ['Id', 'Name', 'Branch', 'Source', 'When', 'Topics']
 
   openGitlab({ pipeline, project }: ProjectWithLatestPipeline): void {
     if (pipeline) {
