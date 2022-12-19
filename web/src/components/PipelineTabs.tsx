@@ -2,7 +2,6 @@ import { Badge, Stack, Tabs, TabsValue, Text } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { useProjects } from '../hooks/use-projects'
 import { GroupId } from '../models/group'
-import { Status } from '../models/pipeline'
 import Empty from './ui/Empty'
 import Loader from './ui/Loader'
 
@@ -12,12 +11,12 @@ interface PipelineTabsProps {
 
 export default function PipelineTabs({ groupId }: PipelineTabsProps) {
   const { isLoading: loading, data } = useProjects(groupId)
-  const [status, setStatus] = useState<Status>('unknown')
+  const [status, setStatus] = useState<string>('unknown')
 
   useEffect(() => {
     const statuses = Object.keys(data || {})
     if (statuses.length) {
-      setStatus(statuses[0] as Status)
+      setStatus(statuses[0])
     }
   }, [data])
 
@@ -59,7 +58,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
       )
     })
 
-  const handleChange = (status: TabsValue) => setStatus(status as Status)
+  const handleChange = (status: TabsValue) => setStatus(String(status))
 
   return (
     <Tabs value={status} onTabChange={handleChange}>
