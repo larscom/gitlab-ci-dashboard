@@ -19,7 +19,7 @@ func NewServer(client *gitlab.Client, serverConfig *config.ServerConfig, gitlabC
 	server := echo.New()
 	server.Debug = serverConfig.Debug
 
-	server.Use(middleware.Static("./statics"))
+	server.Use(middleware.Static("./web"))
 	server.Use(middleware.Recover())
 	server.Use(NewCacheMiddleware(time.Duration(serverConfig.CacheTTLSeconds) * time.Second).Middleware())
 

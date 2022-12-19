@@ -6,7 +6,7 @@ export default function Version() {
   useEffect(() => {
     fetch('/api/version')
       .then((r) => r.text())
-      .then((value) => setVersion(value))
+      .then((v) => setVersion(v))
   }, [])
   return (
     <Text className="text-white hidden sm:block" size="xs">

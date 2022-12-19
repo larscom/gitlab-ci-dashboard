@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "env": {
+    "node": true,
+    "browser": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/no-unescaped-entities": "off",
+    "react/prop-types": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_" }
+    ]
+  }
+}
