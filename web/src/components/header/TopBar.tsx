@@ -12,9 +12,9 @@ export default function TopBar() {
       className="flex items-center justify-between bg-blue-600"
       p="md"
     >
-      <Group spacing="xs">
+      <Group spacing="xs" align="baseline">
         <DashboardOutlined className="text-white text-xl" />
-        <Text className="text-white" size="lg">
+        <Text className="text-white" size="md">
           Gitlab CI Dashboard
         </Text>
       </Group>

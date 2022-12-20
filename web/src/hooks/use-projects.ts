@@ -1,11 +1,11 @@
 import { useQuery } from 'react-query'
 import { GroupId } from '../models/group'
-import { Pipeline, Status } from '../models/pipeline'
-import { Project } from '../models/project'
+import { Status } from '../models/pipeline'
+import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
 
 export const useProjects = (groupId: GroupId) => {
   const url = `${location.origin}/api/groups/${groupId}/projects`
-  return useQuery<Record<Status, [Project, Pipeline | undefined][]>>(
+  return useQuery<Record<Status, ProjectWithLatestPipeline[]>>(
     url,
     () => fetch(url).then((r) => r.json()),
     {

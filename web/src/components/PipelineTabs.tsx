@@ -9,7 +9,8 @@ import {
 import { useEffect, useState } from 'react'
 import { useProjects } from '../hooks/use-projects'
 import { GroupId } from '../models/group'
-import type { Status } from '../models/pipeline'
+import { Status } from '../models/pipeline'
+import ProjectTable from './ProjectTable'
 import Empty from './ui/Empty'
 import Loader from './ui/Loader'
 
@@ -34,7 +35,10 @@ const colorMap: Record<Status, MantineColor> = {
 
 export default function PipelineTabs({ groupId }: PipelineTabsProps) {
   const { isLoading: loading, data } = useProjects(groupId)
+
   const [status, setStatus] = useState<string>('unknown')
+
+  const projects = data && data[status as Status] ? data[status as Status] : []
 
   useEffect(() => {
     const statuses = Object.keys(data || {})
@@ -47,7 +51,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
     return <Loader />
   }
 
-  if (!data || Object.keys(data).length === 0) {
+  if (!data || projects.length === 0) {
     return (
       <Stack align="center">
         <Empty />
@@ -57,7 +61,6 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
   }
 
   const tabs = Object.entries(data)
-    .filter(([_, projects]) => projects.length > 0)
     .map(([status, projects]) => ({ status: status as Status, projects }))
     .sort((a, b) => a.status.localeCompare(b.status))
     .map(({ status, projects }) => {
@@ -78,7 +81,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
             </Badge>
           }
         >
-          <span className="capitalize">{status}</span>
+          <Text className="capitalize">{status}</Text>
         </Tabs.Tab>
       )
     })
@@ -89,8 +92,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
     <Tabs value={status} onTabChange={handleChange}>
       <Tabs.List>{tabs}</Tabs.List>
       <Tabs.Panel value={status} pt="xs">
-        <p>Status: {status}</p>
-        <p>GroupId: {groupId}</p>
+        <ProjectTable projects={projects} />
       </Tabs.Panel>
     </Tabs>
   )

@@ -15,6 +15,7 @@
     "@fontsource/roboto": "^4.5.8",
     "@mantine/core": "^5.9.5",
     "@mantine/hooks": "^5.9.5",
+    "mantine-datatable": "^1.7.30",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.2",
