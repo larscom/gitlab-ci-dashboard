@@ -10,8 +10,8 @@ export const useProjects = (groupId: GroupId) => {
     () => fetch(url).then((r) => r.json()),
     {
       refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      refetchOnWindowFocus: true,
+      staleTime: 5000,
     }
   )
 }
