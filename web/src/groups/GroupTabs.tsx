@@ -1,10 +1,11 @@
+import Empty from '$components/ui/Empty'
+import IndeterminateLoader from '$components/ui/IndeterminateLoader'
 import { Stack, Tabs, TabsValue, Text } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
-import { useGroups } from '../hooks/use-groups'
-import { GroupId } from '../models/group'
-import FeatureTabs from './FeatureTabs'
-import Empty from './ui/Empty'
-import Loader from './ui/Loader'
+import { GroupContextProvider } from './contexts/group-context'
+import FeatureTabs from './features/FeatureTabs'
+import { useGroups } from './hooks/use-groups'
+import { GroupId } from './models/group'
 
 export default function GroupTabs() {
   const { isLoading: loading, data: groups = [] } = useGroups()
@@ -14,7 +15,7 @@ export default function GroupTabs() {
   })
 
   if (loading) {
-    return <Loader />
+    return <IndeterminateLoader />
   }
 
   if (groups.length === 0) {
@@ -33,7 +34,7 @@ export default function GroupTabs() {
   const tabs = groups.map(({ id, name }) => {
     return (
       <Tabs.Tab key={id} value={String(id)}>
-        {name.toUpperCase()}
+        <Text className="uppercase">{name}</Text>
       </Tabs.Tab>
     )
   })
@@ -44,7 +45,9 @@ export default function GroupTabs() {
     <Tabs value={String(groupId)} onTabChange={handleChange}>
       <Tabs.List>{tabs}</Tabs.List>
       <Tabs.Panel value={String(groupId)} pt="xs">
-        <FeatureTabs groupId={groupId} />
+        <GroupContextProvider value={{ groupId }}>
+          <FeatureTabs />
+        </GroupContextProvider>
       </Tabs.Panel>
     </Tabs>
   )

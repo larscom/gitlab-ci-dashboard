@@ -1,15 +1,11 @@
+import Empty from '$components/ui/Empty'
 import { ForkOutlined, ScheduleOutlined } from '@ant-design/icons'
 import { Stack, Tabs, Text } from '@mantine/core'
-import { GroupId } from '../models/group'
-import PipelineTabs from './PipelineTabs'
-import Empty from './ui/Empty'
+import PipelineOverview from './pipelines/PipelineOverview'
 
-interface FeatureTabsProps {
-  groupId: GroupId
-}
-export default function FeatureTabs({ groupId }: FeatureTabsProps) {
+export default function FeatureTabs() {
   return (
-    <Tabs orientation="horizontal" variant="outline" defaultValue="pipelines">
+    <Tabs orientation="vertical" variant="default" defaultValue="pipelines">
       <Tabs.List>
         <Tabs.Tab value="pipelines" icon={<ForkOutlined size={14} />}>
           Pipelines
@@ -19,11 +15,11 @@ export default function FeatureTabs({ groupId }: FeatureTabsProps) {
         </Tabs.Tab>
       </Tabs.List>
 
-      <Tabs.Panel value="pipelines" pt="xs">
-        <PipelineTabs groupId={groupId}></PipelineTabs>
+      <Tabs.Panel value="pipelines" ml={5}>
+        <PipelineOverview />
       </Tabs.Panel>
 
-      <Tabs.Panel value="schedules" pt="xs">
+      <Tabs.Panel value="schedules" ml={5}>
         <Stack align="center">
           <Empty />
           <Text>Coming soon...</Text>

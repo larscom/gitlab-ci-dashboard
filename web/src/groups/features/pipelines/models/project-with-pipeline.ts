@@ -1,5 +1,5 @@
+import { Project } from '$groups/models/project'
 import { Pipeline } from './pipeline'
-import { Project } from './project'
 
 export interface ProjectWithLatestPipeline {
   project: Project

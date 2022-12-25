@@ -1,5 +1,5 @@
+import { Group } from '$groups/models/group'
 import { useQuery } from 'react-query'
-import { Group } from '../models/group'
 
 export const useGroups = () => {
   const url = `${location.origin}/api/groups`

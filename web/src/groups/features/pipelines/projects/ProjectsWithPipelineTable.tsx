@@ -1,6 +1,6 @@
+import { ProjectWithLatestPipeline } from '$groups/features/pipelines/models/project-with-pipeline'
 import { Box, Text } from '@mantine/core'
 import { DataTable } from 'mantine-datatable'
-import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
 
 const format: Intl.DateTimeFormatOptions = {
   month: '2-digit',
@@ -13,15 +13,14 @@ const format: Intl.DateTimeFormatOptions = {
 
 const languages = [...(navigator?.languages || ['en-US'])]
 
-interface ProjectTableProps {
+interface Props {
   projects: ProjectWithLatestPipeline[]
 }
 
-export default function ProjectTable({ projects }: ProjectTableProps) {
+export default function ProjectsWithPipelineTable({ projects }: Props) {
   return (
     <Box className={projects.length > 10 ? 'h-[500px]' : 'h-auto'}>
       <DataTable
-        withBorder
         striped
         highlightOnHover
         idAccessor="project.id"

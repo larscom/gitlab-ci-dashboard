@@ -1,3 +1,7 @@
+import Empty from '$components/ui/Empty'
+import IndeterminateLoader from '$components/ui/IndeterminateLoader'
+import { GroupContext } from '$groups/contexts/group-context'
+import { useProjects } from '$groups/hooks/use-projects'
 import {
   Badge,
   MantineColor,
@@ -6,19 +10,11 @@ import {
   TabsValue,
   Text,
 } from '@mantine/core'
-import { useState } from 'react'
-import { useProjects } from '../hooks/use-projects'
-import { GroupId } from '../models/group'
-import { Status } from '../models/pipeline'
-import ProjectTable from './ProjectTable'
-import Empty from './ui/Empty'
-import Loader from './ui/Loader'
+import { useContext, useState } from 'react'
+import { Status } from './models/pipeline'
+import ProjectsWithPipelineTable from './projects/ProjectsWithPipelineTable'
 
-interface PipelineTabsProps {
-  groupId: GroupId
-}
-
-const colorMap: Record<Status, MantineColor> = {
+const COLOR_MAP: Record<Status, MantineColor> = {
   created: 'dark.6',
   waiting_for_resource: 'dark.6',
   preparing: 'indigo.6',
@@ -26,19 +22,20 @@ const colorMap: Record<Status, MantineColor> = {
   running: 'blue.6',
   success: 'green.6',
   failed: 'red.6',
-  canceled: 'pink.6',
+  canceled: 'dark.6',
   skipped: 'orange.6',
   manual: 'cyan.6',
   scheduled: 'violet.6',
   unknown: 'gray.6',
 }
 
-export default function PipelineTabs({ groupId }: PipelineTabsProps) {
+export default function PipelineStatusTabs() {
+  const { groupId } = useContext(GroupContext)
   const { isLoading: loading, data } = useProjects(groupId)
   const [status, setStatus] = useState<Status | undefined>()
 
   if (loading || !data) {
-    return <Loader />
+    return <IndeterminateLoader />
   }
 
   const statuses = Object.keys(data) as Status[]
@@ -62,7 +59,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
     .map(({ status, projects }) => {
       const badge = (
         <Badge
-          color={colorMap[status]}
+          color={COLOR_MAP[status]}
           sx={{ width: 16, height: 16, pointerEvents: 'none' }}
           variant="filled"
           size="xs"
@@ -75,7 +72,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
         <Tabs.Tab
           key={status}
           value={status}
-          color={colorMap[status]}
+          color={COLOR_MAP[status]}
           rightSection={badge}
         >
           <Text className="capitalize">{status}</Text>
@@ -89,7 +86,7 @@ export default function PipelineTabs({ groupId }: PipelineTabsProps) {
     <Tabs value={status} onTabChange={handleChange}>
       <Tabs.List>{tabs}</Tabs.List>
       <Tabs.Panel value={status} pt="xs">
-        <ProjectTable projects={projects} />
+        <ProjectsWithPipelineTable projects={projects} />
       </Tabs.Panel>
     </Tabs>
   ) : null

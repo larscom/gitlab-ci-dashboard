@@ -1,13 +1,13 @@
 import { DashboardOutlined, GithubOutlined } from '@ant-design/icons'
-import { ActionIcon, Group, Header, Text, Tooltip } from '@mantine/core'
+import { ActionIcon, Group, Header as H, Text, Tooltip } from '@mantine/core'
 import Version from './Version'
 
-export default function TopBar() {
+export default function Header() {
   const handleClick = () =>
     window.open('https://github.com/larscom/gitlab-ci-dashboard', '_blank')
 
   return (
-    <Header
+    <H
       height={60}
       className="flex items-center justify-between bg-blue-600"
       p="md"
@@ -26,6 +26,6 @@ export default function TopBar() {
           </Tooltip>
         </ActionIcon>
       </Group>
-    </Header>
+    </H>
   )
 }
