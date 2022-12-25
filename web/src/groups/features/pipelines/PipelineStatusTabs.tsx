@@ -1,7 +1,4 @@
 import Empty from '$components/ui/Empty'
-import IndeterminateLoader from '$components/ui/IndeterminateLoader'
-import { GroupContext } from '$groups/contexts/group-context'
-import { useProjects } from '$groups/hooks/use-projects'
 import {
   Badge,
   MantineColor,
@@ -11,6 +8,7 @@ import {
   Text,
 } from '@mantine/core'
 import { useContext, useState } from 'react'
+import { ProjectContext } from './contexts/project-context'
 import { Status } from './models/pipeline'
 import ProjectsWithPipelineTable from './projects/ProjectsWithPipelineTable'
 
@@ -30,16 +28,10 @@ const COLOR_MAP: Record<Status, MantineColor> = {
 }
 
 export default function PipelineStatusTabs() {
-  const { groupId } = useContext(GroupContext)
-  const { isLoading: loading, data } = useProjects(groupId)
+  const { statusWithProjects } = useContext(ProjectContext)
   const [status, setStatus] = useState<Status | undefined>()
 
-  if (loading || !data) {
-    return <IndeterminateLoader />
-  }
-
-  const statuses = Object.keys(data) as Status[]
-  if (statuses.length === 0) {
+  if (statusWithProjects.size === 0) {
     return (
       <Stack align="center">
         <Empty />
@@ -48,13 +40,14 @@ export default function PipelineStatusTabs() {
     )
   }
 
-  const projects = data[status as Status] || []
+  const projects = status ? statusWithProjects.get(status) || [] : []
+
   if (!projects.length) {
-    setStatus(statuses[0])
+    setStatus(Array.from(statusWithProjects.keys())[0])
   }
 
-  const tabs = Object.entries(data)
-    .map(([status, projects]) => ({ status: status as Status, projects }))
+  const tabs = Array.from(statusWithProjects)
+    .map(([status, projects]) => ({ status, projects }))
     .sort((a, b) => a.status.localeCompare(b.status))
     .map(({ status, projects }) => {
       const badge = (

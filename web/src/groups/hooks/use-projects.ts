@@ -5,9 +5,17 @@ import { useQuery } from 'react-query'
 
 export const useProjects = (groupId: GroupId) => {
   const url = `${location.origin}/api/groups/${groupId}/projects`
-  return useQuery<Record<Status, ProjectWithLatestPipeline[]>>(
+  return useQuery<Map<Status, ProjectWithLatestPipeline[]>>(
     url,
-    () => fetch(url).then((r) => r.json()),
+    () =>
+      fetch(url)
+        .then((r) => r.json())
+        .then((r) => {
+          return new Map(Object.entries(r)) as Map<
+            Status,
+            ProjectWithLatestPipeline[]
+          >
+        }),
     {
       refetchOnMount: false,
       refetchOnWindowFocus: true,
