@@ -69,17 +69,4 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 
 At the moment there is no overview of all pipeline statuses within Gitlab, so you might not be aware of a failed pipeline somewhere in Gitlab.
 
-This dashboard is `not` a replacement for Gitlab, it is supposed to give you a `readonly` overview of all pipelines (configurable) within a Gitlab server. Maybe more functionality is there to come later.
-
-## Run without docker (development)
-
-Be sure you have the following dependencies installed
-
-- Node 14+
-- Go 1.19+
-
-1. Run: `mv ./api/.local.example.env ./api/.local.env` <-- fill in the required env variables
-2. Run: `npm ci` <-- install frontend packages
-3. Run: `npm run api` <-- starts backend
-4. Run: `npm start` <-- starts frontend
-5. Open browser and goto: http://localhost:4200
+This dashboard is supposed to give you a `readonly` overview of all pipelines (configurable) within a Gitlab server. Maybe more functionality is there to come later.

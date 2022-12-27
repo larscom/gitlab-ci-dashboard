@@ -2,7 +2,7 @@ import IndeterminateLoader from '$components/ui/IndeterminateLoader'
 import { GroupContext } from '$groups/contexts/group-context'
 import { useProjects } from '$groups/hooks/use-projects'
 import { Stack } from '@mantine/core'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ProjectContextProvider } from './contexts/project-context'
 import { Status } from './models/pipeline'
 import { ProjectWithLatestPipeline } from './models/project-with-pipeline'
@@ -44,6 +44,11 @@ export default function PipelineOverview() {
   const [filterTopics, setFilterTopics] = useState<string[]>([])
 
   const statusWithProjects = filterProjects(data, filterText, filterTopics)
+
+  useEffect(() => {
+    setFilterTopics([])
+    setFilterText('')
+  }, [data])
 
   return (
     <Stack>

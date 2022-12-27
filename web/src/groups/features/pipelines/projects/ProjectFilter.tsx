@@ -1,28 +1,37 @@
-import { SearchOutlined } from '@ant-design/icons'
-import { Chip, Group, Input } from '@mantine/core'
-import { useCallback, useContext, useTransition } from 'react'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { ActionIcon, Chip, Group, Input, Tooltip } from '@mantine/core'
+import { useCallback, useContext, useState, useTransition } from 'react'
 import { ProjectContext } from '../contexts/project-context'
 
 interface Props {
   onFilterTextChange: (filterText: string) => void
-  onTopicFilterChange: (topics: string[]) => void
+  onTopicFilterChange: (filterTopics: string[]) => void
 }
 export default function ProjectFilter({
   onFilterTextChange,
   onTopicFilterChange,
 }: Props) {
   const { statusWithProjects } = useContext(ProjectContext)
-  const startTransition = useTransition()[1]
+  const [, startTransition] = useTransition()
+  const [filterTopics, setFilterTopics] = useState<string[]>([])
+  const [filterText, setFilterText] = useState<string>('')
 
-  const handleFilterText = useCallback(
+  const handleTextChange = useCallback(
     ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) =>
-      startTransition(() => onFilterTextChange(value)),
+      startTransition(() => {
+        setFilterText(value)
+        onFilterTextChange(value)
+      }),
     [startTransition, onFilterTextChange]
   )
 
-  const handleTopicFilter = useCallback(onTopicFilterChange, [
-    onTopicFilterChange,
-  ])
+  const handleChipsChange = useCallback(
+    (topics: string[]) => {
+      setFilterTopics(topics)
+      onTopicFilterChange(topics)
+    },
+    [onTopicFilterChange, setFilterTopics]
+  )
 
   const topics = new Set(
     Array.from(statusWithProjects.values())
@@ -31,19 +40,35 @@ export default function ProjectFilter({
   )
 
   const chips = Array.from(topics).map((topic) => (
-    <Chip key={topic} value={topic}>
-      {topic}
+    <Chip color="teal" key={topic} value={topic}>
+      <span className="lowercase">{topic}</span>
     </Chip>
   ))
+
+  const reset = (
+    <ActionIcon
+      onClick={() => {
+        setFilterText('')
+        onFilterTextChange('')
+      }}
+      variant="transparent"
+    >
+      <Tooltip openDelay={250} label="Clear field">
+        <ReloadOutlined />
+      </Tooltip>
+    </ActionIcon>
+  )
 
   return (
     <Group>
       <Input
+        value={filterText}
         icon={<SearchOutlined />}
-        onChange={handleFilterText}
+        rightSection={reset}
+        onChange={handleTextChange}
         placeholder="Search projects..."
       />
-      <Chip.Group multiple onChange={handleTopicFilter}>
+      <Chip.Group multiple value={filterTopics} onChange={handleChipsChange}>
         {chips}
       </Chip.Group>
     </Group>
