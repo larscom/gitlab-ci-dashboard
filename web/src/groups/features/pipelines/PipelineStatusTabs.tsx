@@ -5,9 +5,9 @@ import {
   Stack,
   Tabs,
   TabsValue,
-  Text,
+  Text
 } from '@mantine/core'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ProjectContext } from './contexts/project-context'
 import { Status } from './models/pipeline'
 import ProjectsWithPipelineTable from './projects/ProjectsWithPipelineTable'
@@ -31,6 +31,10 @@ export default function PipelineStatusTabs() {
   const { statusWithProjects } = useContext(ProjectContext)
   const [status, setStatus] = useState<Status | undefined>()
 
+  useEffect(() => {
+    setStatus(Array.from(statusWithProjects.keys())[0])
+  }, [statusWithProjects])
+
   if (statusWithProjects.size === 0) {
     return (
       <Stack align="center">
@@ -38,12 +42,6 @@ export default function PipelineStatusTabs() {
         <Text>No projects found...</Text>
       </Stack>
     )
-  }
-
-  const projects = status ? statusWithProjects.get(status) || [] : []
-
-  if (!projects.length) {
-    setStatus(Array.from(statusWithProjects.keys())[0])
   }
 
   const tabs = Array.from(statusWithProjects)
@@ -74,6 +72,8 @@ export default function PipelineStatusTabs() {
     })
 
   const handleChange = (status: TabsValue) => setStatus(status as Status)
+
+  const projects = status ? statusWithProjects.get(status) || [] : []
 
   return status ? (
     <Tabs value={status} onTabChange={handleChange}>
