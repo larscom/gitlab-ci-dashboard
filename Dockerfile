@@ -3,7 +3,7 @@
 FROM node:16.18.1-alpine AS react
 WORKDIR /builder
 
-COPY web ./
+COPY . .
 
 RUN npm ci --legacy-peer-deps --ignore-scripts && \
   npm run build
@@ -20,7 +20,7 @@ FROM alpine:3.17
 WORKDIR /app
 ARG VERSION_ARG
 ENV VERSION=$VERSION_ARG
-COPY --from=react /builder/dist/web ./web
+COPY --from=react /builder/dist/statics ./statics
 COPY --from=golang /builder/dist/api ./api
 EXPOSE 8080
 CMD ["/app/api"]

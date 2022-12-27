@@ -20,7 +20,7 @@ jobs:
           node-version: 16
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: npm run test:ci
-      - run: $(npm bin)/codecov --disable=gcov -f coverage/coverage-final.json
+      # - run: $(npm bin)/codecov --disable=gcov -f coverage/coverage-final.json
 
   build_and_publish_dockerhub:
     needs: test_and_codecov
