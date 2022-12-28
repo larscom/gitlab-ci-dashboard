@@ -5,11 +5,11 @@ import {
   Stack,
   Tabs,
   TabsValue,
-  Text
+  Text,
 } from '@mantine/core'
-import { useContext, useEffect, useState } from 'react'
-import { ProjectContext } from './contexts/project-context'
+import { useEffect, useState } from 'react'
 import { Status } from './models/pipeline'
+import { ProjectWithLatestPipeline } from './models/project-with-pipeline'
 import ProjectsWithPipelineTable from './projects/ProjectsWithPipelineTable'
 
 const COLOR_MAP: Record<Status, MantineColor> = {
@@ -27,8 +27,10 @@ const COLOR_MAP: Record<Status, MantineColor> = {
   unknown: 'gray.6',
 }
 
-export default function PipelineStatusTabs() {
-  const { statusWithProjects } = useContext(ProjectContext)
+interface Props {
+  statusWithProjects: Map<Status, ProjectWithLatestPipeline[]>
+}
+export default function PipelineStatusTabs({ statusWithProjects }: Props) {
   const [status, setStatus] = useState<Status | undefined>()
 
   useEffect(() => {

@@ -1,38 +1,69 @@
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { ActionIcon, Chip, Group, Input, Tooltip } from '@mantine/core'
-import { useCallback, useContext, useState, useTransition } from 'react'
-import { ProjectContext } from '../contexts/project-context'
+import { useCallback, useEffect, useState, useTransition } from 'react'
+import { Status } from '../models/pipeline'
+import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
+
+const filterBy = (value: string, filterText: string): boolean =>
+  value.toLocaleLowerCase().includes(filterText.toLocaleLowerCase())
+
+const filter = (
+  data: Map<Status, ProjectWithLatestPipeline[]> | undefined,
+  filterText: string,
+  filterTopics: string[]
+): Map<Status, ProjectWithLatestPipeline[]> => {
+  if (!data) return new Map()
+
+  return Array.from(data).reduce((current, [status, projects]) => {
+    const filteredProjects = projects
+      .filter(({ project: { name } }) => filterBy(name, filterText))
+      .filter(({ project: { topics } }) => {
+        return filterTopics.length
+          ? filterTopics
+              .map((filter) => topics.includes(filter))
+              .every((b) => b)
+          : true
+      })
+
+    return filteredProjects.length
+      ? current.set(status, filteredProjects)
+      : current
+  }, new Map<Status, ProjectWithLatestPipeline[]>())
+}
 
 interface Props {
-  onFilterTextChange: (filterText: string) => void
-  onTopicFilterChange: (filterTopics: string[]) => void
+  unfiltered: Map<Status, ProjectWithLatestPipeline[]> | undefined
+  setStatusWithProjects: React.Dispatch<
+    React.SetStateAction<Map<Status, ProjectWithLatestPipeline[]>>
+  >
 }
 export default function ProjectFilter({
-  onFilterTextChange,
-  onTopicFilterChange,
+  unfiltered,
+  setStatusWithProjects,
 }: Props) {
-  const { statusWithProjects } = useContext(ProjectContext)
   const [, startTransition] = useTransition()
   const [filterTopics, setFilterTopics] = useState<string[]>([])
   const [filterText, setFilterText] = useState<string>('')
 
+  useEffect(() => {
+    setStatusWithProjects(unfiltered || new Map())
+    setFilterTopics([])
+    setFilterText('')
+  }, [unfiltered, setStatusWithProjects])
+
+  useEffect(() => {
+    setStatusWithProjects(filter(unfiltered, filterText, filterTopics))
+  }, [filterText, filterTopics, unfiltered, setStatusWithProjects])
+
   const handleTextChange = useCallback(
     ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) =>
-      startTransition(() => {
-        setFilterText(value)
-        onFilterTextChange(value)
-      }),
-    [startTransition, onFilterTextChange]
+      startTransition(() => setFilterText(value)),
+    [startTransition, setFilterText]
   )
 
-  const handleChipsChange = useCallback(
-    (topics: string[]) => {
-      setFilterTopics(topics)
-      onTopicFilterChange(topics)
-    },
-    [onTopicFilterChange, setFilterTopics]
-  )
+  const handleChipsChange = useCallback(setFilterTopics, [setFilterTopics])
 
+  const statusWithProjects = unfiltered || new Map()
   const topics = new Set(
     Array.from(statusWithProjects.values())
       .flat()
@@ -46,13 +77,7 @@ export default function ProjectFilter({
   ))
 
   const reset = (
-    <ActionIcon
-      onClick={() => {
-        setFilterText('')
-        onFilterTextChange('')
-      }}
-      variant="transparent"
-    >
+    <ActionIcon onClick={() => setFilterText('')} variant="transparent">
       <Tooltip openDelay={250} label="Clear field">
         <ReloadOutlined />
       </Tooltip>
