@@ -4,7 +4,7 @@
   "version": "0.0.6",
   "type": "module",
   "scripts": {
-    "api": "cd ./api && go mod tidy && go run ./cmd/main.go",
+    "api": "cd ./api && ./gradlew bootRun",
     "dev": "vite",
     "start": "vite",
     "build": "tsc && vite build",

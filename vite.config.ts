@@ -7,7 +7,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [react(), eslint(), tsconfigPaths()],
   build: {
-    outDir: './dist/statics',
+    outDir: './dist/static',
     sourcemap: false,
     chunkSizeWarningLimit: 750,
   },

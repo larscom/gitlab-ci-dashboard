@@ -1,0 +1,3 @@
+gitlab:
+  base_url: https://gitlab.com
+  api_token: abc123

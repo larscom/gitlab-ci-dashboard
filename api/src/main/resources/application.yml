@@ -1,0 +1,5 @@
+version: ${env.VERSION:}
+
+gitlab:
+  base_url: ${env.GITLAB_BASE_URL}
+  api_token: ${env.GITLAB_API_TOKEN}
