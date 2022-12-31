@@ -1,5 +1,10 @@
-version: ${env.VERSION:}
+app:
+  version: ${env.VERSION:}
+  debug: ${env.SERVER_DEBUG:false}
 
 gitlab:
-  base_url: ${env.GITLAB_BASE_URL}
-  api_token: ${env.GITLAB_API_TOKEN}
+  base_url: ${env.GITLAB_BASE_URL:}
+  api_token: ${env.GITLAB_API_TOKEN:}
+  group:
+    skip_ids: ${env.GITLAB_GROUP_SKIP_IDS:}
+    only_ids: ${env.GITLAB_GROUP_ONLY_IDS:}

@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RestController
 class VersionController {
 
     @GetMapping
-    fun getVersion(@Value("\${version}") version: String) = version
+    fun getVersion(@Value("\${app.version}") version: String) = version
 }
