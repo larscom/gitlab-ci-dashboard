@@ -1,6 +1,6 @@
 package com.github.larscom.gitlabcidashboard.group
 
-import org.gitlab4j.api.models.Group
+import com.github.larscom.gitlabcidashboard.group.dto.GroupDto
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RestController
 class GroupController(private val groupService: GroupService) {
 
     @GetMapping
-    fun getGroups(): List<Group> = groupService.getGroups()
+    fun getGroups(): List<GroupDto> = groupService.getGroups()
 }

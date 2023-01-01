@@ -1,12 +1,14 @@
 package com.github.larscom.gitlabcidashboard.group
 
 import com.github.larscom.gitlabcidashboard.config.GitlabConfig
+import com.github.larscom.gitlabcidashboard.group.dto.GroupDto
+import com.github.larscom.gitlabcidashboard.group.ext.toGroupDto
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.gitlab4j.api.GroupApi
-import org.gitlab4j.api.models.Group
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,13 +17,20 @@ class GroupService(
     private val gitlabConfig: GitlabConfig
 ) {
 
-    fun getGroups(): List<Group> {
+    @Cacheable(cacheNames = ["groups"])
+    fun getGroups(): List<GroupDto> {
         return gitlabConfig.group.onlyIds.takeUnless { it.isEmpty() }
-            ?.let { runBlocking { getGroupsWithId(it) } }
-            ?: groupApi.groups
+            ?.let { ids -> runBlocking { getGroupsWithId(ids) } }
+            ?: gitlabConfig.group.skipIds.takeUnless { it.isEmpty() }
+                ?.let { ids ->
+                    groupApi.groups
+                        .filter { ids.contains(it.id).not() }
+                        .map { it.toGroupDto() }
+                }
+            ?: groupApi.groups.map { it.toGroupDto() }
     }
 
-    suspend fun getGroupsWithId(ids: List<Long>) = coroutineScope {
-        ids.map { id -> async { groupApi.getGroup(id) } }.awaitAll()
+    private suspend fun getGroupsWithId(ids: List<Long>) = coroutineScope {
+        ids.map { id -> async { groupApi.getGroup(id).toGroupDto() } }.awaitAll()
     }
 }
