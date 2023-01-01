@@ -1,7 +1,10 @@
 package com.github.larscom.gitlabcidashboard.config
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.LoadingCache
 import com.github.benmanes.caffeine.cache.Ticker
+import org.gitlab4j.api.GroupApi
+import org.gitlab4j.api.models.Group
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.caffeine.CaffeineCache
@@ -29,4 +32,10 @@ class CacheConfig {
                 .build()
         )
     }
+
+    @Bean
+    fun groupCache(groupApi: GroupApi, ticker: Ticker): LoadingCache<Long, Group> = Caffeine.newBuilder()
+        .expireAfterWrite(30, TimeUnit.SECONDS)
+        .ticker(ticker)
+        .build { groupApi.getGroup(it) }
 }
