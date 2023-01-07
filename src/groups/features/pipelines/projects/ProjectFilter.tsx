@@ -63,7 +63,9 @@ export default function ProjectFilter({
 
   const handleChipsChange = useCallback(setFilterTopics, [setFilterTopics])
 
-  const statusWithProjects = unfiltered || new Map()
+  const statusWithProjects =
+    unfiltered || new Map<Status, ProjectWithLatestPipeline[]>()
+
   const topics = new Set(
     Array.from(statusWithProjects.values())
       .flat()
