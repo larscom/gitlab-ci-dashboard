@@ -20,7 +20,7 @@ func main() {
 	appConfig := config.NewGitlabConfig()
 	gitlabClient, err := gitlab.NewClient(appConfig.GitlabToken, gitlab.WithBaseURL(appConfig.GitlabUrl))
 	if err != nil {
-		log.Fatalf("Failed to create gitlabClient: %v", err)
+		log.Panicf("Failed to create gitlabClient: %v", err)
 	}
 
 	serverConfig := config.NewServerConfig()

@@ -41,7 +41,7 @@ func NewGitlabConfig() *GitlabConfig {
 func getBaseUrl() string {
 	gitlabUrl, found := os.LookupEnv("GITLAB_BASE_URL")
 	if !found {
-		log.Fatal("'GITLAB_BASE_URL' is required as environment variable")
+		log.Panicf("'GITLAB_BASE_URL' is required as environment variable")
 	}
 	return gitlabUrl
 }
@@ -49,7 +49,7 @@ func getBaseUrl() string {
 func getToken() string {
 	gitlabToken, found := os.LookupEnv("GITLAB_API_TOKEN")
 	if !found {
-		log.Fatal("'GITLAB_API_TOKEN' is required as environment variable")
+		log.Panicf("'GITLAB_API_TOKEN' is required as environment variable")
 	}
 	return gitlabToken
 }
@@ -63,7 +63,7 @@ func getSkippedGroupIds() *[]int {
 		for _, id := range ids {
 			val, err := strconv.Atoi(id)
 			if err != nil {
-				log.Fatalf("GITLAB_GROUP_SKIP_IDS contains: '%s' which is not an integer", id)
+				log.Panicf("GITLAB_GROUP_SKIP_IDS contains: '%s' which is not an integer", id)
 			}
 			groupSkipIds = append(groupSkipIds, val)
 		}
@@ -82,7 +82,7 @@ func getOnlyGroupIds() *[]int {
 		for _, id := range ids {
 			val, err := strconv.Atoi(id)
 			if err != nil {
-				log.Fatalf("GITLAB_GROUP_ONLY_IDS contains: '%s' which is not an integer", id)
+				log.Panicf("GITLAB_GROUP_ONLY_IDS contains: '%s' which is not an integer", id)
 			}
 			onlyIds = append(onlyIds, val)
 		}
@@ -100,7 +100,7 @@ func getOnlyTopLevelGroups() bool {
 		var err error = nil
 		onlyTopLevelGroups, err = strconv.ParseBool(onlyTopLevelString)
 		if err != nil {
-			log.Fatalf("GITLAB_GROUP_ONLY_TOP_LEVEL contains: '%s' which is not a boolean", onlyTopLevelString)
+			log.Panicf("GITLAB_GROUP_ONLY_TOP_LEVEL contains: '%s' which is not a boolean", onlyTopLevelString)
 		}
 		fmt.Printf("GITLAB_GROUP_ONLY_TOP_LEVEL=%t\n", onlyTopLevelGroups)
 	}
@@ -116,7 +116,7 @@ func getHideUnknownProjects() bool {
 		var err error = nil
 		hideUnknown, err = strconv.ParseBool(hideUnknownString)
 		if err != nil {
-			log.Fatalf("GITLAB_PROJECT_HIDE_UNKNOWN contains: '%s' which is not a boolean", hideUnknownString)
+			log.Panicf("GITLAB_PROJECT_HIDE_UNKNOWN contains: '%s' which is not a boolean", hideUnknownString)
 		}
 		fmt.Printf("GITLAB_PROJECT_HIDE_UNKNOWN=%t\n", hideUnknown)
 	}

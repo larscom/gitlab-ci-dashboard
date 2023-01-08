@@ -26,7 +26,7 @@ func getCacheTTLSeconds() int {
 	if found {
 		val, err := strconv.Atoi(ttlString)
 		if err != nil {
-			log.Fatalf("SERVER_CACHE_TTL_SECONDS contains: '%s' which is not an integer", ttlString)
+			log.Panicf("SERVER_CACHE_TTL_SECONDS contains: '%s' which is not an integer", ttlString)
 		}
 		cacheTTL = val
 		fmt.Printf("SERVER_CACHE_TTL_SECONDS=%d\n", cacheTTL)
@@ -42,7 +42,7 @@ func getDebug() bool {
 	if found {
 		val, err := strconv.ParseBool(debugString)
 		if err != nil {
-			log.Fatalf("SERVER_DEBUG contains: '%s' which is not a boolean", debugString)
+			log.Panicf("SERVER_DEBUG contains: '%s' which is not a boolean", debugString)
 		}
 		debug = val
 		fmt.Printf("SERVER_DEBUG=%v\n", debug)
