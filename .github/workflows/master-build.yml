@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - run: go test -v ./...
+      - run: cd api && go test ./.../
 
   build_and_publish_dockerhub:
     needs: test_and_codecov
