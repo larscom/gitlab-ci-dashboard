@@ -17,6 +17,7 @@ type GitlabConfig struct {
 	GitlabGroupOnlyTopLevel bool
 
 	GitlabProjectHideUnknown bool
+	GitlabProjectSkipIds     *[]int
 }
 
 func NewGitlabConfig() *GitlabConfig {
@@ -27,6 +28,7 @@ func NewGitlabConfig() *GitlabConfig {
 	gitlabGroupOnlyIds := getOnlyGroupIds()
 	gitlabGroupOnlyTopLevel := getOnlyTopLevelGroups()
 	gitlabProjectHideUnknown := getHideUnknownProjects()
+	gitlabProjectSkipIds := getSkippedProjectIds()
 
 	return &GitlabConfig{
 		GitlabUrl:                gitlabUrl,
@@ -35,6 +37,7 @@ func NewGitlabConfig() *GitlabConfig {
 		GitlabGroupOnlyIds:       gitlabGroupOnlyIds,
 		GitlabGroupOnlyTopLevel:  gitlabGroupOnlyTopLevel,
 		GitlabProjectHideUnknown: gitlabProjectHideUnknown,
+		GitlabProjectSkipIds:     gitlabProjectSkipIds,
 	}
 }
 
@@ -122,4 +125,23 @@ func getHideUnknownProjects() bool {
 	}
 
 	return hideUnknown
+}
+
+func getSkippedProjectIds() *[]int {
+	var projectSkipIds = []int{}
+
+	skippedIdsString, found := os.LookupEnv("GITLAB_PROJECT_SKIP_IDS")
+	if found {
+		ids := strings.Split(skippedIdsString, ",")
+		for _, id := range ids {
+			val, err := strconv.Atoi(id)
+			if err != nil {
+				log.Panicf("GITLAB_PROJECT_SKIP_IDS contains: '%s' which is not an integer", id)
+			}
+			projectSkipIds = append(projectSkipIds, val)
+		}
+		fmt.Printf("GITLAB_PROJECT_SKIP_IDS=%v\n", projectSkipIds)
+	}
+
+	return &projectSkipIds
 }

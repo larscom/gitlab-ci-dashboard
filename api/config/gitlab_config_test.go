@@ -27,6 +27,7 @@ func TestGitlabConfigMinimum(t *testing.T) {
 	g.Expect(*config.GitlabGroupOnlyIds).To(Equal([]int{}))
 	g.Expect(config.GitlabGroupOnlyTopLevel).To(Equal(false))
 	g.Expect(config.GitlabProjectHideUnknown).To(Equal(false))
+	g.Expect(*config.GitlabProjectSkipIds).To(Equal([]int{}))
 }
 
 func TestGitlabConfigMaximum(t *testing.T) {
@@ -38,6 +39,7 @@ func TestGitlabConfigMaximum(t *testing.T) {
 	os.Setenv("GITLAB_GROUP_ONLY_IDS", "4,5,6")
 	os.Setenv("GITLAB_GROUP_ONLY_TOP_LEVEL", "true")
 	os.Setenv("GITLAB_PROJECT_HIDE_UNKNOWN", "true")
+	os.Setenv("GITLAB_PROJECT_SKIP_IDS", "7,8,9")
 
 	config := NewGitlabConfig()
 
@@ -47,6 +49,7 @@ func TestGitlabConfigMaximum(t *testing.T) {
 	g.Expect(*config.GitlabGroupOnlyIds).To(Equal([]int{4, 5, 6}))
 	g.Expect(config.GitlabGroupOnlyTopLevel).To(Equal(true))
 	g.Expect(config.GitlabProjectHideUnknown).To(Equal(true))
+	g.Expect(*config.GitlabProjectSkipIds).To(Equal([]int{7, 8, 9}))
 }
 
 func TestServerConfigSkipGroupIdsPanic(t *testing.T) {
@@ -93,6 +96,18 @@ func TestServerConfigHideUnknownProjectsPanic(t *testing.T) {
 	os.Setenv("GITLAB_API_TOKEN", "abc123")
 
 	os.Setenv("GITLAB_PROJECT_HIDE_UNKNOWN", "NOT_A_BOOL")
+
+	g.Expect(func() { NewGitlabConfig() }).To(Panic())
+}
+
+func TestServerConfigSkipProjectIdsPanic(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	// minimum
+	os.Setenv("GITLAB_BASE_URL", "http://gitlab.com")
+	os.Setenv("GITLAB_API_TOKEN", "abc123")
+
+	os.Setenv("GITLAB_PROJECT_SKIP_IDS", "1,NOT_INT")
 
 	g.Expect(func() { NewGitlabConfig() }).To(Panic())
 }

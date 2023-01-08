@@ -9,6 +9,7 @@ require (
 	github.com/onsi/gomega v1.24.2
 	github.com/rs/zerolog v1.28.0
 	github.com/xanzy/go-gitlab v0.77.0
+	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
 )
 
 require (

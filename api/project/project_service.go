@@ -8,6 +8,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/rs/zerolog"
 	"github.com/xanzy/go-gitlab"
+	"golang.org/x/exp/slices"
 )
 
 type ProjectService struct {
@@ -40,7 +41,7 @@ func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]*m
 	projectsGroupedByStatus := make(map[string][]*model.ProjectWithLatestPipeline)
 	for range projects {
 		for status, project := range <-results {
-			if status == "unknown" && p.config.GitlabProjectHideUnknown {
+			if p.skipProject(status, project) {
 				continue
 			}
 			current, hasStatus := projectsGroupedByStatus[status]
@@ -53,6 +54,18 @@ func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]*m
 	}
 
 	return projectsGroupedByStatus
+}
+
+func (p *ProjectService) skipProject(status string, project *model.ProjectWithLatestPipeline) bool {
+	if status == "unknown" && p.config.GitlabProjectHideUnknown {
+		return true
+	}
+
+	if len(*p.config.GitlabProjectSkipIds) > 0 {
+		return slices.Contains(*p.config.GitlabProjectSkipIds, project.Project.ID)
+	}
+
+	return false
 }
 
 func (p *ProjectService) getProjects(groupId int) []*gitlab.Project {
