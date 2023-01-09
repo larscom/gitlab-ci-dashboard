@@ -8,16 +8,16 @@ import (
 )
 
 type ProjectController struct {
-	projectService *ProjectService
+	ProjectService *ProjectService
 }
 
 func NewProjectController(projectService *ProjectService) *ProjectController {
 	return &ProjectController{
-		projectService: projectService,
+		ProjectService: projectService,
 	}
 }
 
 func (p *ProjectController) GetProjectsGroupedByStatus(c echo.Context) error {
 	groupId, _ := strconv.Atoi(c.Param("groupId"))
-	return c.JSON(http.StatusOK, p.projectService.GetProjectsGroupedByStatus(groupId))
+	return c.JSON(http.StatusOK, p.ProjectService.GetProjectsGroupedByStatus(groupId))
 }

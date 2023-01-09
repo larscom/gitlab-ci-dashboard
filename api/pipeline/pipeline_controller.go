@@ -8,16 +8,16 @@ import (
 )
 
 type PipelineController struct {
-	pipelineService *PipelineService
+	PipelineService IPipelineService
 }
 
-func NewPipelineController(pipelineService *PipelineService) *PipelineController {
+func NewPipelineController(pipelineService IPipelineService) *PipelineController {
 	return &PipelineController{
-		pipelineService: pipelineService,
+		PipelineService: pipelineService,
 	}
 }
 
 func (p *PipelineController) GetPipelines(c echo.Context) error {
 	projectId, _ := strconv.Atoi(c.Param("projectId"))
-	return c.JSON(http.StatusOK, p.pipelineService.GetPipelines(projectId, c.Param("ref")))
+	return c.JSON(http.StatusOK, p.PipelineService.GetPipelines(projectId, c.Param("ref")))
 }

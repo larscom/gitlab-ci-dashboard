@@ -12,18 +12,18 @@ import (
 )
 
 type ProjectService struct {
-	client          *gitlab.Client
-	logger          zerolog.Logger
-	pipelineService *pipeline.PipelineService
-	config          *config.GitlabConfig
+	GitlabClient    *gitlab.Client
+	Logger          zerolog.Logger
+	PipelineService pipeline.IPipelineService
+	GitlabConfig    *config.GitlabConfig
 }
 
-func NewProjectService(client *gitlab.Client, logger zerolog.Logger, pipelineService *pipeline.PipelineService, config *config.GitlabConfig) *ProjectService {
+func NewProjectService(client *gitlab.Client, logger zerolog.Logger, pipelineService pipeline.IPipelineService, config *config.GitlabConfig) *ProjectService {
 	return &ProjectService{
-		client:          client,
-		logger:          logger,
-		pipelineService: pipelineService,
-		config:          config,
+		GitlabClient:    client,
+		Logger:          logger,
+		PipelineService: pipelineService,
+		GitlabConfig:    config,
 	}
 }
 
@@ -57,21 +57,21 @@ func (p *ProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]*m
 }
 
 func (p *ProjectService) skipProject(status string, project *model.ProjectWithLatestPipeline) bool {
-	if status == "unknown" && p.config.GitlabProjectHideUnknown {
+	if status == "unknown" && p.GitlabConfig.GitlabProjectHideUnknown {
 		return true
 	}
 
-	if len(*p.config.GitlabProjectSkipIds) > 0 {
-		return slices.Contains(*p.config.GitlabProjectSkipIds, project.Project.ID)
+	if len(*p.GitlabConfig.GitlabProjectSkipIds) > 0 {
+		return slices.Contains(*p.GitlabConfig.GitlabProjectSkipIds, project.Project.ID)
 	}
 
 	return false
 }
 
 func (p *ProjectService) getProjects(groupId int) []*gitlab.Project {
-	projects, resp, err := p.client.Groups.ListGroupProjects(groupId, p.createListGroupProjectsOptions(1))
+	projects, resp, err := p.GitlabClient.Groups.ListGroupProjects(groupId, p.createListGroupProjectsOptions(1))
 	if err != nil {
-		p.logger.
+		p.Logger.
 			Warn().
 			Int("status", resp.StatusCode).
 			Err(err).
@@ -101,7 +101,7 @@ func (p *ProjectService) getProjects(groupId int) []*gitlab.Project {
 
 func (p *ProjectService) projectProcessor(projects <-chan *gitlab.Project, result chan<- map[string]*model.ProjectWithLatestPipeline) {
 	for project := range projects {
-		pipelines := p.pipelineService.GetPipelines(project.ID, project.DefaultBranch)
+		pipelines := p.PipelineService.GetPipelines(project.ID, project.DefaultBranch)
 		if len(pipelines) > 0 {
 			latest := pipelines[0]
 			result <- map[string]*model.ProjectWithLatestPipeline{latest.Status: {Project: project, Pipeline: latest}}
@@ -113,9 +113,9 @@ func (p *ProjectService) projectProcessor(projects <-chan *gitlab.Project, resul
 
 func (p *ProjectService) pageProcessor(groupId int, pageNumbers <-chan int, result chan<- []*gitlab.Project) {
 	for pageNumber := range pageNumbers {
-		projects, resp, err := p.client.Groups.ListGroupProjects(groupId, p.createListGroupProjectsOptions(pageNumber))
+		projects, resp, err := p.GitlabClient.Groups.ListGroupProjects(groupId, p.createListGroupProjectsOptions(pageNumber))
 		if err != nil {
-			p.logger.
+			p.Logger.
 				Warn().
 				Int("status", resp.StatusCode).
 				Err(err).

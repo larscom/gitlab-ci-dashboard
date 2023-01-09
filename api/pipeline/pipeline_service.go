@@ -7,15 +7,19 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+type IPipelineService interface {
+	GetPipelines(projectId int, ref string) []*gitlab.PipelineInfo
+}
+
 type PipelineService struct {
-	client *gitlab.Client
-	logger zerolog.Logger
+	GitlabClient *gitlab.Client
+	Logger       zerolog.Logger
 }
 
 func NewPipelineService(client *gitlab.Client, logger zerolog.Logger) *PipelineService {
 	return &PipelineService{
-		client: client,
-		logger: logger,
+		GitlabClient: client,
+		Logger:       logger,
 	}
 }
 
@@ -28,9 +32,9 @@ func (p *PipelineService) GetPipelines(projectId int, ref string) []*gitlab.Pipe
 		Ref: &ref,
 	}
 
-	pipelines, resp, err := p.client.Pipelines.ListProjectPipelines(projectId, options)
+	pipelines, resp, err := p.GitlabClient.Pipelines.ListProjectPipelines(projectId, options)
 	if err != nil {
-		p.logger.
+		p.Logger.
 			Warn().
 			Int("status", resp.StatusCode).
 			Err(err).

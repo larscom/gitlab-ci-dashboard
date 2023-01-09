@@ -13,9 +13,9 @@ import (
 
 func main() {
 	fmt.Printf(":: Gitlab CI Dashboard :: (%s)\n", os.Getenv("VERSION"))
-	fmt.Println("Loading environment: .local.env")
+	fmt.Println("Loading environment from .env (if present)")
 
-	godotenv.Load(".local.env")
+	godotenv.Load(".env")
 
 	appConfig := config.NewGitlabConfig()
 	gitlabClient, err := gitlab.NewClient(appConfig.GitlabToken, gitlab.WithBaseURL(appConfig.GitlabUrl))

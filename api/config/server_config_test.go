@@ -4,41 +4,34 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestServerConfigDefault(t *testing.T) {
-	g := NewGomegaWithT(t)
 	config := NewServerConfig()
 
-	g.Expect(config.CacheTTLSeconds).To(Equal(10))
-	g.Expect(config.Debug).To(Equal(false))
+	assert.Equal(t, 10, config.CacheTTLSeconds)
+	assert.Equal(t, false, config.Debug)
 }
 
 func TestServerConfig(t *testing.T) {
-	g := NewGomegaWithT(t)
-
 	os.Setenv("SERVER_CACHE_TTL_SECONDS", "600")
 	os.Setenv("SERVER_DEBUG", "true")
 
 	config := NewServerConfig()
 
-	g.Expect(config.CacheTTLSeconds).To(Equal(600))
-	g.Expect(config.Debug).To(Equal(true))
+	assert.Equal(t, 600, config.CacheTTLSeconds)
+	assert.Equal(t, true, config.Debug)
 }
 
 func TestServerConfigDebugPanic(t *testing.T) {
-	g := NewGomegaWithT(t)
-
 	os.Setenv("SERVER_DEBUG", "NOT_A_BOOL")
 
-	g.Expect(func() { NewServerConfig() }).To(Panic())
+	assert.Panics(t, func() { NewServerConfig() })
 }
 
 func TestServerConfigCacheTTLPanic(t *testing.T) {
-	g := NewGomegaWithT(t)
-
 	os.Setenv("SERVER_CACHE_TTL_SECONDS", "NOT_AN_INT")
 
-	g.Expect(func() { NewServerConfig() }).To(Panic())
+	assert.Panics(t, func() { NewServerConfig() })
 }

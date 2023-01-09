@@ -11,30 +11,30 @@ import (
 )
 
 type GroupService struct {
-	client *gitlab.Client
-	config *config.GitlabConfig
-	logger zerolog.Logger
+	GitlabClient *gitlab.Client
+	GitlabConfig *config.GitlabConfig
+	Logger       zerolog.Logger
 }
 
 func NewGroupService(client *gitlab.Client, logger zerolog.Logger, config *config.GitlabConfig) *GroupService {
 	return &GroupService{
-		client: client,
-		config: config,
-		logger: logger,
+		GitlabClient: client,
+		GitlabConfig: config,
+		Logger:       logger,
 	}
 }
 
 func (g *GroupService) GetGroups() []*gitlab.Group {
-	if len(*g.config.GitlabGroupOnlyIds) > 0 {
-		return g.getGroupsById(*g.config.GitlabGroupOnlyIds)
+	if len(*g.GitlabConfig.GitlabGroupOnlyIds) > 0 {
+		return g.getGroupsById(*g.GitlabConfig.GitlabGroupOnlyIds)
 	}
 	return g.getAllGroups()
 }
 
 func (g *GroupService) getAllGroups() []*gitlab.Group {
-	groups, resp, err := g.client.Groups.ListGroups(g.createListGroupOptions(1))
+	groups, resp, err := g.GitlabClient.Groups.ListGroups(g.createListGroupOptions(1))
 	if err != nil {
-		g.logger.
+		g.Logger.
 			Warn().
 			Int("status", resp.StatusCode).
 			Err(err).
@@ -89,9 +89,9 @@ func (g *GroupService) getGroupsById(groupIds []int) []*gitlab.Group {
 
 func (g *GroupService) groupIdProcessor(groupIds <-chan int, result chan<- *gitlab.Group, options *gitlab.GetGroupOptions) {
 	for groupId := range groupIds {
-		group, resp, err := g.client.Groups.GetGroup(groupId, options)
+		group, resp, err := g.GitlabClient.Groups.GetGroup(groupId, options)
 		if err != nil {
-			g.logger.
+			g.Logger.
 				Warn().
 				Int("status", resp.StatusCode).
 				Err(err).
@@ -105,9 +105,9 @@ func (g *GroupService) groupIdProcessor(groupIds <-chan int, result chan<- *gitl
 
 func (g *GroupService) pageProcessor(pageNumbers <-chan int, result chan<- []*gitlab.Group) {
 	for pageNumber := range pageNumbers {
-		groups, resp, err := g.client.Groups.ListGroups(g.createListGroupOptions(pageNumber))
+		groups, resp, err := g.GitlabClient.Groups.ListGroups(g.createListGroupOptions(pageNumber))
 		if err != nil {
-			g.logger.
+			g.Logger.
 				Warn().
 				Int("status", resp.StatusCode).
 				Err(err).
@@ -125,7 +125,7 @@ func (g *GroupService) createListGroupOptions(pageNumber int) *gitlab.ListGroups
 			Page:    pageNumber,
 			PerPage: 100,
 		},
-		TopLevelOnly: &g.config.GitlabGroupOnlyTopLevel,
-		SkipGroups:   g.config.GitlabGroupSkipIds,
+		TopLevelOnly: &g.GitlabConfig.GitlabGroupOnlyTopLevel,
+		SkipGroups:   g.GitlabConfig.GitlabGroupSkipIds,
 	}
 }
