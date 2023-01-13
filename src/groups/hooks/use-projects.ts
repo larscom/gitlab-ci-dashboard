@@ -19,7 +19,7 @@ export const useProjects = (groupId: GroupId) => {
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      staleTime: 5000,
+      staleTime: Infinity,
     }
   )
 }
