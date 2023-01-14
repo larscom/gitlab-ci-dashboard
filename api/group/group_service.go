@@ -10,6 +10,10 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+type IGroupService interface {
+	GetGroups() []*gitlab.Group
+}
+
 type GroupService struct {
 	GitlabClient *gitlab.Client
 	GitlabConfig *config.GitlabConfig

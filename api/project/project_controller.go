@@ -8,10 +8,10 @@ import (
 )
 
 type ProjectController struct {
-	ProjectService *ProjectService
+	ProjectService IProjectService
 }
 
-func NewProjectController(projectService *ProjectService) *ProjectController {
+func NewProjectController(projectService IProjectService) *ProjectController {
 	return &ProjectController{
 		ProjectService: projectService,
 	}

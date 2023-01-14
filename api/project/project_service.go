@@ -11,6 +11,10 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+type IProjectService interface {
+	GetProjectsGroupedByStatus(groupId int) map[string][]*model.ProjectWithLatestPipeline
+}
+
 type ProjectService struct {
 	GitlabClient    *gitlab.Client
 	Logger          zerolog.Logger

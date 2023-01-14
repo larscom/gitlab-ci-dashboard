@@ -7,15 +7,15 @@ import (
 )
 
 type GroupController struct {
-	groupService *GroupService
+	GroupService IGroupService
 }
 
-func NewGroupController(groupService *GroupService) *GroupController {
+func NewGroupController(groupService IGroupService) *GroupController {
 	return &GroupController{
-		groupService: groupService,
+		GroupService: groupService,
 	}
 }
 
 func (g *GroupController) GetGroups(c echo.Context) error {
-	return c.JSON(http.StatusOK, g.groupService.GetGroups())
+	return c.JSON(http.StatusOK, g.GroupService.GetGroups())
 }
