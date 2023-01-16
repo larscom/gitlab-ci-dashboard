@@ -4,7 +4,6 @@
   "version": "0.0.8",
   "type": "module",
   "scripts": {
-    "api": "cd ./api && go mod tidy && go run ./cmd/main.go",
     "dev": "vite",
     "start": "vite",
     "build": "tsc && vite build",

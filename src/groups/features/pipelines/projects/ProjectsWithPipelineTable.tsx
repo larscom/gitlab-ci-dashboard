@@ -35,7 +35,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             title: 'Name',
           },
           {
-            accessor: 'project.default_branch',
+            accessor: 'project.defaultBranch',
             title: 'Branch',
           },
           {
@@ -57,12 +57,12 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             },
           },
           {
-            accessor: 'pipeline.updated_at',
+            accessor: 'pipeline.updatedAt',
             title: 'When',
             render({ pipeline }) {
-              const dateTime = pipeline?.updated_at
+              const dateTime = pipeline?.updatedAt
                 ? new Intl.DateTimeFormat(languages, format).format(
-                    new Date(pipeline?.updated_at)
+                    new Date(pipeline?.updatedAt)
                   )
                 : undefined
               return <Text>{dateTime || '-'}</Text>
@@ -71,8 +71,8 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
         ]}
         onRowClick={({ project, pipeline }) =>
           pipeline
-            ? window.open(pipeline.web_url, '_blank')
-            : window.open(`${project.web_url}/-/pipelines`, '_blank')
+            ? window.open(pipeline.webUrl, '_blank')
+            : window.open(`${project.webUrl}/-/pipelines`, '_blank')
         }
       />
     </Box>

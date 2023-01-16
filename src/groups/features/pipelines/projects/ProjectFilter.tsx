@@ -1,6 +1,6 @@
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { ActionIcon, Chip, Group, Input, Tooltip } from '@mantine/core'
-import { useCallback, useEffect, useState, useTransition } from 'react'
+import { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useState, useTransition } from 'react'
 import { Status } from '../models/pipeline'
 import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
 
@@ -33,9 +33,7 @@ const filter = (
 
 interface Props {
   unfiltered: Map<Status, ProjectWithLatestPipeline[]> | undefined
-  setStatusWithProjects: React.Dispatch<
-    React.SetStateAction<Map<Status, ProjectWithLatestPipeline[]>>
-  >
+  setStatusWithProjects: Dispatch<SetStateAction<Map<Status, ProjectWithLatestPipeline[]>>>
 }
 export default function ProjectFilter({
   unfiltered,
@@ -56,7 +54,7 @@ export default function ProjectFilter({
   }, [filterText, filterTopics, unfiltered, setStatusWithProjects])
 
   const handleTextChange = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) =>
+    ({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
       startTransition(() => setFilterText(value)),
     [startTransition, setFilterText]
   )

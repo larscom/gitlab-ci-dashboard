@@ -5,6 +5,8 @@ services:
     image: larscom/gitlab-ci-dashboard
     build: .
     env_file:
-      - ./api/.env
+      - .env
+    environment:
+      - "TZ=Europe/Amsterdam"
     ports:
       - '8080:8080'

@@ -1,0 +1,4 @@
+# test config
+gitlab:
+  base_url: "https://gitlab.fake"
+  api_token: "123abc"

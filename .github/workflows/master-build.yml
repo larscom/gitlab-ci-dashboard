@@ -21,10 +21,6 @@ jobs:
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: npm run test:ci
       # - run: $(npm bin)/codecov --disable=gcov -f coverage/coverage-final.json
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-      - run: cd api && go test ./.../
 
   build_and_publish_dockerhub:
     needs: test_and_codecov

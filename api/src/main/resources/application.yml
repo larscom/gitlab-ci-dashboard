@@ -1,0 +1,12 @@
+app:
+  version: ${VERSION:}
+
+gitlab:
+  base_url: ${GITLAB_BASE_URL}
+  api_token: ${GITLAB_API_TOKEN}
+  group:
+    skip_ids: ${GITLAB_GROUP_SKIP_IDS:}
+    only_ids: ${GITLAB_GROUP_ONLY_IDS:}
+    only_top_level: ${GITLAB_GROUP_ONLY_TOP_LEVEL:false}
+  project:
+    hide_unknown: ${GITLAB_PROJECT_HIDE_UNKNOWN:false}

@@ -44,12 +44,12 @@ export const Status = {
 
 export interface Pipeline {
   id: number
-  project_id: number
+  projectId: number
   status: Status
   source: Source
   ref: string
   sha: string
-  web_url: string
-  updated_at: string
-  created_at: string
+  webUrl: string
+  updatedAt: string
+  createdAt: string
 }

@@ -1,26 +1,26 @@
 # syntax=docker/dockerfile:1
 
-FROM node:16.18.1-alpine AS react
+# Build frontend
+FROM node:16.18.1-alpine AS frontend
 WORKDIR /builder
-
 COPY . .
-
 RUN npm ci --legacy-peer-deps --ignore-scripts && \
   npm run build
 
-FROM golang:1.19.3-alpine AS golang
-WORKDIR /builder
+# Build api, include frontend in JAR
+FROM gradle:7.6.0-jdk17 AS gradle
+WORKDIR /home/gradle
+COPY --chown=gradle:gradle api .
+COPY --chown=gradle:gradle --from=frontend /builder/dist/static ./src/main/resources/static
+RUN gradle build || return 1
 
-COPY api ./
-
-RUN go mod download
-RUN go build -o ./dist/api ./cmd/main.go
-
-FROM alpine:3.17
-WORKDIR /app
+# Package JAR
+FROM ibm-semeru-runtimes:open-17.0.5_8-jre
 ARG VERSION_ARG
 ENV VERSION=$VERSION_ARG
-COPY --from=react /builder/dist/statics ./statics
-COPY --from=golang /builder/dist/api ./api
+
+WORKDIR /opt/app
+COPY --from=gradle /home/gradle/build/libs/*-SNAPSHOT.jar /opt/app/app.jar
+
 EXPOSE 8080
-CMD ["/app/api"]
+CMD ["java", "-jar", "/opt/app/app.jar"]

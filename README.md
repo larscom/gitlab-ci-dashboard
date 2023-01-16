@@ -1,10 +1,8 @@
 # Gitlab CI Dashboard
 
 [![Docker Image Version](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?sort=semver&label=latest%20release&color=blue)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
-[![Docker Image Size](https://img.shields.io/docker/image-size/larscom/gitlab-ci-dashboard?sort=semver)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master-build.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
-[![Docker Image Version By Date](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?color=violet&label=latest%20build&sort=date)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard/tags?page=1&name=master)
 
 > Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
 
@@ -45,28 +43,24 @@ This app is under heavy development, not all features might be fully implemented
 docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_API_TOKEN=my_token larscom/gitlab-ci-dashboard
 ```
 
-3. Dashboard should be available at: http://localhost:8080/#/ showing (by default) all available groups and their projects
+3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
+   projects
 
-## Gitlab specific env variables
+## Environment variables
 
 | Variable                    | Type    | Description                                                                                            | Required | Default |
-| --------------------------- | ------- | ------------------------------------------------------------------------------------------------------ | -------- | ------- |
+|-----------------------------|---------|--------------------------------------------------------------------------------------------------------|----------|---------|
 | GITLAB_BASE_URL             | string  | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |         |
 | GITLAB_API_TOKEN            | string  | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |         |
 | GITLAB_GROUP_ONLY_IDS       | string  | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |         |
 | GITLAB_GROUP_SKIP_IDS       | string  | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |         |
 | GITLAB_GROUP_ONLY_TOP_LEVEL | boolean | Show only top level groups                                                                             | no       | false   |
-| GITLAB_PROJECT_HIDE_UNKNOWN | boolean | Hide projects with 'unknown' pipeline status                                                           | no       | false   |
-
-## Server specific env variables
-
-| Variable                 | Type    | Description                                             | Default |
-| ------------------------ | ------- | ------------------------------------------------------- | ------- |
-| SERVER_CACHE_TTL_SECONDS | integer | Time to Live (in seconds) for projects/groups/pipelines | 10      |
-| SERVER_DEBUG             | boolean | Gives you more logging to see what is happening         | false   |
+| GITLAB_PROJECT_HIDE_UNKNOWN | boolean | Hide projects with 'unknown' pipeline status (mostly means that the pipeline is not configured)        | no       | false   |
 
 ## Why?
 
-At the moment there is no overview of all pipeline statuses within Gitlab, so you might not be aware of a failed pipeline somewhere in Gitlab.
+At the moment there is no overview of all pipeline statuses within Gitlab, so you might not be aware of a failed
+pipeline somewhere in Gitlab.
 
-This dashboard is supposed to give you a `readonly` overview of all pipelines (configurable) within a Gitlab server. Maybe more functionality is there to come later.
+This dashboard is supposed to give you a `readonly` overview of all pipelines (configurable) within a Gitlab server.
+Maybe more functionality is there to come later.
