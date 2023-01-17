@@ -91,6 +91,7 @@ class ProjectControllerIT {
         verify(gitlabFeignClient, times(1)).getProjects(anyLong(), anyInt(), anyInt())
         verify(gitlabFeignClient, times(2)).getLatestPipeline(anyLong(), anyString())
 
+        assertThat(projectsGroupedByStatus.keys).containsExactly(Pipeline.Status.SUCCESS, Pipeline.Status.FAILED)
         assertThat(projectsGroupedByStatus.getValue(Pipeline.Status.SUCCESS)).satisfies(
             Consumer { list ->
                 assertThat(list)
