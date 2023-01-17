@@ -6,5 +6,5 @@ data class Project(
     val id: Long,
     val name: String,
     @JsonAlias("default_branch") val defaultBranch: String,
-    val topics: Set<String>
+    val topics: Set<String> = setOf()
 )

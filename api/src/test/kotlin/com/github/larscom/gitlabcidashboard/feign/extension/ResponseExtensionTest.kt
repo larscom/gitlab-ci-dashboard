@@ -13,7 +13,7 @@ class ResponseExtensionTest {
     @Test
     fun `should successfully get total pages when response is OK`() {
         val totalPages = Response.builder()
-            .request(Request.create(HEAD, "", mapOf(), null, null, null))
+            .request(Request.create(HEAD, "url", mapOf(), null, null, null))
             .status(OK.value())
             .headers(mapOf("x-total-pages" to listOf("10")))
             .build()
@@ -25,7 +25,7 @@ class ResponseExtensionTest {
     @Test
     fun `should not get total pages when there is a bad request`() {
         val totalPages = Response.builder()
-            .request(Request.create(HEAD, "", mapOf(), null, null, null))
+            .request(Request.create(HEAD, "url", mapOf(), null, null, null))
             .status(BAD_REQUEST.value())
             .headers(mapOf("x-total-pages" to listOf("10")))
             .build()
@@ -37,7 +37,7 @@ class ResponseExtensionTest {
     @Test
     fun `should not fail if header x-total-pages is missing`() {
         val totalPages = Response.builder()
-            .request(Request.create(HEAD, "", mapOf(), null, null, null))
+            .request(Request.create(HEAD, "url", mapOf(), null, null, null))
             .status(OK.value())
             .build()
             .toTotalPages()
