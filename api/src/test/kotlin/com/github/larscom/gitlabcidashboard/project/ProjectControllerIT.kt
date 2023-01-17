@@ -5,11 +5,10 @@ import com.adelean.inject.resources.junit.jupiter.TestWithResources
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.github.larscom.gitlabcidashboard.createResponse
 import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
-import feign.Request
-import feign.Response
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -45,18 +43,12 @@ class ProjectControllerIT {
     lateinit var mvc: MockMvc
 
     @MockBean
-    lateinit var gitlabFeignClient: GitlabFeignClient
+    lateinit var gitlabClient: GitlabFeignClient
 
     @BeforeEach
     fun beforeEach() {
-        `when`(gitlabFeignClient.getProjectsHead(1, 100))
-            .thenReturn(
-                Response.builder()
-                    .request(Request.create(Request.HttpMethod.HEAD, "", mapOf(), null, null, null))
-                    .status(HttpStatus.OK.value())
-                    .headers(mapOf("x-total-pages" to listOf("1")))
-                    .build()
-            )
+        `when`(gitlabClient.getProjectsHead(1, 100))
+            .thenReturn(createResponse())
     }
 
     @Test
@@ -67,13 +59,13 @@ class ProjectControllerIT {
         val pipelineSuccess = pipelines[0]
         val pipelineFailed = pipelines[1]
 
-        `when`(gitlabFeignClient.getProjects(groupId = groupId))
+        `when`(gitlabClient.getProjects(groupId = groupId))
             .thenReturn(objectMapper.readValue(projectsJson))
 
-        `when`(gitlabFeignClient.getLatestPipeline(projectId = pipelineSuccess.projectId, ref = "master"))
+        `when`(gitlabClient.getLatestPipeline(projectId = pipelineSuccess.projectId, ref = "master"))
             .thenReturn(pipelineSuccess)
 
-        `when`(gitlabFeignClient.getLatestPipeline(projectId = pipelineFailed.projectId, ref = "master"))
+        `when`(gitlabClient.getLatestPipeline(projectId = pipelineFailed.projectId, ref = "master"))
             .thenReturn(pipelineFailed)
 
         val requestBuilder = get("/api/groups/${groupId}/projects")
@@ -87,9 +79,9 @@ class ProjectControllerIT {
             object : TypeReference<Map<Pipeline.Status, List<ProjectWithLatestPipeline>>>() {}
         )
 
-        verify(gitlabFeignClient, times(1)).getProjectsHead(anyLong(), anyInt())
-        verify(gitlabFeignClient, times(1)).getProjects(anyLong(), anyInt(), anyInt())
-        verify(gitlabFeignClient, times(2)).getLatestPipeline(anyLong(), anyString())
+        verify(gitlabClient, times(1)).getProjectsHead(anyLong(), anyInt())
+        verify(gitlabClient, times(1)).getProjects(anyLong(), anyInt(), anyInt())
+        verify(gitlabClient, times(2)).getLatestPipeline(anyLong(), anyString())
 
         assertThat(projectsGroupedByStatus.keys).containsExactly(Pipeline.Status.SUCCESS, Pipeline.Status.FAILED)
         assertThat(projectsGroupedByStatus.getValue(Pipeline.Status.SUCCESS)).satisfies(
@@ -107,7 +99,6 @@ class ProjectControllerIT {
                     )
             }
         )
-
         assertThat(projectsGroupedByStatus.getValue(Pipeline.Status.FAILED)).satisfies(
             Consumer { list ->
                 assertThat(list)

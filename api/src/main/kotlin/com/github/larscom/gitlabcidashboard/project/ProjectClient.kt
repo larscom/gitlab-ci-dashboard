@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class ProjectClient(private val client: GitlabFeignClient) {
+class ProjectClient(private val gitlabClient: GitlabFeignClient) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProjectClient::class.java)
     }
 
     fun getProjects(groupId: Long): List<Project> = runBlocking(Dispatchers.IO) {
-        val totalPages = client.getProjectsHead(groupId = groupId).toTotalPages()
+        val totalPages = gitlabClient.getProjectsHead(groupId = groupId).toTotalPages()
         totalPages?.let { getAllProjectsByPage(groupId = groupId, pages = 1.rangeTo(it).toList()) }
             ?: listOf<Project>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
     }
@@ -33,7 +33,7 @@ class ProjectClient(private val client: GitlabFeignClient) {
 
     private fun getProjectsByPage(groupId: Long, page: Int): List<Project> {
         return try {
-            client.getProjects(groupId = groupId, page = page)
+            gitlabClient.getProjects(groupId = groupId, page = page)
         } catch (e: FeignException) {
             LOG.warn("Could not fetch Projects (groupId=$groupId, page=$page) from Gitlab API", e)
             listOf()

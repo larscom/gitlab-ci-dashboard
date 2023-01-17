@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class PipelineClient(private val client: GitlabFeignClient) {
+class PipelineClient(private val gitlabClient: GitlabFeignClient) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(PipelineClient::class.java)
@@ -15,7 +15,7 @@ class PipelineClient(private val client: GitlabFeignClient) {
 
     fun getPipelines(projectId: Long, ref: String): List<Pipeline> {
         return try {
-            client.getPipelines(projectId = projectId, ref = ref)
+            gitlabClient.getPipelines(projectId = projectId, ref = ref)
         } catch (e: FeignException) {
             LOG.info("Did not get any Pipelines (projectId=$projectId, ref=$ref) from Gitlab API")
             listOf()
@@ -24,7 +24,7 @@ class PipelineClient(private val client: GitlabFeignClient) {
 
     fun getLatestPipeline(projectId: Long, ref: String): Pipeline? {
         return try {
-            client.getLatestPipeline(projectId = projectId, ref = ref)
+            gitlabClient.getLatestPipeline(projectId = projectId, ref = ref)
         } catch (e: FeignException) {
             LOG.info("Did not get latest Pipeline (projectId=$projectId, ref=$ref) from Gitlab API")
             null

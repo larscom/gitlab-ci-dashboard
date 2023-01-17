@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class GroupClient(private val client: GitlabFeignClient) {
+class GroupClient(private val gitlabClient: GitlabFeignClient) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(GroupClient::class.java)
@@ -22,7 +22,7 @@ class GroupClient(private val client: GitlabFeignClient) {
     fun getGroupsWithId(groupIds: List<Long>): List<Group> = runBlocking(IO) { getAllGroupsById(groupIds) }
 
     fun getGroups(skipIds: List<Long> = listOf()): List<Group> = runBlocking(IO) {
-        val totalPages = client.getGroupsHead(skipGroups = skipIds.joinToString(",")).toTotalPages()
+        val totalPages = gitlabClient.getGroupsHead(skipGroups = skipIds.joinToString(",")).toTotalPages()
         totalPages?.let { getAllGroupsByPage(pages = 1.rangeTo(it).toList(), skipIds = skipIds) }
             ?: listOf<Group>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
     }
@@ -35,7 +35,7 @@ class GroupClient(private val client: GitlabFeignClient) {
 
     private fun getGroupById(groupId: Long): Group? {
         return try {
-            client.getGroup(groupId = groupId)
+            gitlabClient.getGroup(groupId = groupId)
         } catch (e: FeignException) {
             LOG.warn("Could not fetch Group (id=$groupId) from Gitlab API", e)
             null
@@ -50,7 +50,7 @@ class GroupClient(private val client: GitlabFeignClient) {
 
     private fun getGroupsByPage(page: Int, skipIds: List<Long>): List<Group> {
         return try {
-            client.getGroups(skipGroups = skipIds.joinToString(","), page = page)
+            gitlabClient.getGroups(skipGroups = skipIds.joinToString(","), page = page)
         } catch (e: FeignException) {
             LOG.warn("Could not fetch Groups (page=$page) from Gitlab API", e)
             listOf()
