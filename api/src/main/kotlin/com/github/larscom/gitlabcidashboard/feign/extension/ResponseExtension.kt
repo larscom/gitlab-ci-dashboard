@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 
 fun feign.Response.toTotalPages(): Int? = this.takeIf { it.status() == HttpStatus.OK.value() }
     ?.headers()
-    ?.getValue("x-total-pages")
+    ?.getOrElse("x-total-pages") { null }
     ?.firstOrNull()
     ?.takeIf { it.isNotBlank() }
     ?.toInt()

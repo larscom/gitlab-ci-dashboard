@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "Project 1",
+    "defaultBranch": "master",
+    "topics": [
+      "Java"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Project 2",
+    "defaultBranch": "master",
+    "topics": [
+      "Kotlin"
+    ]
+  }
+]

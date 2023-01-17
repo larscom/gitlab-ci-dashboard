@@ -18,6 +18,7 @@ repositories {
 extra["springCloudVersion"] = "2021.0.5"
 extra["coroutinesVersion"] = "1.6.4"
 extra["benManesCaffeineVersion"] = "3.1.2"
+extra["hosuabyTestInjectVersion"] = "0.3.2"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -36,7 +37,10 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:${property("benManesCaffeineVersion")}")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.hosuaby:inject-resources-core:${property("hosuabyTestInjectVersion")}")
+    testImplementation("io.hosuaby:inject-resources-junit-jupiter:${property("hosuabyTestInjectVersion")}")
 }
 
 dependencyManagement {
