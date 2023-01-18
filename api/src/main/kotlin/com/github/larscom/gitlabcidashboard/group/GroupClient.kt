@@ -1,7 +1,7 @@
 package com.github.larscom.gitlabcidashboard.group
 
-import com.github.larscom.gitlabcidashboard.feign.extension.toTotalPages
 import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
+import com.github.larscom.gitlabcidashboard.feign.extension.toTotalPages
 import com.github.larscom.gitlabcidashboard.group.model.Group
 import feign.FeignException
 import kotlinx.coroutines.Dispatchers.IO
@@ -22,7 +22,10 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
     fun getGroupsWithId(groupIds: List<Long>): List<Group> = runBlocking(IO) { getAllGroupsById(groupIds) }
 
     fun getGroups(skipIds: List<Long> = listOf()): List<Group> = runBlocking(IO) {
-        val totalPages = gitlabClient.getGroupsHead(skipGroups = skipIds.joinToString(",")).toTotalPages()
+        val totalPages = gitlabClient
+            .getGroupsHead(skipGroups = skipIds.joinToString(","))
+            .toTotalPages()
+
         totalPages?.let { getAllGroupsByPage(pages = 1.rangeTo(it).toList(), skipIds = skipIds) }
             ?: listOf<Group>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
     }

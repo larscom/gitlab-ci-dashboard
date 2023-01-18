@@ -32,6 +32,13 @@ class ProjectClientTest {
     }
 
     @Test
+    fun `should return empty list when total pages is 0`() {
+        given(gitlabFeignClient.getProjectsHead(anyLong(), anyInt())).willReturn(createResponse(totalPages = 0))
+
+        assertThat(projectClient.getProjects(1)).isEmpty()
+    }
+
+    @Test
     fun `should merge projects from all pages`() {
         val groupId = 1L
         val page1Projects = listOf(mock(Project::class.java), mock(Project::class.java), mock(Project::class.java))

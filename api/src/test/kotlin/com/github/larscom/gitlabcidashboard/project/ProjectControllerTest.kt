@@ -26,7 +26,7 @@ class ProjectControllerTest {
 
     @AfterEach
     fun afterEach() {
-        verifyNoMoreInteractions(projectService)
+        verifyNoMoreInteractions(projectService, projectsWithLatestPipeline)
     }
 
     @Test

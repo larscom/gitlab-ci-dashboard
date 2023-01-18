@@ -1,8 +1,8 @@
 package com.github.larscom.gitlabcidashboard.project
 
 import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
-import com.github.larscom.gitlabcidashboard.project.model.Project
 import com.github.larscom.gitlabcidashboard.feign.extension.toTotalPages
+import com.github.larscom.gitlabcidashboard.project.model.Project
 import feign.FeignException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -20,7 +20,9 @@ class ProjectClient(private val gitlabClient: GitlabFeignClient) {
     }
 
     fun getProjects(groupId: Long): List<Project> = runBlocking(Dispatchers.IO) {
-        val totalPages = gitlabClient.getProjectsHead(groupId = groupId).toTotalPages()
+        val totalPages = gitlabClient.getProjectsHead(groupId = groupId)
+            .toTotalPages()
+
         totalPages?.let { getAllProjectsByPage(groupId = groupId, pages = 1.rangeTo(it).toList()) }
             ?: listOf<Project>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
     }

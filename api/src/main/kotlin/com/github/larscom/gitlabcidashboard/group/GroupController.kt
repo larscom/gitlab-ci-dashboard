@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 class GroupController(private val groupService: GroupService) {
 
     @GetMapping
-    fun getGroupsInfo(): List<Group> = groupService.getGroups()
+    fun getGroups(): List<Group> = groupService.getGroups()
 
 }
