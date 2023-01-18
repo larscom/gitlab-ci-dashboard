@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
@@ -32,7 +33,7 @@ class GroupClientTest {
 
     @Test
     fun `should return empty list when total pages is 0`() {
-        given(gitlabFeignClient.getGroupsHead(anyString(), anyInt())).willReturn(createResponse(totalPages = 0))
+        given(gitlabFeignClient.getGroupsHead(any(), anyInt())).willReturn(createResponse(totalPages = 0))
 
         assertThat(groupClient.getGroups()).isEmpty()
     }
@@ -46,10 +47,10 @@ class GroupClientTest {
         )
         val page2Groups = listOf(mock(Group::class.java), mock(Group::class.java))
 
-        given(gitlabFeignClient.getGroupsHead(anyString(), anyInt())).willReturn(createResponse(totalPages = 2))
+        given(gitlabFeignClient.getGroupsHead(any(), anyInt())).willReturn(createResponse(totalPages = 2))
 
-        given(gitlabFeignClient.getGroups(skipGroups = "", page = 1)).willReturn(page1Groups)
-        given(gitlabFeignClient.getGroups(skipGroups = "", page = 2)).willReturn(page2Groups)
+        given(gitlabFeignClient.getGroups(page = 1)).willReturn(page1Groups)
+        given(gitlabFeignClient.getGroups(page = 2)).willReturn(page2Groups)
 
         assertThat(groupClient.getGroups()).isEqualTo(page1Groups.plus(page2Groups))
     }

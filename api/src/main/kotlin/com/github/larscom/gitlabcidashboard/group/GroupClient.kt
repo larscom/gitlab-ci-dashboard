@@ -22,11 +22,12 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
     fun getGroupsWithId(groupIds: List<Long>): List<Group> = runBlocking(IO) { getAllGroupsById(groupIds) }
 
     fun getGroups(skipIds: List<Long> = listOf()): List<Group> = runBlocking(IO) {
+        val skipGroups = skipIds.takeUnless { it.isEmpty() }?.joinToString(",")
         val totalPages = gitlabClient
-            .getGroupsHead(skipGroups = skipIds.joinToString(","))
+            .getGroupsHead(skipGroups = skipGroups)
             .toTotalPages()
 
-        totalPages?.let { getAllGroupsByPage(pages = 1.rangeTo(it).toList(), skipIds = skipIds) }
+        totalPages?.let { getAllGroupsByPage(pages = 1.rangeTo(it).toList(), skipGroups = skipGroups) }
             ?: listOf<Group>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
     }
 
@@ -45,15 +46,15 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
         }
     }
 
-    private suspend fun getAllGroupsByPage(pages: List<Int>, skipIds: List<Long>) = coroutineScope {
-        pages.map { async { getGroupsByPage(page = it, skipIds = skipIds) } }
+    private suspend fun getAllGroupsByPage(pages: List<Int>, skipGroups: String?) = coroutineScope {
+        pages.map { async { getGroupsByPage(page = it, skipGroups = skipGroups) } }
             .awaitAll()
             .flatten()
     }
 
-    private fun getGroupsByPage(page: Int, skipIds: List<Long>): List<Group> {
+    private fun getGroupsByPage(page: Int, skipGroups: String?): List<Group> {
         return try {
-            gitlabClient.getGroups(skipGroups = skipIds.joinToString(","), page = page)
+            gitlabClient.getGroups(skipGroups = skipGroups, page = page)
         } catch (e: FeignException) {
             LOG.warn("Could not fetch Groups (page=$page) from Gitlab API", e)
             listOf()
