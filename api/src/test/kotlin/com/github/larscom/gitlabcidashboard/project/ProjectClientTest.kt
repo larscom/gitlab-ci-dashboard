@@ -8,13 +8,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.anyLong
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -37,13 +37,10 @@ class ProjectClientTest {
         val page1Projects = listOf(mock(Project::class.java), mock(Project::class.java), mock(Project::class.java))
         val page2Projects = listOf(mock(Project::class.java), mock(Project::class.java))
 
-        `when`(gitlabFeignClient.getProjectsHead(anyLong(), anyInt()))
-            .thenReturn(createResponse(totalPages = 2))
+        given(gitlabFeignClient.getProjectsHead(anyLong(), anyInt())).willReturn(createResponse(totalPages = 2))
 
-        `when`(gitlabFeignClient.getProjects(groupId = groupId, page = 1))
-            .thenReturn(page1Projects)
-        `when`(gitlabFeignClient.getProjects(groupId = groupId, page = 2))
-            .thenReturn(page2Projects)
+        given(gitlabFeignClient.getProjects(groupId = groupId, page = 1)).willReturn(page1Projects)
+        given(gitlabFeignClient.getProjects(groupId = groupId, page = 2)).willReturn(page2Projects)
 
         assertThat(projectClient.getProjects(groupId)).isEqualTo(page1Projects.plus(page2Projects))
     }
@@ -54,19 +51,18 @@ class ProjectClientTest {
         val page1Projects = listOf(mock(Project::class.java), mock(Project::class.java), mock(Project::class.java))
         val page3Projects = listOf(mock(Project::class.java), mock(Project::class.java))
 
-        `when`(gitlabFeignClient.getProjectsHead(anyLong(), anyInt()))
-            .thenReturn(createResponse(totalPages = 3))
+        given(gitlabFeignClient.getProjectsHead(anyLong(), anyInt())).willReturn(createResponse(totalPages = 3))
 
-        `when`(gitlabFeignClient.getProjects(groupId = groupId, page = 1))
-            .thenReturn(page1Projects)
-        `when`(gitlabFeignClient.getProjects(groupId = groupId, page = 2))
-            .thenThrow(
+        given(gitlabFeignClient.getProjects(groupId = groupId, page = 1))
+            .willReturn(page1Projects)
+        given(gitlabFeignClient.getProjects(groupId = groupId, page = 2))
+            .willThrow(
                 FeignException.InternalServerError(
                     "ERROR!", mock(feign.Request::class.java), byteArrayOf(), mapOf()
                 )
             )
-        `when`(gitlabFeignClient.getProjects(groupId = groupId, page = 3))
-            .thenReturn(page3Projects)
+        given(gitlabFeignClient.getProjects(groupId = groupId, page = 3))
+            .willReturn(page3Projects)
 
         assertThat(projectClient.getProjects(groupId)).isEqualTo(page1Projects.plus(page3Projects))
     }

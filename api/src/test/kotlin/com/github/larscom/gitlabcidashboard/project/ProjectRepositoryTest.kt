@@ -6,11 +6,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -32,7 +32,7 @@ class ProjectRepositoryTest {
         val projects = listOf(mock(Project::class.java))
         val groupId = 1L
 
-        `when`(cache.get(groupId)).thenReturn(projects)
+        given(cache.get(groupId)).willReturn(projects)
 
         assertThat(projectRepository.get(groupId)).isEqualTo(projects)
     }

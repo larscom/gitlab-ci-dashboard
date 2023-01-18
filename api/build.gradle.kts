@@ -21,10 +21,10 @@ extra["benManesCaffeineVersion"] = "3.1.2"
 extra["hosuabyTestInjectVersion"] = "0.3.2"
 
 dependencies {
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -35,8 +35,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${property("coroutinesVersion")}")
 
     implementation("com.github.ben-manes.caffeine:caffeine:${property("benManesCaffeineVersion")}")
-
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.hosuaby:inject-resources-core:${property("hosuabyTestInjectVersion")}")

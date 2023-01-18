@@ -12,5 +12,5 @@ class FeignConfig {
     fun requestInterceptor(@Value("\${gitlab.api_token}") apiToken: String): RequestInterceptor {
         return RequestInterceptor { request -> request.header("Authorization", "Bearer $apiToken") }
     }
-    
+
 }

@@ -12,7 +12,12 @@ import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipel
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.BDDMockito.given
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -47,8 +52,8 @@ class ProjectControllerIT {
 
     @BeforeEach
     fun beforeEach() {
-        `when`(gitlabClient.getProjectsHead(1, 100))
-            .thenReturn(createResponse())
+        given(gitlabClient.getProjectsHead(1, 100))
+            .willReturn(createResponse())
     }
 
     @Test
@@ -59,14 +64,14 @@ class ProjectControllerIT {
         val pipelineSuccess = pipelines[0]
         val pipelineFailed = pipelines[1]
 
-        `when`(gitlabClient.getProjects(groupId = groupId))
-            .thenReturn(objectMapper.readValue(projectsJson))
+        given(gitlabClient.getProjects(groupId = groupId))
+            .willReturn(objectMapper.readValue(projectsJson))
 
-        `when`(gitlabClient.getLatestPipeline(projectId = pipelineSuccess.projectId, ref = "master"))
-            .thenReturn(pipelineSuccess)
+        given(gitlabClient.getLatestPipeline(projectId = pipelineSuccess.projectId, ref = "master"))
+            .willReturn(pipelineSuccess)
 
-        `when`(gitlabClient.getLatestPipeline(projectId = pipelineFailed.projectId, ref = "master"))
-            .thenReturn(pipelineFailed)
+        given(gitlabClient.getLatestPipeline(projectId = pipelineFailed.projectId, ref = "master"))
+            .willReturn(pipelineFailed)
 
         val requestBuilder = get("/api/groups/${groupId}/projects")
             .accept(APPLICATION_JSON)

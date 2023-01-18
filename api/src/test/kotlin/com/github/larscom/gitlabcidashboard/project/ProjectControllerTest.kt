@@ -6,10 +6,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -33,7 +33,7 @@ class ProjectControllerTest {
     fun `should get projects grouped by status`() {
         val groupId = 1L
 
-        `when`(projectService.getProjectsGroupedByStatus(groupId = groupId)).thenReturn(projectsWithLatestPipeline)
+        given(projectService.getProjectsGroupedByStatus(groupId = groupId)).willReturn(projectsWithLatestPipeline)
 
         assertThat(projectController.getProjectsGroupedByStatus(groupId)).isEqualTo(projectsWithLatestPipeline)
     }

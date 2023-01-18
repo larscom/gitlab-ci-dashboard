@@ -9,9 +9,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
 import java.util.function.Consumer
@@ -54,15 +54,15 @@ class ProjectServiceTest {
         val pipelineSuccess2 = createPipeline(projectId = 11, status = Pipeline.Status.SUCCESS)
         val pipelineFailed = createPipeline(projectId = 12, status = Pipeline.Status.FAILED)
 
-        `when`(projectRepository.get(groupId)).thenReturn(projects)
-        `when`(pipelineLatestRepository.get(PipelineKey(projectId = 10, ref = "master")))
-            .thenReturn(pipelineSuccess1)
-        `when`(pipelineLatestRepository.get(PipelineKey(projectId = 11, ref = "master")))
-            .thenReturn(pipelineSuccess2)
-        `when`(pipelineLatestRepository.get(PipelineKey(projectId = 12, ref = "master")))
-            .thenReturn(pipelineFailed)
-        `when`(pipelineLatestRepository.get(PipelineKey(projectId = 13, ref = "master")))
-            .thenReturn(null)
+        given(projectRepository.get(groupId)).willReturn(projects)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 10, ref = "master")))
+            .willReturn(pipelineSuccess1)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 11, ref = "master")))
+            .willReturn(pipelineSuccess2)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 12, ref = "master")))
+            .willReturn(pipelineFailed)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 13, ref = "master")))
+            .willReturn(null)
 
         val projectsGroupedByStatus = projectService.getProjectsGroupedByStatus(groupId)
 
@@ -141,11 +141,11 @@ class ProjectServiceTest {
         )
         val pipelineSuccess = createPipeline(projectId = 10, status = Pipeline.Status.SUCCESS)
 
-        `when`(projectRepository.get(groupId)).thenReturn(projects)
-        `when`(pipelineLatestRepository.get(PipelineKey(projectId = 10, ref = "master")))
-            .thenReturn(pipelineSuccess)
-        `when`(pipelineLatestRepository.get(PipelineKey(projectId = 11, ref = "master")))
-            .thenReturn(null)
+        given(projectRepository.get(groupId)).willReturn(projects)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 10, ref = "master")))
+            .willReturn(pipelineSuccess)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 11, ref = "master")))
+            .willReturn(null)
 
         val projectsGroupedByStatus = projectService.getProjectsGroupedByStatus(groupId)
 
