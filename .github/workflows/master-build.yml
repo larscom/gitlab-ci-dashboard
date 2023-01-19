@@ -36,8 +36,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/gradle-build-action@v2
-      - run: ./gradlew test -p api
+      - run: ./api/gradlew test -p api
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
