@@ -10,7 +10,6 @@ import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
@@ -50,12 +49,6 @@ class ProjectControllerIT {
     @MockBean
     lateinit var gitlabClient: GitlabFeignClient
 
-    @BeforeEach
-    fun beforeEach() {
-        given(gitlabClient.getProjectsHead(1, 100))
-            .willReturn(createResponse())
-    }
-
     @Test
     fun `should get projects with pipelines grouped by status`() {
         val groupId = 1L
@@ -63,6 +56,9 @@ class ProjectControllerIT {
         val pipelines = objectMapper.readValue(pipelinesJson, object : TypeReference<List<Pipeline>>() {})
         val pipelineSuccess = pipelines[0]
         val pipelineFailed = pipelines[1]
+
+        given(gitlabClient.getProjectsHead(groupId = groupId))
+            .willReturn(createResponse())
 
         given(gitlabClient.getProjects(groupId = groupId))
             .willReturn(objectMapper.readValue(projectsJson))

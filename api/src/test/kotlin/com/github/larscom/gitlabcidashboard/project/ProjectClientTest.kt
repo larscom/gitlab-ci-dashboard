@@ -53,7 +53,7 @@ class ProjectClientTest {
     }
 
     @Test
-    fun `should merge projects from all pages even if one fails`() {
+    fun `should merge projects from all pages even if one request fails`() {
         val groupId = 1L
         val page1Projects = listOf(mock(Project::class.java), mock(Project::class.java), mock(Project::class.java))
         val page3Projects = listOf(mock(Project::class.java), mock(Project::class.java))

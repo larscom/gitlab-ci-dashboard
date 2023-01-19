@@ -35,13 +35,11 @@ data class Pipeline(
         SCHEDULED;
 
         @JsonCreator
-        fun toStatus(value: String): Status? {
-            return Status.values().firstOrNull { it.getValue() == value }
+        fun fromString(value: String?): Status? {
+            return Status.values().firstOrNull { it.toString() == value?.lowercase() }
         }
 
         @JsonValue
-        fun getValue() = toString()
-
         override fun toString(): String {
             return name.lowercase()
         }
@@ -64,13 +62,11 @@ data class Pipeline(
         ONDEMAND_DAST_VALIDATION;
 
         @JsonCreator
-        fun toSource(value: String): Source? {
-            return Source.values().firstOrNull { it.getValue() == value }
+        fun fromString(value: String?): Source? {
+            return Source.values().firstOrNull { it.toString() == value?.lowercase() }
         }
 
         @JsonValue
-        fun getValue() = toString()
-
         override fun toString(): String {
             return name.lowercase()
         }
