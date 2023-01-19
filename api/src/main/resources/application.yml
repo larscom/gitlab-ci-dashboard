@@ -1,3 +1,8 @@
+spring:
+  cache:
+    caffeine:
+      spec: expireAfterWrite=${GITLAB_GROUP_CACHE_TTL_DURATION:5m}
+
 app:
   version: ${VERSION:}
 
@@ -10,3 +15,6 @@ gitlab:
     only_top_level: ${GITLAB_GROUP_ONLY_TOP_LEVEL:false}
   project:
     hide_unknown: ${GITLAB_PROJECT_HIDE_UNKNOWN:false}
+    cache_ttl_seconds: ${GITLAB_PROJECT_CACHE_TTL_SECONDS:300}
+  pipeline:
+    cache_ttl_seconds: ${GITLAB_PIPELINE_CACHE_TTL_SECONDS:10}

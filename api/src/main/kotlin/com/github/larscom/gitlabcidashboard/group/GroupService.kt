@@ -2,6 +2,7 @@ package com.github.larscom.gitlabcidashboard.group
 
 import com.github.larscom.gitlabcidashboard.group.model.Group
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,6 +12,7 @@ class GroupService(
     @Value("\${gitlab.group.skip_ids}") private val skipGroupIds: List<Long>,
 ) {
 
+    @Cacheable("groups")
     fun getGroups(): List<Group> {
         return onlyGroupIds.takeUnless { it.isEmpty() }
             ?.let { groupClient.getGroupsWithId(groupIds = it) }

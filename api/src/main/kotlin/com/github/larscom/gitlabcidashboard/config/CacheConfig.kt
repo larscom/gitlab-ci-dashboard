@@ -8,29 +8,37 @@ import com.github.larscom.gitlabcidashboard.pipeline.PipelineKey
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.project.ProjectClient
 import com.github.larscom.gitlabcidashboard.project.model.Project
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
+import java.util.Optional
 
 @Configuration
 @EnableCaching
 class CacheConfig {
 
     @Bean
-    fun projectsCache(client: ProjectClient, ticker: Ticker): LoadingCache<Long, List<Project>> = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofMinutes(5))
-        .refreshAfterWrite(Duration.ofSeconds(120))
+    fun projectsCache(
+        @Value("\${gitlab.project.cache_ttl_seconds}") ttlSeconds: Long,
+        client: ProjectClient,
+        ticker: Ticker
+    ): LoadingCache<Long, List<Project>> = Caffeine.newBuilder()
+        .expireAfterWrite(Duration.ofSeconds(ttlSeconds))
         .ticker(ticker)
         .build { client.getProjects(it) }
 
     @Bean
-    fun pipelineCache(client: PipelineClient, ticker: Ticker): LoadingCache<PipelineKey, Pipeline?> =
+    fun pipelineCache(
+        @Value("\${gitlab.pipeline.cache_ttl_seconds}") ttlSeconds: Long,
+        client: PipelineClient,
+        ticker: Ticker
+    ): LoadingCache<PipelineKey, Optional<Pipeline>> =
         Caffeine.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(3))
-            .refreshAfterWrite(Duration.ofSeconds(5))
+            .expireAfterWrite(Duration.ofSeconds(ttlSeconds))
             .ticker(ticker)
-            .build { client.getLatestPipeline(projectId = it.projectId, ref = it.ref) }
+            .build { Optional.ofNullable(client.getLatestPipeline(projectId = it.projectId, ref = it.ref)) }
 
     @Bean
     fun ticker(): Ticker = Ticker.systemTicker()
