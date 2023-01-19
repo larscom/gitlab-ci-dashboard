@@ -5,7 +5,7 @@ name: docker-publish
       - '*.*.*'
 
 jobs:
-  test_and_codecov:
+  test_frontend:
     runs-on: ubuntu-latest
     env:
       TZ: Europe/Amsterdam
@@ -16,10 +16,32 @@ jobs:
           node-version: 16
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: npm run test:ci
-      # - run: $(npm bin)/codecov --disable=gcov -f coverage/coverage-final.json
+  #      - uses: codecov/codecov-action@v3
+  #        with:
+  #          token: ${{ secrets.CODECOV_TOKEN }}
+  #          files: ./coverage/coverage-final.json
+  #          verbose: true
+
+  test_api:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Amsterdam
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/gradle-build-action@v2
+      - run: ./gradlew test -p api
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./api/build/reports/jacoco/test/jacocoTestReport.xml
+          verbose: true
 
   build_and_publish:
-    needs: test_and_codecov
+    needs: [test_frontend, test_api]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

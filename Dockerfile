@@ -12,7 +12,7 @@ FROM gradle:7.6.0-jdk17 AS gradle
 WORKDIR /home/gradle
 COPY --chown=gradle:gradle api .
 COPY --chown=gradle:gradle --from=frontend /builder/dist/static ./src/main/resources/static
-RUN gradle build || return 1
+RUN gradle build -x test || return 1
 
 # Package JAR
 FROM ibm-semeru-runtimes:open-17.0.5_8-jre
