@@ -76,4 +76,14 @@ class PipelineTest {
         }
         assertThat(PIPELINE.fromString(null)).isNull()
     }
+
+    @Test
+    fun `Status should have custom toString()`() {
+        assertThat(Pipeline.Status.FAILED.toString()).isEqualTo("failed")
+    }
+
+    @Test
+    fun `Source should have custom toString()`() {
+        assertThat(Pipeline.Source.PUSH.toString()).isEqualTo("push")
+    }
 }
