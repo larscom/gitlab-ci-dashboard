@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
@@ -32,7 +34,8 @@ class ProjectServiceTest {
         projectService = ProjectService(
             hideUnknownProjects = false,
             projectRepository = projectRepository,
-            pipelineLatestRepository = pipelineLatestRepository
+            pipelineLatestRepository = pipelineLatestRepository,
+            skipProjectIds = listOf()
         )
     }
 
@@ -132,7 +135,8 @@ class ProjectServiceTest {
         projectService = ProjectService(
             hideUnknownProjects = true,
             projectRepository = projectRepository,
-            pipelineLatestRepository = pipelineLatestRepository
+            pipelineLatestRepository = pipelineLatestRepository,
+            skipProjectIds = listOf()
         )
         val groupId = 1L
         val projects = listOf(
@@ -162,6 +166,45 @@ class ProjectServiceTest {
                     )
             }
         )
+    }
+
+    @Test
+    fun `should skip projects with id 10,11`() {
+        projectService = ProjectService(
+            hideUnknownProjects = false,
+            projectRepository = projectRepository,
+            pipelineLatestRepository = pipelineLatestRepository,
+            skipProjectIds = listOf(10, 11)
+        )
+        val groupId = 1L
+        val projects = listOf(
+            Project(id = 10, name = "Project 1", defaultBranch = "master"),
+            Project(id = 11, name = "Project 2", defaultBranch = "master"),
+            Project(id = 12, name = "Project 3", defaultBranch = "master"),
+        )
+
+        given(projectRepository.get(groupId)).willReturn(projects)
+        given(pipelineLatestRepository.get(PipelineKey(projectId = 12, ref = "master")))
+            .willReturn(null)
+
+        val projectsGroupedByStatus = projectService.getProjectsGroupedByStatus(groupId)
+
+        assertThat(projectsGroupedByStatus.keys).containsExactly(Pipeline.Status.UNKNOWN)
+        assertThat(projectsGroupedByStatus.getValue(Pipeline.Status.UNKNOWN)).satisfies(
+            Consumer { list ->
+                assertThat(list)
+                    .hasSize(1)
+                    .anySatisfy(
+                        Consumer {
+                            assertThat(it.pipeline).isNull()
+                            assertThat(it.project.id).isEqualTo(12)
+                        }
+                    )
+            }
+        )
+
+        verify(pipelineLatestRepository, never()).get(PipelineKey(projectId = 10, ref = "master"))
+        verify(pipelineLatestRepository, never()).get(PipelineKey(projectId = 11, ref = "master"))
     }
 
     private fun createPipeline(projectId: Long, status: Pipeline.Status): Pipeline = Pipeline(

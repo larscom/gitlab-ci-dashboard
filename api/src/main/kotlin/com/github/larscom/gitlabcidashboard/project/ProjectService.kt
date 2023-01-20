@@ -1,11 +1,11 @@
 package com.github.larscom.gitlabcidashboard.project
 
-import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
 import com.github.larscom.gitlabcidashboard.pipeline.PipelineKey
 import com.github.larscom.gitlabcidashboard.pipeline.PipelineLatestRepository
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline.Status.UNKNOWN
 import com.github.larscom.gitlabcidashboard.project.model.Project
+import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class ProjectService(
     @Value("\${gitlab.project.hide_unknown}") private val hideUnknownProjects: Boolean,
+    @Value("\${gitlab.project.skip_ids}") private val skipProjectIds: List<Long>,
     private val projectRepository: ProjectRepository,
     private val pipelineLatestRepository: PipelineLatestRepository,
 ) {
@@ -24,6 +25,8 @@ class ProjectService(
     fun getProjectsGroupedByStatus(groupId: Long): Map<Pipeline.Status, List<ProjectWithLatestPipeline>> =
         runBlocking(Dispatchers.IO) {
             val projects = projectRepository.get(groupId)
+                .filter { skipProjectIds.isEmpty() || skipProjectIds.contains(it.id).not() }
+
             val pipelines = getLatestPipelines(projects)
             projects.map { project -> toStatusMap(project, pipelines[project.id]) }
                 .asSequence()

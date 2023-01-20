@@ -14,6 +14,7 @@ gitlab:
     only_ids: ${GITLAB_GROUP_ONLY_IDS:}
     only_top_level: ${GITLAB_GROUP_ONLY_TOP_LEVEL:false}
   project:
+    skip_ids: ${GITLAB_PROJECT_SKIP_IDS:}
     hide_unknown: ${GITLAB_PROJECT_HIDE_UNKNOWN:false}
     cache_ttl_seconds: ${GITLAB_PROJECT_CACHE_TTL_SECONDS:300}
   pipeline:

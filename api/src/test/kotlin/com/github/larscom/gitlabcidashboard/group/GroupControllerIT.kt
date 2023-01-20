@@ -10,7 +10,11 @@ import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.group.model.Group
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.BDDMockito.given
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -54,7 +58,10 @@ class GroupControllerIT {
             result.response.contentAsString,
             object : TypeReference<List<Group>>() {}
         )
-        
+
+        verify(gitlabClient, times(1)).getGroupsHead(any(), anyInt())
+        verify(gitlabClient, times(1)).getGroups(any(), anyInt(), anyInt())
+
         assertThat(groups).hasSize(2)
             .anyMatch { it.id == 1L }
             .anyMatch { it.id == 2L }
