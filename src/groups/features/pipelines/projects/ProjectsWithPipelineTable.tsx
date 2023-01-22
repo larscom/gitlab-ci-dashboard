@@ -1,6 +1,7 @@
 import { ProjectWithLatestPipeline } from '$groups/features/pipelines/models/project-with-pipeline'
 import { Box, Text } from '@mantine/core'
-import { DataTable } from 'mantine-datatable'
+import { DataTable, DataTableSortStatus } from 'mantine-datatable'
+import { useEffect, useState } from 'react'
 
 const format: Intl.DateTimeFormatOptions = {
   month: '2-digit',
@@ -8,35 +9,85 @@ const format: Intl.DateTimeFormatOptions = {
   year: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
-  second: '2-digit',
+  second: '2-digit'
 }
 
 const languages = [...(navigator?.languages || ['en-US'])]
+
+const dateMatcher = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/
+const sortBy = (
+  projects: ProjectWithLatestPipeline[],
+  propNames: string[],
+  direction: DataTableSortStatus['direction']
+) => {
+  return projects.sort((a, b) => {
+    const propA = a[propNames[0]][propNames[1]]
+    const propB = b[propNames[0]][propNames[1]]
+    const isAscending = direction === 'asc'
+
+    const isDate =
+      dateMatcher.test(String(propA)) && dateMatcher.test(String(propB))
+
+    const isNumber = typeof propA === 'number' && typeof propB === 'number'
+
+    if (isDate) {
+      return isAscending
+        ? Number(new Date(propA)) - Number(new Date(propB))
+        : Number(new Date(propB)) - Number(new Date(propA))
+    }
+
+    if (isNumber) {
+      return isAscending ? propA - propB : propB - propA
+    }
+
+    return isAscending
+      ? String(propA).localeCompare(propB)
+      : String(propB).localeCompare(propA)
+  })
+}
 
 interface Props {
   projects: ProjectWithLatestPipeline[]
 }
 
 export default function ProjectsWithPipelineTable({ projects }: Props) {
+  const [sortedProjects, setSortedProjects] = useState(projects)
+  const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
+    columnAccessor: 'project.name',
+    direction: 'desc'
+  })
+
+  useEffect(() => setSortedProjects(projects), [projects])
+
+  useEffect(() => {
+    const propNames = sortStatus.columnAccessor.split('.')
+    setSortedProjects((p) => sortBy(p, propNames, sortStatus.direction))
+  }, [sortStatus])
+
   return (
-    <Box className={projects.length > 10 ? 'h-[500px]' : 'h-auto'}>
+    <Box className={sortedProjects.length > 10 ? 'h-[500px]' : 'h-auto'}>
       <DataTable
         striped
         highlightOnHover
         idAccessor="project.id"
-        records={projects}
+        sortStatus={sortStatus}
+        onSortStatusChange={setSortStatus}
+        records={sortedProjects}
         columns={[
           {
             accessor: 'project.id',
             title: 'Id',
+            sortable: true
           },
           {
             accessor: 'project.name',
             title: 'Name',
+            sortable: true
           },
           {
             accessor: 'project.defaultBranch',
             title: 'Branch',
+            sortable: true
           },
           {
             accessor: 'project.topics',
@@ -47,17 +98,19 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
                   {project.topics.length ? project.topics.join(',') : '-'}
                 </Text>
               )
-            },
+            }
           },
           {
             accessor: 'pipeline.source',
             title: 'Triggered by',
+            sortable: true,
             render({ pipeline }) {
               return <Text>{pipeline?.source || '-'}</Text>
-            },
+            }
           },
           {
             accessor: 'pipeline.updatedAt',
+            sortable: true,
             title: 'When',
             render({ pipeline }) {
               const dateTime = pipeline?.updatedAt
@@ -66,8 +119,8 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
                   )
                 : undefined
               return <Text>{dateTime || '-'}</Text>
-            },
-          },
+            }
+          }
         ]}
         onRowClick={({ project, pipeline }) =>
           pipeline
