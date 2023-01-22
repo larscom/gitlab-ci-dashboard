@@ -57,12 +57,10 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
     direction: 'desc'
   })
 
-  useEffect(() => setSortedProjects(projects), [projects])
-
   useEffect(() => {
     const propNames = sortStatus.columnAccessor.split('.')
-    setSortedProjects((p) => sortBy(p, propNames, sortStatus.direction))
-  }, [sortStatus])
+    setSortedProjects(sortBy(projects, propNames, sortStatus.direction))
+  }, [projects, sortStatus])
 
   return (
     <Box className={sortedProjects.length > 10 ? 'h-[500px]' : 'h-auto'}>
