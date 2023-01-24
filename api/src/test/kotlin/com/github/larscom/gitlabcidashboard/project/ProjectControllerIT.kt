@@ -96,6 +96,7 @@ class ProjectControllerIT {
                             assertThat(it.project.defaultBranch).isEqualTo("master")
                             assertThat(it.project.name).isEqualTo("Project 1")
                             assertThat(it.project.topics).isEqualTo(setOf("Java"))
+                            assertThat(it.project.webUrl).isEqualTo("https://gitlab.fake/project-1")
                         }
                     )
             }
@@ -111,6 +112,7 @@ class ProjectControllerIT {
                             assertThat(it.project.defaultBranch).isEqualTo("master")
                             assertThat(it.project.name).isEqualTo("Project 2")
                             assertThat(it.project.topics).isEqualTo(setOf("Kotlin"))
+                            assertThat(it.project.webUrl).isEqualTo("https://gitlab.fake/project-2")
                         }
                     )
             }

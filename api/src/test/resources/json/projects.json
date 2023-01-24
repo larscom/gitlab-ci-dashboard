@@ -2,7 +2,8 @@
   {
     "id": 1,
     "name": "Project 1",
-    "defaultBranch": "master",
+    "default_branch": "master",
+    "web_url" : "https://gitlab.fake/project-1",
     "topics": [
       "Java"
     ]
@@ -10,7 +11,8 @@
   {
     "id": 2,
     "name": "Project 2",
-    "defaultBranch": "master",
+    "default_branch": "master",
+    "web_url" : "https://gitlab.fake/project-2",
     "topics": [
       "Kotlin"
     ]

@@ -48,10 +48,10 @@ class ProjectServiceTest {
     fun `should get projects grouped by status`() {
         val groupId = 1L
         val projects = listOf(
-            Project(id = 10, name = "Project 1", defaultBranch = "master"),
-            Project(id = 11, name = "Project 2", defaultBranch = "master"),
-            Project(id = 12, name = "Project 3", defaultBranch = "master"),
-            Project(id = 13, name = "Project 4", defaultBranch = "master"),
+            Project(id = 10, name = "Project 1", defaultBranch = "master", webUrl = "webUrl"),
+            Project(id = 11, name = "Project 2", defaultBranch = "master", webUrl = "webUrl"),
+            Project(id = 12, name = "Project 3", defaultBranch = "master", webUrl = "webUrl"),
+            Project(id = 13, name = "Project 4", defaultBranch = "master", webUrl = "webUrl"),
         )
         val pipelineSuccess1 = createPipeline(projectId = 10, status = Pipeline.Status.SUCCESS)
         val pipelineSuccess2 = createPipeline(projectId = 11, status = Pipeline.Status.SUCCESS)
@@ -140,8 +140,8 @@ class ProjectServiceTest {
         )
         val groupId = 1L
         val projects = listOf(
-            Project(id = 10, name = "Project 1", defaultBranch = "master"),
-            Project(id = 11, name = "Project 2", defaultBranch = "master")
+            Project(id = 10, name = "Project 1", defaultBranch = "master", webUrl = "webUrl"),
+            Project(id = 11, name = "Project 2", defaultBranch = "master", webUrl = "webUrl")
         )
         val pipelineSuccess = createPipeline(projectId = 10, status = Pipeline.Status.SUCCESS)
 
@@ -178,9 +178,9 @@ class ProjectServiceTest {
         )
         val groupId = 1L
         val projects = listOf(
-            Project(id = 10, name = "Project 1", defaultBranch = "master"),
-            Project(id = 11, name = "Project 2", defaultBranch = "master"),
-            Project(id = 12, name = "Project 3", defaultBranch = "master"),
+            Project(id = 10, name = "Project 1", defaultBranch = "master", webUrl = "webUrl"),
+            Project(id = 11, name = "Project 2", defaultBranch = "master", webUrl = "webUrl"),
+            Project(id = 12, name = "Project 3", defaultBranch = "master", webUrl = "webUrl"),
         )
 
         given(projectRepository.get(groupId)).willReturn(projects)
