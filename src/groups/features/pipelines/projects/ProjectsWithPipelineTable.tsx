@@ -120,12 +120,11 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             }
           }
         ]}
-        onRowClick={({ project, pipeline }) => {
-          console.info(project)
+        onRowClick={({ project, pipeline }) =>
           pipeline
             ? window.open(pipeline.webUrl, '_blank')
             : window.open(`${project.webUrl}/-/pipelines`, '_blank')
-        }}
+        }
       />
     </Box>
   )
