@@ -20,15 +20,19 @@ const sortBy = (
   propNames: string[],
   direction: DataTableSortStatus['direction']
 ) => {
-  return projects.sort((a, b) => {
-    const propA = a[propNames[0]][propNames[1]]
-    const propB = b[propNames[0]][propNames[1]]
-    const isAscending = direction === 'asc'
+  return Array.from(projects).sort((a, b) => {
+    const propA = a[propNames[0]] ? a[propNames[0]][propNames[1]] : null
+    const propB = b[propNames[0]] ? b[propNames[0]][propNames[1]] : null
+
+    if (propA == null && propB == null) {
+      return -1
+    }
 
     const isDate =
       dateMatcher.test(String(propA)) && dateMatcher.test(String(propB))
 
     const isNumber = typeof propA === 'number' && typeof propB === 'number'
+    const isAscending = direction === 'asc'
 
     if (isDate) {
       return isAscending
@@ -54,7 +58,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
   const [sortedProjects, setSortedProjects] = useState(projects)
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
     columnAccessor: 'project.name',
-    direction: 'desc'
+    direction: 'asc'
   })
 
   useEffect(() => {
