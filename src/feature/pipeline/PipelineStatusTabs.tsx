@@ -1,16 +1,16 @@
-import Empty from '$components/ui/Empty'
+import Empty from '$components/Empty'
+import ProjectsWithPipelineTable from '$feature/project/ProjectsWithPipelineTable'
+import { Status } from '$models/pipeline'
+import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import {
   Badge,
   MantineColor,
   Stack,
   Tabs,
   TabsValue,
-  Text,
+  Text
 } from '@mantine/core'
 import { useEffect, useState } from 'react'
-import { Status } from './models/pipeline'
-import { ProjectWithLatestPipeline } from './models/project-with-pipeline'
-import ProjectsWithPipelineTable from './projects/ProjectsWithPipelineTable'
 
 const COLOR_MAP: Record<Status, MantineColor> = {
   created: 'dark.6',
@@ -24,7 +24,7 @@ const COLOR_MAP: Record<Status, MantineColor> = {
   skipped: 'orange.6',
   manual: 'cyan.6',
   scheduled: 'violet.6',
-  unknown: 'gray.6',
+  unknown: 'gray.6'
 }
 
 interface Props {

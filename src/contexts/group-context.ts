@@ -1,4 +1,4 @@
-import { GroupId } from '$groups/models/group'
+import { GroupId } from '$models/group'
 import { createContext } from 'react'
 
 interface GroupContext {

@@ -1,6 +1,6 @@
-import { Status } from '$groups/features/pipelines/models/pipeline'
-import { ProjectWithLatestPipeline } from '$groups/features/pipelines/models/project-with-pipeline'
-import { GroupId } from '$groups/models/group'
+import { GroupId } from '$models/group'
+import { Status } from '$models/pipeline'
+import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import { useQuery } from 'react-query'
 
 export const useProjects = (groupId: GroupId) => {
@@ -19,7 +19,7 @@ export const useProjects = (groupId: GroupId) => {
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: Infinity
     }
   )
 }

@@ -1,4 +1,4 @@
-import { Group } from '$groups/models/group'
+import { Group } from '$models/group'
 import { useQuery } from 'react-query'
 
 export const useGroups = () => {
@@ -6,6 +6,6 @@ export const useGroups = () => {
   return useQuery<Group[]>(url, () => fetch(url).then((r) => r.json()), {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    staleTime: Infinity,
+    staleTime: Infinity
   })
 }

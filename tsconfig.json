@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "suppressImplicitAnyIndexErrors" : true,
+    "suppressImplicitAnyIndexErrors": true,
     "module": "ESNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
@@ -19,7 +19,10 @@
     "jsx": "react-jsx",
     "paths": {
       "$components/*": ["src/components/*"],
-      "$groups/*": ["src/groups/*"]
+      "$contexts/*": ["src/contexts/*"],
+      "$feature/*": ["src/feature/*"],
+      "$hooks/*": ["src/hooks/*"],
+      "$models/*": ["src/models/*"]
     }
   },
   "include": ["src"],

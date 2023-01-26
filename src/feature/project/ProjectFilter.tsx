@@ -1,8 +1,16 @@
+import { Status } from '$models/pipeline'
+import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { ActionIcon, Chip, Group, Input, Tooltip } from '@mantine/core'
-import { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useState, useTransition } from 'react'
-import { Status } from '../models/pipeline'
-import { ProjectWithLatestPipeline } from '../models/project-with-pipeline'
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition
+} from 'react'
 
 const filterBy = (value: string, filterText: string): boolean =>
   value.toLocaleLowerCase().includes(filterText.toLocaleLowerCase())
@@ -33,11 +41,13 @@ const filter = (
 
 interface Props {
   unfiltered: Map<Status, ProjectWithLatestPipeline[]> | undefined
-  setStatusWithProjects: Dispatch<SetStateAction<Map<Status, ProjectWithLatestPipeline[]>>>
+  setStatusWithProjects: Dispatch<
+    SetStateAction<Map<Status, ProjectWithLatestPipeline[]>>
+  >
 }
 export default function ProjectFilter({
   unfiltered,
-  setStatusWithProjects,
+  setStatusWithProjects
 }: Props) {
   const [, startTransition] = useTransition()
   const [filterTopics, setFilterTopics] = useState<string[]>([])

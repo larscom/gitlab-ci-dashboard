@@ -1,4 +1,4 @@
-import { ProjectWithLatestPipeline } from '$groups/features/pipelines/models/project-with-pipeline'
+import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import { Box, Text } from '@mantine/core'
 import { DataTable, DataTableSortStatus } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
@@ -25,7 +25,7 @@ const sortBy = (
     const propB = b[propNames[0]] ? b[propNames[0]][propNames[1]] : null
 
     if (propA == null && propB == null) {
-      return -1
+      return 0
     }
 
     const isDate =

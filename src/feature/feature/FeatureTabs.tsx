@@ -1,7 +1,7 @@
-import Empty from '$components/ui/Empty'
+import Empty from '$components/Empty'
+import PipelineOverview from '$feature/pipeline/PipelineOverview'
 import { ForkOutlined, ScheduleOutlined } from '@ant-design/icons'
 import { Stack, Tabs, Text } from '@mantine/core'
-import PipelineOverview from './pipelines/PipelineOverview'
 
 export default function FeatureTabs() {
   return (

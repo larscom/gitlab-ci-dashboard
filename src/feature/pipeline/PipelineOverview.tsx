@@ -1,12 +1,12 @@
-import IndeterminateLoader from '$components/ui/IndeterminateLoader'
-import { GroupContext } from '$groups/contexts/group-context'
-import { useProjects } from '$groups/hooks/use-projects'
+import IndeterminateLoader from '$components/IndeterminateLoader'
+import { GroupContext } from '$contexts/group-context'
+import ProjectFilter from '$feature/project/ProjectFilter'
+import { useProjects } from '$hooks/use-projects'
+import { Status } from '$models/pipeline'
+import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import { Stack } from '@mantine/core'
 import { useContext, useState } from 'react'
-import { Status } from './models/pipeline'
-import { ProjectWithLatestPipeline } from './models/project-with-pipeline'
 import PipelineStatusTabs from './PipelineStatusTabs'
-import ProjectFilter from './projects/ProjectFilter'
 
 export default function PipelineOverview() {
   const { groupId } = useContext(GroupContext)
