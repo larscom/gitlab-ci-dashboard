@@ -4,12 +4,13 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
 
 const format: Intl.DateTimeFormatOptions = {
-  month: '2-digit',
-  day: '2-digit',
-  year: '2-digit',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
   hour: '2-digit',
   minute: '2-digit',
-  second: '2-digit'
+  second: '2-digit',
+  hour12: false
 }
 
 const languages = [...(navigator?.languages || ['en-US'])]
@@ -115,9 +116,10 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             sortable: true,
             title: 'When',
             render({ pipeline }) {
-              const dateTime = pipeline?.updatedAt
+              const updatedAt = pipeline?.updatedAt
+              const dateTime = updatedAt
                 ? new Intl.DateTimeFormat(languages, format).format(
-                    new Date(pipeline?.updatedAt)
+                    new Date(updatedAt)
                   )
                 : undefined
               return <Text>{dateTime || '-'}</Text>
