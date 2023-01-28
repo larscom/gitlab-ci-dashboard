@@ -17,7 +17,7 @@ class PipelineClient(private val gitlabClient: GitlabFeignClient) {
         return try {
             gitlabClient.getPipelines(projectId = projectId, ref = ref)
         } catch (e: FeignException) {
-            LOG.info("Did not get any Pipelines (projectId=$projectId, ref=$ref) from Gitlab API")
+            LOG.info("Did not find any Pipelines (projectId=$projectId, ref=$ref)")
             listOf()
         }
     }
@@ -26,7 +26,7 @@ class PipelineClient(private val gitlabClient: GitlabFeignClient) {
         return try {
             gitlabClient.getLatestPipeline(projectId = projectId, ref = ref)
         } catch (e: FeignException) {
-            LOG.info("Did not get latest Pipeline (projectId=$projectId, ref=$ref) from Gitlab API")
+            LOG.info("Did not find latest Pipeline (projectId=$projectId, ref=$ref)")
             null
         }
     }

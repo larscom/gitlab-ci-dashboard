@@ -28,7 +28,7 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
             .toTotalPages()
 
         totalPages?.let { getAllGroupsByPage(pages = 1.rangeTo(it).toList(), skipGroups = skipGroups) }
-            ?: listOf<Group>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
+            ?: listOf<Group>().also { LOG.error("Could not determine total amount of pages. Is token valid?") }
     }
 
     private suspend fun getAllGroupsById(groupIds: List<Long>) = coroutineScope {
@@ -41,7 +41,7 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
         return try {
             gitlabClient.getGroup(groupId = groupId)
         } catch (e: FeignException) {
-            LOG.warn("Could not fetch Group (id=$groupId) from Gitlab API", e)
+            LOG.warn("Could not fetch Group (id=$groupId)", e)
             null
         }
     }
@@ -56,7 +56,7 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
         return try {
             gitlabClient.getGroups(skipGroups = skipGroups, page = page)
         } catch (e: FeignException) {
-            LOG.warn("Could not fetch Groups (page=$page) from Gitlab API", e)
+            LOG.warn("Could not fetch Groups (page=$page)", e)
             listOf()
         }
     }

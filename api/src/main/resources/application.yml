@@ -9,6 +9,8 @@ app:
 gitlab:
   base_url: ${GITLAB_BASE_URL}
   api_token: ${GITLAB_API_TOKEN}
+  branch:
+    cache_ttl_seconds: ${GITLAB_BRANCH_CACHE_TTL_SECONDS:60}
   group:
     skip_ids: ${GITLAB_GROUP_SKIP_IDS:}
     only_ids: ${GITLAB_GROUP_ONLY_IDS:}

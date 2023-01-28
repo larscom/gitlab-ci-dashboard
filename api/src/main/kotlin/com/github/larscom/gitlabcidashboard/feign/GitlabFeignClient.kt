@@ -1,5 +1,6 @@
 package com.github.larscom.gitlabcidashboard.feign
 
+import com.github.larscom.gitlabcidashboard.branch.model.Branch
 import com.github.larscom.gitlabcidashboard.group.model.Group
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.project.model.Project
@@ -54,7 +55,7 @@ interface GitlabFeignClient {
         value = ["/projects/{projectId}/pipelines?per_page={perPage}&ref={ref}"]
     )
     fun getPipelinesHead(
-        @PathVariable("projectId") groupId: Long,
+        @PathVariable("projectId") projectId: Long,
         @PathVariable("ref") ref: String,
         @PathVariable("perPage") perPage: Int = 100
     ): feign.Response
@@ -71,5 +72,27 @@ interface GitlabFeignClient {
     ): List<Pipeline>
 
     @RequestMapping(method = [RequestMethod.GET], value = ["/projects/{projectId}/pipelines/latest?ref={ref}"])
-    fun getLatestPipeline(@PathVariable("projectId") projectId: Long, @PathVariable("ref") ref: String): Pipeline?
+    fun getLatestPipeline(
+        @PathVariable("projectId") projectId: Long,
+        @PathVariable("ref") ref: String
+    ): Pipeline?
+
+    @RequestMapping(
+        method = [RequestMethod.HEAD],
+        value = ["/projects/{projectId}/repository/branches?per_page={perPage}"]
+    )
+    fun getBranchesHead(
+        @PathVariable("projectId") projectId: Long,
+        @PathVariable("perPage") perPage: Int = 100
+    ): feign.Response
+
+    @RequestMapping(
+        method = [RequestMethod.GET],
+        value = ["/projects/{projectId}/repository/branches?page={page}&per_page={perPage}"]
+    )
+    fun getBranches(
+        @PathVariable("projectId") projectId: Long,
+        @PathVariable("page") page: Int = 1,
+        @PathVariable("perPage") perPage: Int = 100
+    ): List<Branch>
 }

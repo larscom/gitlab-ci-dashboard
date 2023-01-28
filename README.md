@@ -60,6 +60,7 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 | GITLAB_PROJECT_CACHE_TTL_SECONDS  | long     | Expire after write time in seconds for projects (cache)                                                | no       | 300     |
 | GITLAB_PROJECT_HIDE_UNKNOWN       | boolean  | Hide projects with 'unknown' pipeline status (mostly means that the pipeline is not configured)        | no       | false   |
 | GITLAB_PIPELINE_CACHE_TTL_SECONDS | long     | Expire after write time in seconds for pipelines (cache)                                               | no       | 10      |
+| GITLAB_BRANCH_CACHE_TTL_SECONDS   | long     | Expire after write time in seconds for branches (cache)                                                | no       | 60      |
 
 ## Why?
 

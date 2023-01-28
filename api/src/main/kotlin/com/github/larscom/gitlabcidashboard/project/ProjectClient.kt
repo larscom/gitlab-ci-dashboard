@@ -24,7 +24,7 @@ class ProjectClient(private val gitlabClient: GitlabFeignClient) {
             .toTotalPages()
 
         totalPages?.let { getAllProjectsByPage(groupId = groupId, pages = 1.rangeTo(it).toList()) }
-            ?: listOf<Project>().also { LOG.warn("Could not determine total amount of pages. Is token valid?") }
+            ?: listOf<Project>().also { LOG.error("Could not determine total amount of pages. Is token valid?") }
     }
 
     private suspend fun getAllProjectsByPage(groupId: Long, pages: List<Int>) = coroutineScope {
@@ -37,7 +37,7 @@ class ProjectClient(private val gitlabClient: GitlabFeignClient) {
         return try {
             gitlabClient.getProjects(groupId = groupId, page = page)
         } catch (e: FeignException) {
-            LOG.warn("Could not fetch Projects (groupId=$groupId, page=$page) from Gitlab API", e)
+            LOG.warn("Could not fetch Projects (groupId=$groupId, page=$page)", e)
             listOf()
         }
     }
