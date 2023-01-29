@@ -62,8 +62,11 @@ class GroupControllerIT {
         verify(gitlabClient, times(1)).getGroupsHead(any(), anyInt())
         verify(gitlabClient, times(1)).getGroups(any(), anyInt(), anyInt())
 
-        assertThat(groups).hasSize(2)
-            .anyMatch { it.id == 1L }
-            .anyMatch { it.id == 2L }
+        assertThat(groups).hasSize(5)
+            .anyMatch { it.id == 61012723L }
+            .anyMatch { it.id == 61000803L }
+            .anyMatch { it.id == 61000947L }
+            .anyMatch { it.id == 61000918L }
+            .anyMatch { it.id == 61000976L }
     }
 }

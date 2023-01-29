@@ -37,8 +37,11 @@ class ProjectControllerIT {
     @GivenTextResource("/json/projects.json")
     lateinit var projectsJson: String
 
-    @GivenTextResource("/json/pipelines.json")
-    lateinit var pipelinesJson: String
+    @GivenTextResource("/json/pipeline_failed.json")
+    lateinit var pipelineFailedJson: String
+
+    @GivenTextResource("/json/pipeline_success.json")
+    lateinit var pipelineSuccessJson: String
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -51,11 +54,10 @@ class ProjectControllerIT {
 
     @Test
     fun `should get projects with pipelines grouped by status`() {
-        val groupId = 1L
+        val groupId = 61012723L
 
-        val pipelines = objectMapper.readValue(pipelinesJson, object : TypeReference<List<Pipeline>>() {})
-        val pipelineSuccess = pipelines[0]
-        val pipelineFailed = pipelines[1]
+        val pipelineSuccess = objectMapper.readValue(pipelineSuccessJson, Pipeline::class.java)
+        val pipelineFailed = objectMapper.readValue(pipelineFailedJson, Pipeline::class.java)
 
         given(gitlabClient.getProjectsHead(groupId = groupId))
             .willReturn(createResponse())
@@ -84,7 +86,7 @@ class ProjectControllerIT {
         verify(gitlabClient, times(1)).getProjects(anyLong(), anyInt(), anyInt())
         verify(gitlabClient, times(2)).getLatestPipeline(anyLong(), anyString())
 
-        assertThat(projectsGroupedByStatus.keys).containsExactly(Pipeline.Status.SUCCESS, Pipeline.Status.FAILED)
+        assertThat(projectsGroupedByStatus.keys).containsExactly(Pipeline.Status.FAILED, Pipeline.Status.SUCCESS)
         assertThat(projectsGroupedByStatus.getValue(Pipeline.Status.SUCCESS)).satisfies(
             Consumer { list ->
                 assertThat(list)
@@ -92,11 +94,11 @@ class ProjectControllerIT {
                     .anySatisfy(
                         Consumer {
                             assertThat(it.pipeline).isEqualTo(pipelineSuccess)
-                            assertThat(it.project.id).isEqualTo(1)
+                            assertThat(it.project.id).isEqualTo(41540327)
                             assertThat(it.project.defaultBranch).isEqualTo("master")
-                            assertThat(it.project.name).isEqualTo("Project 1")
-                            assertThat(it.project.topics).isEqualTo(setOf("Java"))
-                            assertThat(it.project.webUrl).isEqualTo("https://gitlab.fake/project-1")
+                            assertThat(it.project.name).isEqualTo("go-project-1")
+                            assertThat(it.project.topics).isEqualTo(setOf("go"))
+                            assertThat(it.project.webUrl).isEqualTo("https://gitlab.com/go179/go-project-1")
                         }
                     )
             }
@@ -108,11 +110,11 @@ class ProjectControllerIT {
                     .anySatisfy(
                         Consumer {
                             assertThat(it.pipeline).isEqualTo(pipelineFailed)
-                            assertThat(it.project.id).isEqualTo(2)
+                            assertThat(it.project.id).isEqualTo(41558380)
                             assertThat(it.project.defaultBranch).isEqualTo("master")
-                            assertThat(it.project.name).isEqualTo("Project 2")
-                            assertThat(it.project.topics).isEqualTo(setOf("Kotlin"))
-                            assertThat(it.project.webUrl).isEqualTo("https://gitlab.fake/project-2")
+                            assertThat(it.project.name).isEqualTo("go-project-2")
+                            assertThat(it.project.topics).isEmpty()
+                            assertThat(it.project.webUrl).isEqualTo("https://gitlab.com/go179/go-project-2")
                         }
                     )
             }

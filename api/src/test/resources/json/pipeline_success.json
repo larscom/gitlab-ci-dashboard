@@ -1,0 +1,40 @@
+{
+  "id": 711400494,
+  "iid": 1,
+  "project_id": 41540327,
+  "sha": "7839accaeb173f90570675c7cd483e448b1f0bac",
+  "ref": "master",
+  "status": "success",
+  "source": "push",
+  "created_at": "2022-12-02T07:35:25.676Z",
+  "updated_at": "2022-12-02T07:35:42.005Z",
+  "web_url": "https://gitlab.com/go179/go-project-1/-/pipelines/711400494",
+  "before_sha": "2e0dd521b4a29930d5670a2c142a4400d7cffc1a",
+  "tag": false,
+  "yaml_errors": null,
+  "user": {
+    "id": 13081321,
+    "username": "gitlab.ci.dashboard",
+    "name": "Gitlab CI Dashboard",
+    "state": "active",
+    "avatar_url": "https://secure.gravatar.com/avatar/b9a841206944c648a27eea7669f452e1?s=80&d=identicon",
+    "web_url": "https://gitlab.com/gitlab.ci.dashboard"
+  },
+  "started_at": "2022-12-02T07:35:26.332Z",
+  "finished_at": "2022-12-02T07:35:42.001Z",
+  "committed_at": null,
+  "duration": 15,
+  "queued_duration": null,
+  "coverage": null,
+  "detailed_status": {
+    "icon": "status_success",
+    "text": "passed",
+    "label": "passed",
+    "group": "success",
+    "tooltip": "passed",
+    "has_details": true,
+    "details_path": "/go179/go-project-1/-/pipelines/711400494",
+    "illustration": null,
+    "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png"
+  }
+}
