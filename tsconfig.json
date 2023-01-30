@@ -20,7 +20,7 @@
     "paths": {
       "$components/*": ["src/components/*"],
       "$contexts/*": ["src/contexts/*"],
-      "$feature/*": ["src/feature/*"],
+      "$feature/*": ["src/features/*"],
       "$hooks/*": ["src/hooks/*"],
       "$models/*": ["src/models/*"]
     }

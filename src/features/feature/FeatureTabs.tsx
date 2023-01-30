@@ -1,5 +1,5 @@
 import Empty from '$components/Empty'
-import PipelineOverview from '$feature/pipeline/PipelineOverview'
+import PipelineOverview from 'src/features/pipeline/PipelineOverview'
 import { ForkOutlined, ScheduleOutlined } from '@ant-design/icons'
 import { Stack, Tabs, Text } from '@mantine/core'
 

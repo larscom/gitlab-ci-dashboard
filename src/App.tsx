@@ -1,6 +1,6 @@
 import { AppShell, MantineProvider } from '@mantine/core'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import GroupTabs from './feature/group/GroupTabs'
+import GroupTabs from './features/group/GroupTabs'
 import Header from './components/Header'
 
 const queryClient = new QueryClient()

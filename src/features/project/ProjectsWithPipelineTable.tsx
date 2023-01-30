@@ -2,6 +2,7 @@ import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import { Box, Text } from '@mantine/core'
 import { DataTable, DataTableSortStatus } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
+import ProjectRowExpansion from './ProjectRowExpansion'
 
 const format: Intl.DateTimeFormatOptions = {
   month: 'short',
@@ -70,7 +71,6 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
   return (
     <Box className={sortedProjects.length > 10 ? 'h-[500px]' : 'h-auto'}>
       <DataTable
-        striped
         highlightOnHover
         idAccessor="project.id"
         sortStatus={sortStatus}
@@ -126,11 +126,14 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             }
           }
         ]}
-        onRowClick={({ project, pipeline }) =>
-          pipeline
-            ? window.open(pipeline.webUrl, '_blank')
-            : window.open(`${project.webUrl}/-/pipelines`, '_blank')
-        }
+        // onRowClick={({ project, pipeline }) =>
+        //   pipeline
+        //     ? window.open(pipeline.webUrl, '_blank')
+        //     : window.open(`${project.webUrl}/-/pipelines`, '_blank')
+        // }
+        rowExpansion={{
+          content: ({ record }) => <ProjectRowExpansion project={record} />
+        }}
       />
     </Box>
   )

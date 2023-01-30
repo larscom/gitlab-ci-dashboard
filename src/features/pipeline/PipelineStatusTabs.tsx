@@ -1,5 +1,5 @@
 import Empty from '$components/Empty'
-import ProjectsWithPipelineTable from '$feature/project/ProjectsWithPipelineTable'
+import ProjectsWithPipelineTable from 'src/features/project/ProjectsWithPipelineTable'
 import { Status } from '$models/pipeline'
 import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
 import {

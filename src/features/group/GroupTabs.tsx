@@ -1,7 +1,7 @@
 import Empty from '$components/Empty'
 import IndeterminateLoader from '$components/IndeterminateLoader'
 import { GroupContextProvider } from '$contexts/group-context'
-import FeatureTabs from '$feature/feature/FeatureTabs'
+import FeatureTabs from 'src/features/feature/FeatureTabs'
 import { useGroups } from '$hooks/use-groups'
 import { GroupId } from '$models/group'
 import { Stack, Tabs, TabsValue, Text } from '@mantine/core'
