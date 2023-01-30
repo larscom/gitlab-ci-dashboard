@@ -21,7 +21,7 @@ ARG VERSION_ARG
 ENV VERSION=$VERSION_ARG
 
 WORKDIR /opt/app
-COPY --from=gradle /home/gradle/build/libs/*-$VERSION.jar /opt/app/app.jar
+COPY --from=gradle /home/gradle/build/libs/*-$VERSION.jar /opt/app/$VERSION.jar
 
 EXPOSE 8080
-CMD ["java", "-jar", "/opt/app/app.jar"]
+CMD ["java", "-jar", "/opt/app/$VERSION.jar"]
