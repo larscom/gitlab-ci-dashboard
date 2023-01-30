@@ -24,6 +24,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Instant
+import java.util.function.Consumer
 
 @TestWithResources
 @AutoConfigureMockMvc
@@ -64,7 +66,25 @@ class BranchControllerIT {
         verify(gitlabClient, times(1)).getBranches(anyLong(), anyInt(), anyInt())
 
         assertThat(branches).hasSize(2)
-            .anyMatch { it.name == "feature-1" }
-            .anyMatch { it.name == "feature-2" }
+            .anySatisfy(
+                Consumer { branch ->
+                    assertThat(branch.name).isEqualTo("feature-1")
+                    assertThat(branch.webUrl).isEqualTo("https://gitlab.com/java676/java-project-3/-/tree/feature-1")
+                    assertThat(branch.canPush).isTrue
+                    assertThat(branch.default).isFalse
+                    assertThat(branch.merged).isFalse
+                    assertThat(branch.protected).isFalse
+                    assertThat(branch.commit).satisfies(
+                        Consumer { commit ->
+                            assertThat(commit.id).isEqualTo("467a826f9ccb94dad7d7d9f2aaac80b93f64096d")
+                            assertThat(commit.committedDate).isEqualTo(Instant.parse("2022-12-02T18:56:49.000+00:00"))
+                            assertThat(commit.authorName).isEqualTo("Gitlab CI Dashboard")
+                            assertThat(commit.message).isEqualTo("Update .gitlab-ci.yml")
+                            assertThat(commit.title).isEqualTo("Update .gitlab-ci.yml")
+                            assertThat(commit.committerName).isEqualTo("Gitlab CI Dashboard")
+                        }
+                    )
+                }
+            )
     }
 }

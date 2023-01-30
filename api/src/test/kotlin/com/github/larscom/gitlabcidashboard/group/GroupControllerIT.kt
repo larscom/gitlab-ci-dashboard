@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.function.Consumer
 
 @TestWithResources
 @AutoConfigureMockMvc
@@ -63,10 +64,11 @@ class GroupControllerIT {
         verify(gitlabClient, times(1)).getGroups(any(), anyInt(), anyInt())
 
         assertThat(groups).hasSize(5)
-            .anyMatch { it.id == 61012723L }
-            .anyMatch { it.id == 61000803L }
-            .anyMatch { it.id == 61000947L }
-            .anyMatch { it.id == 61000918L }
-            .anyMatch { it.id == 61000976L }
+            .anySatisfy(
+                Consumer {
+                    assertThat(it.id).isEqualTo(61012723)
+                    assertThat(it.name).isEqualTo("Go")
+                }
+            )
     }
 }
