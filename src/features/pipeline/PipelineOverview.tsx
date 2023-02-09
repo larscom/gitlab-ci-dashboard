@@ -1,6 +1,6 @@
 import IndeterminateLoader from '$components/IndeterminateLoader'
 import { GroupContext } from '$contexts/group-context'
-import ProjectFilter from 'src/features/project/ProjectFilter'
+import ProjectFilter from '$feature/project/ProjectFilter'
 import { useProjects } from '$hooks/use-projects'
 import { Status } from '$models/pipeline'
 import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'

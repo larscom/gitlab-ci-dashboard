@@ -6,7 +6,7 @@ import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline.Status.UNKNOWN
 import com.github.larscom.gitlabcidashboard.project.model.Project
 import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -23,7 +23,7 @@ class ProjectService(
 ) {
 
     fun getProjectsGroupedByStatus(groupId: Long): Map<Pipeline.Status, List<ProjectWithLatestPipeline>> =
-        runBlocking(Dispatchers.IO) {
+        runBlocking(IO) {
             val projects = projectRepository.get(groupId)
                 .filter { skipProjectIds.isEmpty() || skipProjectIds.contains(it.id).not() }
 

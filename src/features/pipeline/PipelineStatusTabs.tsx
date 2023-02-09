@@ -1,31 +1,10 @@
 import Empty from '$components/Empty'
-import ProjectsWithPipelineTable from 'src/features/project/ProjectsWithPipelineTable'
+import ProjectsWithPipelineTable from '$feature/project/ProjectWithPipelineTable'
 import { Status } from '$models/pipeline'
 import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
-import {
-  Badge,
-  MantineColor,
-  Stack,
-  Tabs,
-  TabsValue,
-  Text
-} from '@mantine/core'
+import { statusToColor } from '$util/status-to-color'
+import { Badge, Stack, Tabs, TabsValue, Text } from '@mantine/core'
 import { useEffect, useState } from 'react'
-
-const COLOR_MAP: Record<Status, MantineColor> = {
-  created: 'dark.6',
-  waiting_for_resource: 'dark.6',
-  preparing: 'indigo.6',
-  pending: 'yellow.6',
-  running: 'blue.6',
-  success: 'green.6',
-  failed: 'red.6',
-  canceled: 'dark.6',
-  skipped: 'orange.6',
-  manual: 'cyan.6',
-  scheduled: 'violet.6',
-  unknown: 'gray.6'
-}
 
 interface Props {
   statusWithProjects: Map<Status, ProjectWithLatestPipeline[]>
@@ -52,7 +31,7 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
     .map(({ status, projects }) => {
       const badge = (
         <Badge
-          color={COLOR_MAP[status]}
+          color={statusToColor(status)}
           sx={{ width: 16, height: 16, pointerEvents: 'none' }}
           variant="filled"
           size="xs"
@@ -65,7 +44,7 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
         <Tabs.Tab
           key={status}
           value={status}
-          color={COLOR_MAP[status]}
+          color={statusToColor(status)}
           rightSection={badge}
         >
           <Text className="capitalize">{status}</Text>

@@ -12,5 +12,4 @@ class GroupController(private val groupService: GroupService) {
 
     @GetMapping
     fun getGroups(): List<Group> = groupService.getGroups()
-
 }

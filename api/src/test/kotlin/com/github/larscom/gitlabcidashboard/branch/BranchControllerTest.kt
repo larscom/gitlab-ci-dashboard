@@ -1,6 +1,6 @@
 package com.github.larscom.gitlabcidashboard.branch
 
-import com.github.larscom.gitlabcidashboard.branch.model.Branch
+import com.github.larscom.gitlabcidashboard.branch.model.BranchWithLatestPipeline
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -17,24 +17,24 @@ import org.mockito.junit.jupiter.MockitoExtension
 class BranchControllerTest {
 
     @Mock
-    private lateinit var branchRepository: BranchRepository
+    private lateinit var branchService: BranchService
 
     @InjectMocks
     private lateinit var branchController: BranchController
 
     @AfterEach
     fun afterEach() {
-        verifyNoMoreInteractions(branchRepository)
+        verifyNoMoreInteractions(branchService)
     }
 
     @Test
-    fun `should get all branches for projectId`() {
+    fun `should get all branches with latest pipeline for projectId`() {
         val projectId = 1L
-        val branches = listOf(mock(Branch::class.java))
+        val branches = listOf(mock(BranchWithLatestPipeline::class.java))
 
-        given(branchRepository.get(projectId))
+        given(branchService.getBranchesWithLatestPipeline(projectId))
             .willReturn(branches)
 
-        assertThat(branchController.getBranches(projectId)).isEqualTo(branches)
+        assertThat(branchController.getBranchesWithLatestPipeline(projectId)).isEqualTo(branches)
     }
 }

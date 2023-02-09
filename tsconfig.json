@@ -22,7 +22,8 @@
       "$contexts/*": ["src/contexts/*"],
       "$feature/*": ["src/features/*"],
       "$hooks/*": ["src/hooks/*"],
-      "$models/*": ["src/models/*"]
+      "$models/*": ["src/models/*"],
+      "$util/*": ["src/util/*"]
     }
   },
   "include": ["src"],

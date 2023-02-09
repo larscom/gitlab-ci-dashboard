@@ -4,7 +4,7 @@ import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.feign.extension.toTotalPages
 import com.github.larscom.gitlabcidashboard.project.model.Project
 import feign.FeignException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -19,7 +19,7 @@ class ProjectClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(ProjectClient::class.java)
     }
 
-    fun getProjects(groupId: Long): List<Project> = runBlocking(Dispatchers.IO) {
+    fun getProjects(groupId: Long): List<Project> = runBlocking(IO) {
         val totalPages = gitlabClient.getProjectsHead(groupId = groupId)
             .toTotalPages()
 

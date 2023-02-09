@@ -5,9 +5,10 @@ import com.adelean.inject.resources.junit.jupiter.TestWithResources
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.larscom.gitlabcidashboard.branch.model.Branch
+import com.github.larscom.gitlabcidashboard.branch.model.BranchWithLatestPipeline
 import com.github.larscom.gitlabcidashboard.createResponse
 import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
+import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
@@ -36,6 +37,9 @@ class BranchControllerIT {
     @GivenTextResource("/json/branches.json")
     lateinit var branchesJson: String
 
+    @GivenTextResource("/json/pipeline_success.json")
+    lateinit var pipelineSuccessJson: String
+
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
@@ -46,10 +50,17 @@ class BranchControllerIT {
     lateinit var gitlabClient: GitlabFeignClient
 
     @Test
-    fun `should get branches for project`() {
+    fun `should get branches with latest pipelines for project`() {
         val projectId = 1L
         given(gitlabClient.getBranchesHead(projectId = projectId)).willReturn(createResponse())
         given(gitlabClient.getBranches(projectId = projectId)).willReturn(objectMapper.readValue(branchesJson))
+
+        given(
+            gitlabClient.getLatestPipeline(
+                projectId = projectId,
+                ref = "feature-1"
+            )
+        ).willReturn(objectMapper.readValue(pipelineSuccessJson))
 
         val requestBuilder = get("/api/branches/$projectId")
             .accept(APPLICATION_JSON)
@@ -57,31 +68,41 @@ class BranchControllerIT {
             .andExpect(status().isOk)
             .andReturn()
 
-        val branches = objectMapper.readValue(
+        val branchesWithLatestPipelines = objectMapper.readValue(
             result.response.contentAsString,
-            object : TypeReference<List<Branch>>() {}
+            object : TypeReference<List<BranchWithLatestPipeline>>() {}
         )
 
         verify(gitlabClient, times(1)).getBranchesHead(anyLong(), anyInt())
         verify(gitlabClient, times(1)).getBranches(anyLong(), anyInt(), anyInt())
 
-        assertThat(branches).hasSize(2)
+        assertThat(branchesWithLatestPipelines)
+            .hasSize(2)
             .anySatisfy(
-                Consumer { branch ->
-                    assertThat(branch.name).isEqualTo("feature-1")
-                    assertThat(branch.webUrl).isEqualTo("https://gitlab.com/java676/java-project-3/-/tree/feature-1")
-                    assertThat(branch.canPush).isTrue
-                    assertThat(branch.default).isFalse
-                    assertThat(branch.merged).isFalse
-                    assertThat(branch.protected).isFalse
-                    assertThat(branch.commit).satisfies(
-                        Consumer { commit ->
-                            assertThat(commit.id).isEqualTo("467a826f9ccb94dad7d7d9f2aaac80b93f64096d")
-                            assertThat(commit.committedDate).isEqualTo(Instant.parse("2022-12-02T18:56:49.000+00:00"))
-                            assertThat(commit.authorName).isEqualTo("Gitlab CI Dashboard")
-                            assertThat(commit.message).isEqualTo("Update .gitlab-ci.yml")
-                            assertThat(commit.title).isEqualTo("Update .gitlab-ci.yml")
-                            assertThat(commit.committerName).isEqualTo("Gitlab CI Dashboard")
+                Consumer { value ->
+                    assertThat(value.branch).satisfies(
+                        Consumer { branch ->
+                            assertThat(branch.name).isEqualTo("feature-1")
+                            assertThat(branch.webUrl).isEqualTo("https://gitlab.com/java676/java-project-3/-/tree/feature-1")
+                            assertThat(branch.canPush).isTrue
+                            assertThat(branch.default).isFalse
+                            assertThat(branch.merged).isFalse
+                            assertThat(branch.protected).isFalse
+                            assertThat(branch.commit).satisfies(
+                                Consumer { commit ->
+                                    assertThat(commit.id).isEqualTo("467a826f9ccb94dad7d7d9f2aaac80b93f64096d")
+                                    assertThat(commit.committedDate).isEqualTo(Instant.parse("2022-12-02T18:56:49.000+00:00"))
+                                    assertThat(commit.authorName).isEqualTo("Gitlab CI Dashboard")
+                                    assertThat(commit.message).isEqualTo("Update .gitlab-ci.yml")
+                                    assertThat(commit.title).isEqualTo("Update .gitlab-ci.yml")
+                                    assertThat(commit.committerName).isEqualTo("Gitlab CI Dashboard")
+                                }
+                            )
+                        }
+                    )
+                    assertThat(value.pipeline).satisfies(
+                        Consumer { pipeline ->
+                            assertThat(pipeline?.status).isEqualTo(Pipeline.Status.SUCCESS)
                         }
                     )
                 }

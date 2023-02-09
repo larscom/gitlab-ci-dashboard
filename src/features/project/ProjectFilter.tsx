@@ -1,6 +1,6 @@
 import { Status } from '$models/pipeline'
 import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { CloseSquareOutlined, SearchOutlined } from '@ant-design/icons'
 import { ActionIcon, Chip, Group, Input, Tooltip } from '@mantine/core'
 import {
   ChangeEvent,
@@ -89,7 +89,7 @@ export default function ProjectFilter({
   const reset = (
     <ActionIcon onClick={() => setFilterText('')} variant="transparent">
       <Tooltip openDelay={250} label="Clear field">
-        <ReloadOutlined />
+        <CloseSquareOutlined />
       </Tooltip>
     </ActionIcon>
   )
