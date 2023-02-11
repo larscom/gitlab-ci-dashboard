@@ -60,13 +60,16 @@ export default function ProjectFilter({
   }, [unfiltered, setStatusWithProjects])
 
   useEffect(() => {
-    setStatusWithProjects(filter(unfiltered, filterText, filterTopics))
+    startTransition(() => {
+      setStatusWithProjects(filter(unfiltered, filterText, filterTopics))
+    })
   }, [filterText, filterTopics, unfiltered, setStatusWithProjects])
 
   const handleTextChange = useCallback(
-    ({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
-      startTransition(() => setFilterText(value)),
-    [startTransition, setFilterText]
+    ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+      setFilterText(value)
+    },
+    [setFilterText]
   )
 
   const handleChipsChange = useCallback(setFilterTopics, [setFilterTopics])

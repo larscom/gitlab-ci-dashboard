@@ -3,48 +3,52 @@ import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
 import { PartitionOutlined } from '@ant-design/icons'
 import { ActionIcon, Box, Group, Text, Tooltip } from '@mantine/core'
-import { DataTable, DataTableSortStatus } from 'mantine-datatable'
+import { DataTable } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
 import ProjectRowExpansion from './ProjectRowExpansion'
+
+const PAGE_SIZE = 10
 
 interface Props {
   projects: ProjectWithLatestPipeline[]
 }
-
 export default function ProjectsWithPipelineTable({ projects }: Props) {
-  const [sortedProjects, setSortedProjects] = useState(projects)
-  const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: 'project.name',
-    direction: 'asc'
-  })
+  const [page, setPage] = useState(1)
+  const [sortedProjects, setSortedProjects] = useState(
+    sortRecords(projects, ['project', 'name'], 'asc').slice(0, PAGE_SIZE)
+  )
+
+  useEffect(() => setPage(1), [projects, setPage])
 
   useEffect(() => {
-    const propNames = sortStatus.columnAccessor.split('.')
-    setSortedProjects(sortRecords(projects, propNames, sortStatus.direction))
-  }, [projects, sortStatus])
+    const from = (page - 1) * PAGE_SIZE
+    const to = from + PAGE_SIZE
+    setSortedProjects(
+      sortRecords(projects, ['project', 'name'], 'asc').slice(from, to)
+    )
+  }, [projects, page, setSortedProjects])
 
   return (
-    <Box className={sortedProjects.length > 10 ? 'h-[800px]' : 'h-auto'}>
+    <Box>
       <DataTable
         idAccessor="project.id"
-        sortStatus={sortStatus}
-        onSortStatusChange={setSortStatus}
         records={sortedProjects}
+        totalRecords={projects.length}
+        recordsPerPage={PAGE_SIZE}
+        page={page}
+        onPageChange={setPage}
         columns={[
           {
             accessor: 'project.id',
-            title: 'Id',
-            sortable: true
+            title: 'Id'
           },
           {
             accessor: 'project.name',
-            title: 'Name',
-            sortable: true
+            title: 'Name'
           },
           {
             accessor: 'project.defaultBranch',
-            title: 'Branch',
-            sortable: true
+            title: 'Branch'
           },
           {
             accessor: 'project.topics',
@@ -60,14 +64,12 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
           {
             accessor: 'pipeline.source',
             title: 'Source',
-            sortable: true,
             render({ pipeline }) {
               return <Text>{pipeline?.source || '-'}</Text>
             }
           },
           {
             accessor: 'pipeline.updatedAt',
-            sortable: true,
             title: 'Updated',
             render({ pipeline }) {
               const updatedAt = pipeline?.updatedAt

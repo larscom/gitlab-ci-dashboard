@@ -54,6 +54,7 @@ export default function BranchWithPipelineTable({ branches }: Props) {
               return (
                 <Text
                   color={pipeline?.status && statusToColor(pipeline.status)}
+                  weight="bold"
                 >
                   {pipeline?.status || '-'}
                 </Text>
