@@ -3,7 +3,10 @@ version: '3.9'
 services:
   gitlab-ci-dashboard:
     image: larscom/gitlab-ci-dashboard
-    build: .
+    build:
+      context: .
+      args:
+        VERSION_ARG: 1
     env_file:
       - .env
     environment:
