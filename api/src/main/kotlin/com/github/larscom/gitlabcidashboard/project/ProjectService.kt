@@ -6,6 +6,7 @@ import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline.Status.UNKNOWN
 import com.github.larscom.gitlabcidashboard.project.model.Project
 import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
+import io.micrometer.core.annotation.Timed
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -22,6 +23,7 @@ class ProjectService(
     private val pipelineLatestRepository: PipelineLatestRepository,
 ) {
 
+    @Timed(value = "service.get.projects.grouped-by-status", description = "Time taken to return all projects grouped by pipeline status")
     fun getProjectsGroupedByStatus(groupId: Long): Map<Pipeline.Status, List<ProjectWithLatestPipeline>> =
         runBlocking(IO) {
             val projects = projectRepository.get(groupId)

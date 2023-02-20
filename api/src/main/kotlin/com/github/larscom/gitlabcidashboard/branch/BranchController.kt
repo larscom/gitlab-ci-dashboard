@@ -15,4 +15,5 @@ class BranchController(private val branchService: BranchService) {
     fun getBranchesWithLatestPipeline(
         @PathVariable("projectId") projectId: Long
     ): List<BranchWithLatestPipeline> = branchService.getBranchesWithLatestPipeline(projectId)
+
 }

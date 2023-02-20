@@ -3,6 +3,14 @@ spring:
     caffeine:
       spec: expireAfterWrite=${GITLAB_GROUP_CACHE_TTL_DURATION:5m}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - prometheus
+
 app:
   version: ${VERSION:}
 

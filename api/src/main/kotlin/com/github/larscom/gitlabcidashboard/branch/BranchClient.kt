@@ -5,6 +5,7 @@ import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.feign.extension.toTotalPages
 import com.github.larscom.gitlabcidashboard.project.ProjectClient
 import feign.FeignException
+import io.micrometer.core.annotation.Timed
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -20,6 +21,7 @@ class BranchClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(ProjectClient::class.java)
     }
 
+    @Timed(value = "client.get.branches", description = "Time taken to return all branches")
     fun getBranches(projectId: Long): List<Branch> = runBlocking(IO) {
         val totalPages = gitlabClient.getBranchesHead(projectId = projectId)
             .toTotalPages()

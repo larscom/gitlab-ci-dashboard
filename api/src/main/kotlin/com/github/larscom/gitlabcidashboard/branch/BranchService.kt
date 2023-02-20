@@ -4,6 +4,7 @@ import com.github.larscom.gitlabcidashboard.branch.model.Branch
 import com.github.larscom.gitlabcidashboard.branch.model.BranchWithLatestPipeline
 import com.github.larscom.gitlabcidashboard.pipeline.PipelineKey
 import com.github.larscom.gitlabcidashboard.pipeline.PipelineLatestRepository
+import io.micrometer.core.annotation.Timed
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -17,6 +18,7 @@ class BranchService(
     private val pipelineLatestRepository: PipelineLatestRepository
 ) {
 
+    @Timed(value = "service.get.branches.with-latest-pipeline", description = "Time taken to return all branches including latest pipeline")
     fun getBranchesWithLatestPipeline(projectId: Long): List<BranchWithLatestPipeline> = runBlocking(IO) {
         getBranchesWithLatestPipeline(projectId = projectId, branches = branchRepository.get(projectId))
     }

@@ -46,6 +46,9 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
    projects
 
+## Metrics (Prometheus)
+Application metrics are exposed on url: http://localhost:8080/actuator/prometheus
+
 ## Environment variables
 
 | Variable                          | Type     | Description                                                                                            | Required | Default |

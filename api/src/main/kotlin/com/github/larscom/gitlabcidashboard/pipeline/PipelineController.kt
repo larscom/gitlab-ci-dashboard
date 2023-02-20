@@ -18,4 +18,5 @@ class PipelineController(
         @PathVariable("projectId") projectId: Long,
         @PathVariable("ref") ref: String
     ): Pipeline? = pipelineLatestRepository.get(PipelineKey(projectId, ref))
+
 }

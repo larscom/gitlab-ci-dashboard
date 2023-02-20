@@ -9,8 +9,7 @@ import org.springframework.context.annotation.Configuration
 class FeignConfig {
 
     @Bean
-    fun requestInterceptor(@Value("\${gitlab.api_token}") apiToken: String): RequestInterceptor {
-        return RequestInterceptor { request -> request.header("Authorization", "Bearer $apiToken") }
-    }
+    fun requestInterceptor(@Value("\${gitlab.api_token}") apiToken: String): RequestInterceptor =
+        RequestInterceptor { request -> request.header("Authorization", "Bearer $apiToken") }
 
 }

@@ -4,6 +4,7 @@ import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.feign.extension.toTotalPages
 import com.github.larscom.gitlabcidashboard.group.model.Group
 import feign.FeignException
+import io.micrometer.core.annotation.Timed
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,8 +20,10 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(GroupClient::class.java)
     }
 
+    @Timed(value = "client.get.groups.with-ids", description = "Time taken to return all groups with ids")
     fun getGroupsWithId(groupIds: List<Long>): List<Group> = runBlocking(IO) { getAllGroupsById(groupIds) }
 
+    @Timed(value = "client.get.groups", description = "Time taken to return all groups")
     fun getGroups(skipIds: List<Long> = listOf()): List<Group> = runBlocking(IO) {
         val skipGroups = skipIds.takeUnless { it.isEmpty() }?.joinToString(",")
         val totalPages = gitlabClient
