@@ -13,7 +13,14 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
   const [status, setStatus] = useState<Status | undefined>()
 
   useEffect(() => {
-    setStatus(Array.from(statusWithProjects.keys()).sort()[0])
+    setStatus((current) => {
+      const allStatuses = Array.from(statusWithProjects.keys()).sort()
+      const first = allStatuses[0]
+
+      if (!current) return first
+
+      return allStatuses.includes(current) ? current : first
+    })
   }, [statusWithProjects])
 
   if (statusWithProjects.size === 0) {
