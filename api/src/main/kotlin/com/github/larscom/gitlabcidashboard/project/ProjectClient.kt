@@ -20,7 +20,7 @@ class ProjectClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(ProjectClient::class.java)
     }
 
-    @Timed(value = "client.get.projects", description = "Time taken to return all projects for group")
+    @Timed(value = "client.time", description = "Time taken to return all projects for group")
     fun getProjects(groupId: Long): List<Project> = runBlocking(IO) {
         val totalPages = gitlabClient.getProjectsHead(groupId = groupId)
             .toTotalPages()

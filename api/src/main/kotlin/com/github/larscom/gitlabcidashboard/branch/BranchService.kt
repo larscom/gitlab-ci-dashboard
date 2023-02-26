@@ -18,7 +18,7 @@ class BranchService(
     private val pipelineLatestRepository: PipelineLatestRepository
 ) {
 
-    @Timed(value = "service.get.branches.with-latest-pipeline", description = "Time taken to return all branches including latest pipeline")
+    @Timed(value = "service.time", description = "Time taken to return all branches including latest pipeline")
     fun getBranchesWithLatestPipeline(projectId: Long): List<BranchPipeline> = runBlocking(IO) {
         getBranchesWithLatestPipeline(projectId = projectId, branches = branchRepository.get(projectId))
     }

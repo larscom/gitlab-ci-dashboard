@@ -23,7 +23,7 @@ class ProjectService(
     private val pipelineLatestRepository: PipelineLatestRepository,
 ) {
 
-    @Timed(value = "service.get.projects.grouped-by-status", description = "Time taken to return all projects grouped by pipeline status")
+    @Timed(value = "service.time", description = "Time taken to return all projects grouped by pipeline status")
     fun getProjectsGroupedByStatus(groupId: Long): Map<Pipeline.Status, List<ProjectPipeline>> =
         runBlocking(IO) {
             val projects = projectRepository.get(groupId)

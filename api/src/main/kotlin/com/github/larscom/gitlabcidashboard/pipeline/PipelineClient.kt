@@ -14,7 +14,7 @@ class PipelineClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(PipelineClient::class.java)
     }
 
-    @Timed(value = "client.get.pipelines", description = "Time taken to return all pipelines for project")
+    @Timed(value = "client.time", description = "Time taken to return all pipelines for project")
     fun getPipelines(projectId: Long, ref: String): List<Pipeline> {
         return try {
             gitlabClient.getPipelines(projectId = projectId, ref = ref)
@@ -24,7 +24,7 @@ class PipelineClient(private val gitlabClient: GitlabFeignClient) {
         }
     }
 
-    @Timed(value = "client.get.pipeline-latest", description = "Time taken to return latest pipeline for project")
+    @Timed(value = "client.time", description = "Time taken to return latest pipeline for project")
     fun getLatestPipeline(projectId: Long, ref: String): Pipeline? {
         return try {
             gitlabClient.getLatestPipeline(projectId = projectId, ref = ref)

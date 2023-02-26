@@ -24,4 +24,4 @@ WORKDIR /opt/app
 COPY --from=gradle /home/gradle/build/libs/*-$VERSION.jar /opt/app/app.jar
 
 EXPOSE 8080
-CMD ["java", "-jar", "/opt/app/app.jar"]
+CMD ["java", "-Xmx512m", "-jar", "/opt/app/app.jar"]

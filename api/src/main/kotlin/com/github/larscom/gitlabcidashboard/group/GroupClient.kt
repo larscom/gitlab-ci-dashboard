@@ -20,10 +20,10 @@ class GroupClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(GroupClient::class.java)
     }
 
-    @Timed(value = "client.get.groups.with-ids", description = "Time taken to return all groups with ids")
+    @Timed(value = "client.time", description = "Time taken to return all groups with ids")
     fun getGroupsWithId(groupIds: List<Long>): List<Group> = runBlocking(IO) { getAllGroupsById(groupIds) }
 
-    @Timed(value = "client.get.groups", description = "Time taken to return all groups")
+    @Timed(value = "client.time", description = "Time taken to return all groups")
     fun getGroups(skipIds: List<Long> = listOf()): List<Group> = runBlocking(IO) {
         val skipGroups = skipIds.takeUnless { it.isEmpty() }?.joinToString(",")
         val totalPages = gitlabClient

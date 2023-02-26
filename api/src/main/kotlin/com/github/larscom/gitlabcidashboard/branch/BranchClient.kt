@@ -21,7 +21,7 @@ class BranchClient(private val gitlabClient: GitlabFeignClient) {
         private val LOG = LoggerFactory.getLogger(ProjectClient::class.java)
     }
 
-    @Timed(value = "client.get.branches", description = "Time taken to return all branches")
+    @Timed(value = "client.time", description = "Time taken to return all branches")
     fun getBranches(projectId: Long): List<Branch> = runBlocking(IO) {
         val totalPages = gitlabClient.getBranchesHead(projectId = projectId)
             .toTotalPages()
