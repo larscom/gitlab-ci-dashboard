@@ -1,6 +1,7 @@
 import SearchField from '$components/SearchField'
 import { Status } from '$models/pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
+import { filterBy } from '$util/filter-by'
 import { Chip, Group } from '@mantine/core'
 import {
   Dispatch,
@@ -10,9 +11,6 @@ import {
   useState,
   useTransition
 } from 'react'
-
-const filterBy = (value: string, filterText: string): boolean =>
-  value.toLocaleLowerCase().includes(filterText.toLocaleLowerCase())
 
 const filter = (
   data: Map<Status, ProjectPipeline[]> | undefined,
@@ -43,10 +41,12 @@ interface Props {
   setStatusWithProjects: Dispatch<
     SetStateAction<Map<Status, ProjectPipeline[]>>
   >
+  disabled?: boolean
 }
 export default function ProjectFilter({
   unfiltered,
-  setStatusWithProjects
+  setStatusWithProjects,
+  disabled
 }: Props) {
   const [, startTransition] = useTransition()
   const [filterTopics, setFilterTopics] = useState<string[]>([])
@@ -89,6 +89,7 @@ export default function ProjectFilter({
     <Group>
       <SearchField
         placeholder="Search projects"
+        disabled={disabled}
         value={filterText}
         onChange={handleTextChange}
       />

@@ -6,8 +6,14 @@ interface Props {
   placeholder?: string
   value: string
   onChange: (value: string) => void
+  disabled?: boolean
 }
-export default function SearchField({ placeholder, value, onChange }: Props) {
+export default function SearchField({
+  placeholder,
+  value,
+  onChange,
+  disabled
+}: Props) {
   const handleTextChange = useCallback(
     ({ target: { value } }: ChangeEvent<HTMLInputElement>) => onChange(value),
     [onChange]
@@ -24,6 +30,7 @@ export default function SearchField({ placeholder, value, onChange }: Props) {
   return (
     <Input
       value={value}
+      disabled={disabled}
       icon={<SearchOutlined />}
       rightSection={reset}
       onChange={handleTextChange}

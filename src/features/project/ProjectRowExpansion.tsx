@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function ProjectRowExpansion({ project }: Props) {
-  const { isLoading: loading, data = [] } = useBranches(project.project.id)
+  const { isLoading, data = [] } = useBranches(project.project.id)
   const [branchPipelines, setBranchPipelines] = useState<BranchPipeline[]>([])
 
   const unfiltered = useMemo(
@@ -20,17 +20,18 @@ export default function ProjectRowExpansion({ project }: Props) {
     [data]
   )
 
-  if (loading) {
-    return <IndeterminateLoader />
-  }
-
   return (
     <Stack className="p-3">
       <BranchFilter
+        disabled={isLoading}
         unfiltered={unfiltered}
         setBranchPipelines={setBranchPipelines}
       />
-      <BranchWithPipelineTable branches={branchPipelines} />
+      {isLoading ? (
+        <IndeterminateLoader />
+      ) : (
+        <BranchWithPipelineTable branches={branchPipelines} />
+      )}
     </Stack>
   )
 }

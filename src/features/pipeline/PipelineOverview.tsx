@@ -17,16 +17,15 @@ export default function PipelineOverview() {
 
   return (
     <Stack>
+      <ProjectFilter
+        disabled={isLoading}
+        unfiltered={unfiltered}
+        setStatusWithProjects={setStatusWithProjects}
+      />
       {isLoading ? (
         <IndeterminateLoader />
       ) : (
-        <>
-          <ProjectFilter
-            unfiltered={unfiltered}
-            setStatusWithProjects={setStatusWithProjects}
-          />
-          <PipelineStatusTabs statusWithProjects={statusWithProjects} />
-        </>
+        <PipelineStatusTabs statusWithProjects={statusWithProjects} />
       )}
     </Stack>
   )
