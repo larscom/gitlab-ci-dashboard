@@ -1,8 +1,10 @@
 # Gitlab CI Dashboard
+[![Dockerhub Stats](https://dockerico.blankenship.io/image/larscom/gitlab-ci-dashboard)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 
 [![Docker Image Version](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?sort=semver&label=latest%20release&color=blue)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
+
 
 > Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
 
@@ -17,11 +19,11 @@ This app is under heavy development, not all features might be fully implemented
 - View Gitlab CI pipeline statuses (maybe more functionality will be added later) uses the default branch by default
 - Communication to the Gitlab API happens server side (only 1 `read only` token is needed for you or your team)
 - Easy navigation to Gitlab from within the dashboard
-- Configurable caching (to handle rate limit or reduce load)
+- Server side caching (configurable)
 
 ## Requirements
 
-- Gitlab server (can be self hosted)
+- Any Gitlab server
 - Supports only `v4` of the Gitlab API
 - Docker
 
