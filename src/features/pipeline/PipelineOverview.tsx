@@ -11,7 +11,12 @@ import PipelineStatusTabs from './PipelineStatusTabs'
 
 export default function PipelineOverview() {
   const { groupId } = useContext(GroupContext)
-  const { isLoading, data: unfiltered, refetch } = useProjects(groupId)
+  const {
+    isLoading,
+    data: unfiltered,
+    refetch,
+    isRefetching
+  } = useProjects(groupId)
   const [statusWithProjects, setStatusWithProjects] = useState(
     new Map<Status, ProjectPipeline[]>()
   )
@@ -24,7 +29,11 @@ export default function PipelineOverview() {
           unfiltered={unfiltered}
           setStatusWithProjects={setStatusWithProjects}
         />
-        <AutoRefresh refetch={refetch} disabled={isLoading} />
+        <AutoRefresh
+          loading={isRefetching}
+          refetch={refetch}
+          disabled={isLoading}
+        />
       </Group>
       {isLoading ? (
         <IndeterminateLoader />
