@@ -1,9 +1,8 @@
+import SearchField from '$components/SearchField'
 import { Status } from '$models/pipeline'
-import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
-import { CloseSquareOutlined, SearchOutlined } from '@ant-design/icons'
-import { ActionIcon, Chip, Group, Input, Tooltip } from '@mantine/core'
+import { ProjectPipeline } from '$models/project-pipeline'
+import { Chip, Group } from '@mantine/core'
 import {
-  ChangeEvent,
   Dispatch,
   SetStateAction,
   useCallback,
@@ -16,10 +15,10 @@ const filterBy = (value: string, filterText: string): boolean =>
   value.toLocaleLowerCase().includes(filterText.toLocaleLowerCase())
 
 const filter = (
-  data: Map<Status, ProjectWithLatestPipeline[]> | undefined,
+  data: Map<Status, ProjectPipeline[]> | undefined,
   filterText: string,
   filterTopics: string[]
-): Map<Status, ProjectWithLatestPipeline[]> => {
+): Map<Status, ProjectPipeline[]> => {
   if (!data) return new Map()
 
   return Array.from(data).reduce((current, [status, projects]) => {
@@ -36,13 +35,13 @@ const filter = (
     return filteredProjects.length
       ? current.set(status, filteredProjects)
       : current
-  }, new Map<Status, ProjectWithLatestPipeline[]>())
+  }, new Map<Status, ProjectPipeline[]>())
 }
 
 interface Props {
-  unfiltered: Map<Status, ProjectWithLatestPipeline[]> | undefined
+  unfiltered: Map<Status, ProjectPipeline[]> | undefined
   setStatusWithProjects: Dispatch<
-    SetStateAction<Map<Status, ProjectWithLatestPipeline[]>>
+    SetStateAction<Map<Status, ProjectPipeline[]>>
   >
 }
 export default function ProjectFilter({
@@ -65,17 +64,14 @@ export default function ProjectFilter({
     })
   }, [filterText, filterTopics, unfiltered, setStatusWithProjects])
 
-  const handleTextChange = useCallback(
-    ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-      setFilterText(value)
-    },
+  const handleTextChange = useCallback<(value: string) => void>(
+    (value) => setFilterText(value),
     [setFilterText]
   )
 
   const handleChipsChange = useCallback(setFilterTopics, [setFilterTopics])
 
-  const statusWithProjects =
-    unfiltered || new Map<Status, ProjectWithLatestPipeline[]>()
+  const statusWithProjects = unfiltered || new Map<Status, ProjectPipeline[]>()
 
   const topics = new Set(
     Array.from(statusWithProjects.values())
@@ -89,22 +85,12 @@ export default function ProjectFilter({
     </Chip>
   ))
 
-  const reset = (
-    <ActionIcon onClick={() => setFilterText('')} variant="transparent">
-      <Tooltip openDelay={250} label="Clear field">
-        <CloseSquareOutlined />
-      </Tooltip>
-    </ActionIcon>
-  )
-
   return (
     <Group>
-      <Input
+      <SearchField
+        placeholder="Search projects"
         value={filterText}
-        icon={<SearchOutlined />}
-        rightSection={reset}
         onChange={handleTextChange}
-        placeholder="Search projects..."
       />
       <Chip.Group multiple value={filterTopics} onChange={handleChipsChange}>
         {chips}

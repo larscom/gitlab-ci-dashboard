@@ -1,43 +1,36 @@
-import IndeterminateLoader from '$components/IndeterminateLoader'
+import IndeterminateLoader from '$components/ui/IndeterminateLoader'
+import BranchFilter from '$feature/branch/BranchFilter'
 import BranchWithPipelineTable from '$feature/branch/BranchWithPipelineTable'
 import { useBranches } from '$hooks/use-branches'
-import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
-import { CloseSquareOutlined, SearchOutlined } from '@ant-design/icons'
-import { ActionIcon, Group, Input, Stack, Tooltip } from '@mantine/core'
+import { BranchPipeline } from '$models/branch-pipeline'
+import { ProjectPipeline } from '$models/project-pipeline'
+import { Stack } from '@mantine/core'
+import { useMemo, useState } from 'react'
 
 interface Props {
-  project: ProjectWithLatestPipeline
+  project: ProjectPipeline
 }
 
 export default function ProjectRowExpansion({ project }: Props) {
-  const { isLoading: loading, data: branches = [] } = useBranches(
-    project.project.id
+  const { isLoading: loading, data = [] } = useBranches(project.project.id)
+  const [branchPipelines, setBranchPipelines] = useState<BranchPipeline[]>([])
+
+  const unfiltered = useMemo(
+    () => data.filter(({ branch }) => !branch.default),
+    [data]
   )
 
   if (loading) {
     return <IndeterminateLoader />
   }
 
-  const reset = (
-    <ActionIcon variant="transparent">
-      <Tooltip openDelay={250} label="Clear field">
-        <CloseSquareOutlined />
-      </Tooltip>
-    </ActionIcon>
-  )
-
   return (
     <Stack className="p-3">
-      <Group>
-        <Input
-          icon={<SearchOutlined />}
-          rightSection={reset}
-          placeholder="Search branches..."
-        />
-      </Group>
-      <BranchWithPipelineTable
-        branches={branches.filter(({ branch }) => !branch.default)}
+      <BranchFilter
+        unfiltered={unfiltered}
+        setBranchPipelines={setBranchPipelines}
       />
+      <BranchWithPipelineTable branches={branchPipelines} />
     </Stack>
   )
 }

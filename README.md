@@ -6,7 +6,7 @@
 
 > Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
 
-### ✨ [Demo Dashboard](https://gitlab-ci-dashboard-g2yczvalwa-ez.a.run.app)
+### ✨ [Demo Dashboard](https://gitlab-ci-dashboard.larscom.nl)
 
 ## :fire: Notice
 

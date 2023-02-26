@@ -1,4 +1,4 @@
-import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
+import { ProjectPipeline } from '$models/project-pipeline'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
 import { PartitionOutlined } from '@ant-design/icons'
@@ -10,7 +10,7 @@ import ProjectRowExpansion from './ProjectRowExpansion'
 const PAGE_SIZE = 10
 
 interface Props {
-  projects: ProjectWithLatestPipeline[]
+  projects: ProjectPipeline[]
 }
 export default function ProjectsWithPipelineTable({ projects }: Props) {
   const [page, setPage] = useState(1)

@@ -1,13 +1,13 @@
-import Empty from '$components/Empty'
+import Empty from '$components/ui/Empty'
 import ProjectsWithPipelineTable from '$feature/project/ProjectWithPipelineTable'
 import { Status } from '$models/pipeline'
-import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
+import { ProjectPipeline } from '$models/project-pipeline'
 import { statusToColor } from '$util/status-to-color'
 import { Badge, Stack, Tabs, TabsValue, Text } from '@mantine/core'
 import { useEffect, useState } from 'react'
 
 interface Props {
-  statusWithProjects: Map<Status, ProjectWithLatestPipeline[]>
+  statusWithProjects: Map<Status, ProjectPipeline[]>
 }
 export default function PipelineStatusTabs({ statusWithProjects }: Props) {
   const [status, setStatus] = useState<Status | undefined>()

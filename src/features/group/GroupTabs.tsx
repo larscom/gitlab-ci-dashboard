@@ -1,5 +1,5 @@
-import Empty from '$components/Empty'
-import IndeterminateLoader from '$components/IndeterminateLoader'
+import Empty from '$components/ui/Empty'
+import IndeterminateLoader from '$components/ui/IndeterminateLoader'
 import { GroupContextProvider } from '$contexts/group-context'
 import FeatureTabs from '$feature/feature/FeatureTabs'
 import { useGroups } from '$hooks/use-groups'

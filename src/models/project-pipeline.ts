@@ -1,7 +1,7 @@
 import { Pipeline } from './pipeline'
 import { Project } from './project'
 
-export interface ProjectWithLatestPipeline {
+export interface ProjectPipeline {
   project: Project
   pipeline?: Pipeline
 }

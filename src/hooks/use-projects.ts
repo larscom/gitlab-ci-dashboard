@@ -1,11 +1,11 @@
 import { GroupId } from '$models/group'
 import { Status } from '$models/pipeline'
-import { ProjectWithLatestPipeline } from '$models/project-with-pipeline'
+import { ProjectPipeline } from '$models/project-pipeline'
 import { useQuery } from 'react-query'
 
 export const useProjects = (groupId: GroupId) => {
   const url = `${location.origin}/api/groups/${groupId}/projects`
-  return useQuery<Map<Status, ProjectWithLatestPipeline[]>>(
+  return useQuery<Map<Status, ProjectPipeline[]>>(
     url,
     () =>
       fetch(url)
@@ -13,7 +13,7 @@ export const useProjects = (groupId: GroupId) => {
         .then((r) => {
           return new Map(Object.entries(r)) as Map<
             Status,
-            ProjectWithLatestPipeline[]
+            ProjectPipeline[]
           >
         }),
     {

@@ -1,4 +1,4 @@
-import Empty from '$components/Empty'
+import Empty from '$components/ui/Empty'
 import PipelineOverview from '$feature/pipeline/PipelineOverview'
 import { PartitionOutlined, ScheduleOutlined } from '@ant-design/icons'
 import { Stack, Tabs, Text } from '@mantine/core'

@@ -1,4 +1,4 @@
-import { BranchWithLatestPipeline } from '$models/branch-with-pipeline'
+import { BranchPipeline } from '$models/branch-pipeline'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
 import { statusToColor } from '$util/status-to-color'
@@ -8,7 +8,7 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
 
 interface Props {
-  branches: BranchWithLatestPipeline[]
+  branches: BranchPipeline[]
 }
 
 export default function BranchWithPipelineTable({ branches }: Props) {
@@ -54,7 +54,7 @@ export default function BranchWithPipelineTable({ branches }: Props) {
               return (
                 <Text
                   color={pipeline?.status && statusToColor(pipeline.status)}
-                  weight="bold"
+                  weight="500"
                 >
                   {pipeline?.status || '-'}
                 </Text>
