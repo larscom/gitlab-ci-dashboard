@@ -1,16 +1,19 @@
 import Empty from '$components/ui/Empty'
+import { GroupContext } from '$contexts/group-context'
 import ProjectsWithPipelineTable from '$feature/project/ProjectWithPipelineTable'
 import { Status } from '$models/pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { statusToColor } from '$util/status-to-color'
 import { Badge, Stack, Tabs, TabsValue, Text } from '@mantine/core'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 
 interface Props {
   statusWithProjects: Map<Status, ProjectPipeline[]>
 }
 export default function PipelineStatusTabs({ statusWithProjects }: Props) {
   const [status, setStatus] = useState<Status | undefined>()
+  const { groupId } = useContext(GroupContext)
+  const previousGroupId = useRef(groupId)
 
   useEffect(() => {
     setStatus((current) => {
@@ -19,9 +22,14 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
 
       if (!current) return first
 
+      if (groupId !== previousGroupId.current) {
+        return first
+      }
+      previousGroupId.current = groupId
+
       return allStatuses.includes(current) ? current : first
     })
-  }, [statusWithProjects])
+  }, [statusWithProjects, groupId])
 
   if (statusWithProjects.size === 0) {
     return (

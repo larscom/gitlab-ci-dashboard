@@ -1,4 +1,4 @@
-import AutoRefresh from '$components/AutoRefetch'
+import AutoRefresh from '$components/AutoRefresh'
 import IndeterminateLoader from '$components/ui/IndeterminateLoader'
 import { GroupContext } from '$contexts/group-context'
 import ProjectFilter from '$feature/project/ProjectFilter'

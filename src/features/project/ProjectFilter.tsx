@@ -1,4 +1,5 @@
 import SearchField from '$components/SearchField'
+import { GroupContext } from '$contexts/group-context'
 import { Status } from '$models/pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { filterBy } from '$util/filter-by'
@@ -7,7 +8,9 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
+  useContext,
   useEffect,
+  useRef,
   useState,
   useTransition
 } from 'react'
@@ -51,12 +54,17 @@ export default function ProjectFilter({
   const [, startTransition] = useTransition()
   const [filterTopics, setFilterTopics] = useState<string[]>([])
   const [filterText, setFilterText] = useState<string>('')
+  const { groupId } = useContext(GroupContext)
+  const previousGroupId = useRef(groupId)
 
   useEffect(() => {
+    if (groupId !== previousGroupId.current) {
+      setFilterText('')
+      setFilterTopics([])
+    }
     setStatusWithProjects(unfiltered || new Map())
-    setFilterTopics([])
-    setFilterText('')
-  }, [unfiltered, setStatusWithProjects])
+    previousGroupId.current = groupId
+  }, [unfiltered, setStatusWithProjects, groupId])
 
   useEffect(() => {
     startTransition(() => {

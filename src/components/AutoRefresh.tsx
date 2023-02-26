@@ -11,7 +11,7 @@ interface Props {
 }
 export default function AutoRefresh({ refetch, disabled }: Props) {
   const [checked, setChecked] = useLocalStorage<boolean>({
-    key: 'gcd.project.auto-refetch',
+    key: `gcd.project.auto-refresh`,
     defaultValue: false
   })
 
@@ -27,7 +27,7 @@ export default function AutoRefresh({ refetch, disabled }: Props) {
     <Checkbox
       checked={checked}
       disabled={disabled}
-      onChange={(event) => setChecked(event.currentTarget.checked)}
+      onChange={({ currentTarget }) => setChecked(currentTarget.checked)}
       labelPosition="left"
       label="Auto Refresh (5s)"
     />
