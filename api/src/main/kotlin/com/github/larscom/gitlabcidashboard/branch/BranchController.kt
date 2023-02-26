@@ -1,6 +1,6 @@
 package com.github.larscom.gitlabcidashboard.branch
 
-import com.github.larscom.gitlabcidashboard.branch.model.BranchWithLatestPipeline
+import com.github.larscom.gitlabcidashboard.branch.model.BranchPipeline
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -14,6 +14,6 @@ class BranchController(private val branchService: BranchService) {
     @GetMapping
     fun getBranchesWithLatestPipeline(
         @PathVariable("projectId") projectId: Long
-    ): List<BranchWithLatestPipeline> = branchService.getBranchesWithLatestPipeline(projectId)
+    ): List<BranchPipeline> = branchService.getBranchesWithLatestPipeline(projectId)
 
 }

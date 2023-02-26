@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.larscom.gitlabcidashboard.createResponse
 import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
-import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
+import com.github.larscom.gitlabcidashboard.project.model.ProjectPipeline
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
@@ -79,7 +79,7 @@ class ProjectControllerIT {
 
         val projectsGroupedByStatus = objectMapper.readValue(
             result.response.contentAsString,
-            object : TypeReference<Map<Pipeline.Status, List<ProjectWithLatestPipeline>>>() {}
+            object : TypeReference<Map<Pipeline.Status, List<ProjectPipeline>>>() {}
         )
 
         verify(gitlabClient, times(1)).getProjectsHead(anyLong(), anyInt())

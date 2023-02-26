@@ -1,7 +1,7 @@
 package com.github.larscom.gitlabcidashboard.project
 
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
-import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
+import com.github.larscom.gitlabcidashboard.project.model.ProjectPipeline
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -19,7 +19,7 @@ class ProjectControllerTest {
     private lateinit var projectService: ProjectService
 
     @Mock
-    private lateinit var projectsWithLatestPipeline: Map<Pipeline.Status, List<ProjectWithLatestPipeline>>
+    private lateinit var projectsWithLatestPipeline: Map<Pipeline.Status, List<ProjectPipeline>>
 
     @InjectMocks
     private lateinit var projectController: ProjectController

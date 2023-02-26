@@ -5,7 +5,7 @@ import com.adelean.inject.resources.junit.jupiter.TestWithResources
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.larscom.gitlabcidashboard.branch.model.BranchWithLatestPipeline
+import com.github.larscom.gitlabcidashboard.branch.model.BranchPipeline
 import com.github.larscom.gitlabcidashboard.createResponse
 import com.github.larscom.gitlabcidashboard.feign.GitlabFeignClient
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
@@ -70,7 +70,7 @@ class BranchControllerIT {
 
         val branchesWithLatestPipelines = objectMapper.readValue(
             result.response.contentAsString,
-            object : TypeReference<List<BranchWithLatestPipeline>>() {}
+            object : TypeReference<List<BranchPipeline>>() {}
         )
 
         verify(gitlabClient, times(1)).getBranchesHead(anyLong(), anyInt())

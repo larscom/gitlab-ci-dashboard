@@ -1,6 +1,6 @@
 package com.github.larscom.gitlabcidashboard.branch
 
-import com.github.larscom.gitlabcidashboard.branch.model.BranchWithLatestPipeline
+import com.github.larscom.gitlabcidashboard.branch.model.BranchPipeline
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -30,7 +30,7 @@ class BranchControllerTest {
     @Test
     fun `should get all branches with latest pipeline for projectId`() {
         val projectId = 1L
-        val branches = listOf(mock(BranchWithLatestPipeline::class.java))
+        val branches = listOf(mock(BranchPipeline::class.java))
 
         given(branchService.getBranchesWithLatestPipeline(projectId))
             .willReturn(branches)

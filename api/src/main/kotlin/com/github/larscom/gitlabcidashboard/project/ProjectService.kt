@@ -5,7 +5,7 @@ import com.github.larscom.gitlabcidashboard.pipeline.PipelineLatestRepository
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline
 import com.github.larscom.gitlabcidashboard.pipeline.model.Pipeline.Status.UNKNOWN
 import com.github.larscom.gitlabcidashboard.project.model.Project
-import com.github.larscom.gitlabcidashboard.project.model.ProjectWithLatestPipeline
+import com.github.larscom.gitlabcidashboard.project.model.ProjectPipeline
 import io.micrometer.core.annotation.Timed
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
@@ -24,7 +24,7 @@ class ProjectService(
 ) {
 
     @Timed(value = "service.get.projects.grouped-by-status", description = "Time taken to return all projects grouped by pipeline status")
-    fun getProjectsGroupedByStatus(groupId: Long): Map<Pipeline.Status, List<ProjectWithLatestPipeline>> =
+    fun getProjectsGroupedByStatus(groupId: Long): Map<Pipeline.Status, List<ProjectPipeline>> =
         runBlocking(IO) {
             val projects = projectRepository.get(groupId)
                 .filter { skipProjectIds.isEmpty() || skipProjectIds.contains(it.id).not() }
@@ -36,10 +36,10 @@ class ProjectService(
                 .groupBy({ it.key }, { it.value })
         }
 
-    private fun toStatusMap(project: Project, pipeline: Pipeline?): Map<Pipeline.Status, ProjectWithLatestPipeline> {
+    private fun toStatusMap(project: Project, pipeline: Pipeline?): Map<Pipeline.Status, ProjectPipeline> {
         return pipeline?.let {
-            mapOf(it.status to ProjectWithLatestPipeline(project = project, pipeline = it))
-        } ?: if (hideUnknownProjects) mapOf() else mapOf(UNKNOWN to ProjectWithLatestPipeline(project = project))
+            mapOf(it.status to ProjectPipeline(project = project, pipeline = it))
+        } ?: if (hideUnknownProjects) mapOf() else mapOf(UNKNOWN to ProjectPipeline(project = project))
     }
 
     private suspend fun getLatestPipelines(projects: List<Project>) = coroutineScope {

@@ -2,7 +2,7 @@
 
 [![Docker Image Version](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?sort=semver&label=latest%20release&color=blue)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master-build.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
+[![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
 
 > Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
 
