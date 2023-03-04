@@ -7,9 +7,9 @@ import { Chip, Group } from '@mantine/core'
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition
@@ -57,6 +57,11 @@ export default function ProjectFilter({
   const { groupId } = useContext(GroupContext)
   const previousGroupId = useRef(groupId)
 
+  const filtered = useMemo(
+    () => filter(unfiltered, filterText, filterTopics),
+    [unfiltered, filterText, filterTopics]
+  )
+
   useEffect(() => {
     if (groupId !== previousGroupId.current) {
       setFilterText('')
@@ -64,20 +69,13 @@ export default function ProjectFilter({
     }
     setStatusWithProjects(unfiltered || new Map())
     previousGroupId.current = groupId
-  }, [unfiltered, groupId, setStatusWithProjects] )
+  }, [unfiltered, groupId, setStatusWithProjects])
 
   useEffect(() => {
     startTransition(() => {
       setStatusWithProjects(filter(unfiltered, filterText, filterTopics))
     })
-  }, [filterText, filterTopics, unfiltered, setStatusWithProjects])
-
-  const handleTextChange = useCallback<(value: string) => void>(
-    (value) => setFilterText(value),
-    []
-  )
-
-  const handleChipsChange = useCallback(setFilterTopics, [setFilterTopics])
+  }, [filtered, setStatusWithProjects])
 
   const statusWithProjects = unfiltered || new Map<Status, ProjectPipeline[]>()
 
@@ -99,9 +97,9 @@ export default function ProjectFilter({
         placeholder="Search projects"
         disabled={disabled}
         value={filterText}
-        onChange={handleTextChange}
+        onChange={setFilterText}
       />
-      <Chip.Group multiple value={filterTopics} onChange={handleChipsChange}>
+      <Chip.Group multiple value={filterTopics} onChange={setFilterTopics}>
         {chips}
       </Chip.Group>
     </Group>

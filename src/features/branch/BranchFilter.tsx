@@ -5,8 +5,8 @@ import { Group } from '@mantine/core'
 import {
   Dispatch,
   SetStateAction,
-  useCallback,
   useEffect,
+  useMemo,
   useState,
   useTransition
 } from 'react'
@@ -24,22 +24,19 @@ export default function BranchFilter({
   const [, startTransition] = useTransition()
   const [filterText, setFilterText] = useState<string>('')
 
+  const filtered = useMemo(
+    () => unfiltered.filter(({ branch }) => filterBy(branch.name, filterText)),
+    [unfiltered, filterText]
+  )
+
   useEffect(() => {
-    setBranchPipelines(unfiltered)
     setFilterText('')
+    setBranchPipelines(unfiltered)
   }, [unfiltered, setBranchPipelines])
 
-  useEffect(() => {
-    startTransition(() => {
-      setBranchPipelines(
-        unfiltered.filter(({ branch }) => filterBy(branch.name, filterText))
-      )
-    })
-  }, [filterText, unfiltered, setBranchPipelines])
-
-  const handleTextChange = useCallback<(value: string) => void>(
-    (value) => setFilterText(value),
-    []
+  useEffect(
+    () => startTransition(() => setBranchPipelines(filtered)),
+    [filtered, setBranchPipelines]
   )
 
   return (
@@ -48,7 +45,7 @@ export default function BranchFilter({
         placeholder="Search branches"
         disabled={disabled}
         value={filterText}
-        onChange={handleTextChange}
+        onChange={setFilterText}
       />
     </Group>
   )

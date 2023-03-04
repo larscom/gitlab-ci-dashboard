@@ -6,7 +6,7 @@ import { useProjects } from '$hooks/use-projects'
 import { Status } from '$models/pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { Group, Stack } from '@mantine/core'
-import { useContext, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import PipelineStatusTabs from './PipelineStatusTabs'
 
 export default function PipelineOverview() {
@@ -27,11 +27,12 @@ export default function PipelineOverview() {
         <ProjectFilter
           disabled={isLoading}
           unfiltered={unfiltered}
-          setStatusWithProjects={setStatusWithProjects}
+          setStatusWithProjects={useCallback(setStatusWithProjects, [])}
         />
         <AutoRefresh
+          id="project"
           loading={isRefetching}
-          refetch={refetch}
+          refetch={useCallback(refetch, [])}
           disabled={isLoading}
         />
       </Group>
