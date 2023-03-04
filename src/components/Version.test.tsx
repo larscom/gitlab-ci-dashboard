@@ -1,9 +1,20 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
+
 import Version from './Version'
 
 describe('Version', () => {
-  it('should fetch and display version', () => {
+  it('should fetch and display version', async () => {
+    const version = '1.1.1'
+
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({ text: () => Promise.resolve(version) })
+
     render(<Version />)
-    expect(screen.getByText(/Hello Vite \+ React!/i)).toBeInTheDocument()
+
+    expect(global.fetch).toHaveBeenCalledWith('/api/version')
+
+    expect(await screen.findByText(version)).toBeInTheDocument()
   })
 })

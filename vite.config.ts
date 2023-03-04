@@ -13,7 +13,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test.ts',
-    css: true
+    css: true,
+    coverage: {
+      provider: 'c8',
+      reporter: ['json']
+    }
   },
   build: {
     outDir: './dist/static',

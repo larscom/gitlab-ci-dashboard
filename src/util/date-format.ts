@@ -9,5 +9,6 @@ const FORMAT: Intl.DateTimeFormatOptions = {
 }
 const LANGUAGES = [...(navigator?.languages || ['en-US'])]
 
-export const formatDateTime = (dateTime: string) =>
-  new Intl.DateTimeFormat(LANGUAGES, FORMAT).format(new Date(dateTime))
+export const formatDateTime = (dateTime: string) => {
+  return new Intl.DateTimeFormat(LANGUAGES, FORMAT).format(new Date(dateTime))
+}

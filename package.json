@@ -7,8 +7,8 @@
     "dev": "vite",
     "start": "vite",
     "build": "tsc && vite build",
-    "test": "vitest",
-    "test:ci": "exit 0",
+    "test": "vitest --ui",
+    "test:ci": "vitest run --coverage",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -30,6 +30,8 @@
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "@vitejs/plugin-react-swc": "^3.1.0",
+    "@vitest/coverage-c8": "^0.29.2",
+    "@vitest/ui": "^0.29.2",
     "autoprefixer": "^10.4.13",
     "eslint": "^8.34.0",
     "eslint-plugin-react": "^7.32.2",

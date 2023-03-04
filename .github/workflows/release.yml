@@ -17,12 +17,11 @@ jobs:
           node-version: 16
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: npm run test:ci
-  #      - uses: codecov/codecov-action@v3
-  #        with:
-  #          token: ${{ secrets.CODECOV_TOKEN }}
-  #          files: ./coverage/coverage-final.json
-  #          verbose: true
-
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+  
   test_api:
     runs-on: ubuntu-latest
     env:
