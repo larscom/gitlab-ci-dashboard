@@ -18,7 +18,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
     sortRecords(projects, ['project', 'name'], 'asc').slice(0, PAGE_SIZE)
   )
 
-  useEffect(() => setPage(1), [projects, setPage])
+  useEffect(() => setPage(1), [projects])
 
   useEffect(() => {
     const from = (page - 1) * PAGE_SIZE
@@ -26,7 +26,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
     setSortedProjects(
       sortRecords(projects, ['project', 'name'], 'asc').slice(from, to)
     )
-  }, [projects, page, setSortedProjects])
+  }, [projects, page])
 
   return (
     <Box>

@@ -39,7 +39,7 @@ export default function BranchFilter({
 
   const handleTextChange = useCallback<(value: string) => void>(
     (value) => setFilterText(value),
-    [setFilterText]
+    []
   )
 
   return (

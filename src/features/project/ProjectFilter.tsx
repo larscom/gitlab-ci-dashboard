@@ -64,7 +64,7 @@ export default function ProjectFilter({
     }
     setStatusWithProjects(unfiltered || new Map())
     previousGroupId.current = groupId
-  }, [unfiltered, setStatusWithProjects, groupId])
+  }, [unfiltered, groupId, setStatusWithProjects] )
 
   useEffect(() => {
     startTransition(() => {
@@ -74,7 +74,7 @@ export default function ProjectFilter({
 
   const handleTextChange = useCallback<(value: string) => void>(
     (value) => setFilterText(value),
-    [setFilterText]
+    []
   )
 
   const handleChipsChange = useCallback(setFilterTopics, [setFilterTopics])

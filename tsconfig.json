@@ -17,6 +17,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "types": ["vitest/globals"],
     "paths": {
       "$components/*": ["src/components/*"],
       "$contexts/*": ["src/contexts/*"],
