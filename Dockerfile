@@ -6,7 +6,7 @@ WORKDIR /builder
 COPY . .
 
 RUN apk add --no-cache libc6-compat
-RUN corepack enable && corepack prepare pnpm@7.4.1 --activate
+RUN corepack enable && corepack prepare pnpm@7.28.0 --activate
 
 RUN pnpm install --frozen-lockfile && pnpm run build
 
