@@ -71,11 +71,10 @@ export default function ProjectFilter({
     previousGroupId.current = groupId
   }, [unfiltered, groupId, setStatusWithProjects])
 
-  useEffect(() => {
-    startTransition(() => {
-      setStatusWithProjects(filter(unfiltered, filterText, filterTopics))
-    })
-  }, [filtered, setStatusWithProjects])
+  useEffect(
+    () => startTransition(() => setStatusWithProjects(filtered)),
+    [filtered, setStatusWithProjects]
+  )
 
   const statusWithProjects = unfiltered || new Map<Status, ProjectPipeline[]>()
 

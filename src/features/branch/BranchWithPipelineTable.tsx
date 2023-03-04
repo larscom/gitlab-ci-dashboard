@@ -2,7 +2,7 @@ import { BranchPipeline } from '$models/branch-pipeline'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
 import { statusToColor } from '$util/status-to-color'
-import { PartitionOutlined } from '@ant-design/icons'
+import { NodeExpandOutlined } from '@ant-design/icons'
 import { ActionIcon, Box, Group, Text, Tooltip } from '@mantine/core'
 import { DataTable, DataTableSortStatus } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
@@ -97,7 +97,7 @@ export default function BranchWithPipelineTable({ branches }: Props) {
                       openDelay={250}
                       label={`Show pipeline (${branch.name})`}
                     >
-                      <PartitionOutlined />
+                      <NodeExpandOutlined />
                     </Tooltip>
                   </ActionIcon>
                 </Group>

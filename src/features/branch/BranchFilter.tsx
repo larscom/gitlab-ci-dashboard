@@ -29,11 +29,6 @@ export default function BranchFilter({
     [unfiltered, filterText]
   )
 
-  useEffect(() => {
-    setFilterText('')
-    setBranchPipelines(unfiltered)
-  }, [unfiltered, setBranchPipelines])
-
   useEffect(
     () => startTransition(() => setBranchPipelines(filtered)),
     [filtered, setBranchPipelines]

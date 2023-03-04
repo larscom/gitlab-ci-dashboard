@@ -6,7 +6,7 @@ import { useBranches } from '$hooks/use-branches'
 import { BranchPipeline } from '$models/branch-pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { Group, Stack } from '@mantine/core'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 interface Props {
   project: ProjectPipeline
@@ -33,12 +33,12 @@ export default function ProjectRowExpansion({ project }: Props) {
         <BranchFilter
           disabled={isLoading}
           unfiltered={unfiltered}
-          setBranchPipelines={useCallback(setBranchPipelines, [])}
+          setBranchPipelines={setBranchPipelines}
         />
         <AutoRefresh
           id="branch"
           loading={isRefetching}
-          refetch={useCallback(refetch, [])}
+          refetch={refetch}
           disabled={isLoading}
         />
       </Group>

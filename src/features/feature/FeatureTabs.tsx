@@ -1,16 +1,16 @@
 import Empty from '$components/ui/Empty'
 import PipelineOverview from '$feature/pipeline/PipelineOverview'
-import { PartitionOutlined, ScheduleOutlined } from '@ant-design/icons'
+import { NodeExpandOutlined, ScheduleOutlined } from '@ant-design/icons'
 import { Stack, Tabs, Text } from '@mantine/core'
 
 export default function FeatureTabs() {
   return (
     <Tabs orientation="vertical" variant="default" defaultValue="pipelines">
       <Tabs.List>
-        <Tabs.Tab value="pipelines" icon={<PartitionOutlined size={14} />}>
+        <Tabs.Tab value="pipelines" icon={<NodeExpandOutlined />}>
           Pipelines
         </Tabs.Tab>
-        <Tabs.Tab value="schedules" icon={<ScheduleOutlined size={14} />}>
+        <Tabs.Tab value="schedules" icon={<ScheduleOutlined />}>
           Schedules
         </Tabs.Tab>
       </Tabs.List>

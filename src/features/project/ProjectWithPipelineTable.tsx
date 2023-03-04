@@ -1,7 +1,7 @@
 import { ProjectPipeline } from '$models/project-pipeline'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
-import { PartitionOutlined } from '@ant-design/icons'
+import { NodeExpandOutlined } from '@ant-design/icons'
 import { ActionIcon, Box, Group, Text, Tooltip } from '@mantine/core'
 import { DataTable } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
@@ -95,7 +95,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
                       openDelay={250}
                       label={`Show pipeline (${project.defaultBranch})`}
                     >
-                      <PartitionOutlined />
+                      <NodeExpandOutlined />
                     </Tooltip>
                   </ActionIcon>
                 </Group>
