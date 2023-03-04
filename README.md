@@ -1,37 +1,27 @@
 # Gitlab CI Dashboard
-[![Dockerhub Stats](https://dockerico.blankenship.io/image/larscom/gitlab-ci-dashboard)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 
 [![Docker Image Version](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?sort=semver&label=latest%20release&color=blue)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
+[![Dockerhub Pulls](https://img.shields.io/docker/pulls/larscom/gitlab-ci-dashboard)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
 
+![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
-> Gitlab CI Dashboard will provide you information about all pipeline statuses in Gitlab.
+> Gitlab CI Dashboard will provide you a global overview of all pipeline statuses in Gitlab.
 
-### ✨ [Demo Dashboard](https://gitlab-ci-dashboard.larscom.nl)
-
-## :fire: Notice
-
-This app is under heavy development, not all features might be fully implemented yet :wink:
+### ✨ [Demo](https://gitlab-ci-dashboard.larscom.nl)
 
 ## Highlights
 
-- View Gitlab CI pipeline statuses (maybe more functionality will be added later) uses the default branch by default
-- Communication to the Gitlab API happens server side (only 1 `read only` token is needed for you or your team)
-- Easy navigation to Gitlab from within the dashboard
-- Server side caching (configurable)
+- View Gitlab CI pipeline statuses (more functionality will be added later)
+- Communication to the Gitlab API happens server side (only 1 `read only` token is needed to serve a whole team)
+- Easy navigation to Gitlab pipelines from within the dashboard
 
 ## Requirements
 
-- Any Gitlab server
+- Gitlab server
 - Supports only `v4` of the Gitlab API
 - Docker
-
-## Versioning
-
-- larscom/gitlab-ci-dashboard:x.x.x `specific release version, e.g: 1.1.0`
-- larscom/gitlab-ci-dashboard:latest `latest release`
-- larscom/gitlab-ci-dashboard:master `latest master build`
 
 ## Getting started
 
@@ -49,12 +39,13 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
    projects
 
 ## Metrics (Prometheus)
+
 Application metrics are exposed on url: http://localhost:8080/actuator/prometheus
 
 ## Environment variables
 
 | Variable                          | Type     | Description                                                                                            | Required | Default |
-|-----------------------------------|----------|--------------------------------------------------------------------------------------------------------|----------|---------|
+| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------ | -------- | ------- |
 | GITLAB_BASE_URL                   | string   | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |         |
 | GITLAB_API_TOKEN                  | string   | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |         |
 | GITLAB_GROUP_ONLY_IDS             | string   | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |         |
