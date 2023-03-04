@@ -12,16 +12,16 @@ jobs:
       TZ: Europe/Amsterdam
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm ci --ignore-scripts --legacy-peer-deps
-      - run: npm run test:ci
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
-  
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:ci
+
   test_api:
     runs-on: ubuntu-latest
     env:
@@ -33,11 +33,6 @@ jobs:
           distribution: temurin
           java-version: 17
       - run: ./api/gradlew test -p api
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./api/build/reports/jacoco/test/jacocoTestReport.xml
-          verbose: true
 
   build_and_publish:
     needs: [test_frontend, test_api]

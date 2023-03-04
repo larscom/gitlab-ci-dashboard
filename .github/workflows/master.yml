@@ -12,11 +12,15 @@ jobs:
       TZ: Europe/Amsterdam
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm ci --ignore-scripts --legacy-peer-deps
-      - run: npm run test:ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:ci
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

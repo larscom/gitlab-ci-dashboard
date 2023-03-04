@@ -1,11 +1,14 @@
 # syntax=docker/dockerfile:1
 
 # Build frontend
-FROM node:16.18.1-alpine AS frontend
+FROM node:16.19.1-alpine AS frontend
 WORKDIR /builder
 COPY . .
-RUN npm ci --legacy-peer-deps --ignore-scripts && \
-  npm run build
+
+RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@7.4.1 --activate
+
+RUN pnpm install --frozen-lockfile && pnpm run build
 
 # Build api, include frontend in JAR
 FROM gradle:7.6.0-jdk17 AS gradle
