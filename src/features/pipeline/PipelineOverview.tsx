@@ -31,6 +31,7 @@ export default function PipelineOverview() {
         />
         <AutoRefresh
           id="project"
+          loadingColor="teal"
           loading={isRefetching}
           refetch={refetch}
           disabled={isLoading}

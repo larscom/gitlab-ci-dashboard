@@ -23,9 +23,9 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
       if (!current) return first
 
       if (groupId !== previousGroupId.current) {
+        previousGroupId.current = groupId
         return first
       }
-      previousGroupId.current = groupId
 
       return allStatuses.includes(current) ? current : first
     })

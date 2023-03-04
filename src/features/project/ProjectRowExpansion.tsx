@@ -37,6 +37,7 @@ export default function ProjectRowExpansion({ project }: Props) {
         />
         <AutoRefresh
           id="branch"
+          loadingColor="pink"
           loading={isRefetching}
           refetch={refetch}
           disabled={isLoading}

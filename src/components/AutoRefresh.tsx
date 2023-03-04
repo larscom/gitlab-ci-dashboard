@@ -1,5 +1,12 @@
 import { ReloadOutlined } from '@ant-design/icons'
-import { ActionIcon, Group, Loader, NativeSelect, Tooltip } from '@mantine/core'
+import {
+  ActionIcon,
+  Group,
+  Loader,
+  MantineColor,
+  NativeSelect,
+  Tooltip
+} from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { useEffect } from 'react'
 import { QueryObserverBaseResult } from 'react-query'
@@ -8,6 +15,7 @@ interface Props {
   refetch: QueryObserverBaseResult['refetch']
   id: string
   loading?: boolean
+  loadingColor?: MantineColor
   disabled?: boolean
 }
 
@@ -15,7 +23,8 @@ export default function AutoRefresh({
   id,
   refetch,
   disabled,
-  loading
+  loading,
+  loadingColor
 }: Props) {
   const [refreshInterval, setRefreshInterval] = useLocalStorage<string>({
     key: `gcd.${id}.refresh-interval`,
@@ -34,7 +43,7 @@ export default function AutoRefresh({
 
   return (
     <Group spacing="xs">
-      {loading && <Loader color="teal" size="xs" />}
+      {loading && <Loader color={loadingColor} size="xs" />}
       <Group spacing="xs">
         <ActionIcon
           disabled={disabled}
