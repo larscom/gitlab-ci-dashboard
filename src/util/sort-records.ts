@@ -15,20 +15,26 @@ export const sortRecords = <T>(
       return 0
     }
 
-    const isDate =
-      DATE_MATCHER.test(String(valueA)) && DATE_MATCHER.test(String(valueB))
-
-    const isNumber = typeof valueA === 'number' && typeof valueB === 'number'
     const isAscending = direction === 'asc'
 
-    if (isDate) {
+    const isNumber = typeof valueA === 'number' && typeof valueB === 'number'
+    if (isNumber) {
+      return isAscending ? valueA - valueB : valueB - valueA
+    }
+
+    const isDateObject = valueA instanceof Date && valueB instanceof Date
+    if (isDateObject) {
+      return isAscending
+        ? Number(valueA) - Number(valueB)
+        : Number(valueB) - Number(valueA)
+    }
+
+    const isDateString =
+      DATE_MATCHER.test(String(valueA)) && DATE_MATCHER.test(String(valueB))
+    if (isDateString) {
       return isAscending
         ? Number(new Date(valueA)) - Number(new Date(valueB))
         : Number(new Date(valueB)) - Number(new Date(valueA))
-    }
-
-    if (isNumber) {
-      return isAscending ? valueA - valueB : valueB - valueA
     }
 
     return isAscending
