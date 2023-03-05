@@ -22,6 +22,7 @@
       "$components/*": ["src/components/*"],
       "$contexts/*": ["src/contexts/*"],
       "$feature/*": ["src/features/*"],
+      "$test/*": ["src/test/*"],
       "$hooks/*": ["src/hooks/*"],
       "$models/*": ["src/models/*"],
       "$util/*": ["src/util/*"]

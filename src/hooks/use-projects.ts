@@ -11,9 +11,7 @@ export const useProjects = (groupId: GroupId) => {
       window
         .fetch(url)
         .then((r) => r.json())
-        .then((r) => {
-          return new Map(Object.entries(r)) as Map<Status, ProjectPipeline[]>
-        }),
+        .then((r) => new Map(Object.entries(r)) as Map<Status, ProjectPipeline[]>),
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
