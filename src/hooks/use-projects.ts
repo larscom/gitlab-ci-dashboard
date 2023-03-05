@@ -8,13 +8,11 @@ export const useProjects = (groupId: GroupId) => {
   return useQuery<Map<Status, ProjectPipeline[]>>(
     url,
     () =>
-      fetch(url)
+      window
+        .fetch(url)
         .then((r) => r.json())
         .then((r) => {
-          return new Map(Object.entries(r)) as Map<
-            Status,
-            ProjectPipeline[]
-          >
+          return new Map(Object.entries(r)) as Map<Status, ProjectPipeline[]>
         }),
     {
       refetchOnMount: false,

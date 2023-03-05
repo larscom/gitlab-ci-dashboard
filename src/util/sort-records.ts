@@ -8,31 +8,31 @@ export const sortRecords = <T>(
   direction: DataTableSortStatus['direction']
 ) => {
   return Array.from(records).sort((a, b) => {
-    const propA = a[propNames[0]] ? a[propNames[0]][propNames[1]] : null
-    const propB = b[propNames[0]] ? b[propNames[0]][propNames[1]] : null
+    const valueA = a[propNames[0]] ? a[propNames[0]][propNames[1]] : null
+    const valueB = b[propNames[0]] ? b[propNames[0]][propNames[1]] : null
 
-    if (propA == null && propB == null) {
+    if (valueA == null && valueB == null) {
       return 0
     }
 
     const isDate =
-      DATE_MATCHER.test(String(propA)) && DATE_MATCHER.test(String(propB))
+      DATE_MATCHER.test(String(valueA)) && DATE_MATCHER.test(String(valueB))
 
-    const isNumber = typeof propA === 'number' && typeof propB === 'number'
+    const isNumber = typeof valueA === 'number' && typeof valueB === 'number'
     const isAscending = direction === 'asc'
 
     if (isDate) {
       return isAscending
-        ? Number(new Date(propA)) - Number(new Date(propB))
-        : Number(new Date(propB)) - Number(new Date(propA))
+        ? Number(new Date(valueA)) - Number(new Date(valueB))
+        : Number(new Date(valueB)) - Number(new Date(valueA))
     }
 
     if (isNumber) {
-      return isAscending ? propA - propB : propB - propA
+      return isAscending ? valueA - valueB : valueB - valueA
     }
 
     return isAscending
-      ? String(propA).localeCompare(propB)
-      : String(propB).localeCompare(propA)
+      ? String(valueA).localeCompare(valueB)
+      : String(valueB).localeCompare(valueA)
   })
 }

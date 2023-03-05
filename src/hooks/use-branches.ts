@@ -6,7 +6,7 @@ export const useBranches = (projectId: ProjectId) => {
   const url = `${location.origin}/api/branches/${projectId}`
   return useQuery<BranchPipeline[]>(
     url,
-    () => fetch(url).then((r) => r.json()),
+    () => window.fetch(url).then((r) => r.json()),
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
