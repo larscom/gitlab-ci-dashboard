@@ -33,7 +33,7 @@ export default function SearchField({
       disabled={disabled}
       icon={<SearchOutlined />}
       rightSection={reset}
-      onChange={handleTextChange}
+      onChange={(e) => !disabled && handleTextChange(e)}
       placeholder={placeholder}
     />
   )
