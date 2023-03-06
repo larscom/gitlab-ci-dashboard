@@ -26,7 +26,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
     setSortedProjects(
       sortRecords(projects, ['project', 'name'], 'asc').slice(from, to)
     )
-  }, [projects, page])
+  }, [page, projects])
 
   return (
     <Box>

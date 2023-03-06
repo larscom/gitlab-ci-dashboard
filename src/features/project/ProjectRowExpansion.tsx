@@ -20,7 +20,7 @@ export default function ProjectRowExpansion({ project }: Props) {
     data = []
   } = useBranches(project.project.id)
 
-  const [branchPipelines, setBranchPipelines] = useState<BranchPipeline[]>([])
+  const [branchPipelines, setBranchPipelines] = useState<BranchPipeline[]>(data)
 
   const unfiltered = useMemo(
     () => data.filter(({ branch }) => !branch.default),
