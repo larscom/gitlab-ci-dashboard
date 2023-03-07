@@ -11,24 +11,21 @@ interface Props {
   statusWithProjects: Map<Status, ProjectPipeline[]>
 }
 export default function PipelineStatusTabs({ statusWithProjects }: Props) {
-  const [status, setStatus] = useState<Status | undefined>()
   const { groupId } = useContext(GroupContext)
-  const previousGroupId = useRef(groupId)
+
+  const [status, setStatus] = useState<Status>(Status.CANCELED)
+  const groupIdRef = useRef(groupId)
 
   useEffect(() => {
-    setStatus((current) => {
-      const allStatuses = Array.from(statusWithProjects.keys()).sort()
-      const first = allStatuses[0]
+    const allStatuses = Array.from(statusWithProjects.keys()).sort()
+    const first = allStatuses[0]
 
-      if (!current) return first
-
-      if (groupId !== previousGroupId.current) {
-        previousGroupId.current = groupId
-        return first
-      }
-
-      return allStatuses.includes(current) ? current : first
-    })
+    if (groupId !== groupIdRef.current) {
+      groupIdRef.current = groupId
+      setStatus(first)
+    } else {
+      setStatus((current) => (allStatuses.includes(current) ? current : first))
+    }
   }, [statusWithProjects, groupId])
 
   if (statusWithProjects.size === 0) {
@@ -69,14 +66,14 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
 
   const handleChange = (status: TabsValue) => setStatus(status as Status)
 
-  const projects = status ? statusWithProjects.get(status) || [] : []
+  const projects = statusWithProjects.get(status) ?? []
 
-  return status ? (
+  return (
     <Tabs value={status} onTabChange={handleChange}>
       <Tabs.List>{tabs}</Tabs.List>
       <Tabs.Panel value={status} pt="xs">
         <ProjectsWithPipelineTable projects={projects} />
       </Tabs.Panel>
     </Tabs>
-  ) : null
+  )
 }

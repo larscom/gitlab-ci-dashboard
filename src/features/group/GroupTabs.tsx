@@ -20,8 +20,7 @@ export default function GroupTabs() {
     if (groups.some(({ id }) => id === groupId)) return
 
     setGroupId(groups[0].id)
-    // eslint-disable-next-line
-  }, [groups, groupId])
+  }, [groups, groupId, setGroupId])
 
   if (loading) {
     return <IndeterminateLoader />
