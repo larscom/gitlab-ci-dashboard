@@ -23,9 +23,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
   useEffect(() => {
     const from = (page - 1) * PAGE_SIZE
     const to = from + PAGE_SIZE
-    setSortedProjects(
-      sortRecords(projects, ['project', 'name'], 'asc').slice(from, to)
-    )
+    setSortedProjects(sortRecords(projects, ['project', 'name'], 'asc').slice(from, to))
   }, [page, projects])
 
   return (

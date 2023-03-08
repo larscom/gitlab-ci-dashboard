@@ -13,7 +13,7 @@ interface Props {
 export default function PipelineStatusTabs({ statusWithProjects }: Props) {
   const { groupId } = useContext(GroupContext)
 
-  const [status, setStatus] = useState<Status>(Status.CANCELED)
+  const [status, setStatus] = useState<Status | undefined>()
   const groupIdRef = useRef(groupId)
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
       groupIdRef.current = groupId
       setStatus(first)
     } else {
-      setStatus((current) => (allStatuses.includes(current) ? current : first))
+      setStatus((current) => (current && allStatuses.includes(current) ? current : first))
     }
   }, [statusWithProjects, groupId])
 
@@ -66,14 +66,14 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
 
   const handleChange = (status: TabsValue) => setStatus(status as Status)
 
-  const projects = statusWithProjects.get(status) ?? []
+  const projects = status ? statusWithProjects.get(status) || [] : []
 
-  return (
+  return status ? (
     <Tabs value={status} onTabChange={handleChange}>
       <Tabs.List>{tabs}</Tabs.List>
       <Tabs.Panel value={status} pt="xs">
         <ProjectsWithPipelineTable projects={projects} />
       </Tabs.Panel>
     </Tabs>
-  )
+  ) : null
 }

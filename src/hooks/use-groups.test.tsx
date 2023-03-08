@@ -10,9 +10,7 @@ describe('useGroups', () => {
   it('should fetch groups', async () => {
     const groups: Group[] = [createGroup(1, 'group-1')]
 
-    global.fetch = vi
-      .fn()
-      .mockResolvedValueOnce({ json: () => Promise.resolve(groups) })
+    global.fetch = vi.fn().mockResolvedValueOnce({ json: () => Promise.resolve(groups) })
 
     const { result } = renderHook(() => useGroups(), {
       wrapper: createWrapper()
@@ -21,8 +19,6 @@ describe('useGroups', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(result.current.data).toEqual(groups)
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/groups')
-    )
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/groups'))
   })
 })

@@ -1,72 +1,44 @@
-import { BranchPipeline } from '$models/branch-pipeline'
-import { createBranchWithPipeline } from '$test/objects'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
 
 import BranchFilter from './BranchFilter'
 
 describe('BranchFilter', () => {
-  const unfiltered: BranchPipeline[] = [
-    createBranchWithPipeline('main'),
-    createBranchWithPipeline('feature-1'),
-    createBranchWithPipeline('feature-2')
-  ]
-
-  it('should render a SearchField with placeholder text "Search branches"', () => {
-    const setBranchPipelines = vi.fn()
+  it('renders the search field with the correct props', () => {
+    const setFilterText = vi.fn()
+    const filterText = 'test'
 
     render(
       <BranchFilter
-        unfiltered={unfiltered}
-        setBranchPipelines={setBranchPipelines}
+        filterText={filterText}
+        setFilterText={setFilterText}
+        disabled={true}
       />
     )
 
-    expect(setBranchPipelines).toHaveBeenCalledTimes(1)
+    const searchField = screen.getByPlaceholderText('Search branches')
+    expect(searchField).toHaveValue(filterText)
+    expect(searchField).toBeDisabled()
+  })
+
+  it('should render a SearchField with placeholder text "Search branches"', () => {
+    const setFilterText = vi.fn()
+
+    render(<BranchFilter filterText="test" setFilterText={setFilterText} />)
+
     expect(screen.getByPlaceholderText('Search branches')).toBeInTheDocument()
   })
 
-  it('should filter the list of branches when the user types in the search field', () => {
-    const setBranchPipelines = vi.fn()
+  it('should call setFilterText when the search field value changes', () => {
+    const setFilterText = vi.fn()
+    const filterText = 'test'
 
-    render(
-      <BranchFilter
-        unfiltered={unfiltered}
-        setBranchPipelines={setBranchPipelines}
-      />
-    )
+    render(<BranchFilter filterText={filterText} setFilterText={setFilterText} />)
 
     const searchField = screen.getByPlaceholderText('Search branches')
-    fireEvent.change(searchField, { target: { value: 'feature' } })
+    const newFilterText = 'change'
+    fireEvent.change(searchField, { target: { value: newFilterText } })
 
-    expect(setBranchPipelines).toHaveBeenCalledTimes(2)
-    expect(setBranchPipelines).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          branch: expect.objectContaining({ name: 'feature-1' })
-        }),
-        expect.objectContaining({
-          branch: expect.objectContaining({ name: 'feature-2' })
-        })
-      ])
-    )
-  })
-
-  it('should not filter the list of branches when the SearchField is disabled', () => {
-    const setBranchPipelines = vi.fn()
-
-    render(
-      <BranchFilter
-        unfiltered={unfiltered}
-        setBranchPipelines={setBranchPipelines}
-        disabled
-      />
-    )
-
-    const searchField = screen.getByPlaceholderText('Search branches')
-    fireEvent.change(searchField, { target: { value: 'main' } })
-
-    expect(setBranchPipelines).toHaveBeenCalledTimes(1)
-    expect(setBranchPipelines).toHaveBeenCalledWith(unfiltered)
+    expect(setFilterText).toHaveBeenCalledWith(newFilterText)
   })
 })

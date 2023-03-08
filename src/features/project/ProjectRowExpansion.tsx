@@ -3,28 +3,25 @@ import IndeterminateLoader from '$components/ui/IndeterminateLoader'
 import BranchFilter from '$feature/branch/BranchFilter'
 import BranchWithPipelineTable from '$feature/branch/BranchWithPipelineTable'
 import { useBranches } from '$hooks/use-branches'
-import { BranchPipeline } from '$models/branch-pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
+import { filterBy } from '$util/filter-by'
 import { Group, Stack } from '@mantine/core'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 interface Props {
   project: ProjectPipeline
 }
 
-export default function ProjectRowExpansion({ project }: Props) {
-  const {
-    isLoading,
-    isRefetching,
-    refetch,
-    data = []
-  } = useBranches(project.project.id)
+export default function ProjectRowExpansion({ project: { project } }: Props) {
+  const { isLoading, isRefetching, refetch, data = [] } = useBranches(project.id)
+  const [filterText, setFilterText] = useState<string>('')
 
-  const [branchPipelines, setBranchPipelines] = useState<BranchPipeline[]>(data)
-
-  const unfiltered = useMemo(
-    () => data.filter(({ branch }) => !branch.default),
-    [data]
+  const branches = useMemo(
+    () =>
+      data
+        .filter(({ branch }) => !branch.default)
+        .filter(({ branch }) => filterBy(branch.name, filterText)),
+    [data, filterText]
   )
 
   return (
@@ -32,12 +29,13 @@ export default function ProjectRowExpansion({ project }: Props) {
       <Group className="justify-between">
         <BranchFilter
           disabled={isLoading}
-          unfiltered={unfiltered}
-          setBranchPipelines={setBranchPipelines}
+          // eslint-disable-next-line
+          setFilterText={useCallback(setFilterText, [])}
+          filterText={filterText}
         />
         <AutoRefresh
           id="branch"
-          loadingColor="pink"
+          loadingColor="teal"
           loading={isRefetching}
           refetch={refetch}
           disabled={isLoading}
@@ -46,7 +44,7 @@ export default function ProjectRowExpansion({ project }: Props) {
       {isLoading ? (
         <IndeterminateLoader />
       ) : (
-        <BranchWithPipelineTable branches={branchPipelines} />
+        <BranchWithPipelineTable branches={branches} />
       )}
     </Stack>
   )

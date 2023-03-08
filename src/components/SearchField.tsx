@@ -1,6 +1,6 @@
 import { CloseSquareOutlined, SearchOutlined } from '@ant-design/icons'
 import { ActionIcon, Input, Tooltip } from '@mantine/core'
-import { ChangeEvent, useCallback } from 'react'
+import { ChangeEvent } from 'react'
 
 interface Props {
   placeholder?: string
@@ -8,16 +8,9 @@ interface Props {
   onChange: (value: string) => void
   disabled?: boolean
 }
-export default function SearchField({
-  placeholder,
-  value,
-  onChange,
-  disabled
-}: Props) {
-  const handleTextChange = useCallback(
-    ({ target: { value } }: ChangeEvent<HTMLInputElement>) => onChange(value),
-    [onChange]
-  )
+export default function SearchField({ placeholder, value, onChange, disabled }: Props) {
+  const handleTextChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+    onChange(value)
 
   const reset = (
     <ActionIcon onClick={() => onChange('')} variant="transparent">

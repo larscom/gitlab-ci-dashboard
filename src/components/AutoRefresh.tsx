@@ -34,10 +34,7 @@ export default function AutoRefresh({
   useEffect(() => {
     if (refreshInterval === '') return
 
-    const i = setInterval(
-      () => !disabled && refetch(),
-      Number(refreshInterval) * 1000
-    )
+    const i = setInterval(() => !disabled && refetch(), Number(refreshInterval) * 1000)
     return () => clearInterval(i)
   }, [refreshInterval, refetch, disabled])
 
@@ -45,11 +42,7 @@ export default function AutoRefresh({
     <Group spacing="xs">
       {loading && <Loader color={loadingColor} size="xs" />}
       <Group spacing="xs">
-        <ActionIcon
-          disabled={disabled}
-          onClick={() => refetch()}
-          variant="transparent"
-        >
+        <ActionIcon disabled={disabled} onClick={() => refetch()} variant="transparent">
           <Tooltip openDelay={250} label="Refresh now">
             <ReloadOutlined />
           </Tooltip>
@@ -57,9 +50,7 @@ export default function AutoRefresh({
         <NativeSelect
           value={refreshInterval}
           disabled={disabled}
-          onChange={({ currentTarget }) =>
-            setRefreshInterval(currentTarget.value)
-          }
+          onChange={({ currentTarget }) => setRefreshInterval(currentTarget.value)}
           data={[
             { label: 'off', value: '' },
             { label: '5s', value: '5' },

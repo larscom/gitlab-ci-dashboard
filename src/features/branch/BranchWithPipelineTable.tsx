@@ -93,10 +93,7 @@ export default function BranchWithPipelineTable({ branches }: Props) {
                     }}
                     variant="transparent"
                   >
-                    <Tooltip
-                      openDelay={250}
-                      label={`Show pipeline (${branch.name})`}
-                    >
+                    <Tooltip openDelay={250} label={`Show pipeline (${branch.name})`}>
                       <NodeExpandOutlined />
                     </Tooltip>
                   </ActionIcon>

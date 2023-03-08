@@ -7,7 +7,7 @@ import { Status } from '$models/pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { filterBy } from '$util/filter-by'
 import { Group, Stack } from '@mantine/core'
-import { useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 import PipelineStatusTabs from './PipelineStatusTabs'
 
 const filter = (
@@ -22,15 +22,11 @@ const filter = (
       .filter(({ project: { name } }) => filterBy(name, filterText))
       .filter(({ project: { topics } }) => {
         return filterTopics.length
-          ? filterTopics
-              .map((filter) => topics.includes(filter))
-              .every((b) => b)
+          ? filterTopics.map((filter) => topics.includes(filter)).every((b) => b)
           : true
       })
 
-    return filteredProjects.length
-      ? current.set(status, filteredProjects)
-      : current
+    return filteredProjects.length ? current.set(status, filteredProjects) : current
   }, new Map<Status, ProjectPipeline[]>())
 }
 
@@ -57,11 +53,13 @@ export default function PipelineOverview() {
       <Group className="justify-between">
         <ProjectFilter
           disabled={isLoading}
-          unfiltered={Array.from(data.values()).flat()}
+          allProjects={Array.from(data.values()).flat()}
           filterText={filterText}
-          setFilterText={setFilterText}
+          // eslint-disable-next-line
+          setFilterText={useCallback(setFilterText, [])}
           filterTopics={filterTopics}
-          setFilterTopics={setFilterTopics}
+          // eslint-disable-next-line
+          setFilterTopics={useCallback(setFilterTopics, [])}
         />
         <AutoRefresh
           id="project"

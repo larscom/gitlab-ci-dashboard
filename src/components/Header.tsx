@@ -7,11 +7,7 @@ export default function Header() {
     window.open('https://github.com/larscom/gitlab-ci-dashboard', '_blank')
 
   return (
-    <H
-      height={60}
-      className="flex items-center justify-between bg-blue-600"
-      p="md"
-    >
+    <H height={60} className="flex items-center justify-between bg-blue-600" p="md">
       <Group spacing="xs" align="baseline">
         <DashboardOutlined className="text-white text-xl" />
         <Text className="text-white" size="md">

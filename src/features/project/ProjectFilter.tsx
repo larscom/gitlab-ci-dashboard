@@ -5,7 +5,7 @@ import { Chip, Group } from '@mantine/core'
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
 
 interface Props {
-  unfiltered: ProjectPipeline[]
+  allProjects: ProjectPipeline[]
   filterText: string
   setFilterText: Dispatch<SetStateAction<string>>
   filterTopics: string[]
@@ -13,7 +13,7 @@ interface Props {
   disabled?: boolean
 }
 export default function ProjectFilter({
-  unfiltered,
+  allProjects,
   setFilterText,
   filterText,
   filterTopics,
@@ -21,19 +21,17 @@ export default function ProjectFilter({
   disabled
 }: Props) {
   const { groupId } = useContext(GroupContext)
-  const previousGroupId = useRef(groupId)
+  const groupIdRef = useRef(groupId)
 
   useEffect(() => {
-    if (groupId !== previousGroupId.current) {
+    if (groupId !== groupIdRef.current) {
       setFilterText('')
       setFilterTopics([])
     }
-    previousGroupId.current = groupId
+    groupIdRef.current = groupId
   }, [groupId, setFilterText, setFilterTopics])
 
-  const topics = new Set(
-    Array.from(unfiltered).flatMap(({ project }) => project.topics)
-  )
+  const topics = new Set(Array.from(allProjects).flatMap(({ project }) => project.topics))
 
   const chips = Array.from(topics).map((topic) => (
     <Chip color="teal" key={topic} value={topic}>

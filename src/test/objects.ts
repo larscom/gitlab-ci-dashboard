@@ -27,9 +27,7 @@ export function createBranchWithPipeline(branchName: string): BranchPipeline {
   }
 }
 
-export function createProjectWithPipeline(
-  projectName: string
-): ProjectPipeline {
+export function createProjectWithPipeline(projectName: string): ProjectPipeline {
   return {
     project: {
       id: 1,
