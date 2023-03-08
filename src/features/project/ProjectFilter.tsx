@@ -1,26 +1,27 @@
 import SearchField from '$components/SearchField'
-import { GroupContext } from '$contexts/group-context'
+import { GroupId } from '$models/group'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { Chip, Group } from '@mantine/core'
-import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
 
 interface Props {
-  allProjects: ProjectPipeline[]
-  filterText: string
-  setFilterText: Dispatch<SetStateAction<string>>
-  filterTopics: string[]
-  setFilterTopics: Dispatch<SetStateAction<string[]>>
+  projects: ProjectPipeline[]
   disabled?: boolean
+  filterText: string
+  filterTopics: string[]
+  groupId: GroupId
+  setFilterText: Dispatch<SetStateAction<string>>
+  setFilterTopics: Dispatch<SetStateAction<string[]>>
 }
 export default function ProjectFilter({
-  allProjects,
-  setFilterText,
+  projects,
+  disabled,
   filterText,
   filterTopics,
-  setFilterTopics,
-  disabled
+  groupId,
+  setFilterText,
+  setFilterTopics
 }: Props) {
-  const { groupId } = useContext(GroupContext)
   const groupIdRef = useRef(groupId)
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function ProjectFilter({
     groupIdRef.current = groupId
   }, [groupId, setFilterText, setFilterTopics])
 
-  const topics = new Set(Array.from(allProjects).flatMap(({ project }) => project.topics))
+  const topics = new Set(Array.from(projects).flatMap(({ project }) => project.topics))
 
   const chips = Array.from(topics).map((topic) => (
     <Chip color="teal" key={topic} value={topic}>

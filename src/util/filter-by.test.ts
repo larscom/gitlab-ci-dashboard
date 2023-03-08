@@ -5,13 +5,13 @@ describe('filter-by', () => {
     const value = 'Hello'
     const filterText = 'hell'
 
-    expect(filterBy(value, filterText)).toBeTruthy()
+    expect(filterBy(value, filterText)).toBe(true)
   })
 
   it('should return false if value does not contain filterText', () => {
     const value = 'Hello'
     const filterText = 'g'
 
-    expect(filterBy(value, filterText)).toBeFalsy()
+    expect(filterBy(value, filterText)).toBe(false)
   })
 })

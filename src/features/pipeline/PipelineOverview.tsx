@@ -6,27 +6,26 @@ import { useProjects } from '$hooks/use-projects'
 import { Status } from '$models/pipeline'
 import { ProjectPipeline } from '$models/project-pipeline'
 import { filterBy } from '$util/filter-by'
+import { identity } from '$util/identity'
 import { Group, Stack } from '@mantine/core'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import PipelineStatusTabs from './PipelineStatusTabs'
 
 const filter = (
-  data: Map<Status, ProjectPipeline[]> | undefined,
+  data: Map<Status, ProjectPipeline[]>,
   filterText: string,
   filterTopics: string[]
 ): Map<Status, ProjectPipeline[]> => {
-  if (!data) return new Map()
-
   return Array.from(data).reduce((current, [status, projects]) => {
-    const filteredProjects = projects
+    const filtered = projects
       .filter(({ project: { name } }) => filterBy(name, filterText))
       .filter(({ project: { topics } }) => {
         return filterTopics.length
-          ? filterTopics.map((filter) => topics.includes(filter)).every((b) => b)
+          ? filterTopics.map((filter) => topics.includes(filter)).every(identity)
           : true
       })
 
-    return filteredProjects.length ? current.set(status, filteredProjects) : current
+    return filtered.length ? current.set(status, filtered) : current
   }, new Map<Status, ProjectPipeline[]>())
 }
 
@@ -52,12 +51,13 @@ export default function PipelineOverview() {
     <Stack>
       <Group className="justify-between">
         <ProjectFilter
+          projects={Array.from(data.values()).flat()}
           disabled={isLoading}
-          allProjects={Array.from(data.values()).flat()}
+          groupId={groupId}
           filterText={filterText}
+          filterTopics={filterTopics}
           // eslint-disable-next-line
           setFilterText={useCallback(setFilterText, [])}
-          filterTopics={filterTopics}
           // eslint-disable-next-line
           setFilterTopics={useCallback(setFilterTopics, [])}
         />
