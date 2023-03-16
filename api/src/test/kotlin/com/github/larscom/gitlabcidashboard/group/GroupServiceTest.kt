@@ -74,4 +74,61 @@ class GroupServiceTest {
 
         assertThat(groupService.getGroups()).isEqualTo(groups)
     }
+
+    @Test
+    fun `should sort by name when onlyGroupIds is provided`() {
+        val groups = listOf(
+            Group(id = 3, name = "c"), Group(id = 2, name = "a"),
+            Group(id = 1, name = "b")
+        )
+        val onlyGroupIds = groups.map { it.id }
+
+        groupService = GroupService(
+            groupClient = groupClient,
+            onlyGroupIds = onlyGroupIds,
+            skipGroupIds = listOf()
+        )
+
+        given(groupClient.getGroupsWithId(groupIds = onlyGroupIds)).willReturn(groups)
+
+        assertThat(groupService.getGroups()).isSortedAccordingTo(Comparator.comparing(Group::name))
+    }
+
+    @Test
+    fun `should sort by name`() {
+        val groups = listOf(
+            Group(id = 3, name = "c"), Group(id = 2, name = "a"),
+            Group(id = 1, name = "b")
+        )
+
+        groupService = GroupService(
+            groupClient = groupClient,
+            onlyGroupIds = listOf(),
+            skipGroupIds = listOf()
+        )
+
+        given(groupClient.getGroups()).willReturn(groups)
+
+        assertThat(groupService.getGroups()).isSortedAccordingTo(Comparator.comparing(Group::name))
+    }
+
+    @Test
+    fun `should sort by name when skipGroupIds is provided`() {
+        val groups = listOf(
+            Group(id = 3, name = "c"), Group(id = 2, name = "a"),
+            Group(id = 1, name = "b")
+        )
+
+        val skipGroupIds = listOf(1L)
+
+        groupService = GroupService(
+            groupClient = groupClient,
+            onlyGroupIds = listOf(),
+            skipGroupIds = skipGroupIds
+        )
+
+        given(groupClient.getGroups(skipIds = skipGroupIds)).willReturn(groups)
+
+        assertThat(groupService.getGroups()).isSortedAccordingTo(Comparator.comparing(Group::name))
+    }
 }
