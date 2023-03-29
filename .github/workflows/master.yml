@@ -32,15 +32,20 @@ jobs:
       TZ: Europe/Amsterdam
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-go@v4
         with:
-          distribution: temurin
-          java-version: 17
-      - run: ./api/gradlew test -p api
+          go-version-file: './api/go.mod'
+      - run: |
+           cd api
+           go test -v ./.../ --race
+           go test -v -coverprofile=cover.out -covermode=atomic ./.../
+           go tool cover -html=cover.out -o cover.html          
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./api/build/reports/jacoco/test/jacocoTestReport.xml
+          file: ./cover.out
+          flags: unittests
+          verbose: true
 
   build_and_publish:
     needs: [test_frontend, test_api]

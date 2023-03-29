@@ -32,12 +32,12 @@ export enum Status {
 
 export interface Pipeline {
   id: number
-  projectId: number
+  project_id: number
   status: Status
   source: Source
   ref: string
   sha: string
-  webUrl: string
-  updatedAt: string
-  createdAt: string
+  web_url: string
+  updated_at: string
+  created_at: string
 }

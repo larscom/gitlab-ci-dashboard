@@ -3,16 +3,16 @@ export interface Branch {
   merged: boolean
   protected: boolean
   default: boolean
-  canPush: boolean
-  webUrl: string
+  can_push: boolean
+  web_url: string
   commit: Commit
 }
 
 export interface Commit {
   id: string
-  authorName: string
-  committerName: string
-  committedDate: string
+  author_name: string
+  committer_name: string
+  committed_date: string
   title: string
   message: string
 }

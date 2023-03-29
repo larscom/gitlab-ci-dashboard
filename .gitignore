@@ -2,6 +2,7 @@
 
 # Compiled output
 .angular
+bin/
 /dist
 /tmp
 /out-tsc

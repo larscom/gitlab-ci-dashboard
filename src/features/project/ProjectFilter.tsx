@@ -34,11 +34,13 @@ export default function ProjectFilter({
 
   const topics = new Set(Array.from(projects).flatMap(({ project }) => project.topics))
 
-  const chips = Array.from(topics).map((topic) => (
-    <Chip color="teal" key={topic} value={topic}>
-      <span className="lowercase">{topic}</span>
-    </Chip>
-  ))
+  const chips = Array.from(topics)
+    .sort((a, b) => a.localeCompare(b))
+    .map((topic) => (
+      <Chip color="teal" key={topic} value={topic}>
+        <span className="lowercase">{topic}</span>
+      </Chip>
+    ))
 
   return (
     <Group>

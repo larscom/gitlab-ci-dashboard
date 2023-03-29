@@ -74,7 +74,7 @@ export default function BranchWithPipelineTable({ branches }: Props) {
             title: 'Updated',
             sortable: true,
             render({ pipeline }) {
-              const updatedAt = pipeline?.updatedAt
+              const updatedAt = pipeline?.updated_at
               const dateTime = updatedAt ? formatDateTime(updatedAt) : undefined
               return <Text>{dateTime || '-'}</Text>
             }
@@ -88,8 +88,8 @@ export default function BranchWithPipelineTable({ branches }: Props) {
                     onClick={(e) => {
                       e.stopPropagation()
                       pipeline
-                        ? window.open(pipeline.webUrl, '_blank')
-                        : window.open(`${branch.webUrl}/-/pipelines`, '_blank')
+                        ? window.open(pipeline.web_url, '_blank')
+                        : window.open(`${branch.web_url}/-/pipelines`, '_blank')
                     }}
                     variant="transparent"
                   >

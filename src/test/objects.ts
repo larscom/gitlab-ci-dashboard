@@ -13,13 +13,13 @@ export function createBranchWithPipeline(branchName: string): BranchPipeline {
       merged: false,
       protected: true,
       default: true,
-      canPush: false,
-      webUrl: `https://example.com/${branchName}`,
+      can_push: false,
+      web_url: `https://example.com/${branchName}`,
       commit: {
         id: 'abc123',
-        authorName: 'Alice',
-        committerName: 'Bob',
-        committedDate: '2022-01-01T00:00:00Z',
+        author_name: 'Alice',
+        committer_name: 'Bob',
+        committed_date: '2022-01-01T00:00:00Z',
         title: 'Initial commit',
         message: 'This is the initial commit'
       }
@@ -32,8 +32,8 @@ export function createProjectWithPipeline(projectName: string): ProjectPipeline 
     project: {
       id: 1,
       name: projectName,
-      webUrl: `https://example.com/${projectName}`,
-      defaultBranch: 'master',
+      web_url: `https://example.com/${projectName}`,
+      default_branch: 'master',
       topics: [],
       namespace: {
         id: 1,

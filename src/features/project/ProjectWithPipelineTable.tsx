@@ -45,7 +45,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             title: 'Name'
           },
           {
-            accessor: 'project.defaultBranch',
+            accessor: 'project.default_branch',
             title: 'Branch'
           },
           {
@@ -70,7 +70,7 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
             accessor: 'pipeline.updatedAt',
             title: 'Updated',
             render({ pipeline }) {
-              const updatedAt = pipeline?.updatedAt
+              const updatedAt = pipeline?.updated_at
               const dateTime = updatedAt ? formatDateTime(updatedAt) : undefined
               return <Text>{dateTime || '-'}</Text>
             }
@@ -84,14 +84,14 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
                     onClick={(e) => {
                       e.stopPropagation()
                       pipeline
-                        ? window.open(pipeline.webUrl, '_blank')
-                        : window.open(`${project.webUrl}/-/pipelines`, '_blank')
+                        ? window.open(pipeline.web_url, '_blank')
+                        : window.open(`${project.web_url}/-/pipelines`, '_blank')
                     }}
                     variant="transparent"
                   >
                     <Tooltip
                       openDelay={250}
-                      label={`Show pipeline (${project.defaultBranch})`}
+                      label={`Show pipeline (${project.default_branch})`}
                     >
                       <NodeExpandOutlined />
                     </Tooltip>

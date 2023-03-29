@@ -9,8 +9,8 @@ export interface Project {
   id: ProjectId
   name: string
   description?: string
-  defaultBranch: string
-  webUrl: string
+  default_branch: string
+  web_url: string
   namespace: Namespace
   topics: string[]
 }
