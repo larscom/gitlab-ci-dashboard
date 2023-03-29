@@ -31,6 +31,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: './api/go.mod'
+          cache-dependency-path: './api/go.sum'
       - run: cd api && go test -v ./.../ --race
 
   build_and_publish:
@@ -49,7 +50,7 @@ jobs:
           push: true
           tags: larscom/gitlab-ci-dashboard:latest,larscom/gitlab-ci-dashboard:${{ github.ref_name }}
           build-args: VERSION_ARG=v${{ github.ref_name }}
-      - uses: peter-evans/dockerhub-description@v2
+      - uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
