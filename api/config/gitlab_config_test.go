@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGitlabConfigDefaultPanic(t *testing.T) {
+func TestDefaultPanic(t *testing.T) {
 	t.Run("GITLAB_BASE_URL", func(t *testing.T) {
 		assert.PanicsWithValue(t, "'GITLAB_BASE_URL' is missing", func() { NewGitlabConfig() })
 	})
@@ -17,7 +17,7 @@ func TestGitlabConfigDefaultPanic(t *testing.T) {
 	})
 }
 
-func TestGitlabConfigMinimumWithDefaults(t *testing.T) {
+func TestMinimumWithDefaults(t *testing.T) {
 	t.Setenv("GITLAB_BASE_URL", "http://gitlab.com")
 	t.Setenv("GITLAB_API_TOKEN", "abc123")
 
@@ -39,7 +39,7 @@ func TestGitlabConfigMinimumWithDefaults(t *testing.T) {
 	assert.Equal(t, 60, config.BranchCacheTTLSeconds)
 }
 
-func TestGitlabConfigMaximum(t *testing.T) {
+func TestMaximum(t *testing.T) {
 	t.Setenv("GITLAB_BASE_URL", "http://gitlab.com")
 	t.Setenv("GITLAB_API_TOKEN", "abc123")
 
@@ -71,7 +71,7 @@ func TestGitlabConfigMaximum(t *testing.T) {
 	assert.Equal(t, 95, config.BranchCacheTTLSeconds)
 }
 
-func TestGitlabConfigPanic(t *testing.T) {
+func TestPanics(t *testing.T) {
 	t.Setenv("GITLAB_BASE_URL", "http://gitlab.com")
 	t.Setenv("GITLAB_API_TOKEN", "abc123")
 

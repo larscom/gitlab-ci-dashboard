@@ -18,7 +18,7 @@ type B struct {
 	IsLocked bool   `json:"is_locked"`
 }
 
-func Test_Convert(t *testing.T) {
+func TestConvert(t *testing.T) {
 	source := &A{
 		ID:     1,
 		Name:   "Test",
@@ -33,13 +33,13 @@ func Test_Convert(t *testing.T) {
 	assert.Equal(t, true, result.IsLocked)
 }
 
-func Test_Convert_MarshalError(t *testing.T) {
+func TestConvertMarshalError(t *testing.T) {
 	_, err := Convert(func() {}, &B{})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unsupported type")
 }
 
-func Test_Convert_UnMarshalError(t *testing.T) {
+func TestConvertUnMarshalError(t *testing.T) {
 	_, err := Convert(&A{}, func() {})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "cannot unmarshal")

@@ -20,10 +20,5 @@ func NewClients(
 	pipelineClient pipeline.PipelineClient,
 	branchClient branch.BranchClient,
 ) *Clients {
-	return &Clients{
-		projectClient,
-		groupClient,
-		pipelineClient,
-		branchClient,
-	}
+	return &Clients{projectClient, groupClient, pipelineClient, branchClient}
 }
