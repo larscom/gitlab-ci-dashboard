@@ -3,6 +3,7 @@ package project
 import (
 	"log"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
@@ -22,6 +23,10 @@ func NewProjectClient(client *gitlab.Client) ProjectClient {
 
 func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
 	projects, response, err := c.client.Groups.ListGroupProjects(groupId, c.createOptions(1))
+	if response.StatusCode == fiber.StatusUnauthorized {
+		log.Panicln("unauhorized, invalid token?")
+	}
+
 	if err != nil {
 		return make([]*model.Project, 0)
 	}

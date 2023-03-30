@@ -3,6 +3,7 @@ package group
 import (
 	"log"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
@@ -45,6 +46,10 @@ func (c *GroupClientImpl) GetGroupsById(ids []int) []*model.Group {
 
 func (c *GroupClientImpl) GetGroups() []*model.Group {
 	groups, response, err := c.client.Groups.ListGroups(c.createOptions(1))
+	if response.StatusCode == fiber.StatusUnauthorized {
+		log.Panicln("unauhorized, invalid token?")
+	}
+
 	if err != nil {
 		return make([]*model.Group, 0)
 	}

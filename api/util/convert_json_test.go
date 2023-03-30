@@ -32,3 +32,15 @@ func Test_Convert(t *testing.T) {
 	assert.Equal(t, "Test", result.MyName)
 	assert.Equal(t, true, result.IsLocked)
 }
+
+func Test_Convert_MarshalError(t *testing.T) {
+	_, err := Convert(func() {}, &B{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unsupported type")
+}
+
+func Test_Convert_UnMarshalError(t *testing.T) {
+	_, err := Convert(&A{}, func() {})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "cannot unmarshal")
+}

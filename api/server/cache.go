@@ -8,15 +8,15 @@ import (
 	"github.com/larscom/go-cache"
 )
 
-type cacheConfig struct {
+type Caches struct {
 	pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline]
 	projectLoader        cache.ICache[model.GroupId, []*model.Project]
 	branchLoader         cache.ICache[model.ProjectId, []*model.Branch]
 	groupCache           cache.ICache[string, []*model.Group]
 }
 
-func newCacheConfig(config *config.GitlabConfig, cfg *clientConfig) *cacheConfig {
-	return &cacheConfig{
+func NewCaches(config *config.GitlabConfig, cfg *Clients) *Caches {
+	return &Caches{
 		pipelineLatestLoader: createPipelineLatestLoader(config, cfg),
 		projectLoader:        createProjectLoader(config, cfg),
 		branchLoader:         createBranchLoader(config, cfg),
@@ -29,7 +29,7 @@ func createGroupCache(config *config.GitlabConfig) cache.ICache[string, []*model
 	return cache.NewCache(cache.WithExpireAfterWrite[string, []*model.Group](ttl))
 }
 
-func createBranchLoader(config *config.GitlabConfig, ctx *clientConfig) cache.ICache[model.ProjectId, []*model.Branch] {
+func createBranchLoader(config *config.GitlabConfig, ctx *Clients) cache.ICache[model.ProjectId, []*model.Branch] {
 	return cache.NewCache(
 		cache.WithExpireAfterWrite[model.ProjectId, []*model.Branch](time.Second*time.Duration(config.BranchCacheTTLSeconds)),
 		cache.WithLoader(func(projectId model.ProjectId) ([]*model.Branch, error) {
@@ -37,7 +37,7 @@ func createBranchLoader(config *config.GitlabConfig, ctx *clientConfig) cache.IC
 		}))
 }
 
-func createProjectLoader(config *config.GitlabConfig, ctx *clientConfig) cache.ICache[model.GroupId, []*model.Project] {
+func createProjectLoader(config *config.GitlabConfig, ctx *Clients) cache.ICache[model.GroupId, []*model.Project] {
 	return cache.NewCache(
 		cache.WithExpireAfterWrite[model.GroupId, []*model.Project](time.Second*time.Duration(config.ProjectCacheTTLSeconds)),
 		cache.WithLoader(func(groupId model.GroupId) ([]*model.Project, error) {
@@ -45,7 +45,7 @@ func createProjectLoader(config *config.GitlabConfig, ctx *clientConfig) cache.I
 		}))
 }
 
-func createPipelineLatestLoader(config *config.GitlabConfig, ctx *clientConfig) cache.ICache[model.PipelineKey, *model.Pipeline] {
+func createPipelineLatestLoader(config *config.GitlabConfig, ctx *Clients) cache.ICache[model.PipelineKey, *model.Pipeline] {
 	return cache.NewCache(
 		cache.WithExpireAfterWrite[model.PipelineKey, *model.Pipeline](time.Second*time.Duration(config.PipelineCacheTTLSeconds)),
 		cache.WithLoader(func(pipelineKey model.PipelineKey) (*model.Pipeline, error) {

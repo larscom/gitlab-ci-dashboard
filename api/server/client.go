@@ -7,20 +7,20 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/project"
 )
 
-type clientConfig struct {
+type Clients struct {
 	projectClient  project.ProjectClient
 	groupClient    group.GroupClient
 	pipelineClient pipeline.PipelineClient
 	branchClient   branch.BranchClient
 }
 
-func newClientConfig(
+func NewClients(
 	projectClient project.ProjectClient,
 	groupClient group.GroupClient,
 	pipelineClient pipeline.PipelineClient,
 	branchClient branch.BranchClient,
-) *clientConfig {
-	return &clientConfig{
+) *Clients {
+	return &Clients{
 		projectClient,
 		groupClient,
 		pipelineClient,

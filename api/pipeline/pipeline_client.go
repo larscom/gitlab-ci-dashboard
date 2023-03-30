@@ -3,6 +3,7 @@ package pipeline
 import (
 	"log"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
@@ -21,9 +22,12 @@ func NewPipelineClient(client *gitlab.Client) PipelineClient {
 }
 
 func (c *PipelineClientImpl) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
-	pipeline, _, err := c.client.Pipelines.GetLatestPipeline(projectId, &gitlab.GetLatestPipelineOptions{
+	pipeline, response, err := c.client.Pipelines.GetLatestPipeline(projectId, &gitlab.GetLatestPipelineOptions{
 		Ref: &ref,
 	})
+	if response.StatusCode == fiber.StatusUnauthorized {
+		log.Panicln("unauhorized, invalid token?")
+	}
 
 	if err != nil {
 		return nil, err

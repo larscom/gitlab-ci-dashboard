@@ -3,6 +3,7 @@ package branch
 import (
 	"log"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
@@ -22,6 +23,10 @@ func NewBranchClient(client *gitlab.Client) BranchClient {
 
 func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {
 	branches, response, err := c.client.Branches.ListBranches(projectId, c.createOptions(1))
+	if response.StatusCode == fiber.StatusUnauthorized {
+		log.Panicln("unauhorized, invalid token?")
+	}
+
 	if err != nil {
 		return make([]*model.Branch, 0)
 	}
