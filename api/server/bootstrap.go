@@ -5,29 +5,29 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
+	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/project"
-	"github.com/xanzy/go-gitlab"
 )
 
 type Bootstrap struct {
 	config        *config.GitlabConfig
-	gitlabClient  *gitlab.Client
+	client        client.GitlabClient
 	cacheContext  *Caches
 	clientContext *Clients
 }
 
 func NewBootstrap(
 	config *config.GitlabConfig,
-	gitlabClient *gitlab.Client,
+	client client.GitlabClient,
 	cacheContext *Caches,
 	clientContext *Clients,
 ) *Bootstrap {
 	return &Bootstrap{
 		config,
-		gitlabClient,
+		client,
 		cacheContext,
 		clientContext,
 	}

@@ -6,12 +6,12 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
+	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/project"
 	"github.com/larscom/gitlab-ci-dashboard/server"
-	"github.com/xanzy/go-gitlab"
 )
 
 func main() {
@@ -19,10 +19,8 @@ func main() {
 	godotenv.Load(".env")
 
 	config := config.NewGitlabConfig()
-	client, err := gitlab.NewClient(config.GitlabToken, gitlab.WithBaseURL(config.GitlabUrl))
-	if err != nil {
-		log.Panicf("failed to create gitlab client: %v", err)
-	}
+	client := client.NewGitlabClient(config)
+
 	clients := server.NewClients(
 		project.NewProjectClient(client),
 		group.NewGroupClient(client, config),

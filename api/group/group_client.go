@@ -1,12 +1,9 @@
 package group
 
 import (
-	"log"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -16,11 +13,11 @@ type GroupClient interface {
 }
 
 type GroupClientImpl struct {
-	client *gitlab.Client
+	client client.GitlabClient
 	config *config.GitlabConfig
 }
 
-func NewGroupClient(client *gitlab.Client, config *config.GitlabConfig) GroupClient {
+func NewGroupClient(client client.GitlabClient, config *config.GitlabConfig) GroupClient {
 	return &GroupClientImpl{client, config}
 }
 
@@ -45,23 +42,12 @@ func (c *GroupClientImpl) GetGroupsById(ids []int) []*model.Group {
 }
 
 func (c *GroupClientImpl) GetGroups() []*model.Group {
-	groups, response, err := c.client.Groups.ListGroups(c.createOptions(1))
-	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
-	}
-
+	groups, response, err := c.client.ListGroups(c.createOptions(1))
 	if err != nil {
-		return make([]*model.Group, 0)
+		return groups
 	}
-
-	g, err := util.Convert(groups, make([]*model.Group, 0))
-	if err != nil {
-		log.Panicf("unexpected JSON: %v", err)
-		return make([]*model.Group, 0)
-	}
-
 	if response.NextPage == 0 || response.TotalPages == 0 {
-		return g
+		return groups
 	}
 
 	capacity := response.TotalPages - 1
@@ -72,42 +58,22 @@ func (c *GroupClientImpl) GetGroups() []*model.Group {
 	}
 
 	for i := 0; i < capacity; i++ {
-		g = append(g, <-result...)
+		groups = append(groups, <-result...)
 	}
 
 	close(result)
 
-	return g
+	return groups
 }
 
 func (c *GroupClientImpl) getGroupsByPage(pageNumber int, result chan<- []*model.Group) {
-	groups, _, err := c.client.Groups.ListGroups(c.createOptions(pageNumber))
-
-	if err != nil {
-		result <- make([]*model.Group, 0)
-	} else {
-		g, err := util.Convert(groups, make([]*model.Group, 0))
-		if err != nil {
-			log.Panicf("unexpected JSON: %v", err)
-			result <- make([]*model.Group, 0)
-		}
-		result <- g
-	}
+	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
+	result <- groups
 }
 
 func (c *GroupClientImpl) getGroupById(groupId int, result chan<- *model.Group) {
-	group, _, err := c.client.Groups.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
-
-	if err != nil {
-		result <- nil
-	} else {
-		g, err := util.Convert(group, &model.Group{})
-		if err != nil {
-			log.Panicf("unexpected JSON: %v", err)
-			result <- nil
-		}
-		result <- g
-	}
+	group, _, _ := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
+	result <- group
 }
 
 func (c *GroupClientImpl) createOptions(pageNumber int) *gitlab.ListGroupsOptions {

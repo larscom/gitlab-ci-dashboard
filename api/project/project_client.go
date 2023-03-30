@@ -1,11 +1,8 @@
 package project
 
 import (
-	"log"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -14,31 +11,20 @@ type ProjectClient interface {
 }
 
 type ProjectClientImpl struct {
-	client *gitlab.Client
+	client client.GitlabClient
 }
 
-func NewProjectClient(client *gitlab.Client) ProjectClient {
+func NewProjectClient(client client.GitlabClient) ProjectClient {
 	return &ProjectClientImpl{client}
 }
 
 func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
-	projects, response, err := c.client.Groups.ListGroupProjects(groupId, c.createOptions(1))
-	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
-	}
-
+	projects, response, err := c.client.ListGroupProjects(groupId, c.createOptions(1))
 	if err != nil {
-		return make([]*model.Project, 0)
+		return projects
 	}
-
-	p, err := util.Convert(projects, make([]*model.Project, 0))
-	if err != nil {
-		log.Panicf("unexpected JSON: %v", err)
-		return make([]*model.Project, 0)
-	}
-
 	if response.NextPage == 0 || response.TotalPages == 0 {
-		return p
+		return projects
 	}
 
 	capacity := response.TotalPages - 1
@@ -49,27 +35,17 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
 	}
 
 	for i := 0; i < capacity; i++ {
-		p = append(p, <-result...)
+		projects = append(projects, <-result...)
 	}
 
 	close(result)
 
-	return p
+	return projects
 }
 
 func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, result chan<- []*model.Project) {
-	projects, _, err := c.client.Groups.ListGroupProjects(groupId, c.createOptions(pageNumber))
-
-	if err != nil {
-		result <- make([]*model.Project, 0)
-	} else {
-		p, err := util.Convert(projects, make([]*model.Project, 0))
-		if err != nil {
-			log.Panicf("unexpected JSON: %v", err)
-			result <- make([]*model.Project, 0)
-		}
-		result <- p
-	}
+	projects, _, _ := c.client.ListGroupProjects(groupId, c.createOptions(pageNumber))
+	result <- projects
 }
 
 func (c *ProjectClientImpl) createOptions(pageNumber int) *gitlab.ListGroupProjectsOptions {
