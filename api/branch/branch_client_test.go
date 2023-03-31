@@ -1,6 +1,7 @@
 package branch
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -19,7 +20,7 @@ type MockGitlabClient struct {
 
 func (c *MockGitlabClient) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]*model.Branch, *gitlab.Response, error) {
 	if projectId != 1 {
-		return make([]*model.Branch, 0), nil, nil
+		return make([]*model.Branch, 0), nil, fmt.Errorf("ERROR!")
 	}
 
 	response := &gitlab.Response{TotalPages: c.totalPages, NextPage: options.Page + 1}
@@ -69,4 +70,12 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 	assert.Equal(t, "feature-2", branches[1].Name)
 	assert.Equal(t, "feature-3", branches[2].Name)
 	assert.Equal(t, "feature-4", branches[3].Name)
+}
+
+func TestGetBranchesWithError(t *testing.T) {
+	client := NewBranchClient(createMockGitlabClient(1))
+
+	branches := client.GetBranches(100)
+
+	assert.Len(t, branches, 0)
 }

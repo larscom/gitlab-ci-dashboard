@@ -22,14 +22,14 @@ type Bootstrap struct {
 func NewBootstrap(
 	config *config.GitlabConfig,
 	client client.GitlabClient,
-	cacheContext *Caches,
-	clientContext *Clients,
+	caches *Caches,
+	clients *Clients,
 ) *Bootstrap {
 	return &Bootstrap{
 		config,
 		client,
-		cacheContext,
-		clientContext,
+		caches,
+		clients,
 	}
 }
 
