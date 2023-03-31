@@ -23,7 +23,7 @@ func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {
 	if err != nil {
 		return branches
 	}
-	if response.NextPage == 0 || response.TotalPages == 0 {
+	if response.NextPage == 0 || response.TotalPages <= 1 {
 		return branches
 	}
 

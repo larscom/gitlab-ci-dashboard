@@ -36,7 +36,7 @@ func NewGitlabClient(config *config.GitlabConfig) GitlabClient {
 func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]*model.Branch, *gitlab.Response, error) {
 	branches, response, err := c.client.Branches.ListBranches(projectId, options)
 	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
+		log.Panicln("unauthorized, invalid token?")
 	}
 	if err != nil {
 		return make([]*model.Branch, 0), response, err
@@ -54,7 +54,7 @@ func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranc
 func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]*model.Group, *gitlab.Response, error) {
 	groups, response, err := c.client.Groups.ListGroups(options)
 	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
+		log.Panicln("unauthorized, invalid token?")
 	}
 	if err != nil {
 		return make([]*model.Group, 0), response, err
@@ -72,7 +72,7 @@ func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]*mod
 func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
 	group, response, err := c.client.Groups.GetGroup(groupId, options)
 	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
+		log.Panicln("unauthorized, invalid token?")
 	}
 	if err != nil {
 		return nil, response, err
@@ -90,7 +90,7 @@ func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions
 func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
 	pipeline, response, err := c.client.Pipelines.GetLatestPipeline(projectId, options)
 	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
+		log.Panicln("unauthorized, invalid token?")
 	}
 	if err != nil {
 		return nil, response, err
@@ -108,7 +108,7 @@ func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetL
 func (c *GitlabClientImpl) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
 	projects, response, err := c.client.Groups.ListGroupProjects(groupId, options)
 	if response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln("unauhorized, invalid token?")
+		log.Panicln("unauthorized, invalid token?")
 	}
 	if err != nil {
 		return make([]*model.Project, 0), response, err

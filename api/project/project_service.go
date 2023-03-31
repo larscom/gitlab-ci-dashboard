@@ -13,14 +13,14 @@ type ProjectService interface {
 
 type ProjectServiceImpl struct {
 	config               *config.GitlabConfig
-	projectLoader        cache.ICache[model.GroupId, []*model.Project]
-	pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline]
+	projectLoader        cache.Cache[model.GroupId, []*model.Project]
+	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
 }
 
 func NewProjectService(
 	config *config.GitlabConfig,
-	projectLoader cache.ICache[model.GroupId, []*model.Project],
-	pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline],
+	projectLoader cache.Cache[model.GroupId, []*model.Project],
+	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
 ) ProjectService {
 	return &ProjectServiceImpl{config, projectLoader, pipelineLatestLoader}
 }

@@ -23,7 +23,7 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
 	if err != nil {
 		return projects
 	}
-	if response.NextPage == 0 || response.TotalPages == 0 {
+	if response.NextPage == 0 || response.TotalPages <= 1 {
 		return projects
 	}
 

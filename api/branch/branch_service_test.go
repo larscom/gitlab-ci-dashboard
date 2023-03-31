@@ -1,0 +1,35 @@
+package branch
+
+import (
+	"testing"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/go-cache"
+	"github.com/stretchr/testify/assert"
+)
+
+var (
+	pipelineLatestLoader = cache.NewCache[model.PipelineKey, *model.Pipeline]()
+	branchLoader         = cache.NewCache[model.ProjectId, []*model.Branch]()
+)
+
+func TestGetBranchesWithLatestPipeline(t *testing.T) {
+	t.Cleanup(func() {
+		pipelineLatestLoader.Clear()
+		branchLoader.Clear()
+	})
+
+	projectId := 1
+	ref := "feature-1"
+
+	branchLoader.Put(model.ProjectId(projectId), []*model.Branch{{Name: ref}})
+	pipelineLatestLoader.Put(model.NewPipelineKey(projectId, ref), &model.Pipeline{Status: "success"})
+
+	service := NewBranchService(pipelineLatestLoader, branchLoader)
+
+	branches := service.GetBranchesWithLatestPipeline(projectId)
+
+	assert.Len(t, branches, 1)
+	assert.Equal(t, "feature-1", branches[0].Branch.Name)
+	assert.Equal(t, "success", branches[0].Pipeline.Status)
+}

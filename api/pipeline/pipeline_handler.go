@@ -9,10 +9,10 @@ import (
 )
 
 type PipelineHandler struct {
-	pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline]
+	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
 }
 
-func NewPipelineHandler(pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline]) *PipelineHandler {
+func NewPipelineHandler(pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]) *PipelineHandler {
 	return &PipelineHandler{pipelineLatestLoader}
 }
 

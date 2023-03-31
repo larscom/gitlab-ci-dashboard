@@ -10,13 +10,13 @@ type BranchService interface {
 }
 
 type BranchServiceImpl struct {
-	pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline]
-	branchLoader         cache.ICache[model.ProjectId, []*model.Branch]
+	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
+	branchLoader         cache.Cache[model.ProjectId, []*model.Branch]
 }
 
 func NewBranchService(
-	pipelineLatestLoader cache.ICache[model.PipelineKey, *model.Pipeline],
-	branchLoader cache.ICache[model.ProjectId, []*model.Branch],
+	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
+	branchLoader cache.Cache[model.ProjectId, []*model.Branch],
 ) BranchService {
 	return &BranchServiceImpl{pipelineLatestLoader, branchLoader}
 }

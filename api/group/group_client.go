@@ -46,7 +46,7 @@ func (c *GroupClientImpl) GetGroups() []*model.Group {
 	if err != nil {
 		return groups
 	}
-	if response.NextPage == 0 || response.TotalPages == 0 {
+	if response.NextPage == 0 || response.TotalPages <= 1 {
 		return groups
 	}
 
