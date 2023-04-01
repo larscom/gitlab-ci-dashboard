@@ -10,7 +10,7 @@ import (
 
 func TestGetBranchesWith1Page(t *testing.T) {
 	const totalPages = 1
-	client := NewBranchClient(mock.CreateMockGitlabClient(totalPages, nil))
+	client := NewBranchClient(mock.NewMockGitlabClient(totalPages, nil))
 
 	branches := client.GetBranches(1)
 
@@ -21,7 +21,7 @@ func TestGetBranchesWith1Page(t *testing.T) {
 
 func TestGetBranchesWith2Pages(t *testing.T) {
 	const totalPages = 2
-	client := NewBranchClient(mock.CreateMockGitlabClient(totalPages, nil))
+	client := NewBranchClient(mock.NewMockGitlabClient(totalPages, nil))
 
 	branches := client.GetBranches(1)
 
@@ -33,7 +33,7 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 }
 
 func TestGetBranchesWithErrorEmptySlice(t *testing.T) {
-	client := NewBranchClient(mock.CreateMockGitlabClient(1, fmt.Errorf("ERROR")))
+	client := NewBranchClient(mock.NewMockGitlabClient(1, fmt.Errorf("ERROR")))
 
 	branches := client.GetBranches(100)
 

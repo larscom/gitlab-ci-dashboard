@@ -8,16 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	pipelineLatestLoader = cache.NewCache[model.PipelineKey, *model.Pipeline]()
-	branchLoader         = cache.NewCache[model.ProjectId, []*model.Branch]()
-)
-
 func TestGetBranchesWithLatestPipeline(t *testing.T) {
-	t.Cleanup(func() {
-		pipelineLatestLoader.Clear()
-		branchLoader.Clear()
-	})
+	pipelineLatestLoader := cache.NewCache[model.PipelineKey, *model.Pipeline]()
+	branchLoader := cache.NewCache[model.ProjectId, []*model.Branch]()
 
 	projectId := 1
 	ref := "branch-1"
