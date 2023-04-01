@@ -12,21 +12,27 @@
 
 > Gitlab CI Dashboard will provide you a global overview of all pipeline statuses in Gitlab.
 
-### ✨ [Demo](https://gitlab-ci-dashboard.larscom.nl)
+## 👉 [Demo](https://gitlab-ci-dashboard.larscom.nl)
+<br /> 
 
-## Highlights
 
-- View Gitlab CI pipeline statuses (more functionality will be added later)
-- Communication to the Gitlab API happens server side (only 1 `read only` token is needed to serve a whole team)
-- Easy navigation to Gitlab pipelines from within the dashboard
+## 🚀 Highlights
 
-## Requirements
+- View Gitlab CI pipeline statuses
+   - More functionality, like a global overview of schedules will be added later
+- Communication to the Gitlab API happens server side
+   - This means that 1 `read only` token is needed to serve a whole team
+   - This means you won't get rate limited by the Gitlab API
+- Easy navigation to the Gitlab pipelines page from within the dashboard
+
+
+## ⚡️ Requirements
 
 - Gitlab server
 - Supports only `v4` of the Gitlab API
 - Docker
 
-## Getting started
+## 💡 Getting started
 
 1. Generate a `read_api` access token in Gitlab (e.g: https://gitlab.com/-/profile/personal_access_tokens)
 
@@ -41,9 +47,9 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
    projects
 
-## Metrics
+## ⏰ Metrics
 
-Metrics are exposed via the following URLS.
+Metrics are exposed on 2 URLS
 
 ### Fiber
 
@@ -53,7 +59,7 @@ Metrics are exposed via the following URLS.
 
 > http://localhost:8080/metrics/prometheus
 
-## Environment variables
+## 🔌 Environment variables
 
 | Variable                          | Type     | Description                                                                                            | Required | Default |
 | --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------ | -------- | ------- |
