@@ -1,6 +1,8 @@
 package mock
 
 import (
+	"fmt"
+
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/xanzy/go-gitlab"
 )
@@ -62,8 +64,11 @@ func (c *MockGitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions
 	}
 	return nil, nil, nil
 }
-func (c *MockGitlabClient) GetLatestPipeline(int, *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
-	return nil, nil, nil
+func (c *MockGitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
+	if projectId == 1 && *options.Ref == "master" {
+		return &model.Pipeline{Id: 123}, nil, nil
+	}
+	return nil, nil, fmt.Errorf("ERROR")
 }
 func (c *MockGitlabClient) ListGroupProjects(int, *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
 	return make([]*model.Project, 0), nil, nil

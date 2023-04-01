@@ -23,7 +23,7 @@ func (s *MockGroupService) GetGroups() []*model.Group {
 	return []*model.Group{{Name: "group-1"}}
 }
 
-func TestGetGroupsFromServiceSaveInCache(t *testing.T) {
+func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	app := fiber.New()
 
 	groupCache := cache.NewCache[string, []*model.Group]()
@@ -46,7 +46,7 @@ func TestGetGroupsFromServiceSaveInCache(t *testing.T) {
 	assert.Equal(t, cachedValue[0].Name, "group-1")
 }
 
-func TestGetGroupsFromCache(t *testing.T) {
+func TestHandleGetGroupsFromCache(t *testing.T) {
 	app := fiber.New()
 
 	groupCache := cache.NewCache[string, []*model.Group]()
@@ -65,7 +65,7 @@ func TestGetGroupsFromCache(t *testing.T) {
 	assert.Equal(t, result[0].Name, "group-2")
 }
 
-func TestSaveGroupsInCacheOnlyIfNotEmpty(t *testing.T) {
+func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	app := fiber.New()
 
 	groupCache := cache.NewCache[string, []*model.Group]()

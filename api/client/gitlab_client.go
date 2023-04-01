@@ -78,7 +78,7 @@ func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions
 		return nil, response, err
 	}
 
-	g, err := util.Convert(group, &model.Group{})
+	g, err := util.Convert(group, new(model.Group))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
 		return nil, response, err
@@ -96,7 +96,7 @@ func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetL
 		return nil, response, err
 	}
 
-	p, err := util.Convert(pipeline, &model.Pipeline{})
+	p, err := util.Convert(pipeline, new(model.Pipeline))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
 		return nil, response, err

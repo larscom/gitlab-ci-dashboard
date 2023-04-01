@@ -21,7 +21,7 @@ func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []*mode
 	return make([]*model.BranchPipeline, 0)
 }
 
-func TestGetByProjectId(t *testing.T) {
+func TestHandleGetBranchesWithLatestPipelineByProjectId(t *testing.T) {
 	app := fiber.New()
 	app.Get("/:projectId", NewBranchHandler(&MockBranchService{}).HandleGetBranchesWithLatestPipeline)
 
@@ -36,7 +36,7 @@ func TestGetByProjectId(t *testing.T) {
 	assert.Equal(t, result[0].Branch.Name, "branch-1")
 }
 
-func TestGetByProjectIdNoMatch(t *testing.T) {
+func TestHandleGetBranchesWithLatestPipelineByProjectIdNoMatch(t *testing.T) {
 	app := fiber.New()
 	app.Get("/:projectId", NewBranchHandler(&MockBranchService{}).HandleGetBranchesWithLatestPipeline)
 
@@ -50,7 +50,7 @@ func TestGetByProjectIdNoMatch(t *testing.T) {
 	assert.Len(t, result, 0)
 }
 
-func TestBadRequest(t *testing.T) {
+func TestHandleGetBranchesWithLatestPipelineBadRequest(t *testing.T) {
 	app := fiber.New()
 	app.Get("/:projectId", NewBranchHandler(&MockBranchService{}).HandleGetBranchesWithLatestPipeline)
 
