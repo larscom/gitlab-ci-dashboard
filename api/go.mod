@@ -4,13 +4,13 @@ go 1.20
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.0
+	github.com/bobg/go-generics/v2 v2.1.1
 	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/fiber/v2 v2.43.0
 	github.com/joho/godotenv v1.5.1
 	github.com/larscom/go-cache v1.1.4
 	github.com/stretchr/testify v1.8.2
 	github.com/xanzy/go-gitlab v0.81.0
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
 
 require (
@@ -43,6 +43,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.45.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect

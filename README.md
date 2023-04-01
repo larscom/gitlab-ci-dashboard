@@ -50,15 +50,13 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 
 ## ⏰ Metrics
 
-Metrics are available on the following URLS
+### Prometheus
+
+> http://localhost:8080/metrics/prometheus
 
 ### Fiber
 
 > http://localhost:8080/metrics
-
-### Prometheus
-
-> http://localhost:8080/metrics/prometheus
 
 <br />
 

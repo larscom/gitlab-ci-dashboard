@@ -1,10 +1,10 @@
 package project
 
 import (
+	"github.com/bobg/go-generics/v2/slices"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/go-cache"
-	"golang.org/x/exp/slices"
 )
 
 type ProjectService interface {
@@ -27,6 +27,13 @@ func NewProjectService(
 
 func (s *ProjectServiceImpl) GetProjectsGroupedByStatus(groupId int) map[string][]*model.ProjectPipeline {
 	projects, _ := s.projectLoader.Get(model.GroupId(groupId))
+
+	if len(s.config.ProjectSkipIds) > 0 {
+		projects = slices.Filter(projects, func(p *model.Project) bool {
+			return !slices.Contains(s.config.ProjectSkipIds, p.Id)
+		})
+	}
+
 	result := make(chan map[string]*model.ProjectPipeline, len(projects))
 
 	for _, project := range projects {
@@ -37,7 +44,7 @@ func (s *ProjectServiceImpl) GetProjectsGroupedByStatus(groupId int) map[string]
 
 	for range projects {
 		for status, projectPipeline := range <-result {
-			if s.skipProject(status, projectPipeline) {
+			if status == "unknown" && s.config.ProjectHideUnknown {
 				continue
 			}
 			current, hasStatus := projectsGroupedByStatus[status]
@@ -62,16 +69,4 @@ func (s *ProjectServiceImpl) getLatestPipelineWithStatus(project *model.Project,
 	} else {
 		result <- map[string]*model.ProjectPipeline{"unknown": {Project: project}}
 	}
-}
-
-func (s *ProjectServiceImpl) skipProject(status string, p *model.ProjectPipeline) bool {
-	if status == "unknown" && s.config.ProjectHideUnknown {
-		return true
-	}
-
-	if len(s.config.ProjectSkipIds) > 0 {
-		return slices.Contains(s.config.ProjectSkipIds, p.Project.Id)
-	}
-
-	return false
 }
