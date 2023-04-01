@@ -32,6 +32,7 @@ func (c *MockGitlabClient) ListBranches(projectId int, options *gitlab.ListBranc
 
 	return make([]*model.Branch, 0), nil, nil
 }
+
 func (c *MockGitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]*model.Group, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]*model.Group, 0), nil, c.err
@@ -55,6 +56,7 @@ func (c *MockGitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]*mod
 
 	return make([]*model.Group, 0), nil, nil
 }
+
 func (c *MockGitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
 	if groupId == 1 && !*options.WithProjects {
 		return &model.Group{Name: "group-1"}, nil, nil
@@ -64,12 +66,14 @@ func (c *MockGitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions
 	}
 	return nil, nil, nil
 }
+
 func (c *MockGitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
 	if projectId == 1 && *options.Ref == "master" {
 		return &model.Pipeline{Id: 123}, nil, nil
 	}
 	return nil, nil, fmt.Errorf("ERROR")
 }
+
 func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]*model.Project, 0), nil, c.err

@@ -22,7 +22,7 @@
   - More functionality, like a global overview of schedules will be added later
 - Communication to the Gitlab API happens server side
   - Only 1 `read only` token is needed to serve a whole team
-  - You won't get rate limited by the Gitlab API
+  - You won't get rate limited by the Gitlab API, due to caching
 - Easy navigation to the Gitlab pipelines page from within the dashboard
 
 ## ⚡️ Requirements
