@@ -20,7 +20,7 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	})
 
 	projectId := 1
-	ref := "feature-1"
+	ref := "branch-1"
 
 	branchLoader.Put(model.ProjectId(projectId), []*model.Branch{{Name: ref}})
 	pipelineLatestLoader.Put(model.NewPipelineKey(projectId, ref), &model.Pipeline{Status: "success"})
@@ -30,6 +30,6 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	branches := service.GetBranchesWithLatestPipeline(projectId)
 
 	assert.Len(t, branches, 1)
-	assert.Equal(t, "feature-1", branches[0].Branch.Name)
+	assert.Equal(t, "branch-1", branches[0].Branch.Name)
 	assert.Equal(t, "success", branches[0].Pipeline.Status)
 }

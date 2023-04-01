@@ -16,7 +16,7 @@ type MockBranchService struct{}
 
 func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []*model.BranchPipeline {
 	if projectId == 1 {
-		return []*model.BranchPipeline{{Branch: &model.Branch{Name: "feature-1"}}}
+		return []*model.BranchPipeline{{Branch: &model.Branch{Name: "branch-1"}}}
 	}
 	return make([]*model.BranchPipeline, 0)
 }
@@ -33,7 +33,7 @@ func TestGetByProjectId(t *testing.T) {
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, result, 1)
-	assert.Equal(t, result[0].Branch.Name, "feature-1")
+	assert.Equal(t, result[0].Branch.Name, "branch-1")
 }
 
 func TestGetByProjectIdNoMatch(t *testing.T) {
