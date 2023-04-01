@@ -3,7 +3,9 @@ package server
 import (
 	"os"
 
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
 	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
@@ -76,4 +78,16 @@ func (s *Bootstrap) setupVersionHandler(router fiber.Router) {
 	router.Get("/version", func(c *fiber.Ctx) error {
 		return c.SendString(os.Getenv("VERSION"))
 	})
+}
+
+func (s *Bootstrap) setupPrometheusHandler(router fiber.Router) {
+	// path: /metrics/prometheus
+	prometheus := fiberprometheus.New("gitlab-ci-dashboard")
+	prometheus.RegisterAt(router, "/metrics/prometheus")
+	router.Use(prometheus.Middleware)
+}
+
+func (s *Bootstrap) setupFiberMetricsHandler(router fiber.Router) {
+	// path: /metrics
+	router.Get("/metrics", monitor.New(monitor.Config{Title: "Gitlab CI Dashboard Metrics"}))
 }

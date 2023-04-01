@@ -3,9 +3,10 @@
 [![Docker Image Version](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?sort=semver&label=latest%20release&color=blue)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 [![Dockerhub Pulls](https://img.shields.io/docker/pulls/larscom/gitlab-ci-dashboard)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
 [![Docker Image Size](https://img.shields.io/docker/image-size/larscom/gitlab-ci-dashboard?sort=semver)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
-[![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/gh/larscom/gitlab-ci-dashboard/branch/master/graph/badge.svg?token=PK57YGR5YA)](https://codecov.io/gh/larscom/gitlab-ci-dashboard)
 
 [![master](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/master.yml/badge.svg?branch=master)](https://github.com/larscom/gitlab-ci-dashboard)
+[![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
@@ -39,6 +40,18 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
    projects
+
+## Metrics
+
+Metrics are exposed via the following URLS.
+
+### Fiber
+
+> http://localhost:8080/metrics
+
+### Prometheus
+
+> http://localhost:8080/metrics/prometheus
 
 ## Environment variables
 
