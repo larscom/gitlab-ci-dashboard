@@ -14,7 +14,7 @@ func NewProjectHandler(service ProjectService) *ProjectHandler {
 	return &ProjectHandler{service}
 }
 
-func (h *ProjectHandler) HandleGetProjects(c *fiber.Ctx) error {
+func (h *ProjectHandler) HandleGetProjectsGroupedByStatus(c *fiber.Ctx) error {
 	groupId, err := strconv.Atoi(c.Params("groupId"))
 
 	if err != nil {

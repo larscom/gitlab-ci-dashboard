@@ -13,18 +13,17 @@
 > Gitlab CI Dashboard will provide you a global overview of all pipeline statuses in Gitlab.
 
 ## 👉 [Demo](https://gitlab-ci-dashboard.larscom.nl)
-<br /> 
 
+<br />
 
 ## 🚀 Highlights
 
 - View Gitlab CI pipeline statuses
-   - More functionality, like a global overview of schedules will be added later
+  - More functionality, like a global overview of schedules will be added later
 - Communication to the Gitlab API happens server side
-   - This means that 1 `read only` token is needed to serve a whole team
-   - This means you won't get rate limited by the Gitlab API
+  - Only 1 `read only` token is needed to serve a whole team
+  - You won't get rate limited by the Gitlab API
 - Easy navigation to the Gitlab pipelines page from within the dashboard
-
 
 ## ⚡️ Requirements
 
@@ -47,9 +46,11 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
    projects
 
+<br />
+
 ## ⏰ Metrics
 
-Metrics are exposed on 2 URLS
+Metrics are available on the following URLS
 
 ### Fiber
 
@@ -58,6 +59,8 @@ Metrics are exposed on 2 URLS
 ### Prometheus
 
 > http://localhost:8080/metrics/prometheus
+
+<br />
 
 ## 🔌 Environment variables
 
@@ -75,7 +78,9 @@ Metrics are exposed on 2 URLS
 | GITLAB_PIPELINE_CACHE_TTL_SECONDS | int      | Expire after write time in seconds for pipelines (cache)                                               | no       | 10      |
 | GITLAB_BRANCH_CACHE_TTL_SECONDS   | int      | Expire after write time in seconds for branches (cache)                                                | no       | 60      |
 
-## Why?
+<br />
+
+## 🧐 Why?
 
 At the moment there is no overview of all pipeline statuses within Gitlab, so you might not be aware of a failed
 pipeline somewhere in Gitlab.

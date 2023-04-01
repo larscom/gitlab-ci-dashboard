@@ -70,6 +70,19 @@ func (c *MockGitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetL
 	}
 	return nil, nil, fmt.Errorf("ERROR")
 }
-func (c *MockGitlabClient) ListGroupProjects(int, *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
+func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
+	if c.err != nil {
+		return make([]*model.Project, 0), nil, c.err
+	}
+
+	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}
+
+	if groupId == 1 && options.Page == 1 && options.PerPage == 100 && !*options.Archived {
+		return []*model.Project{{Name: "project-1"}, {Name: "project-2"}}, response, nil
+	}
+	if groupId == 1 && options.Page == 2 && options.PerPage == 100 && !*options.Archived {
+		return []*model.Project{{Name: "project-3"}, {Name: "project-4"}}, response, nil
+	}
+
 	return make([]*model.Project, 0), nil, nil
 }

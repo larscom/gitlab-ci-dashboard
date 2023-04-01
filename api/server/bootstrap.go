@@ -70,7 +70,7 @@ func (s *Bootstrap) setupProjectHandler(router fiber.Router) {
 	handler := project.NewProjectHandler(service)
 
 	// path: /api/groups/:groupId/projects
-	router.Get("/:groupId/projects", handler.HandleGetProjects)
+	router.Get("/:groupId/projects", handler.HandleGetProjectsGroupedByStatus)
 }
 
 func (s *Bootstrap) setupVersionHandler(router fiber.Router) {
