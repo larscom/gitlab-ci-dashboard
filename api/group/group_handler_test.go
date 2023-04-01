@@ -46,6 +46,25 @@ func TestGetGroupsFromServiceSaveInCache(t *testing.T) {
 	assert.Equal(t, cachedValue[0].Name, "group-1")
 }
 
+func TestGetGroupsFromCache(t *testing.T) {
+	app := fiber.New()
+
+	groupCache := cache.NewCache[string, []*model.Group]()
+	groupCache.Put("/", []*model.Group{{Name: "group-2"}})
+
+	app.Get("/", NewGroupHandler(&MockGroupService{}, groupCache).HandleGetGroups)
+
+	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
+	body, _ := io.ReadAll(resp.Body)
+
+	result := make([]*model.Group, 0)
+	json.Unmarshal(body, &result)
+
+	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
+	assert.Len(t, result, 1)
+	assert.Equal(t, result[0].Name, "group-2")
+}
+
 func TestSaveGroupsInCacheOnlyIfNotEmpty(t *testing.T) {
 	app := fiber.New()
 
