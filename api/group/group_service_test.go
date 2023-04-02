@@ -6,19 +6,9 @@ import (
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/mock"
 	"github.com/stretchr/testify/assert"
 )
-
-type MockGroupClient struct{}
-
-func (c *MockGroupClient) GetGroupsById(ids []int) []*model.Group {
-	return []*model.Group{{Name: "Z"}, {Name: "X"}, {Name: "Y"}}
-}
-
-func (c *MockGroupClient) GetGroups() []*model.Group {
-	return []*model.Group{{Name: "C"}, {Name: "A"}, {Name: "B"}}
-}
 
 func TestGroupServiceWithConfig(t *testing.T) {
 
@@ -38,7 +28,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	}
 
 	t.Run("TestGetGroupsSortedByName", func(t *testing.T) {
-		service := NewGroupService(createConfig(t, make([]int, 0)), &MockGroupClient{})
+		service := NewGroupService(createConfig(t, make([]int, 0)), mock.NewMockGroupClient())
 		groups := service.GetGroups()
 
 		assert.Len(t, groups, 3)
@@ -48,7 +38,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	})
 
 	t.Run("TestGetGroupsByIdSortedByName", func(t *testing.T) {
-		service := NewGroupService(createConfig(t, []int{1}), &MockGroupClient{})
+		service := NewGroupService(createConfig(t, []int{1}), mock.NewMockGroupClient())
 		groups := service.GetGroups()
 
 		assert.Len(t, groups, 3)
