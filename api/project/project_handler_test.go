@@ -32,7 +32,10 @@ func TestHandleGetProjectsGroupedByStatus(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 
 	result := make(map[string][]*model.ProjectPipeline)
-	json.Unmarshal(body, &result)
+	err := json.Unmarshal(body, &result)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
 	success := result["success"]
 

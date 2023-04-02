@@ -9,5 +9,5 @@ func NewMockBranchClient() *MockBranchClient {
 }
 
 func (c *MockBranchClient) GetBranches(projectId int) []*model.Branch {
-	return make([]*model.Branch, 0)
+	return []*model.Branch{{Name: "branch-1"}}
 }

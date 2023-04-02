@@ -29,7 +29,10 @@ func TestHandleGetBranchesWithLatestPipelineByProjectId(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 
 	result := make([]*model.BranchPipeline, 0)
-	json.Unmarshal(body, &result)
+	err := json.Unmarshal(body, &result)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, result, 1)
@@ -44,7 +47,10 @@ func TestHandleGetBranchesWithLatestPipelineByProjectIdNoMatch(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 
 	result := make([]*model.BranchPipeline, 0)
-	json.Unmarshal(body, &result)
+	err := json.Unmarshal(body, &result)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, result, 0)

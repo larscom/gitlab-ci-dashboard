@@ -30,7 +30,10 @@ func TestHandleGetLatestPipeline(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 
 	pipeline := new(model.Pipeline)
-	json.Unmarshal(body, &pipeline)
+	err := json.Unmarshal(body, &pipeline)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Equal(t, pipeline.Id, 123)

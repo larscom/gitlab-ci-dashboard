@@ -9,5 +9,5 @@ func NewMockProjectClient() *MockProjectClient {
 }
 
 func (c *MockProjectClient) GetProjects(groupId int) []*model.Project {
-	return make([]*model.Project, 0)
+	return []*model.Project{{Name: "project-1"}}
 }
