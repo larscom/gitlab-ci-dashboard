@@ -180,8 +180,8 @@ github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfn
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/larscom/go-cache v1.1.4 h1:1TM6YoLuZ9FFeho7ImGdSxS5K/nvC1xnqSvEfgtK9Lc=
-github.com/larscom/go-cache v1.1.4/go.mod h1:upk201NNj6tnNGAIrKfu2pz2UpXFn4kJ5ILaaSTJpMo=
+github.com/larscom/go-cache v1.1.5 h1:jvxTJNe1keq59GZC0TYssSgUAvA49mbsxJzZmEsROfs=
+github.com/larscom/go-cache v1.1.5/go.mod h1:upk201NNj6tnNGAIrKfu2pz2UpXFn4kJ5ILaaSTJpMo=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
