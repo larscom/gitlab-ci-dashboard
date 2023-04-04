@@ -9,8 +9,8 @@ import (
 )
 
 func TestGetBranchesWithLatestPipeline(t *testing.T) {
-	pipelineLatestLoader := cache.NewCache[model.PipelineKey, *model.Pipeline]()
-	branchLoader := cache.NewCache[model.ProjectId, []*model.Branch]()
+	pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
+	branchLoader := cache.New[model.ProjectId, []*model.Branch]()
 
 	projectId := 1
 	ref := "branch-1"

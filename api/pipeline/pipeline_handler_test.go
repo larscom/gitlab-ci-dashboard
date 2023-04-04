@@ -14,7 +14,7 @@ import (
 )
 
 func TestHandleGetLatestPipeline(t *testing.T) {
-	pipelineLatestLoader := cache.NewCache[model.PipelineKey, *model.Pipeline]()
+	pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
 
 	const projectId = 1
 	const ref = "master"
@@ -41,7 +41,7 @@ func TestHandleGetLatestPipeline(t *testing.T) {
 
 func TestHandleGetLatestPipelineBadRequest(t *testing.T) {
 	app := fiber.New()
-	app.Get("/:projectId/:ref", NewPipelineHandler(cache.NewCache[model.PipelineKey, *model.Pipeline]()).HandleGetLatestPipeline)
+	app.Get("/:projectId/:ref", NewPipelineHandler(cache.New[model.PipelineKey, *model.Pipeline]()).HandleGetLatestPipeline)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/nan/master", nil), -1)
 
