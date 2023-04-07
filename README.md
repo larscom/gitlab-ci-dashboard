@@ -27,8 +27,8 @@
 
 ## ⚡️ Requirements
 
-- Gitlab server
-- Gitlab API v4
+- Gitlab server (v4 API)
+- Readonly API token
 - Docker
 
 ## 💡 Getting started
