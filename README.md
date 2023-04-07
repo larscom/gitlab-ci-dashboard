@@ -10,7 +10,7 @@
 
 ![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
-> Gitlab CI Dashboard will provide you a global overview of all pipeline statuses in Gitlab.
+> Gitlab CI Dashboard will provide you a global overview of all pipelines and their status in Gitlab.
 
 ## 👉 [Demo](https://gitlab-ci-dashboard.larscom.nl)
 
@@ -18,7 +18,7 @@
 
 ## 🚀 Highlights
 
-- View Gitlab CI pipeline statuses
+- Global overview of all pipelines and their status in Gitlab
   - More functionality, like a global overview of schedules will be added later
 - Communication to the Gitlab API happens server side
   - Only 1 `read only` token is needed to serve a whole team
@@ -28,7 +28,7 @@
 ## ⚡️ Requirements
 
 - Gitlab server
-- Supports only `v4` of the Gitlab API
+- Gitlab API v4
 - Docker
 
 ## 💡 Getting started
