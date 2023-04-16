@@ -13,14 +13,14 @@ import (
 
 type MockProjectService struct{}
 
-func (s *MockProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]*model.ProjectPipeline {
+func (s *MockProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]model.Project {
 	if groupId == 1 {
-		return map[string][]*model.ProjectPipeline{
-			"success": {{Project: &model.Project{Name: "project-1"}, Pipeline: &model.Pipeline{Id: 123}}},
+		return map[string][]model.Project{
+			"success": {model.Project{Name: "project-1", LatestPipeline: &model.Pipeline{Id: 123}}},
 		}
 	}
 
-	return make(map[string][]*model.ProjectPipeline)
+	return make(map[string][]model.Project)
 }
 
 func TestHandleGetProjectsGroupedByStatus(t *testing.T) {
@@ -31,7 +31,7 @@ func TestHandleGetProjectsGroupedByStatus(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make(map[string][]*model.ProjectPipeline)
+	result := make(map[string][]model.Project)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -41,8 +41,8 @@ func TestHandleGetProjectsGroupedByStatus(t *testing.T) {
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, success, 1)
-	assert.Equal(t, "project-1", success[0].Project.Name)
-	assert.Equal(t, 123, success[0].Pipeline.Id)
+	assert.Equal(t, "project-1", success[0].Name)
+	assert.Equal(t, 123, success[0].LatestPipeline.Id)
 }
 
 func TestHandleGetProjectsGroupedByStatusBadRequest(t *testing.T) {

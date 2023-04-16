@@ -22,21 +22,21 @@ func NewGroupClient(client client.GitlabClient, config *config.GitlabConfig) Gro
 }
 
 func (c *GroupClientImpl) GetGroupsById(ids []int) []*model.Group {
-	result := make(chan *model.Group, len(ids))
+	chn := make(chan *model.Group, len(ids))
 
 	for _, groupId := range ids {
-		go c.getGroupById(groupId, result)
+		go c.getGroupById(groupId, chn)
 	}
 
 	groups := make([]*model.Group, 0)
 	for range ids {
-		group := <-result
+		group := <-chn
 		if group != nil {
 			groups = append(groups, group)
 		}
 	}
 
-	close(result)
+	close(chn)
 
 	return groups
 }
@@ -51,29 +51,29 @@ func (c *GroupClientImpl) GetGroups() []*model.Group {
 	}
 
 	capacity := response.TotalPages - 1
-	result := make(chan []*model.Group, capacity)
+	chn := make(chan []*model.Group, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getGroupsByPage(page, result)
+		go c.getGroupsByPage(page, chn)
 	}
 
 	for i := 0; i < capacity; i++ {
-		groups = append(groups, <-result...)
+		groups = append(groups, <-chn...)
 	}
 
-	close(result)
+	close(chn)
 
 	return groups
 }
 
-func (c *GroupClientImpl) getGroupsByPage(pageNumber int, result chan<- []*model.Group) {
+func (c *GroupClientImpl) getGroupsByPage(pageNumber int, chn chan<- []*model.Group) {
 	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
-	result <- groups
+	chn <- groups
 }
 
-func (c *GroupClientImpl) getGroupById(groupId int, result chan<- *model.Group) {
+func (c *GroupClientImpl) getGroupById(groupId int, chn chan<- *model.Group) {
 	group, _, _ := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
-	result <- group
+	chn <- group
 }
 
 func (c *GroupClientImpl) createOptions(pageNumber int) *gitlab.ListGroupsOptions {

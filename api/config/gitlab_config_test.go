@@ -37,6 +37,7 @@ func TestMinimumWithDefaults(t *testing.T) {
 
 	assert.Equal(t, 10, config.PipelineCacheTTLSeconds)
 	assert.Equal(t, 60, config.BranchCacheTTLSeconds)
+	assert.Equal(t, 300, config.ScheduleCacheTTLSeconds)
 }
 
 func TestMaximum(t *testing.T) {
@@ -52,6 +53,7 @@ func TestMaximum(t *testing.T) {
 	t.Setenv("GITLAB_PROJECT_CACHE_TTL_SECONDS", "75")
 	t.Setenv("GITLAB_PIPELINE_CACHE_TTL_SECONDS", "85")
 	t.Setenv("GITLAB_BRANCH_CACHE_TTL_SECONDS", "95")
+	t.Setenv("GITLAB_SCHEDULE_CACHE_TTL_SECONDS", "105")
 
 	config := NewGitlabConfig()
 
@@ -69,6 +71,7 @@ func TestMaximum(t *testing.T) {
 
 	assert.Equal(t, 85, config.PipelineCacheTTLSeconds)
 	assert.Equal(t, 95, config.BranchCacheTTLSeconds)
+	assert.Equal(t, 105, config.ScheduleCacheTTLSeconds)
 }
 
 func TestPanics(t *testing.T) {
@@ -110,5 +113,9 @@ func TestPanics(t *testing.T) {
 	t.Run("GITLAB_BRANCH_CACHE_TTL_SECONDS", func(t *testing.T) {
 		t.Setenv("GITLAB_BRANCH_CACHE_TTL_SECONDS", "TT")
 		assert.PanicsWithValue(t, "GITLAB_BRANCH_CACHE_TTL_SECONDS contains: 'TT' which is not an int", func() { NewGitlabConfig() })
+	})
+	t.Run("GITLAB_SCHEDULE_CACHE_TTL_SECONDS", func(t *testing.T) {
+		t.Setenv("GITLAB_SCHEDULE_CACHE_TTL_SECONDS", "TT")
+		assert.PanicsWithValue(t, "GITLAB_SCHEDULE_CACHE_TTL_SECONDS contains: 'TT' which is not an int", func() { NewGitlabConfig() })
 	})
 }

@@ -10,9 +10,8 @@ import { useEffect } from 'react'
 
 export default function GroupTabs() {
   const { isLoading: loading, data: groups = [] } = useGroups()
-  const [groupId, setGroupId] = useLocalStorage<GroupId>({
-    key: 'gcd.group.active',
-    defaultValue: 0
+  const [groupId, setGroupId] = useLocalStorage<GroupId | undefined>({
+    key: 'gcd.group.active'
   })
 
   useEffect(() => {

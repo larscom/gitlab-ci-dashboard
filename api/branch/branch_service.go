@@ -6,7 +6,7 @@ import (
 )
 
 type BranchService interface {
-	GetBranchesWithLatestPipeline(projectId int) []*model.BranchPipeline
+	GetBranchesWithLatestPipeline(projectId int) []model.Branch
 }
 
 type BranchServiceImpl struct {
@@ -21,26 +21,26 @@ func NewBranchService(
 	return &BranchServiceImpl{pipelineLatestLoader, branchLoader}
 }
 
-func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []*model.BranchPipeline {
+func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.Branch {
 	branches, _ := s.branchLoader.Get(model.ProjectId(projectId))
 
-	result := make(chan *model.BranchPipeline, len(branches))
-
+	chn := make(chan model.Branch, len(branches))
 	for _, branch := range branches {
-		go s.getBranchWithLatestPipeline(projectId, branch, result)
+		go s.getLatestPipeline(projectId, *branch, chn)
 	}
 
-	b := make([]*model.BranchPipeline, len(branches))
+	result := make([]model.Branch, len(branches))
 	for i := 0; i < len(branches); i++ {
-		b[i] = <-result
+		result[i] = <-chn
 	}
 
-	close(result)
+	close(chn)
 
-	return b
+	return result
 }
 
-func (s *BranchServiceImpl) getBranchWithLatestPipeline(projectId int, branch *model.Branch, result chan<- *model.BranchPipeline) {
-	pipeline, _ := s.pipelineLatestLoader.Get(model.NewPipelineKey(projectId, branch.Name))
-	result <- &model.BranchPipeline{Branch: branch, Pipeline: pipeline}
+func (s *BranchServiceImpl) getLatestPipeline(projectId int, branch model.Branch, chn chan<- model.Branch) {
+	pipeline, _ := s.pipelineLatestLoader.Get(model.NewPipelineKey(projectId, branch.Name, nil))
+	branch.LatestPipeline = pipeline
+	chn <- branch
 }

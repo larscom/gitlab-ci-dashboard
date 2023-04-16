@@ -11,6 +11,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/group"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/project"
+	"github.com/larscom/gitlab-ci-dashboard/schedule"
 	"github.com/larscom/gitlab-ci-dashboard/server"
 )
 
@@ -26,6 +27,7 @@ func main() {
 		group.NewGroupClient(client, config),
 		pipeline.NewPipelineClient(client),
 		branch.NewBranchClient(client),
+		schedule.NewScheduleClient(client, config),
 	)
 	caches := server.NewCaches(config, clients)
 	bootstrap := server.NewBootstrap(config, client, caches, clients)

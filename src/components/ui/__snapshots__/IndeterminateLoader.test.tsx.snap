@@ -3,13 +3,15 @@
 exports[`IndeterminateLoader > should fully render 1`] = `
 <div>
   <div
-    class="mantine-Progress-root mantine-cfbpgz"
+    class="mantine-Progress-root mantine-1pnpvgp"
   >
     <div
       aria-valuemax="100"
       aria-valuemin="0"
       aria-valuenow="100"
-      class="mantine-18fgoy1 mantine-Progress-bar"
+      class="mantine-ezw079 mantine-Progress-bar"
+      data-animate="true"
+      data-striped="true"
       role="progressbar"
       style="width: 100%;"
     />

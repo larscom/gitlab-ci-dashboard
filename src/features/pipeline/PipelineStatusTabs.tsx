@@ -1,14 +1,14 @@
 import Empty from '$components/ui/Empty'
 import { GroupContext } from '$contexts/group-context'
-import ProjectsWithPipelineTable from '$feature/project/ProjectWithPipelineTable'
+import ProjectTable from '$feature/project/ProjectTable'
 import { Status } from '$models/pipeline'
-import { ProjectPipeline } from '$models/project-pipeline'
+import { Project } from '$models/project'
 import { statusToColor } from '$util/status-to-color'
 import { Badge, Stack, Tabs, TabsValue, Text } from '@mantine/core'
 import { useContext, useEffect, useRef, useState } from 'react'
 
 interface Props {
-  statusWithProjects: Map<Status, ProjectPipeline[]>
+  statusWithProjects: Map<Status, Project[]>
 }
 export default function PipelineStatusTabs({ statusWithProjects }: Props) {
   const { groupId } = useContext(GroupContext)
@@ -72,7 +72,7 @@ export default function PipelineStatusTabs({ statusWithProjects }: Props) {
     <Tabs value={status} onTabChange={handleChange}>
       <Tabs.List>{tabs}</Tabs.List>
       <Tabs.Panel value={status} pt="xs">
-        <ProjectsWithPipelineTable projects={projects} />
+        <ProjectTable projects={projects} />
       </Tabs.Panel>
     </Tabs>
   ) : null

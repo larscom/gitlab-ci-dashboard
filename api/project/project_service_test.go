@@ -44,9 +44,9 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master"), &model.Pipeline{Id: 1010, Status: "success"})
-		pipelineLatestLoader.Put(model.NewPipelineKey(222, "main"), &model.Pipeline{Id: 2020, Status: "failed"})
-		pipelineLatestLoader.Put(model.NewPipelineKey(333, "main"), &model.Pipeline{Id: 3030, Status: "success"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master", nil), &model.Pipeline{Id: 1010, Status: "success"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "failed"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
 
 		projectsGroupedByStatus := service.GetProjectsGroupedByStatus(1)
 		assert.Len(t, projectsGroupedByStatus, 2)
@@ -54,15 +54,15 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		success := projectsGroupedByStatus["success"]
 		assert.Len(t, success, 2)
 
-		for _, pp := range success {
-			if pp.Project.Id == 111 {
-				assert.Equal(t, "project-1", pp.Project.Name)
-				assert.Equal(t, 1010, pp.Pipeline.Id)
-				assert.Equal(t, "success", pp.Pipeline.Status)
-			} else if pp.Project.Id == 333 {
-				assert.Equal(t, "project-3", pp.Project.Name)
-				assert.Equal(t, 3030, pp.Pipeline.Id)
-				assert.Equal(t, "success", pp.Pipeline.Status)
+		for _, project := range success {
+			if project.Id == 111 {
+				assert.Equal(t, "project-1", project.Name)
+				assert.Equal(t, 1010, project.LatestPipeline.Id)
+				assert.Equal(t, "success", project.LatestPipeline.Status)
+			} else if project.Id == 333 {
+				assert.Equal(t, "project-3", project.Name)
+				assert.Equal(t, 3030, project.LatestPipeline.Id)
+				assert.Equal(t, "success", project.LatestPipeline.Status)
 			} else {
 				t.Errorf("expected projectId 111 and projectId 333")
 			}
@@ -70,10 +70,10 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 		failed := projectsGroupedByStatus["failed"]
 		assert.Len(t, failed, 1)
-		assert.Equal(t, "project-2", failed[0].Project.Name)
-		assert.Equal(t, 222, failed[0].Project.Id)
-		assert.Equal(t, 2020, failed[0].Pipeline.Id)
-		assert.Equal(t, "failed", failed[0].Pipeline.Status)
+		assert.Equal(t, "project-2", failed[0].Name)
+		assert.Equal(t, 222, failed[0].Id)
+		assert.Equal(t, 2020, failed[0].LatestPipeline.Id)
+		assert.Equal(t, "failed", failed[0].LatestPipeline.Status)
 	})
 
 	t.Run("GetProjectsGroupedByStatusUnknown", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 		projectLoader.Put(model.GroupId(1), []*model.Project{{Id: 111, Name: "project-1", DefaultBranch: "master"}})
 
-		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master"), nil)
+		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master", nil), nil)
 
 		projectsGroupedByStatus := service.GetProjectsGroupedByStatus(1)
 		assert.Len(t, projectsGroupedByStatus, 1)
@@ -93,9 +93,9 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		unknown := projectsGroupedByStatus["unknown"]
 
 		assert.Len(t, unknown, 1)
-		assert.Equal(t, "project-1", unknown[0].Project.Name)
-		assert.Equal(t, 111, unknown[0].Project.Id)
-		assert.Nil(t, unknown[0].Pipeline)
+		assert.Equal(t, "project-1", unknown[0].Name)
+		assert.Equal(t, 111, unknown[0].Id)
+		assert.Nil(t, unknown[0].LatestPipeline)
 	})
 
 	t.Run("GetProjectsGroupedByStatusHideUnknown", func(t *testing.T) {
@@ -114,8 +114,8 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master"), &model.Pipeline{Id: 1010, Status: "success"})
-		pipelineLatestLoader.Put(model.NewPipelineKey(222, "main"), nil)
+		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master", nil), &model.Pipeline{Id: 1010, Status: "success"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(222, "main", nil), nil)
 
 		projectsGroupedByStatus := service.GetProjectsGroupedByStatus(1)
 		assert.Len(t, projectsGroupedByStatus, 1)
@@ -123,7 +123,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		success := projectsGroupedByStatus["success"]
 
 		assert.Len(t, success, 1)
-		assert.Equal(t, "project-1", success[0].Project.Name)
+		assert.Equal(t, "project-1", success[0].Name)
 	})
 
 	t.Run("GetProjectsGroupedByStatusSkipProjectIds", func(t *testing.T) {
@@ -143,9 +143,9 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master"), &model.Pipeline{Id: 1010, Status: "success"})
-		pipelineLatestLoader.Put(model.NewPipelineKey(222, "main"), &model.Pipeline{Id: 2020, Status: "success"})
-		pipelineLatestLoader.Put(model.NewPipelineKey(333, "main"), &model.Pipeline{Id: 3030, Status: "success"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master", nil), &model.Pipeline{Id: 1010, Status: "success"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "success"})
+		pipelineLatestLoader.Put(model.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
 
 		projectsGroupedByStatus := service.GetProjectsGroupedByStatus(1)
 		assert.Len(t, projectsGroupedByStatus, 1)
@@ -153,6 +153,6 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		success := projectsGroupedByStatus["success"]
 
 		assert.Len(t, success, 1)
-		assert.Equal(t, "project-3", success[0].Project.Name)
+		assert.Equal(t, "project-3", success[0].Name)
 	})
 }

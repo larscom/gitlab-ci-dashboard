@@ -2,11 +2,9 @@ import { GroupId } from '$models/group'
 import { createContext } from 'react'
 
 interface GroupContext {
-  groupId: GroupId
+  groupId?: GroupId
 }
 
-export const GroupContext = createContext<GroupContext>({
-  groupId: 0
-})
+export const GroupContext = createContext<GroupContext>({})
 
 export const GroupContextProvider = GroupContext.Provider

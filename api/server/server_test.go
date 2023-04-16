@@ -59,7 +59,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups/123/projects", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		projectsGroupedByStatus := make(map[string][]*model.ProjectPipeline)
+		projectsGroupedByStatus := make(map[string][]*model.Project)
 		err := json.Unmarshal(body, &projectsGroupedByStatus)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -69,15 +69,15 @@ func TestServerWithConfig(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, success, 1)
-		assert.Equal(t, "project-1", success[0].Project.Name)
-		assert.Equal(t, "success", success[0].Pipeline.Status)
+		assert.Equal(t, "project-1", success[0].Name)
+		assert.Equal(t, "success", success[0].LatestPipeline.Status)
 	})
 
 	t.Run("TestBranchesEndpoint", func(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		branchesWithPipeline := make([]*model.BranchPipeline, 0)
+		branchesWithPipeline := make([]*model.Branch, 0)
 		err := json.Unmarshal(body, &branchesWithPipeline)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -85,23 +85,8 @@ func TestServerWithConfig(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, branchesWithPipeline, 1)
-		assert.Equal(t, "branch-1", branchesWithPipeline[0].Branch.Name)
-		assert.Equal(t, "success", branchesWithPipeline[0].Pipeline.Status)
-	})
-
-	t.Run("TestPipelineEndpoint", func(t *testing.T) {
-		resp, _ := server.Test(httptest.NewRequest("GET", "/api/pipelines/123/master", nil), -1)
-		body, _ := io.ReadAll(resp.Body)
-
-		pipeline := new(model.Pipeline)
-		err := json.Unmarshal(body, &pipeline)
-		if err != nil {
-			t.Fatal(err.Error())
-		}
-
-		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
-		assert.Equal(t, "success", pipeline.Status)
-		assert.Equal(t, 123, pipeline.ProjectId)
+		assert.Equal(t, "branch-1", branchesWithPipeline[0].Name)
+		assert.Equal(t, "success", branchesWithPipeline[0].LatestPipeline.Status)
 	})
 
 	t.Run("TestMetricsEndpoint", func(t *testing.T) {

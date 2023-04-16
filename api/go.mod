@@ -8,9 +8,9 @@ require (
 	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/fiber/v2 v2.43.0
 	github.com/joho/godotenv v1.5.1
-	github.com/larscom/go-cache v1.2.0
+	github.com/larscom/go-cache v1.2.1
 	github.com/stretchr/testify v1.8.2
-	github.com/xanzy/go-gitlab v0.81.0
+	github.com/xanzy/go-gitlab v0.82.0
 )
 
 require (

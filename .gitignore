@@ -2,6 +2,7 @@
 
 # Compiled output
 .angular
+**/**/__debug_bin
 bin/
 /dist
 /tmp

@@ -23,7 +23,6 @@ func NewServer(ctx *Bootstrap) *fiber.App {
 	ctx.setupVersionHandler(api)
 
 	ctx.setupBranchHandler(api.Group("/branches"))
-	ctx.setupPipelineHandler(api.Group("/pipelines"))
 	ctx.setupGroupHandler(api.Group("/groups"))
 
 	return app

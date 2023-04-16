@@ -10,15 +10,15 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
-	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/project"
+	"github.com/larscom/gitlab-ci-dashboard/schedule"
 )
 
 type Bootstrap struct {
-	config        *config.GitlabConfig
-	client        client.GitlabClient
-	cacheContext  *Caches
-	clientContext *Clients
+	config  *config.GitlabConfig
+	client  client.GitlabClient
+	caches  *Caches
+	clients *Clients
 }
 
 func NewBootstrap(
@@ -35,36 +35,34 @@ func NewBootstrap(
 	}
 }
 
-func (s *Bootstrap) setupBranchHandler(router fiber.Router) {
-	service := branch.NewBranchService(s.cacheContext.pipelineLatestLoader, s.cacheContext.branchLoader)
+func (b *Bootstrap) setupBranchHandler(router fiber.Router) {
+	service := branch.NewBranchService(b.caches.pipelineLatestLoader, b.caches.branchLoader)
 	handler := branch.NewBranchHandler(service)
 
 	// path: /api/branches/:projectId
 	router.Get("/:projectId", handler.HandleGetBranchesWithLatestPipeline)
 }
 
-func (s *Bootstrap) setupPipelineHandler(router fiber.Router) {
-	handler := pipeline.NewPipelineHandler(s.cacheContext.pipelineLatestLoader)
-
-	// path: /api/pipelines/:projectId/:ref
-	router.Get("/:projectId/:ref", handler.HandleGetLatestPipeline)
-}
-
-func (s *Bootstrap) setupGroupHandler(router fiber.Router) {
-	service := group.NewGroupService(s.config, s.clientContext.groupClient)
-	handler := group.NewGroupHandler(service, s.cacheContext.groupCache)
+func (b *Bootstrap) setupGroupHandler(router fiber.Router) {
+	service := group.NewGroupService(b.config, b.clients.groupClient)
+	handler := group.NewGroupHandler(service, b.caches.groupCache)
 
 	// path: /api/groups
 	router.Get("/", handler.HandleGetGroups)
 
-	s.setupProjectHandler(router)
+	// path: /api/groups/:groupId/projects
+	b.setupProjectHandler(router)
+
+	// path: /api/groups/:groupId/schedules
+	b.setupSchedulesHandler(router)
+
 }
 
-func (s *Bootstrap) setupProjectHandler(router fiber.Router) {
+func (b *Bootstrap) setupProjectHandler(router fiber.Router) {
 	service := project.NewProjectService(
-		s.config,
-		s.cacheContext.projectLoader,
-		s.cacheContext.pipelineLatestLoader,
+		b.config,
+		b.caches.projectLoader,
+		b.caches.pipelineLatestLoader,
 	)
 
 	handler := project.NewProjectHandler(service)
@@ -73,21 +71,33 @@ func (s *Bootstrap) setupProjectHandler(router fiber.Router) {
 	router.Get("/:groupId/projects", handler.HandleGetProjectsGroupedByStatus)
 }
 
-func (s *Bootstrap) setupVersionHandler(router fiber.Router) {
+func (b *Bootstrap) setupVersionHandler(router fiber.Router) {
 	// path: /api/version
 	router.Get("/version", func(c *fiber.Ctx) error {
 		return c.SendString(os.Getenv("VERSION"))
 	})
 }
 
-func (s *Bootstrap) setupPrometheusHandler(router fiber.Router) {
+func (b *Bootstrap) setupPrometheusHandler(router fiber.Router) {
 	// path: /metrics/prometheus
 	prometheus := fiberprometheus.New("gitlab-ci-dashboard")
 	prometheus.RegisterAt(router, "/metrics/prometheus")
 	router.Use(prometheus.Middleware)
 }
 
-func (s *Bootstrap) setupFiberMetricsHandler(router fiber.Router) {
+func (b *Bootstrap) setupFiberMetricsHandler(router fiber.Router) {
 	// path: /metrics
 	router.Get("/metrics", monitor.New(monitor.Config{Title: "Gitlab CI Dashboard Metrics"}))
+}
+
+func (b *Bootstrap) setupSchedulesHandler(router fiber.Router) {
+	service := schedule.NewScheduleService(
+		b.caches.projectLoader,
+		b.caches.scheduleLoader,
+		b.caches.pipelineLatestLoader,
+	)
+	handler := schedule.NewScheduleHandler(service)
+
+	// path: /api/groups/:groupId/schedules
+	router.Get("/:groupId/schedules", handler.HandleGetSchedules)
 }

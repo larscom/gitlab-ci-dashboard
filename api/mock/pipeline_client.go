@@ -9,5 +9,9 @@ func NewMockPipelineClient() *MockPipelineClient {
 }
 
 func (c *MockPipelineClient) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
-	return &model.Pipeline{ProjectId: projectId, Status: "success", Id: 1337}, nil
+	return &model.Pipeline{ProjectId: projectId, Ref: ref, Status: "success", Id: 1337}, nil
+}
+
+func (c *MockPipelineClient) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
+	return &model.Pipeline{ProjectId: projectId, Ref: ref, Source: source, Status: "success", Id: 1337}, nil
 }

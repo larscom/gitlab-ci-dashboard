@@ -74,6 +74,10 @@ func (c *MockGitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetL
 	return nil, nil, fmt.Errorf("ERROR")
 }
 
+func (c *MockGitlabClient) ListProjectPipelines(int, *gitlab.ListProjectPipelinesOptions) ([]*model.Pipeline, *gitlab.Response, error) {
+	return make([]*model.Pipeline, 0), nil, nil
+}
+
 func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]*model.Project, 0), nil, c.err
@@ -89,4 +93,8 @@ func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGr
 	}
 
 	return make([]*model.Project, 0), nil, nil
+}
+
+func (g *MockGitlabClient) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]*model.Schedule, *gitlab.Response, error) {
+	return make([]*model.Schedule, 0), nil, nil
 }

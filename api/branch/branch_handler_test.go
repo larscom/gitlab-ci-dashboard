@@ -14,11 +14,11 @@ import (
 
 type MockBranchService struct{}
 
-func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []*model.BranchPipeline {
+func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []model.Branch {
 	if projectId == 1 {
-		return []*model.BranchPipeline{{Branch: &model.Branch{Name: "branch-1"}}}
+		return []model.Branch{{Name: "branch-1"}}
 	}
-	return make([]*model.BranchPipeline, 0)
+	return make([]model.Branch, 0)
 }
 
 func TestHandleGetBranchesWithLatestPipelineByProjectId(t *testing.T) {
@@ -28,7 +28,7 @@ func TestHandleGetBranchesWithLatestPipelineByProjectId(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]*model.BranchPipeline, 0)
+	result := make([]model.Branch, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -36,7 +36,7 @@ func TestHandleGetBranchesWithLatestPipelineByProjectId(t *testing.T) {
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, result, 1)
-	assert.Equal(t, result[0].Branch.Name, "branch-1")
+	assert.Equal(t, result[0].Name, "branch-1")
 }
 
 func TestHandleGetBranchesWithLatestPipelineByProjectIdNoMatch(t *testing.T) {
@@ -46,7 +46,7 @@ func TestHandleGetBranchesWithLatestPipelineByProjectIdNoMatch(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/123", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]*model.BranchPipeline, 0)
+	result := make([]model.Branch, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

@@ -1,3 +1,5 @@
+import { Pipeline } from './pipeline'
+
 export interface Namespace {
   id: number
   name: string
@@ -13,4 +15,5 @@ export interface Project {
   web_url: string
   namespace: Namespace
   topics: string[]
+  latest_pipeline?: Pipeline
 }

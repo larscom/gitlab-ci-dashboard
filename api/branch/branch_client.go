@@ -28,24 +28,24 @@ func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {
 	}
 
 	capacity := response.TotalPages - 1
-	result := make(chan []*model.Branch, capacity)
+	chn := make(chan []*model.Branch, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getBranchesByPage(projectId, page, result)
+		go c.getBranchesByPage(projectId, page, chn)
 	}
 
 	for i := 0; i < capacity; i++ {
-		branches = append(branches, <-result...)
+		branches = append(branches, <-chn...)
 	}
 
-	close(result)
+	close(chn)
 
 	return branches
 }
 
-func (c *BranchClientImpl) getBranchesByPage(projectId int, pageNumber int, result chan<- []*model.Branch) {
+func (c *BranchClientImpl) getBranchesByPage(projectId int, pageNumber int, chn chan<- []*model.Branch) {
 	branches, _, _ := c.client.ListBranches(projectId, c.createOptions(pageNumber))
-	result <- branches
+	chn <- branches
 }
 
 func (c *BranchClientImpl) createOptions(pageNumber int) *gitlab.ListBranchesOptions {

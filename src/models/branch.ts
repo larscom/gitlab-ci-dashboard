@@ -1,3 +1,5 @@
+import { Pipeline } from './pipeline'
+
 export interface Branch {
   name: string
   merged: boolean
@@ -6,6 +8,7 @@ export interface Branch {
   can_push: boolean
   web_url: string
   commit: Commit
+  latest_pipeline?: Pipeline
 }
 
 export interface Commit {

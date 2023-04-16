@@ -1,26 +1,26 @@
 import AutoRefresh from '$components/AutoRefresh'
 import IndeterminateLoader from '$components/ui/IndeterminateLoader'
 import BranchFilter from '$feature/branch/BranchFilter'
-import BranchWithPipelineTable from '$feature/branch/BranchWithPipelineTable'
+import BranchTable from '$feature/branch/BranchTable'
 import { useBranches } from '$hooks/use-branches'
-import { ProjectPipeline } from '$models/project-pipeline'
+import { Project } from '$models/project'
 import { filterBy } from '$util/filter-by'
 import { Group, Stack } from '@mantine/core'
 import { useCallback, useMemo, useState } from 'react'
 
 interface Props {
-  project: ProjectPipeline
+  project: Project
 }
 
-export default function ProjectRowExpansion({ project: { project } }: Props) {
+export default function ProjectRowExpansion({ project }: Props) {
   const { isLoading, isRefetching, refetch, data = [] } = useBranches(project.id)
   const [filterText, setFilterText] = useState<string>('')
 
   const branches = useMemo(
     () =>
       data
-        .filter(({ branch }) => !branch.default)
-        .filter(({ branch }) => filterBy(branch.name, filterText)),
+        .filter(({ default: d }) => !d)
+        .filter(({ name }) => filterBy(name, filterText)),
     [data, filterText]
   )
 
@@ -41,11 +41,7 @@ export default function ProjectRowExpansion({ project: { project } }: Props) {
           disabled={isLoading}
         />
       </Group>
-      {isLoading ? (
-        <IndeterminateLoader />
-      ) : (
-        <BranchWithPipelineTable branches={branches} />
-      )}
+      {isLoading ? <IndeterminateLoader /> : <BranchTable branches={branches} />}
     </Stack>
   )
 }

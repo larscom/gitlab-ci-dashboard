@@ -1,4 +1,4 @@
-import { BranchPipeline } from '$models/branch-pipeline'
+import { Branch } from '$models/branch'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
 import { statusToColor } from '$util/status-to-color'
@@ -8,13 +8,13 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable'
 import { useEffect, useState } from 'react'
 
 interface Props {
-  branches: BranchPipeline[]
+  branches: Branch[]
 }
 
-export default function BranchWithPipelineTable({ branches }: Props) {
+export default function BranchTable({ branches }: Props) {
   const [sortedBranches, setSortedBranches] = useState(branches)
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: 'branch.name',
+    columnAccessor: 'name',
     direction: 'asc'
   })
 
@@ -35,65 +35,65 @@ export default function BranchWithPipelineTable({ branches }: Props) {
     >
       <DataTable
         className="border-solid border border-neutral-300"
-        idAccessor="branch.name"
+        idAccessor="name"
         noRecordsText="No branches"
         sortStatus={sortStatus}
         onSortStatusChange={setSortStatus}
         records={sortedBranches}
         columns={[
           {
-            accessor: 'branch.name',
+            accessor: 'name',
             title: 'Branch',
             sortable: true
           },
           {
-            accessor: 'pipeline.status',
+            accessor: 'latest_pipeline.status',
             title: 'Status',
             sortable: true,
-            render({ pipeline }) {
+            render({ latest_pipeline }) {
               return (
                 <Text
-                  color={pipeline?.status && statusToColor(pipeline.status)}
+                  color={latest_pipeline?.status && statusToColor(latest_pipeline.status)}
                   weight="500"
                 >
-                  {pipeline?.status || '-'}
+                  {latest_pipeline?.status || '-'}
                 </Text>
               )
             }
           },
           {
-            accessor: 'pipeline.source',
+            accessor: 'latest_pipeline.source',
             title: 'Source',
             sortable: true,
-            render({ pipeline }) {
-              return <Text>{pipeline?.source || '-'}</Text>
+            render({ latest_pipeline }) {
+              return <Text>{latest_pipeline?.source || '-'}</Text>
             }
           },
           {
-            accessor: 'pipeline.updatedAt',
+            accessor: 'latest_pipeline.updated_at',
             title: 'Updated',
             sortable: true,
-            render({ pipeline }) {
-              const updatedAt = pipeline?.updated_at
+            render({ latest_pipeline }) {
+              const updatedAt = latest_pipeline?.updated_at
               const dateTime = updatedAt ? formatDateTime(updatedAt) : undefined
               return <Text>{dateTime || '-'}</Text>
             }
           },
           {
             accessor: '',
-            render({ branch, pipeline }) {
+            render({ web_url, name, latest_pipeline }) {
               return (
                 <Group>
                   <ActionIcon
                     onClick={(e) => {
                       e.stopPropagation()
-                      pipeline
-                        ? window.open(pipeline.web_url, '_blank')
-                        : window.open(`${branch.web_url}/-/pipelines`, '_blank')
+                      latest_pipeline
+                        ? window.open(latest_pipeline.web_url, '_blank')
+                        : window.open(`${web_url}/-/pipelines`, '_blank')
                     }}
                     variant="transparent"
                   >
-                    <Tooltip openDelay={250} label={`Show pipeline (${branch.name})`}>
+                    <Tooltip openDelay={250} label={`Show pipeline (${name})`}>
                       <NodeExpandOutlined />
                     </Tooltip>
                   </ActionIcon>

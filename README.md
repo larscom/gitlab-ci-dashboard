@@ -10,7 +10,7 @@
 
 ![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
-> Gitlab CI Dashboard will provide you a global overview of all pipelines and their status in Gitlab.
+> Gitlab CI Dashboard will provide you a **global** overview of all pipelines, schedules and their status in Gitlab.
 
 ## 👉 [Demo](https://gitlab-ci-dashboard.larscom.nl)
 
@@ -18,12 +18,11 @@
 
 ## 🚀 Highlights
 
-- Global overview of all pipelines and their status in Gitlab
-  - More functionality, like a global overview of schedules will be added later
+- View all Gitlab CI pipeline statuses in one view
+- View all Gitlab CI pipeline schedules in one view
 - Communication to the Gitlab API happens server side
   - Only 1 `read only` token is needed to serve a whole team
   - You won't get rate limited by the Gitlab API, due to caching
-- Easy navigation to the Gitlab pipelines page from within the dashboard
 
 ## ⚡️ Requirements
 
@@ -75,13 +74,13 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 | GITLAB_PROJECT_HIDE_UNKNOWN       | boolean | Hide projects with 'unknown' pipeline status (mostly means that the pipeline is not configured)        | no       | false   |
 | GITLAB_PIPELINE_CACHE_TTL_SECONDS | int     | Expire after write time in seconds for pipelines (cache)                                               | no       | 10      |
 | GITLAB_BRANCH_CACHE_TTL_SECONDS   | int     | Expire after write time in seconds for branches (cache)                                                | no       | 60      |
+| GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int     | Expire after write time in seconds for schedules (cache)                                               | no       | 300     |
 
 <br />
 
 ## 🧐 Why?
 
-At the moment there is no overview of all pipeline statuses within Gitlab, so you might not be aware of a failed
+At the moment there is no **global** overview of all pipelines/schedules within Gitlab, so you might not be aware of a failed
 pipeline somewhere in Gitlab.
 
-This dashboard is supposed to give you a `readonly` overview of all pipelines (configurable) within a Gitlab server.
-Maybe more functionality is there to come later.
+This dashboard is supposed to give you a `readonly` overview of all pipelines/schedules (configurable) within a Gitlab server.

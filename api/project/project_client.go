@@ -28,24 +28,24 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
 	}
 
 	capacity := response.TotalPages - 1
-	result := make(chan []*model.Project, capacity)
+	chn := make(chan []*model.Project, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getProjectsByPage(groupId, page, result)
+		go c.getProjectsByPage(groupId, page, chn)
 	}
 
 	for i := 0; i < capacity; i++ {
-		projects = append(projects, <-result...)
+		projects = append(projects, <-chn...)
 	}
 
-	close(result)
+	close(chn)
 
 	return projects
 }
 
-func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, result chan<- []*model.Project) {
+func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, chn chan<- []*model.Project) {
 	projects, _, _ := c.client.ListGroupProjects(groupId, c.createOptions(pageNumber))
-	result <- projects
+	chn <- projects
 }
 
 func (c *ProjectClientImpl) createOptions(pageNumber int) *gitlab.ListGroupProjectsOptions {

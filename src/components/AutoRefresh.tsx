@@ -32,7 +32,9 @@ export default function AutoRefresh({
   })
 
   useEffect(() => {
-    if (refreshInterval === '') return
+    if (!refreshInterval) return
+
+    refetch()
 
     const i = setInterval(() => !disabled && refetch(), Number(refreshInterval) * 1000)
     return () => clearInterval(i)
@@ -50,7 +52,9 @@ export default function AutoRefresh({
         <NativeSelect
           value={refreshInterval}
           disabled={disabled}
-          onChange={({ currentTarget }) => setRefreshInterval(currentTarget.value)}
+          onChange={({ currentTarget }) => {
+            setRefreshInterval(currentTarget.value)
+          }}
           data={[
             { label: 'off', value: '' },
             { label: '5s', value: '5' },

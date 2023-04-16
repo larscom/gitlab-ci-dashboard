@@ -1,15 +1,15 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useBranches } from './use-branches'
 
-import { BranchPipeline } from '$models/branch-pipeline'
-import { createBranchWithPipeline } from '$test/objects'
+import { Branch } from '$models/branch'
+import { createBranch } from '$test/objects'
 import { createWrapper } from '$test/react-query'
 import { vi } from 'vitest'
 
 describe('useBranches', () => {
   it('should fetch branches', async () => {
     const projectId = 123
-    const branches: BranchPipeline[] = [createBranchWithPipeline('test')]
+    const branches: Branch[] = [createBranch('test')]
 
     global.fetch = vi
       .fn()

@@ -1,17 +1,19 @@
 import { GroupId } from '$models/group'
 import { Status } from '$models/pipeline'
-import { ProjectPipeline } from '$models/project-pipeline'
+import { Project } from '$models/project'
 import { useQuery } from 'react-query'
 
-export const useProjects = (groupId: GroupId) => {
+export const useProjects = (groupId?: GroupId) => {
   const url = `${location.origin}/api/groups/${groupId}/projects`
-  return useQuery<Map<Status, ProjectPipeline[]>>(
+  return useQuery<Map<Status, Project[]>>(
     url,
     () =>
-      window
-        .fetch(url)
-        .then((r) => r.json())
-        .then((r) => new Map(Object.entries(r)) as Map<Status, ProjectPipeline[]>),
+      groupId
+        ? window
+            .fetch(url)
+            .then((r) => r.json())
+            .then((r) => new Map(Object.entries(r)) as Map<Status, Project[]>)
+        : new Map(),
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,

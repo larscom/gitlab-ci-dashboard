@@ -1,4 +1,4 @@
-import { ProjectPipeline } from '$models/project-pipeline'
+import { Project } from '$models/project'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
 import { NodeExpandOutlined } from '@ant-design/icons'
@@ -10,12 +10,12 @@ import ProjectRowExpansion from './ProjectRowExpansion'
 const PAGE_SIZE = 10
 
 interface Props {
-  projects: ProjectPipeline[]
+  projects: Project[]
 }
-export default function ProjectsWithPipelineTable({ projects }: Props) {
+export default function ProjectTable({ projects }: Props) {
   const [page, setPage] = useState(1)
   const [sortedProjects, setSortedProjects] = useState(
-    sortRecords(projects, ['project', 'name'], 'asc').slice(0, PAGE_SIZE)
+    sortRecords(projects, ['name'], 'asc').slice(0, PAGE_SIZE)
   )
 
   useEffect(() => setPage(1), [projects])
@@ -23,13 +23,12 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
   useEffect(() => {
     const from = (page - 1) * PAGE_SIZE
     const to = from + PAGE_SIZE
-    setSortedProjects(sortRecords(projects, ['project', 'name'], 'asc').slice(from, to))
+    setSortedProjects(sortRecords(projects, ['name'], 'asc').slice(from, to))
   }, [page, projects])
 
   return (
     <Box>
       <DataTable
-        idAccessor="project.id"
         records={sortedProjects}
         totalRecords={projects.length}
         recordsPerPage={PAGE_SIZE}
@@ -37,62 +36,59 @@ export default function ProjectsWithPipelineTable({ projects }: Props) {
         onPageChange={setPage}
         columns={[
           {
-            accessor: 'project.id',
+            accessor: 'id',
             title: 'Id'
           },
           {
-            accessor: 'project.name',
+            accessor: 'name',
             title: 'Name'
           },
           {
-            accessor: 'project.default_branch',
+            accessor: 'default_branch',
             title: 'Branch'
           },
           {
-            accessor: 'project.topics',
+            accessor: 'topics',
             title: 'Topics',
-            render({ project }) {
+            render({ topics }) {
               return (
                 <Text className="lowercase">
-                  {project.topics.length ? project.topics.join(',') : '-'}
+                  {topics.length ? topics.join(',') : '-'}
                 </Text>
               )
             }
           },
           {
-            accessor: 'pipeline.source',
+            accessor: 'latest_pipeline.source',
             title: 'Source',
-            render({ pipeline }) {
-              return <Text>{pipeline?.source || '-'}</Text>
+            render({ latest_pipeline }) {
+              return <Text>{latest_pipeline?.source || '-'}</Text>
             }
           },
           {
-            accessor: 'pipeline.updatedAt',
-            title: 'Updated',
-            render({ pipeline }) {
-              const updatedAt = pipeline?.updated_at
+            accessor: 'latest_pipeline.updated_at',
+            title: 'Last Run',
+            render({ latest_pipeline }) {
+              const updatedAt = latest_pipeline?.updated_at
               const dateTime = updatedAt ? formatDateTime(updatedAt) : undefined
               return <Text>{dateTime || '-'}</Text>
             }
           },
           {
             accessor: '',
-            render({ project, pipeline }) {
+            render({ web_url, default_branch, latest_pipeline }) {
               return (
                 <Group>
                   <ActionIcon
                     onClick={(e) => {
                       e.stopPropagation()
-                      pipeline
-                        ? window.open(pipeline.web_url, '_blank')
-                        : window.open(`${project.web_url}/-/pipelines`, '_blank')
+                      latest_pipeline
+                        ? window.open(latest_pipeline.web_url, '_blank')
+                        : window.open(`${web_url}/-/pipelines`, '_blank')
                     }}
                     variant="transparent"
                   >
-                    <Tooltip
-                      openDelay={250}
-                      label={`Show pipeline (${project.default_branch})`}
-                    >
+                    <Tooltip openDelay={250} label={`Show pipeline (${default_branch})`}>
                       <NodeExpandOutlined />
                     </Tooltip>
                   </ActionIcon>

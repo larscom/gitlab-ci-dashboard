@@ -1,15 +1,15 @@
 import SearchField from '$components/SearchField'
 import { GroupId } from '$models/group'
-import { ProjectPipeline } from '$models/project-pipeline'
+import { Project } from '$models/project'
 import { Chip, Group } from '@mantine/core'
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
 
 interface Props {
-  projects: ProjectPipeline[]
+  projects: Project[]
   disabled?: boolean
   filterText: string
   filterTopics: string[]
-  groupId: GroupId
+  groupId?: GroupId
   setFilterText: Dispatch<SetStateAction<string>>
   setFilterTopics: Dispatch<SetStateAction<string[]>>
 }
@@ -32,7 +32,7 @@ export default function ProjectFilter({
     groupIdRef.current = groupId
   }, [groupId, setFilterText, setFilterTopics])
 
-  const topics = new Set(Array.from(projects).flatMap(({ project }) => project.topics))
+  const topics = new Set(Array.from(projects).flatMap(({ topics }) => topics))
 
   const chips = Array.from(topics)
     .sort((a, b) => a.localeCompare(b))
