@@ -26,6 +26,7 @@ func TestServerWithConfig(t *testing.T) {
 		projectClient:  mock.NewMockProjectClient(),
 		pipelineClient: mock.NewMockPipelineClient(),
 		branchClient:   mock.NewMockBranchClient(),
+		scheduleClient: mock.NewMockScheduleClient(),
 	}
 
 	config := createConfig(t)
@@ -87,6 +88,21 @@ func TestServerWithConfig(t *testing.T) {
 		assert.Len(t, branchesWithPipeline, 1)
 		assert.Equal(t, "branch-1", branchesWithPipeline[0].Name)
 		assert.Equal(t, "success", branchesWithPipeline[0].LatestPipeline.Status)
+	})
+
+	t.Run("TestSchedulesEndpoint", func(t *testing.T) {
+		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups/333/schedules", nil), -1)
+		body, _ := io.ReadAll(resp.Body)
+
+		schedules := make([]model.Schedule, 0)
+		err := json.Unmarshal(body, &schedules)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
+		assert.Len(t, schedules, 1)
+		assert.Equal(t, 777, schedules[0].Id)
 	})
 
 	t.Run("TestMetricsEndpoint", func(t *testing.T) {
