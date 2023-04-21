@@ -1,6 +1,7 @@
 const LANGUAGES = [...(navigator?.languages || ['en-US'])]
 
-export const formatDateTime = (dateTime: string, timeZone = 'Etc/UTC') => {
+export const formatDateTime = (dateTime: string) => {
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
   return new Intl.DateTimeFormat(LANGUAGES, {
     month: 'short',
     day: 'numeric',

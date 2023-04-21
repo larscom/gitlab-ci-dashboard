@@ -71,7 +71,7 @@ export default function BranchTable({ branches }: Props) {
           },
           {
             accessor: 'latest_pipeline.updated_at',
-            title: 'Updated',
+            title: 'Last Run',
             sortable: true,
             render({ latest_pipeline }) {
               const updatedAt = latest_pipeline?.updated_at
