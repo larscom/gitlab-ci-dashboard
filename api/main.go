@@ -27,7 +27,7 @@ func main() {
 		group.NewGroupClient(client, config),
 		pipeline.NewPipelineClient(client),
 		branch.NewBranchClient(client),
-		schedule.NewScheduleClient(client, config),
+		schedule.NewScheduleClient(client),
 	)
 	caches := server.NewCaches(config, clients)
 	bootstrap := server.NewBootstrap(config, client, caches, clients)

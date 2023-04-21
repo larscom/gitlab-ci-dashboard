@@ -2,7 +2,6 @@ package schedule
 
 import (
 	"github.com/larscom/gitlab-ci-dashboard/client"
-	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/xanzy/go-gitlab"
 )
@@ -13,11 +12,10 @@ type ScheduleClient interface {
 
 type ScheduleClientImpl struct {
 	client client.GitlabClient
-	config *config.GitlabConfig
 }
 
-func NewScheduleClient(client client.GitlabClient, config *config.GitlabConfig) ScheduleClient {
-	return &ScheduleClientImpl{client, config}
+func NewScheduleClient(client client.GitlabClient) ScheduleClient {
+	return &ScheduleClientImpl{client}
 }
 
 func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []*model.Schedule {

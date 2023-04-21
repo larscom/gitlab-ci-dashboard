@@ -98,6 +98,19 @@ func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGr
 	return make([]*model.Project, 0), nil, nil
 }
 
-func (g *MockGitlabClient) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]*model.Schedule, *gitlab.Response, error) {
+func (c *MockGitlabClient) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]*model.Schedule, *gitlab.Response, error) {
+	if c.err != nil {
+		return make([]*model.Schedule, 0), nil, c.err
+	}
+
+	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}
+
+	if projectId == 1 && options.Page == 1 && options.PerPage == 100 {
+		return []*model.Schedule{{Id: 1}, {Id: 2}}, response, nil
+	}
+	if projectId == 1 && options.Page == 2 && options.PerPage == 100 {
+		return []*model.Schedule{{Id: 3}, {Id: 4}}, response, nil
+	}
+
 	return make([]*model.Schedule, 0), nil, nil
 }
