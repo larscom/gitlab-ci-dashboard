@@ -12,15 +12,11 @@ jobs:
       TZ: Europe/Amsterdam
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run test:ci
+          node-version: 18
+      - run: npm ci --ignore-scripts --legacy-peer-deps
+      - run: npm run test:ci
 
   test_api:
     runs-on: ubuntu-latest

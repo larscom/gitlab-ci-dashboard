@@ -66,15 +66,15 @@ export default function ScheduleTable({ schedules }: Props) {
             accessor: 'next_run_at',
             title: 'Next Run',
             sortable: true,
-            render({ next_run_at, cron_timezone }) {
+            render({ next_run_at }) {
               const now = Date.now()
               const next = new Date(next_run_at).getTime()
               const diffHours = Math.round((next - now) / 3600000)
 
-              const displayTime = formatDateTime(next_run_at, cron_timezone)
+              const displayTime = formatDateTime(next_run_at)
 
               return (
-                <Tooltip openDelay={250} label={`${displayTime} [${cron_timezone}]`}>
+                <Tooltip openDelay={250} label={displayTime}>
                   <Text>in {diffHours} hours</Text>
                 </Tooltip>
               )
