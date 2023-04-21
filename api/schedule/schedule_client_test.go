@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/mock"
@@ -31,4 +32,12 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 	assert.Equal(t, 2, schedules[1].Id)
 	assert.Equal(t, 3, schedules[2].Id)
 	assert.Equal(t, 4, schedules[3].Id)
+}
+
+func TestGetPipelineSchedulesErrorEmptySlice(t *testing.T) {
+	client := NewScheduleClient(mock.NewMockGitlabClient(1, fmt.Errorf("ERROR")))
+
+	schedules := client.GetPipelineSchedules(1)
+
+	assert.Len(t, schedules, 0)
 }
