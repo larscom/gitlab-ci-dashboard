@@ -10,10 +10,10 @@ export type ProjectId = number
 export interface Project {
   id: ProjectId
   name: string
-  description?: string
   default_branch: string
   web_url: string
-  namespace: Namespace
   topics: string[]
+  description?: string
+  namespace?: Namespace
   latest_pipeline?: Pipeline
 }

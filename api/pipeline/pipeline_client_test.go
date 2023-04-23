@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/mock"
@@ -28,6 +29,15 @@ func TestGetLatestPipelineBySourceError(t *testing.T) {
 
 	pipeline, err := client.GetLatestPipelineBySource(0, "master", "schedule")
 	assert.Error(t, err)
+	assert.Nil(t, pipeline)
+}
+
+func TestGetLatestPipelineBySourceErrorNotFound(t *testing.T) {
+	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil))
+
+	pipeline, err := client.GetLatestPipelineBySource(1, "master", "web")
+	assert.Error(t, err)
+	assert.Equal(t, fmt.Errorf("no pipelines found for project: 1 and branch: master"), err)
 	assert.Nil(t, pipeline)
 }
 

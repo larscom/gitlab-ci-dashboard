@@ -77,6 +77,8 @@ func (c *MockGitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetL
 func (c *MockGitlabClient) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]*model.Pipeline, *gitlab.Response, error) {
 	if projectId == 1 && *options.Ref == "master" && *options.Source == "schedule" {
 		return []*model.Pipeline{{Id: 456}}, nil, nil
+	} else if *options.Source == "web" {
+		return make([]*model.Pipeline, 0), nil, nil
 	}
 	return nil, nil, fmt.Errorf("ERROR")
 }
