@@ -4,7 +4,6 @@ import { useBranches } from './use-branches'
 import { Branch } from '$models/branch'
 import { createBranch } from '$test/objects'
 import { createWrapper } from '$test/react-query'
-import { vi } from 'vitest'
 
 describe('useBranches', () => {
   it('should fetch branches', async () => {

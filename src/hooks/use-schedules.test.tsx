@@ -2,7 +2,6 @@ import { renderHook, waitFor } from '@testing-library/react'
 
 import { createSchedule } from '$test/objects'
 import { createWrapper } from '$test/react-query'
-import { vi } from 'vitest'
 import { useSchedules } from './use-schedules'
 
 describe('useSchedules', () => {

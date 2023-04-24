@@ -3,7 +3,6 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { Group } from '$models/group'
 import { createGroup } from '$test/objects'
 import { createWrapper } from '$test/react-query'
-import { vi } from 'vitest'
 import { useGroups } from './use-groups'
 
 describe('useGroups', () => {
