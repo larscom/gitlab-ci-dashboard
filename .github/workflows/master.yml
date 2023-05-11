@@ -1,9 +1,16 @@
 name: master
 
-'on':
+on:
   push:
+    tags:
+      - '*.*.*'
     branches:
       - master
+  pull_request:
+    branches:
+      - master
+permissions:
+  packages: write
 
 jobs:
   test_frontend:
@@ -18,6 +25,7 @@ jobs:
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: npm run test:ci
       - uses: codecov/codecov-action@v3
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage-final.json
@@ -38,24 +46,68 @@ jobs:
           go test -v -coverprofile=cover.out -covermode=atomic ./.../
           go tool cover -html=cover.out -o cover.html
       - uses: codecov/codecov-action@v3
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./api/cover.out
           flags: unittests
           verbose: true
 
-  build_and_publish:
+  container-build:
     needs: [test_frontend, test_api]
+    name: Create container image
     runs-on: ubuntu-latest
     steps:
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-      - uses: docker/login-action@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+            docker.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=semver,pattern={{version}}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/build-push-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        if: github.event_name != 'pull_request'
         with:
-          push: true
-          tags: larscom/gitlab-ci-dashboard:master
-          build-args: VERSION_ARG=${{ github.sha }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION_ARG=v${{ github.ref_name }}
+
+      - uses: peter-evans/dockerhub-description@v3
+        if: github.event_name != 'pull_request'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ github.repository }}
+          short-description: ${{ github.event.repository.description }}
