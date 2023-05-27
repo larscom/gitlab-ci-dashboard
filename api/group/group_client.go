@@ -18,7 +18,10 @@ type GroupClientImpl struct {
 }
 
 func NewGroupClient(client client.GitlabClient, config *config.GitlabConfig) GroupClient {
-	return &GroupClientImpl{client, config}
+	return &GroupClientImpl{
+		client,
+		config,
+	}
 }
 
 func (c *GroupClientImpl) GetGroupsById(ids []int) []*model.Group {

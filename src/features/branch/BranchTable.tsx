@@ -63,7 +63,7 @@ export default function BranchTable({ branches }: Props) {
           },
           {
             accessor: 'latest_pipeline.source',
-            title: 'Source',
+            title: 'Trigger',
             sortable: true,
             render({ latest_pipeline }) {
               return <Text>{latest_pipeline?.source || '-'}</Text>

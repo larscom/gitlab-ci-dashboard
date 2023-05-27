@@ -18,7 +18,9 @@ type PipelineClientImpl struct {
 }
 
 func NewPipelineClient(client client.GitlabClient) PipelineClient {
-	return &PipelineClientImpl{client}
+	return &PipelineClientImpl{
+		client,
+	}
 }
 
 func (c *PipelineClientImpl) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {

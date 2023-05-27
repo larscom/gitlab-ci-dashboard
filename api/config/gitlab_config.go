@@ -50,14 +50,14 @@ func NewGitlabConfig() *GitlabConfig {
 }
 
 func parseInt(lookupEnv string, defaultValue int) int {
-	intString, found := os.LookupEnv(lookupEnv)
+	s, found := os.LookupEnv(lookupEnv)
 	if !found {
 		return defaultValue
 	}
 
-	i, err := strconv.Atoi(intString)
+	i, err := strconv.Atoi(s)
 	if err != nil {
-		log.Panicf("%s contains: '%s' which is not an int", lookupEnv, intString)
+		log.Panicf("%s contains: '%s' which is not an int", lookupEnv, s)
 	}
 
 	log.Printf("%s = %d\n", lookupEnv, i)
@@ -66,13 +66,12 @@ func parseInt(lookupEnv string, defaultValue int) int {
 }
 
 func parseBool(lookupEnv string, defaultValue bool) bool {
-	boolString, found := os.LookupEnv(lookupEnv)
+	s, found := os.LookupEnv(lookupEnv)
 	if !found {
 		return defaultValue
 	}
 
-	b, err := strconv.ParseBool(boolString)
-
+	b, err := strconv.ParseBool(s)
 	if err != nil {
 		log.Panicf("%s contains: '%v' which is not a bool", lookupEnv, b)
 	}
@@ -83,13 +82,13 @@ func parseBool(lookupEnv string, defaultValue bool) bool {
 }
 
 func parseIntSlice(lookupEnv string, defaultValue []int) []int {
-	str, found := os.LookupEnv(lookupEnv)
+	s, found := os.LookupEnv(lookupEnv)
 	if !found {
 		return defaultValue
 	}
 
 	ints := make([]int, 0)
-	strings := strings.Split(str, ",")
+	strings := strings.Split(s, ",")
 
 	for _, i := range strings {
 		val, err := strconv.Atoi(i)

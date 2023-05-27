@@ -15,7 +15,9 @@ type BranchClientImpl struct {
 }
 
 func NewBranchClient(client client.GitlabClient) BranchClient {
-	return &BranchClientImpl{client}
+	return &BranchClientImpl{
+		client,
+	}
 }
 
 func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {

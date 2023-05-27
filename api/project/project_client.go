@@ -15,7 +15,9 @@ type ProjectClientImpl struct {
 }
 
 func NewProjectClient(client client.GitlabClient) ProjectClient {
-	return &ProjectClientImpl{client}
+	return &ProjectClientImpl{
+		client,
+	}
 }
 
 func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {

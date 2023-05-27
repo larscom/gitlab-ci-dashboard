@@ -15,7 +15,9 @@ type ScheduleClientImpl struct {
 }
 
 func NewScheduleClient(client client.GitlabClient) ScheduleClient {
-	return &ScheduleClientImpl{client}
+	return &ScheduleClientImpl{
+		client,
+	}
 }
 
 func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []*model.Schedule {

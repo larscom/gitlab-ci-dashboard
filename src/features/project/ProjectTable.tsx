@@ -60,7 +60,7 @@ export default function ProjectTable({ projects }: Props) {
           },
           {
             accessor: 'latest_pipeline.source',
-            title: 'Source',
+            title: 'Trigger',
             render({ latest_pipeline }) {
               return <Text>{latest_pipeline?.source || '-'}</Text>
             }
