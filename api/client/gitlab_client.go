@@ -146,12 +146,14 @@ func (g *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.
 func handleError[T any](value T, r *gitlab.Response, err error) (T, *gitlab.Response, error) {
 	logger := log.Default()
 
-	logger.Println("******************************************************")
 	if r == nil {
+		logger.Println("******************************************************")
 		logger.Printf("no response from gitlab, err: %v\n", err)
+		logger.Println("******************************************************")
 		return value, nil, err
 	}
 
+	logger.Println("******************************************************")
 	switch r.StatusCode {
 	case fiber.StatusUnauthorized:
 		logger.Println("unauthorized: token invalid/expired")
