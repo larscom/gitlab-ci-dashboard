@@ -18,6 +18,7 @@ type GitlabClient interface {
 	GetGroup(int, *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error)
 
 	GetLatestPipeline(int, *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error)
+
 	ListProjectPipelines(int, *gitlab.ListProjectPipelinesOptions) ([]*model.Pipeline, *gitlab.Response, error)
 
 	ListGroupProjects(int, *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error)
@@ -32,18 +33,15 @@ type GitlabClientImpl struct {
 func NewGitlabClient(config *config.GitlabConfig) GitlabClient {
 	client, err := gitlab.NewClient(config.GitlabToken, gitlab.WithBaseURL(config.GitlabUrl))
 	if err != nil {
-		log.Panicf("failed to create gitlab client: %v\n", err)
+		log.Panicf("failed to create gitlab client: %v", err)
 	}
 	return &GitlabClientImpl{client}
 }
 
 func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]*model.Branch, *gitlab.Response, error) {
 	branches, response, err := c.client.Branches.ListBranches(projectId, options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return make([]*model.Branch, 0), response, err
+		return handleError(make([]*model.Branch, 0), response, err)
 	}
 
 	b, err := util.Convert(branches, make([]*model.Branch, 0))
@@ -57,11 +55,8 @@ func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranc
 
 func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]*model.Group, *gitlab.Response, error) {
 	groups, response, err := c.client.Groups.ListGroups(options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return make([]*model.Group, 0), response, err
+		return handleError(make([]*model.Group, 0), response, err)
 	}
 
 	g, err := util.Convert(groups, make([]*model.Group, 0))
@@ -75,11 +70,8 @@ func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]*mod
 
 func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
 	group, response, err := c.client.Groups.GetGroup(groupId, options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return nil, response, err
+		return handleError[*model.Group](nil, response, err)
 	}
 
 	g, err := util.Convert(group, new(model.Group))
@@ -93,11 +85,8 @@ func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions
 
 func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
 	pipeline, response, err := c.client.Pipelines.GetLatestPipeline(projectId, options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return nil, response, err
+		return handleError[*model.Pipeline](nil, response, err)
 	}
 
 	p, err := util.Convert(pipeline, new(model.Pipeline))
@@ -111,11 +100,8 @@ func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetL
 
 func (c *GitlabClientImpl) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]*model.Pipeline, *gitlab.Response, error) {
 	pipelines, response, err := c.client.Pipelines.ListProjectPipelines(projectId, options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return make([]*model.Pipeline, 0), response, err
+		return handleError(make([]*model.Pipeline, 0), response, err)
 	}
 
 	p, err := util.Convert(pipelines, make([]*model.Pipeline, 0))
@@ -129,11 +115,8 @@ func (c *GitlabClientImpl) ListProjectPipelines(projectId int, options *gitlab.L
 
 func (c *GitlabClientImpl) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]*model.Project, *gitlab.Response, error) {
 	projects, response, err := c.client.Groups.ListGroupProjects(groupId, options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return make([]*model.Project, 0), response, err
+		return handleError(make([]*model.Project, 0), response, err)
 	}
 
 	p, err := util.Convert(projects, make([]*model.Project, 0))
@@ -147,11 +130,8 @@ func (c *GitlabClientImpl) ListGroupProjects(groupId int, options *gitlab.ListGr
 
 func (g *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]*model.Schedule, *gitlab.Response, error) {
 	schedules, response, err := g.client.PipelineSchedules.ListPipelineSchedules(projectId, options)
-	if response != nil && response.StatusCode == fiber.StatusUnauthorized {
-		log.Panicln(err)
-	}
 	if err != nil {
-		return make([]*model.Schedule, 0), response, err
+		return handleError(make([]*model.Schedule, 0), response, err)
 	}
 
 	p, err := util.Convert(schedules, make([]*model.Schedule, 0))
@@ -161,4 +141,28 @@ func (g *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.
 	}
 
 	return p, response, err
+}
+
+func handleError[T any](value T, r *gitlab.Response, err error) (T, *gitlab.Response, error) {
+	logger := log.Default()
+
+	logger.Println("******************************************************")
+	if r == nil {
+		logger.Printf("no response from gitlab, err: %v\n", err)
+		return value, nil, err
+	}
+
+	switch r.StatusCode {
+	case fiber.StatusUnauthorized:
+		logger.Println("unauthorized: token invalid/expired")
+	case fiber.StatusForbidden:
+		logger.Println("forbidden: token has invalid permissions")
+	case fiber.StatusNotFound:
+		logger.Println("not found: requested resource can't be found")
+	default:
+		logger.Printf("invalid response from gitlab, err: %v\n", err)
+	}
+	logger.Println("******************************************************")
+
+	return value, r, err
 }
