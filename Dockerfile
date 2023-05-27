@@ -7,7 +7,7 @@ COPY . .
 
 RUN npm ci --legacy-peer-deps --ignore-scripts && npm run build
 
-FROM golang:1.20.2-alpine AS golang
+FROM golang:1.20.3-alpine AS golang
 WORKDIR /builder
 
 COPY api ./

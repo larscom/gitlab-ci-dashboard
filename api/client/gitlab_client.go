@@ -153,18 +153,22 @@ func handleError[T any](value T, r *gitlab.Response, err error) (T, *gitlab.Resp
 		return value, nil, err
 	}
 
-	logger.Println("******************************************************")
 	switch r.StatusCode {
 	case fiber.StatusUnauthorized:
+		logger.Println("******************************************************")
 		logger.Println("unauthorized: token invalid/expired")
+		logger.Println("******************************************************")
 	case fiber.StatusForbidden:
-		logger.Println("forbidden: token has invalid permissions")
+		// do nothing
 	case fiber.StatusNotFound:
+		logger.Println("******************************************************")
 		logger.Println("not found: requested resource can't be found")
+		logger.Println("******************************************************")
 	default:
+		logger.Println("******************************************************")
 		logger.Printf("invalid response from gitlab, err: %v\n", err)
+		logger.Println("******************************************************")
 	}
-	logger.Println("******************************************************")
 
 	return value, r, err
 }
