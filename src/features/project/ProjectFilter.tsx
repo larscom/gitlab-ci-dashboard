@@ -1,7 +1,7 @@
 import SearchField from '$components/SearchField'
 import { GroupId } from '$models/group'
 import { Project } from '$models/project'
-import { Chip, Group } from '@mantine/core'
+import { Chip, Group, Stack } from '@mantine/core'
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
 
 interface Props {
@@ -43,16 +43,18 @@ export default function ProjectFilter({
     ))
 
   return (
-    <Group>
+    <Stack align="flex-start">
       <SearchField
         placeholder="Search projects"
         disabled={disabled}
         value={filterText}
         onChange={setFilterText}
       />
-      <Chip.Group multiple value={filterTopics} onChange={setFilterTopics}>
-        {chips}
-      </Chip.Group>
-    </Group>
+      <Group>
+        <Chip.Group multiple value={filterTopics} onChange={setFilterTopics}>
+          {chips}
+        </Chip.Group>
+      </Group>
+    </Stack>
   )
 }
