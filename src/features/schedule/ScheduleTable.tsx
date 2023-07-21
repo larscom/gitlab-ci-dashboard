@@ -1,3 +1,4 @@
+import { Status } from '$models/pipeline'
 import { Schedule } from '$models/schedule'
 import { formatDateTime } from '$util/date-format'
 import { sortRecords } from '$util/sort-records'
@@ -77,7 +78,7 @@ export default function ScheduleTable({ schedules }: Props) {
             accessor: 'next_run_at',
             title: 'Next Run',
             sortable: true,
-            render({ next_run_at }) {
+            render({ next_run_at, pipeline_status }) {
               const now = Date.now()
               const next = new Date(next_run_at).getTime()
               const displayTime = formatDateTime(next_run_at)
@@ -85,12 +86,19 @@ export default function ScheduleTable({ schedules }: Props) {
               const diffHours = Math.round((next - now) / 3600000)
               const diffMinutes = () => (Math.round(next - now) / (1000 * 60)) | 0
 
-              return (
-                <Tooltip openDelay={250} label={displayTime}>
+              const render = () =>
+                pipeline_status === Status.RUNNING ? (
+                  <Text>now</Text>
+                ) : (
                   <Text>
                     in {diffHours > 0 ? diffHours : diffMinutes()}
                     {diffHours > 0 ? ' hours' : ' minutes'}
                   </Text>
+                )
+
+              return (
+                <Tooltip openDelay={250} label={displayTime}>
+                  {render()}
                 </Tooltip>
               )
             }
