@@ -63,19 +63,34 @@ export default function ScheduleTable({ schedules }: Props) {
             }
           },
           {
+            accessor: 'project.topics',
+            title: 'Topics',
+            render({ project: { topics } }) {
+              return (
+                <Text className="lowercase">
+                  {topics.length ? topics.join(',') : '-'}
+                </Text>
+              )
+            }
+          },
+          {
             accessor: 'next_run_at',
             title: 'Next Run',
             sortable: true,
             render({ next_run_at }) {
               const now = Date.now()
               const next = new Date(next_run_at).getTime()
-              const diffHours = Math.round((next - now) / 3600000)
-
               const displayTime = formatDateTime(next_run_at)
+
+              const diffHours = Math.round((next - now) / 3600000)
+              const diffMinutes = () => (Math.round(next - now) / (1000 * 60)) | 0
 
               return (
                 <Tooltip openDelay={250} label={displayTime}>
-                  <Text>in {diffHours} hours</Text>
+                  <Text>
+                    in {diffHours > 0 ? diffHours : diffMinutes()}
+                    {diffHours > 0 ? ' hours' : ' minutes'}
+                  </Text>
                 </Tooltip>
               )
             }

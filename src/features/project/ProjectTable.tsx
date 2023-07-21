@@ -36,10 +36,6 @@ export default function ProjectTable({ projects }: Props) {
         onPageChange={setPage}
         columns={[
           {
-            accessor: 'id',
-            title: 'Id'
-          },
-          {
             accessor: 'name',
             title: 'Name'
           },
