@@ -14,12 +14,12 @@ import (
 
 type MockScheduleService struct{}
 
-func (s *MockScheduleService) GetSchedules(groupId int) []model.Schedule {
+func (s *MockScheduleService) GetSchedules(groupId int) []*model.Schedule {
 	if groupId == 1 {
-		return []model.Schedule{{Id: 123}}
+		return []*model.Schedule{{Id: 123}}
 	}
 
-	return make([]model.Schedule, 0)
+	return make([]*model.Schedule, 0)
 }
 
 func TestHandleGetSchedules(t *testing.T) {
