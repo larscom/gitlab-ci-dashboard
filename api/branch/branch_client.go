@@ -7,7 +7,7 @@ import (
 )
 
 type BranchClient interface {
-	GetBranches(projectId int) []*model.Branch
+	GetBranches(projectId int) []model.Branch
 }
 
 type BranchClientImpl struct {
@@ -20,7 +20,7 @@ func NewBranchClient(client client.GitlabClient) BranchClient {
 	}
 }
 
-func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {
+func (c *BranchClientImpl) GetBranches(projectId int) []model.Branch {
 	branches, response, err := c.client.ListBranches(projectId, c.createOptions(1))
 	if err != nil {
 		return branches
@@ -30,7 +30,7 @@ func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {
 	}
 
 	capacity := response.TotalPages - 1
-	chn := make(chan []*model.Branch, capacity)
+	chn := make(chan []model.Branch, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		go c.getBranchesByPage(projectId, page, chn)
@@ -45,7 +45,7 @@ func (c *BranchClientImpl) GetBranches(projectId int) []*model.Branch {
 	return branches
 }
 
-func (c *BranchClientImpl) getBranchesByPage(projectId int, pageNumber int, chn chan<- []*model.Branch) {
+func (c *BranchClientImpl) getBranchesByPage(projectId int, pageNumber int, chn chan<- []model.Branch) {
 	branches, _, _ := c.client.ListBranches(projectId, c.createOptions(pageNumber))
 	chn <- branches
 }

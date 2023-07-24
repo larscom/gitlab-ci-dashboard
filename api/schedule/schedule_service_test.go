@@ -10,22 +10,22 @@ import (
 
 func TestGetSchedules(t *testing.T) {
 	pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-	scheduleLoader := cache.New[model.ProjectId, []*model.Schedule]()
-	projectLoader := cache.New[model.GroupId, []*model.Project]()
+	scheduleLoader := cache.New[model.ProjectId, []model.Schedule]()
+	projectLoader := cache.New[model.GroupId, []model.Project]()
 
 	service := NewScheduleService(projectLoader, scheduleLoader, pipelineLatestLoader)
 	groupId := 1
 
 	projectId := 22
 	projectLoader.Put(model.GroupId(groupId),
-		[]*model.Project{
+		[]model.Project{
 			{Id: projectId, Name: "project-1"},
 		},
 	)
 
 	ref := "master"
 	source := "schedule"
-	scheduleLoader.Put(model.ProjectId(projectId), []*model.Schedule{{Id: 3, Ref: ref}, {Id: 4, Ref: "nope"}})
+	scheduleLoader.Put(model.ProjectId(projectId), []model.Schedule{{Id: 3, Ref: ref}, {Id: 4, Ref: "nope"}})
 
 	pipelineLatestLoader.Put(model.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
 

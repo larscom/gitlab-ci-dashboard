@@ -8,8 +8,8 @@ import (
 )
 
 type GroupClient interface {
-	GetGroups() []*model.Group
-	GetGroupsById(ids []int) []*model.Group
+	GetGroups() []model.Group
+	GetGroupsById(ids []int) []model.Group
 }
 
 type GroupClientImpl struct {
@@ -24,18 +24,18 @@ func NewGroupClient(client client.GitlabClient, config *config.GitlabConfig) Gro
 	}
 }
 
-func (c *GroupClientImpl) GetGroupsById(ids []int) []*model.Group {
+func (c *GroupClientImpl) GetGroupsById(ids []int) []model.Group {
 	chn := make(chan *model.Group, len(ids))
 
 	for _, groupId := range ids {
 		go c.getGroupById(groupId, chn)
 	}
 
-	groups := make([]*model.Group, 0)
+	groups := make([]model.Group, 0)
 	for range ids {
 		group := <-chn
 		if group != nil {
-			groups = append(groups, group)
+			groups = append(groups, *group)
 		}
 	}
 
@@ -44,7 +44,7 @@ func (c *GroupClientImpl) GetGroupsById(ids []int) []*model.Group {
 	return groups
 }
 
-func (c *GroupClientImpl) GetGroups() []*model.Group {
+func (c *GroupClientImpl) GetGroups() []model.Group {
 	groups, response, err := c.client.ListGroups(c.createOptions(1))
 	if err != nil {
 		return groups
@@ -54,7 +54,7 @@ func (c *GroupClientImpl) GetGroups() []*model.Group {
 	}
 
 	capacity := response.TotalPages - 1
-	chn := make(chan []*model.Group, capacity)
+	chn := make(chan []model.Group, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		go c.getGroupsByPage(page, chn)
@@ -69,7 +69,7 @@ func (c *GroupClientImpl) GetGroups() []*model.Group {
 	return groups
 }
 
-func (c *GroupClientImpl) getGroupsByPage(pageNumber int, chn chan<- []*model.Group) {
+func (c *GroupClientImpl) getGroupsByPage(pageNumber int, chn chan<- []model.Group) {
 	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
 	chn <- groups
 }

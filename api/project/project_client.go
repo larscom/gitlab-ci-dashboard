@@ -7,7 +7,7 @@ import (
 )
 
 type ProjectClient interface {
-	GetProjects(groupId int) []*model.Project
+	GetProjects(groupId int) []model.Project
 }
 
 type ProjectClientImpl struct {
@@ -20,7 +20,7 @@ func NewProjectClient(client client.GitlabClient) ProjectClient {
 	}
 }
 
-func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
+func (c *ProjectClientImpl) GetProjects(groupId int) []model.Project {
 	projects, response, err := c.client.ListGroupProjects(groupId, c.createOptions(1))
 	if err != nil {
 		return projects
@@ -30,7 +30,7 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
 	}
 
 	capacity := response.TotalPages - 1
-	chn := make(chan []*model.Project, capacity)
+	chn := make(chan []model.Project, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		go c.getProjectsByPage(groupId, page, chn)
@@ -45,7 +45,7 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []*model.Project {
 	return projects
 }
 
-func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, chn chan<- []*model.Project) {
+func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, chn chan<- []model.Project) {
 	projects, _, _ := c.client.ListGroupProjects(groupId, c.createOptions(pageNumber))
 	chn <- projects
 }

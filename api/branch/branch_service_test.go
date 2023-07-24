@@ -10,12 +10,12 @@ import (
 
 func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-	branchLoader := cache.New[model.ProjectId, []*model.Branch]()
+	branchLoader := cache.New[model.ProjectId, []model.Branch]()
 
 	projectId := 1
 	ref := "branch-1"
 
-	branchLoader.Put(model.ProjectId(projectId), []*model.Branch{{Name: ref}})
+	branchLoader.Put(model.ProjectId(projectId), []model.Branch{{Name: ref}})
 	pipelineLatestLoader.Put(model.NewPipelineKey(projectId, ref, nil), &model.Pipeline{Status: "success"})
 
 	service := NewBranchService(pipelineLatestLoader, branchLoader)

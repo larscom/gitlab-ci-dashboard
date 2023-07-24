@@ -13,13 +13,13 @@ type ProjectService interface {
 
 type ProjectServiceImpl struct {
 	config               *config.GitlabConfig
-	projectLoader        cache.Cache[model.GroupId, []*model.Project]
+	projectLoader        cache.Cache[model.GroupId, []model.Project]
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
 }
 
 func NewProjectService(
 	config *config.GitlabConfig,
-	projectLoader cache.Cache[model.GroupId, []*model.Project],
+	projectLoader cache.Cache[model.GroupId, []model.Project],
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
 ) ProjectService {
 	return &ProjectServiceImpl{config, projectLoader, pipelineLatestLoader}
@@ -29,14 +29,14 @@ func (s *ProjectServiceImpl) GetProjectsGroupedByStatus(groupId int) map[string]
 	projects, _ := s.projectLoader.Get(model.GroupId(groupId))
 
 	if len(s.config.ProjectSkipIds) > 0 {
-		projects = slices.Filter(projects, func(p *model.Project) bool {
+		projects = slices.Filter(projects, func(p model.Project) bool {
 			return !slices.Contains(s.config.ProjectSkipIds, p.Id)
 		})
 	}
 
 	chn := make(chan model.Project, len(projects))
 	for _, project := range projects {
-		go s.getLatestPipeline(*project, chn)
+		go s.getLatestPipeline(project, chn)
 	}
 
 	projectsGroupedByStatus := make(map[string][]model.Project)

@@ -45,7 +45,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		groups := make([]*model.Group, 0)
+		groups := make([]model.Group, 0)
 		err := json.Unmarshal(body, &groups)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -60,7 +60,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups/123/projects", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		projectsGroupedByStatus := make(map[string][]*model.Project)
+		projectsGroupedByStatus := make(map[string][]model.Project)
 		err := json.Unmarshal(body, &projectsGroupedByStatus)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -78,7 +78,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		branchesWithPipeline := make([]*model.Branch, 0)
+		branchesWithPipeline := make([]model.Branch, 0)
 		err := json.Unmarshal(body, &branchesWithPipeline)
 		if err != nil {
 			t.Fatal(err.Error())

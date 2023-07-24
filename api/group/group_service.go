@@ -8,7 +8,7 @@ import (
 )
 
 type GroupService interface {
-	GetGroups() []*model.Group
+	GetGroups() []model.Group
 }
 
 type GroupServiceImpl struct {
@@ -20,14 +20,14 @@ func NewGroupService(config *config.GitlabConfig, client GroupClient) GroupServi
 	return &GroupServiceImpl{config, client}
 }
 
-func (s *GroupServiceImpl) GetGroups() []*model.Group {
+func (s *GroupServiceImpl) GetGroups() []model.Group {
 	if len(s.config.GroupOnlyIds) > 0 {
 		return sortByName(s.client.GetGroupsById(s.config.GroupOnlyIds))
 	}
 	return sortByName(s.client.GetGroups())
 }
 
-func sortByName(groups []*model.Group) []*model.Group {
+func sortByName(groups []model.Group) []model.Group {
 	sort.SliceStable(groups[:], func(i, j int) bool {
 		return groups[i].Name < groups[j].Name
 	})

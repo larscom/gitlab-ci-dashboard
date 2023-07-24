@@ -8,6 +8,6 @@ func NewMockProjectClient() *MockProjectClient {
 	return &MockProjectClient{}
 }
 
-func (c *MockProjectClient) GetProjects(groupId int) []*model.Project {
-	return []*model.Project{{Name: "project-1"}}
+func (c *MockProjectClient) GetProjects(groupId int) []model.Project {
+	return []model.Project{{Name: "project-1"}}
 }

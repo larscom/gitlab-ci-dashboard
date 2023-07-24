@@ -11,12 +11,12 @@ type BranchService interface {
 
 type BranchServiceImpl struct {
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
-	branchLoader         cache.Cache[model.ProjectId, []*model.Branch]
+	branchLoader         cache.Cache[model.ProjectId, []model.Branch]
 }
 
 func NewBranchService(
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
-	branchLoader cache.Cache[model.ProjectId, []*model.Branch],
+	branchLoader cache.Cache[model.ProjectId, []model.Branch],
 ) BranchService {
 	return &BranchServiceImpl{pipelineLatestLoader, branchLoader}
 }
@@ -26,7 +26,7 @@ func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model
 
 	chn := make(chan model.Branch, len(branches))
 	for _, branch := range branches {
-		go s.getLatestPipeline(projectId, *branch, chn)
+		go s.getLatestPipeline(projectId, branch, chn)
 	}
 
 	result := make([]model.Branch, len(branches))

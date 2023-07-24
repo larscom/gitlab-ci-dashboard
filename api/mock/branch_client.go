@@ -8,6 +8,6 @@ func NewMockBranchClient() *MockBranchClient {
 	return &MockBranchClient{}
 }
 
-func (c *MockBranchClient) GetBranches(projectId int) []*model.Branch {
-	return []*model.Branch{{Name: "branch-1"}}
+func (c *MockBranchClient) GetBranches(projectId int) []model.Branch {
+	return []model.Branch{{Name: "branch-1"}}
 }

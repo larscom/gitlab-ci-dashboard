@@ -7,7 +7,7 @@ import (
 )
 
 type ScheduleClient interface {
-	GetPipelineSchedules(projectId int) []*model.Schedule
+	GetPipelineSchedules(projectId int) []model.Schedule
 }
 
 type ScheduleClientImpl struct {
@@ -20,7 +20,7 @@ func NewScheduleClient(client client.GitlabClient) ScheduleClient {
 	}
 }
 
-func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []*model.Schedule {
+func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []model.Schedule {
 	schedules, response, err := c.client.ListPipelineSchedules(projectId, c.createOptions(1))
 	if err != nil {
 		return schedules
@@ -30,7 +30,7 @@ func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []*model.Schedu
 	}
 
 	capacity := response.TotalPages - 1
-	chn := make(chan []*model.Schedule, capacity)
+	chn := make(chan []model.Schedule, capacity)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		go c.getSchedulesByPage(projectId, page, chn)
@@ -45,7 +45,7 @@ func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []*model.Schedu
 	return schedules
 }
 
-func (c *ScheduleClientImpl) getSchedulesByPage(projectId int, pageNumber int, chn chan<- []*model.Schedule) {
+func (c *ScheduleClientImpl) getSchedulesByPage(projectId int, pageNumber int, chn chan<- []model.Schedule) {
 	schedules, _, _ := c.client.ListPipelineSchedules(projectId, c.createOptions(pageNumber))
 	chn <- schedules
 }

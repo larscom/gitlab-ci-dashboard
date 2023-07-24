@@ -45,7 +45,7 @@ func (c *PipelineClientImpl) GetLatestPipelineBySource(projectId int, ref string
 	}
 
 	if len(pipelines) > 0 {
-		return pipelines[0], nil
+		return &pipelines[0], nil
 	}
 
 	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)

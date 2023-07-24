@@ -31,13 +31,13 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsGroupedByStatus", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []*model.Project]()
+		projectLoader := cache.New[model.GroupId, []model.Project]()
 		cfg := createConfig(t, make([]int, 0), false)
 
 		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
 
 		projectLoader.Put(model.GroupId(1),
-			[]*model.Project{
+			[]model.Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
 				{Id: 333, Name: "project-3", DefaultBranch: "main"},
@@ -78,12 +78,12 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsGroupedByStatusUnknown", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []*model.Project]()
+		projectLoader := cache.New[model.GroupId, []model.Project]()
 		cfg := createConfig(t, make([]int, 0), false)
 
 		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
 
-		projectLoader.Put(model.GroupId(1), []*model.Project{{Id: 111, Name: "project-1", DefaultBranch: "master"}})
+		projectLoader.Put(model.GroupId(1), []model.Project{{Id: 111, Name: "project-1", DefaultBranch: "master"}})
 
 		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master", nil), nil)
 
@@ -100,7 +100,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsGroupedByStatusHideUnknown", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []*model.Project]()
+		projectLoader := cache.New[model.GroupId, []model.Project]()
 
 		const hideUnknown = true
 		cfg := createConfig(t, make([]int, 0), hideUnknown)
@@ -108,7 +108,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
 
 		projectLoader.Put(model.GroupId(1),
-			[]*model.Project{
+			[]model.Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
 			},
@@ -128,7 +128,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsGroupedByStatusSkipProjectIds", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []*model.Project]()
+		projectLoader := cache.New[model.GroupId, []model.Project]()
 
 		skipProjectIds := []int{111, 222}
 		cfg := createConfig(t, skipProjectIds, false)
@@ -136,7 +136,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
 
 		projectLoader.Put(model.GroupId(1),
-			[]*model.Project{
+			[]model.Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
 				{Id: 333, Name: "project-3", DefaultBranch: "main"},

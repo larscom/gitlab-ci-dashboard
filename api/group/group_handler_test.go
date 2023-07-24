@@ -16,17 +16,17 @@ type MockGroupService struct {
 	empty bool
 }
 
-func (s *MockGroupService) GetGroups() []*model.Group {
+func (s *MockGroupService) GetGroups() []model.Group {
 	if s.empty {
-		return make([]*model.Group, 0)
+		return make([]model.Group, 0)
 	}
-	return []*model.Group{{Name: "group-1"}}
+	return []model.Group{{Name: "group-1"}}
 }
 
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	app := fiber.New()
 
-	groupCache := cache.New[string, []*model.Group]()
+	groupCache := cache.New[string, []model.Group]()
 	assert.Zero(t, groupCache.Count())
 
 	app.Get("/", NewGroupHandler(&MockGroupService{}, groupCache).HandleGetGroups)
@@ -34,7 +34,7 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]*model.Group, 0)
+	result := make([]model.Group, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -52,15 +52,15 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 func TestHandleGetGroupsFromCache(t *testing.T) {
 	app := fiber.New()
 
-	groupCache := cache.New[string, []*model.Group]()
-	groupCache.Put("/", []*model.Group{{Name: "group-2"}})
+	groupCache := cache.New[string, []model.Group]()
+	groupCache.Put("/", []model.Group{{Name: "group-2"}})
 
 	app.Get("/", NewGroupHandler(&MockGroupService{}, groupCache).HandleGetGroups)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]*model.Group, 0)
+	result := make([]model.Group, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -74,14 +74,14 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	app := fiber.New()
 
-	groupCache := cache.New[string, []*model.Group]()
+	groupCache := cache.New[string, []model.Group]()
 
 	app.Get("/", NewGroupHandler(&MockGroupService{empty: true}, groupCache).HandleGetGroups)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]*model.Group, 0)
+	result := make([]model.Group, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
