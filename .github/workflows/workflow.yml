@@ -1,12 +1,17 @@
-name: master
+name: workflow
 
-'on':
+on:
   push:
+    tags:
+      - '*.*.*'
+    branches:
+      - '**'
+  pull_request:
     branches:
       - master
 
 jobs:
-  test_frontend:
+  test-frontend:
     runs-on: ubuntu-latest
     env:
       TZ: Europe/Amsterdam
@@ -21,8 +26,9 @@ jobs:
       #   with:
       #     token: ${{ secrets.CODECOV_TOKEN }}
       #     files: ./coverage/coverage-final.json
+      #     verbose: true
 
-  test_api:
+  test-backend:
     runs-on: ubuntu-latest
     env:
       TZ: Europe/Amsterdam
@@ -41,21 +47,38 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./api/cover.out
-          flags: unittests
           verbose: true
 
-  build_and_publish:
-    needs: [test_frontend, test_api]
+  docker-build:
+    if: github.event_name != 'pull_request'
+    needs: [test-frontend, test-backend]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - uses: docker/build-push-action@v3
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           push: true
-          tags: larscom/gitlab-ci-dashboard:master
-          build-args: VERSION_ARG=${{ github.sha }}
+          tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ github.ref_name }}
+          build-args: VERSION_ARG=v${{ github.ref_name }}
+      - uses: docker/build-push-action@v3
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        with:
+          push: true
+          tags: ${{ github.repository }}:${{ github.ref_name }}
+          build-args: VERSION_ARG=v${{ github.sha }}@${{ github.ref_name }}
+
+      - uses: peter-evans/dockerhub-description@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ github.repository }}
+          short-description: ${{ github.event.repository.description }}
