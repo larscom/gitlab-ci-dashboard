@@ -1,6 +1,6 @@
 <ng-container *ngIf="loading$ | async; else loaded">
-  <div style="margin-top: 1rem">
-    <nz-spin nzSize="large"></nz-spin>
+  <div class="spinner">
+    <nz-spin></nz-spin>
   </div>
 </ng-container>
 <ng-template #loaded>

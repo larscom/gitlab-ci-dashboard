@@ -1,7 +1,7 @@
 <ng-template #empty>-</ng-template>
 
-<div style="display: flex; flex-direction: column; gap: 0.5rem">
-  <div style="display: flex; justify-content: space-between">
+<div class="flex flex-col gap-050">
+  <div class="flex justify-between">
     <gcd-branch-filter></gcd-branch-filter>
     <ng-container *ngIf="selectedProjectId$ | async as selectedProjectId">
       <gcd-auto-refresh

@@ -1,12 +1,12 @@
-<div style="display: flex; flex-direction: column; gap: 1rem">
-  <div style="display: flex; align-items: center">
-    <div style="max-width: 275px">
+<div class="flex flex-col gap-1">
+  <div class="flex items-center">
+    <div class="max-width-275">
       <nz-input-group [nzSuffix]="suffixIcon">
         <input type="text" [formControl]="searchControl" nz-input placeholder="Search projects..." />
       </nz-input-group>
       <ng-template #suffixIcon>
         <span
-          style="cursor: pointer"
+          class="pointer"
           nz-icon
           nzType="close-square"
           nz-tooltip
@@ -23,8 +23,8 @@
   </ng-container>
   <ng-template #loaded>
     <ng-container *ngIf="topics().size > 0">
-      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center">
-        <span style="font-size: var(--font-size-small); font-weight: bold">Topics:</span>
+      <div class="flex flex-wrap gap-050 items-center">
+        <span class="font-sm font-bold">Topics:</span>
         <ng-container *ngFor="let topic of topics()">
           <nz-tag
             nzMode="checkable"

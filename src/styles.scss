@@ -1,6 +1,8 @@
 :root {
   --font-size-base: 1rem;
   --font-size-small: calc(var(--font-size-base) * 0.75);
+  --font-size-medium: calc(var(--font-size-base) * 1.25);
+  --font-size-large: calc(var(--font-size-base) * 1.5);
 }
 
 body {
@@ -14,4 +16,64 @@ body {
 
 .pointer {
   cursor: pointer;
+}
+
+.max-width-275 {
+  max-width: 275px;
+}
+
+.font {
+  font-size: var(--font-size-base);
+  &-sm {
+    font-size: var(--font-size-small);
+  }
+  &-md {
+    font-size: var(--font-size-medium);
+  }
+  &-bold {
+    font-weight: bold;
+  }
+  &-white {
+    color: white;
+  }
+}
+
+.flex {
+  display: flex;
+  &-row {
+    flex-direction: row;
+  }
+  &-col {
+    flex-direction: column;
+  }
+  &-wrap {
+    flex-wrap: wrap;
+  }
+}
+
+.justify {
+  &-center {
+    justify-content: center;
+  }
+  &-between {
+    justify-content: space-between;
+  }
+}
+
+.items {
+  &-center {
+    align-items: center;
+  }
+}
+
+.gap {
+  &-025 {
+    gap: 0.25rem;
+  }
+  &-050 {
+    gap: 0.5rem;
+  }
+  &-1 {
+    gap: 1rem;
+  }
 }

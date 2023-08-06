@@ -42,7 +42,6 @@
             "styles": [
               "node_modules/@fontsource/roboto/400.css",
               "node_modules/normalize.css/normalize.css",
-              "node_modules/flexboxgrid/css/flexboxgrid.min.css",
               "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
               "src/styles.scss"
             ],
@@ -100,11 +99,18 @@
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.svg", "src/assets"],
+            "assets": [
+              "src/favicon.svg",
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
+              }
+            ],
             "styles": [
               "node_modules/@fontsource/roboto/400.css",
               "node_modules/normalize.css/normalize.css",
-              "node_modules/flexboxgrid/css/flexboxgrid.min.css",
               "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
               "src/styles.scss"
             ],

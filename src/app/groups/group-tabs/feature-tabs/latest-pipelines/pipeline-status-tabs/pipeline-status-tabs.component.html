@@ -3,7 +3,7 @@
     <nz-tabset nzType="card">
       <nz-tab *ngFor="let tab of tabs; trackBy: trackByStatus" [nzTitle]="title">
         <ng-template #title>
-          <div style="display: flex; gap: 0.25rem">
+          <div class="flex gap-025">
             <span class="status">{{ tab.status }}</span>
             <nz-badge
               nzStandalone
