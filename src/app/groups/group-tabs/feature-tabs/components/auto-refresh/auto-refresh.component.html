@@ -1,0 +1,12 @@
+<div style="display: flex; gap: 1rem; align-items: center">
+  <button [nzLoading]="loading" [disabled]="loading" (click)="onClick()" nz-button nzType="dashed" nzShape="circle">
+    <span nz-tooltip [nzTooltipMouseEnterDelay]="1" nzTooltipTitle="Refresh data now" nz-icon nzType="redo"></span>
+  </button>
+  <nz-select [nzDisabled]="loading" [(ngModel)]="intervalSeconds" (ngModelChange)="onChange()">
+    <nz-option nzValue="" nzLabel="off"></nz-option>
+    <nz-option nzValue="5" nzLabel="5s"></nz-option>
+    <nz-option nzValue="10" nzLabel="10s"></nz-option>
+    <nz-option nzValue="30" nzLabel="30s"></nz-option>
+    <nz-option nzValue="60" nzLabel="60s"></nz-option>
+  </nz-select>
+</div>

@@ -1,0 +1,18 @@
+<nz-tabset [nzSelectedIndex]="selectedIndex$ | async" (nzSelectChange)="onChange($event)" [nzTabPosition]="'left'" nzType="card">
+  <nz-tab *ngFor="let tab of tabs" [nzTitle]="title">
+    <ng-template #title>
+      <span nz-icon [nzType]="tab.icon"></span>
+      {{ tab.title }}
+    </ng-template>
+    <ng-template nz-tab>
+      <ng-container [ngSwitch]="tab.id">
+        <ng-container *ngSwitchCase="'latest_pipelines'">
+          <gcd-latest-pipelines></gcd-latest-pipelines>
+        </ng-container>
+        <ng-container *ngSwitchCase="'schedules'">
+          <gcd-schedules></gcd-schedules>
+        </ng-container>
+      </ng-container>
+    </ng-template>
+  </nz-tab>
+</nz-tabset>

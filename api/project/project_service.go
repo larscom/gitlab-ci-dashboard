@@ -7,8 +7,10 @@ import (
 	"github.com/larscom/go-cache"
 )
 
+type PipelineStatus = string
+
 type ProjectService interface {
-	GetProjectsGroupedByStatus(groupId int) map[string][]model.Project
+	GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithLatestPipeline
 }
 
 type ProjectServiceImpl struct {
@@ -22,10 +24,14 @@ func NewProjectService(
 	projectLoader cache.Cache[model.GroupId, []model.Project],
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
 ) ProjectService {
-	return &ProjectServiceImpl{config, projectLoader, pipelineLatestLoader}
+	return &ProjectServiceImpl{
+		config,
+		projectLoader,
+		pipelineLatestLoader,
+	}
 }
 
-func (s *ProjectServiceImpl) GetProjectsGroupedByStatus(groupId int) map[string][]model.Project {
+func (s *ProjectServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithLatestPipeline {
 	projects, _ := s.projectLoader.Get(model.GroupId(groupId))
 
 	if len(s.config.ProjectSkipIds) > 0 {
@@ -34,38 +40,40 @@ func (s *ProjectServiceImpl) GetProjectsGroupedByStatus(groupId int) map[string]
 		})
 	}
 
-	chn := make(chan model.Project, len(projects))
+	chn := make(chan model.ProjectWithLatestPipeline, len(projects))
 	for _, project := range projects {
 		go s.getLatestPipeline(project, chn)
 	}
 
-	projectsGroupedByStatus := make(map[string][]model.Project)
+	projectsWithLatestPipeline := make(map[string][]model.ProjectWithLatestPipeline)
 
 	for i := 0; i < len(projects); i++ {
-		project := <-chn
+		p := <-chn
 		status := "unknown"
-		if project.LatestPipeline != nil {
-			status = project.LatestPipeline.Status
+		if p.LatestPipeline != nil {
+			status = p.LatestPipeline.Status
 		}
 		if status == "unknown" && s.config.ProjectHideUnknown {
 			continue
 		}
-		currentProjects, hasStatus := projectsGroupedByStatus[status]
+		c, hasStatus := projectsWithLatestPipeline[status]
 		if hasStatus {
-			projectsGroupedByStatus[status] = append(currentProjects, project)
+			projectsWithLatestPipeline[status] = append(c, p)
 		} else {
-			projectsGroupedByStatus[status] = []model.Project{project}
+			projectsWithLatestPipeline[status] = []model.ProjectWithLatestPipeline{p}
 		}
 	}
 
 	close(chn)
 
-	return projectsGroupedByStatus
+	return projectsWithLatestPipeline
 }
 
-func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, chn chan<- model.Project) {
+func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, chn chan<- model.ProjectWithLatestPipeline) {
 	key := model.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, _ := s.pipelineLatestLoader.Get(key)
-	project.LatestPipeline = pipeline
-	chn <- project
+	chn <- model.ProjectWithLatestPipeline{
+		Project:        project,
+		LatestPipeline: pipeline,
+	}
 }

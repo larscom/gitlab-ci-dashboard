@@ -29,12 +29,12 @@ func TestGetSchedules(t *testing.T) {
 
 	pipelineLatestLoader.Put(model.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
 
-	schedules := service.GetSchedules(groupId)
+	result := service.GetSchedules(groupId)
 
-	assert.Len(t, schedules, 2)
-	assert.Equal(t, 3, schedules[0].Id)
-	assert.Equal(t, "success", schedules[0].PipelineStatus)
+	assert.Len(t, result, 2)
+	assert.Equal(t, 3, result[0].Schedule.Id)
+	assert.Equal(t, "success", result[0].LatestPipeline.Status)
 
-	assert.Equal(t, 4, schedules[1].Id)
-	assert.Equal(t, "unknown", schedules[1].PipelineStatus)
+	assert.Equal(t, 4, result[1].Schedule.Id)
+	assert.Nil(t, result[1].LatestPipeline)
 }

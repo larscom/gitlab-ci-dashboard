@@ -1,0 +1,40 @@
+<div style="display: flex; flex-direction: column; gap: 1rem">
+  <div style="display: flex; align-items: center">
+    <div style="max-width: 275px">
+      <nz-input-group [nzSuffix]="suffixIcon">
+        <input type="text" [formControl]="searchControl" nz-input placeholder="Search projects..." />
+      </nz-input-group>
+      <ng-template #suffixIcon>
+        <span
+          style="cursor: pointer"
+          nz-icon
+          nzType="close-square"
+          nz-tooltip
+          [nzTooltipMouseEnterDelay]="1"
+          nzTooltipTitle="Clear field"
+          (click)="resetSearch()"
+        ></span>
+      </ng-template>
+    </div>
+    <a nz-button nzSize="small" nzType="link" (click)="resetFilters()">reset filters</a>
+  </div>
+  <ng-container *ngIf="loading; else loaded">
+    <nz-spin nzSimple nzSize="small"></nz-spin>
+  </ng-container>
+  <ng-template #loaded>
+    <ng-container *ngIf="topics().size > 0">
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center">
+        <span style="font-size: var(--font-size-small); font-weight: bold">Topics:</span>
+        <ng-container *ngFor="let topic of topics()">
+          <nz-tag
+            nzMode="checkable"
+            [nzChecked]="currentFilterTopics.includes(topic)"
+            (nzCheckedChange)="onTopicChange($event, topic)"
+          >
+            {{ topic | lowercase }}
+          </nz-tag>
+        </ng-container>
+      </div>
+    </ng-container>
+  </ng-template>
+</div>

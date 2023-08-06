@@ -1,0 +1,47 @@
+<nz-table #nzTable nzSize="middle" nzTableLayout="fixed" [nzData]="projects" [nzPageSize]="8">
+  <thead>
+    <tr>
+      <ng-container *ngFor="let header of headers">
+        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+          {{ header.title }}
+        </th>
+      </ng-container>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let data of nzTable.data; trackBy: trackByProjectId">
+      <tr class="pointer" (click)="onRowClick(data.project)">
+        <td>{{ data.project.name }}</td>
+        <td>{{ data.project.default_branch }}</td>
+        <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
+        <td>{{ data.latest_pipeline?.source || '-' }}</td>
+        <td>{{ (data.latest_pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+        <td>
+          <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+            <button
+              (click)="onActionClick($event, pipeline)"
+              nzType="text"
+              nz-tooltip
+              [nzTooltipTitle]="'Show pipeline (' + data.project.default_branch + ')'"
+              nz-button
+              nzShape="circle"
+            >
+              <span nz-icon nzType="ci"></span>
+            </button>
+          </ng-container>
+          <ng-template #empty>-</ng-template>
+        </td>
+      </tr>
+      <tr [nzExpand]="data.project.id === (selectedProjectId$ | async)">
+        <ng-container *ngIf="selectedProjectId$ | async as selectedProjectId">
+          <ng-container *ngIf="data.project.id === selectedProjectId">
+            <ng-container *ngIf="branches$ | async as branches">
+              <gcd-pipeline-table-branch [branches]="branches"></gcd-pipeline-table-branch>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </tr>
+    </ng-container>
+  </tbody>
+</nz-table>

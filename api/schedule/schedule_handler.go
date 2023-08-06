@@ -1,8 +1,6 @@
 package schedule
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,16 +9,17 @@ type ScheduleHandler struct {
 }
 
 func NewScheduleHandler(service ScheduleService) *ScheduleHandler {
-	return &ScheduleHandler{service}
+	return &ScheduleHandler{
+		service,
+	}
 }
 
 func (h *ScheduleHandler) HandleGetSchedules(c *fiber.Ctx) error {
-	groupId, err := strconv.Atoi(c.Params("groupId"))
+	groupId := c.QueryInt("groupId")
 
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	if groupId == 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	schedules := h.service.GetSchedules(groupId)
-	return c.JSON(schedules)
+	return c.JSON(h.service.GetSchedules(groupId))
 }

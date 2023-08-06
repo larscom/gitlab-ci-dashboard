@@ -1,8 +1,6 @@
 package branch
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,14 +9,16 @@ type BranchHandler struct {
 }
 
 func NewBranchHandler(service BranchService) *BranchHandler {
-	return &BranchHandler{service}
+	return &BranchHandler{
+		service,
+	}
 }
 
 func (h *BranchHandler) HandleGetBranchesWithLatestPipeline(c *fiber.Ctx) error {
-	projectId, err := strconv.Atoi(c.Params("projectId"))
+	projectId := c.QueryInt("projectId")
 
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	if projectId == 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "projectId is missing or invalid")
 	}
 
 	return c.JSON(h.service.GetBranchesWithLatestPipeline(projectId))

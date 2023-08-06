@@ -17,7 +17,10 @@ type GroupServiceImpl struct {
 }
 
 func NewGroupService(config *config.GitlabConfig, client GroupClient) GroupService {
-	return &GroupServiceImpl{config, client}
+	return &GroupServiceImpl{
+		config,
+		client,
+	}
 }
 
 func (s *GroupServiceImpl) GetGroups() []model.Group {

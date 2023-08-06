@@ -1,0 +1,16 @@
+<div style="max-width: 275px">
+  <nz-input-group [nzSuffix]="suffixIcon">
+    <input type="text" [formControl]="searchControl" nz-input placeholder="Search branches..." />
+  </nz-input-group>
+  <ng-template #suffixIcon>
+    <span
+      style="cursor: pointer"
+      nz-icon
+      nzType="close-square"
+      nz-tooltip
+      [nzTooltipMouseEnterDelay]="1"
+      nzTooltipTitle="Clear field"
+      (click)="resetSearch()"
+    ></span>
+  </ng-template>
+</div>

@@ -20,9 +20,9 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 
 	service := NewBranchService(pipelineLatestLoader, branchLoader)
 
-	branches := service.GetBranchesWithLatestPipeline(projectId)
+	result := service.GetBranchesWithLatestPipeline(projectId)
 
-	assert.Len(t, branches, 1)
-	assert.Equal(t, "branch-1", branches[0].Name)
-	assert.Equal(t, "success", branches[0].LatestPipeline.Status)
+	assert.Len(t, result, 1)
+	assert.Equal(t, "branch-1", result[0].Branch.Name)
+	assert.Equal(t, "success", result[0].LatestPipeline.Status)
 }

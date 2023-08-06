@@ -13,25 +13,30 @@ import (
 
 type MockProjectService struct{}
 
-func (s *MockProjectService) GetProjectsGroupedByStatus(groupId int) map[string][]model.Project {
+func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]model.ProjectWithLatestPipeline {
 	if groupId == 1 {
-		return map[string][]model.Project{
-			"success": {model.Project{Name: "project-1", LatestPipeline: &model.Pipeline{Id: 123}}},
+		return map[string][]model.ProjectWithLatestPipeline{
+			"success": {
+				{
+					Project:        model.Project{Name: "project-1"},
+					LatestPipeline: &model.Pipeline{Id: 123},
+				},
+			},
 		}
 	}
 
-	return make(map[string][]model.Project)
+	return make(map[string][]model.ProjectWithLatestPipeline)
 }
 
-func TestHandleGetProjectsGroupedByStatus(t *testing.T) {
+func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 	app := fiber.New()
 
-	app.Get("/:groupId", NewProjectHandler(&MockProjectService{}).HandleGetProjectsGroupedByStatus)
+	app.Get("/projects", NewProjectHandler(&MockProjectService{}).HandleGetProjectsWithLatestPipeline)
 
-	resp, _ := app.Test(httptest.NewRequest("GET", "/1", nil), -1)
+	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make(map[string][]model.Project)
+	result := make(map[string][]model.ProjectWithLatestPipeline)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -41,15 +46,15 @@ func TestHandleGetProjectsGroupedByStatus(t *testing.T) {
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, success, 1)
-	assert.Equal(t, "project-1", success[0].Name)
+	assert.Equal(t, "project-1", success[0].Project.Name)
 	assert.Equal(t, 123, success[0].LatestPipeline.Id)
 }
 
-func TestHandleGetProjectsGroupedByStatusBadRequest(t *testing.T) {
+func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 	app := fiber.New()
-	app.Get("/:groupId", NewProjectHandler(&MockProjectService{}).HandleGetProjectsGroupedByStatus)
+	app.Get("/projects", NewProjectHandler(&MockProjectService{}).HandleGetProjectsWithLatestPipeline)
 
-	resp, _ := app.Test(httptest.NewRequest("GET", "/nan", nil), -1)
+	resp, _ := app.Test(httptest.NewRequest("GET", "/projects", nil), -1)
 
 	assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 }

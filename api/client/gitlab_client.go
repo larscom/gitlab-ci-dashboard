@@ -35,7 +35,10 @@ func NewGitlabClient(config *config.GitlabConfig) GitlabClient {
 	if err != nil {
 		log.Panicf("failed to create gitlab client: %v", err)
 	}
-	return &GitlabClientImpl{client}
+
+	return &GitlabClientImpl{
+		client,
+	}
 }
 
 func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error) {

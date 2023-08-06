@@ -56,11 +56,11 @@ func TestServerWithConfig(t *testing.T) {
 		assert.Equal(t, "A", groups[0].Name)
 	})
 
-	t.Run("TestProjectsGroupedByStatusEndpoint", func(t *testing.T) {
-		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups/123/projects", nil), -1)
+	t.Run("TestProjectsLatestPipelinesEndpoint", func(t *testing.T) {
+		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/latest-pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		projectsGroupedByStatus := make(map[string][]model.Project)
+		projectsGroupedByStatus := make(map[string][]model.ProjectWithLatestPipeline)
 		err := json.Unmarshal(body, &projectsGroupedByStatus)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -70,15 +70,15 @@ func TestServerWithConfig(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, success, 1)
-		assert.Equal(t, "project-1", success[0].Name)
+		assert.Equal(t, "project-1", success[0].Project.Name)
 		assert.Equal(t, "success", success[0].LatestPipeline.Status)
 	})
 
-	t.Run("TestBranchesEndpoint", func(t *testing.T) {
-		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/123", nil), -1)
+	t.Run("TestBranchesLatestPipelinesEndpoint", func(t *testing.T) {
+		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/latest-pipelines?projectId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		branchesWithPipeline := make([]model.Branch, 0)
+		branchesWithPipeline := make([]model.BranchWithLatestPipeline, 0)
 		err := json.Unmarshal(body, &branchesWithPipeline)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -86,15 +86,15 @@ func TestServerWithConfig(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, branchesWithPipeline, 1)
-		assert.Equal(t, "branch-1", branchesWithPipeline[0].Name)
+		assert.Equal(t, "branch-1", branchesWithPipeline[0].Branch.Name)
 		assert.Equal(t, "success", branchesWithPipeline[0].LatestPipeline.Status)
 	})
 
 	t.Run("TestSchedulesEndpoint", func(t *testing.T) {
-		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups/333/schedules", nil), -1)
+		resp, _ := server.Test(httptest.NewRequest("GET", "/api/schedules?groupId=333", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		schedules := make([]model.Schedule, 0)
+		schedules := make([]model.ScheduleWithProjectAndPipeline, 0)
 		err := json.Unmarshal(body, &schedules)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -102,7 +102,7 @@ func TestServerWithConfig(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, schedules, 1)
-		assert.Equal(t, 777, schedules[0].Id)
+		assert.Equal(t, 777, schedules[0].Schedule.Id)
 	})
 
 	t.Run("TestMetricsEndpoint", func(t *testing.T) {

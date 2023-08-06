@@ -21,9 +21,10 @@ func NewServer(ctx *Bootstrap) *fiber.App {
 
 	api := app.Group("/api")
 	ctx.setupVersionHandler(api)
-
-	ctx.setupBranchHandler(api.Group("/branches"))
-	ctx.setupGroupHandler(api.Group("/groups"))
+	ctx.setupGroupHandler(api)
+	ctx.setupProjectHandler(api)
+	ctx.setupBranchHandler(api)
+	ctx.setupSchedulesHandler(api)
 
 	return app
 }

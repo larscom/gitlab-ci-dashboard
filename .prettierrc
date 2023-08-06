@@ -1,6 +1,8 @@
 {
-  "semi": false,
-  "singleQuote": true,
+  "useTabs": false,
+  "printWidth": 120,
   "trailingComma": "none",
-  "printWidth": 90
+  "singleQuote": true,
+  "semi": false,
+  "disableLanguages": []
 }

@@ -1,0 +1,43 @@
+<nz-table #nzTable nzSize="middle" nzTableLayout="fixed" [nzData]="schedules" [nzPageSize]="10">
+  <thead>
+    <tr>
+      <ng-container *ngFor="let header of headers">
+        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+          {{ header.title }}
+        </th>
+      </ng-container>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let data of nzTable.data; trackBy: trackByScheduleId">
+      <tr>
+        <td>{{ data.project.name }}</td>
+        <td class="lowercase">{{ data.schedule.description }}</td>
+        <td>{{ data.schedule.ref }}</td>
+        <td>{{ data.schedule.next_run_at | date : 'medium' : timeZone : locale }}</td>
+        <td>{{ data.schedule.owner.name }}</td>
+        <td>
+          <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+            <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+          </ng-container>
+        </td>
+        <td>
+          <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+            <button
+              (click)="onActionClick($event, pipeline)"
+              nzType="text"
+              nz-tooltip
+              [nzTooltipTitle]="'Show pipeline (' + data.project.default_branch + ')'"
+              nz-button
+              nzShape="circle"
+            >
+              <span nz-icon nzType="ci"></span>
+            </button>
+          </ng-container>
+          <ng-template #empty>-</ng-template>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</nz-table>

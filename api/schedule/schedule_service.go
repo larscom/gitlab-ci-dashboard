@@ -8,7 +8,7 @@ import (
 )
 
 type ScheduleService interface {
-	GetSchedules(groupId int) []model.Schedule
+	GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline
 }
 
 type ScheduleServiceImpl struct {
@@ -29,15 +29,15 @@ func NewScheduleService(
 	}
 }
 
-func (s *ScheduleServiceImpl) GetSchedules(groupId int) []model.Schedule {
+func (s *ScheduleServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
 	projects, _ := s.projectLoader.Get(model.GroupId(groupId))
 
-	chn := make(chan []model.Schedule, len(projects))
+	chn := make(chan []model.ScheduleWithProjectAndPipeline, len(projects))
 	for _, project := range projects {
 		go s.getSchedules(project, chn)
 	}
 
-	schedules := make([]model.Schedule, 0)
+	schedules := make([]model.ScheduleWithProjectAndPipeline, 0)
 	for i := 0; i < len(projects); i++ {
 		schedules = append(schedules, <-chn...)
 	}
@@ -47,30 +47,27 @@ func (s *ScheduleServiceImpl) GetSchedules(groupId int) []model.Schedule {
 	return sortById(schedules)
 }
 
-func (s *ScheduleServiceImpl) getSchedules(project model.Project, chn chan<- []model.Schedule) {
+func (s *ScheduleServiceImpl) getSchedules(project model.Project, chn chan<- []model.ScheduleWithProjectAndPipeline) {
 	schedules, _ := s.scheduleLoader.Get(model.ProjectId(project.Id))
 
-	result := make([]model.Schedule, 0, len(schedules))
+	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
 	for _, schedule := range schedules {
-		schedule.Project = project
-
 		source := "schedule"
 		pipeline, _ := s.pipelineLatestLoader.Get(model.NewPipelineKey(project.Id, schedule.Ref, &source))
-		if pipeline != nil {
-			schedule.PipelineStatus = pipeline.Status
-		} else {
-			schedule.PipelineStatus = "unknown"
-		}
 
-		result = append(result, schedule)
+		result = append(result, model.ScheduleWithProjectAndPipeline{
+			Schedule:       schedule,
+			Project:        project,
+			LatestPipeline: pipeline,
+		})
 	}
 
 	chn <- result
 }
 
-func sortById(schedules []model.Schedule) []model.Schedule {
+func sortById(schedules []model.ScheduleWithProjectAndPipeline) []model.ScheduleWithProjectAndPipeline {
 	sort.SliceStable(schedules[:], func(i, j int) bool {
-		return schedules[i].Id < schedules[j].Id
+		return schedules[i].Schedule.Id < schedules[j].Schedule.Id
 	})
 	return schedules
 }

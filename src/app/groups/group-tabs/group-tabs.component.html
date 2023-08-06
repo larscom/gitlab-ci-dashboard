@@ -1,0 +1,16 @@
+<ng-container *ngIf="loading$ | async; else loaded">
+  <div style="margin-top: 1rem">
+    <nz-spin nzSize="large"></nz-spin>
+  </div>
+</ng-container>
+<ng-template #loaded>
+  <nz-tabset nzType="card" [nzSelectedIndex]="selectedIndex$ | async" (nzSelectChange)="onChange($event)">
+    <ng-container *ngFor="let group of groups$ | async; trackBy: trackById">
+      <nz-tab [nzTitle]="group.name | uppercase">
+        <ng-template nz-tab>
+          <gcd-feature-tabs></gcd-feature-tabs>
+        </ng-template>
+      </nz-tab>
+    </ng-container>
+  </nz-tabset>
+</ng-template>

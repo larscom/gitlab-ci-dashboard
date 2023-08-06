@@ -1,0 +1,25 @@
+<ng-container *ngIf="tabs$ | async as tabs">
+  <ng-container *ngIf="tabs.length > 0; else empty">
+    <nz-tabset nzType="card">
+      <nz-tab *ngFor="let tab of tabs; trackBy: trackByStatus" [nzTitle]="title">
+        <ng-template #title>
+          <div style="display: flex; gap: 0.25rem">
+            <span class="status">{{ tab.status }}</span>
+            <nz-badge
+              nzStandalone
+              nzSize="small"
+              [nzCount]="tab.projects.length"
+              [nzStyle]="{ backgroundColor: tab.status | statusColor }"
+            ></nz-badge>
+          </div>
+        </ng-template>
+        <ng-template nz-tab>
+          <gcd-pipeline-table [projects]="tab.projects | sortProjects"></gcd-pipeline-table>
+        </ng-template>
+      </nz-tab>
+    </nz-tabset>
+  </ng-container>
+</ng-container>
+<ng-template #empty>
+  <gcd-pipeline-table [projects]="[]"></gcd-pipeline-table>
+</ng-template>

@@ -12,7 +12,10 @@ type GroupHandler struct {
 }
 
 func NewGroupHandler(service GroupService, cache cache.Cache[string, []model.Group]) *GroupHandler {
-	return &GroupHandler{service, cache}
+	return &GroupHandler{
+		service,
+		cache,
+	}
 }
 
 func (h *GroupHandler) HandleGetGroups(c *fiber.Ctx) error {

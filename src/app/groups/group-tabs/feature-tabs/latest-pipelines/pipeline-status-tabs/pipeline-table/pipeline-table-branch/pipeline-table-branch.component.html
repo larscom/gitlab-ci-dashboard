@@ -1,0 +1,61 @@
+<ng-template #empty>-</ng-template>
+
+<div style="display: flex; flex-direction: column; gap: 0.5rem">
+  <div style="display: flex; justify-content: space-between">
+    <gcd-branch-filter></gcd-branch-filter>
+    <ng-container *ngIf="selectedProjectId$ | async as selectedProjectId">
+      <gcd-auto-refresh
+        [id]="selectedProjectId"
+        [loading]="(autoRefreshLoading$ | async)!"
+        (refresh)="fetch()"
+      ></gcd-auto-refresh>
+    </ng-container>
+  </div>
+  <nz-table
+    #nzTable
+    nzSize="middle"
+    nzTableLayout="fixed"
+    [nzData]="branches"
+    [nzLoading]="loading$ | async"
+    [nzPageSize]="3"
+  >
+    <thead>
+      <tr>
+        <ng-container *ngFor="let header of headers">
+          <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+            {{ header.title }}
+          </th>
+        </ng-container>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let data of nzTable.data; trackBy: trackByBranchName">
+        <tr>
+          <td>{{ data.branch.name }}</td>
+          <td>
+            <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+              <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+            </ng-container>
+          </td>
+          <td>{{ data.latest_pipeline?.source || '-' }}</td>
+          <td>{{ (data.latest_pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+          <td>
+            <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+              <button
+                (click)="onActionClick($event, pipeline)"
+                nzType="text"
+                nz-tooltip
+                [nzTooltipTitle]="'Show pipeline (' + data.branch.name + ')'"
+                nz-button
+                nzShape="circle"
+              >
+                <span nz-icon nzType="ci"></span>
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </nz-table>
+</div>

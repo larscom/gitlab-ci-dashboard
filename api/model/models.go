@@ -2,6 +2,22 @@ package model
 
 import "time"
 
+type ProjectWithLatestPipeline struct {
+	Project        Project   `json:"project"`
+	LatestPipeline *Pipeline `json:"latest_pipeline"`
+}
+
+type BranchWithLatestPipeline struct {
+	Branch         Branch    `json:"branch"`
+	LatestPipeline *Pipeline `json:"latest_pipeline"`
+}
+
+type ScheduleWithProjectAndPipeline struct {
+	Schedule       Schedule  `json:"schedule"`
+	Project        Project   `json:"project"`
+	LatestPipeline *Pipeline `json:"latest_pipeline"`
+}
+
 type GroupId int
 type Group struct {
 	Id   int    `json:"id"`
@@ -10,12 +26,11 @@ type Group struct {
 
 type ProjectId int
 type Project struct {
-	Id             int       `json:"id"`
-	Name           string    `json:"name"`
-	WebUrl         string    `json:"web_url"`
-	DefaultBranch  string    `json:"default_branch"`
-	Topics         []string  `json:"topics"`
-	LatestPipeline *Pipeline `json:"latest_pipeline"`
+	Id            int      `json:"id"`
+	Name          string   `json:"name"`
+	WebUrl        string   `json:"web_url"`
+	DefaultBranch string   `json:"default_branch"`
+	Topics        []string `json:"topics"`
 }
 
 type Pipeline struct {
@@ -32,14 +47,13 @@ type Pipeline struct {
 }
 
 type Branch struct {
-	Name           string    `json:"name"`
-	Merged         bool      `json:"merged"`
-	Protected      bool      `json:"protected"`
-	Default        bool      `json:"default"`
-	CanPush        bool      `json:"can_push"`
-	WebUrl         string    `json:"web_url"`
-	Commit         Commit    `json:"commit"`
-	LatestPipeline *Pipeline `json:"latest_pipeline"`
+	Name      string `json:"name"`
+	Merged    bool   `json:"merged"`
+	Protected bool   `json:"protected"`
+	Default   bool   `json:"default"`
+	CanPush   bool   `json:"can_push"`
+	WebUrl    string `json:"web_url"`
+	Commit    Commit `json:"commit"`
 }
 
 type Commit struct {
@@ -52,18 +66,16 @@ type Commit struct {
 }
 
 type Schedule struct {
-	Id             int       `json:"id"`
-	Description    string    `json:"description"`
-	Ref            string    `json:"ref"`
-	Cron           string    `json:"cron"`
-	CronTimezone   string    `json:"cron_timezone"`
-	NextRunAt      time.Time `json:"next_run_at"`
-	Active         bool      `json:"active"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-	Owner          User      `json:"owner"`
-	Project        Project   `json:"project"`
-	PipelineStatus string    `json:"pipeline_status"`
+	Id           int       `json:"id"`
+	Description  string    `json:"description"`
+	Ref          string    `json:"ref"`
+	Cron         string    `json:"cron"`
+	CronTimezone string    `json:"cron_timezone"`
+	NextRunAt    time.Time `json:"next_run_at"`
+	Active       bool      `json:"active"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Owner        User      `json:"owner"`
 }
 
 type User struct {
