@@ -1,6 +1,5 @@
-import { ProjectWithLatestPipeline } from '$model/pipeline'
-import { Status } from '$model/pipeline'
-import { StatusColorPipe } from '$pipes/status-color.pipe'
+import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
+import { ProjectWithLatestPipeline, Status } from '$groups/model/pipeline'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'

@@ -1,10 +1,10 @@
-import { Group, GroupId } from '$model/group'
+import { Group, GroupId } from '$groups/model/group'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
 import {
   createRequestsStatusOperator,
-  selectRequestStatus,
+  selectIsRequestPending,
   updateRequestStatus,
   withRequestsStatus
 } from '@ngneat/elf-requests'
@@ -35,11 +35,7 @@ export class GroupStore {
     map(({ groups }) => groups),
     distinctUntilChanged()
   )
-  readonly loading$ = store.pipe(
-    selectRequestStatus('getGroups'),
-    map(({ value }) => value === 'pending'),
-    distinctUntilChanged()
-  )
+  readonly loading$ = store.pipe(selectIsRequestPending('getGroups'), distinctUntilChanged())
 
   readonly selectedGroupId$ = store.pipe(
     map(({ selectedGroupId }) => selectedGroupId),

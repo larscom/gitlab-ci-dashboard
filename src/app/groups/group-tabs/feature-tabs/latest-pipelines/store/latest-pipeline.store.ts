@@ -1,12 +1,12 @@
-import { BranchWithLatestPipeline, ProjectWithLatestPipeline, Status } from '$model/pipeline'
-import { ProjectId } from '$model/project'
-import { recordToMap } from '$util/map-record'
+import { BranchWithLatestPipeline, ProjectWithLatestPipeline, Status } from '$groups/model/pipeline'
+import { ProjectId } from '$groups/model/project'
+import { recordToMap } from '$groups/util/map-record'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
 import {
   createRequestsStatusOperator,
-  selectRequestStatus,
+  selectIsRequestPending,
   updateRequestStatus,
   withRequestsStatus
 } from '@ngneat/elf-requests'
@@ -66,8 +66,7 @@ export class LatestPipelineStore {
     distinctUntilChanged()
   )
   readonly projectsLoading$ = store.pipe(
-    selectRequestStatus('getProjectsWithLatestPipeline'),
-    map(({ value }) => value === 'pending'),
+    selectIsRequestPending('getProjectsWithLatestPipeline'),
     distinctUntilChanged()
   )
 
@@ -76,8 +75,7 @@ export class LatestPipelineStore {
     distinctUntilChanged()
   )
   readonly branchesLoading$ = store.pipe(
-    selectRequestStatus('getBranchesWithLatestPipeline'),
-    map(({ value }) => value === 'pending'),
+    selectIsRequestPending('getBranchesWithLatestPipeline'),
     distinctUntilChanged()
   )
 

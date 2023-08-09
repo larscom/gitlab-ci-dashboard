@@ -1,4 +1,4 @@
-import { GroupId } from '$model/group'
+import { GroupId } from '$groups/model/group'
 import { actionsFactory, props } from '@ngneat/effects'
 import { storeName } from './schedule.store'
 

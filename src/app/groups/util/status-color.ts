@@ -1,4 +1,4 @@
-import { Status } from '$model/pipeline'
+import { Status } from '$groups/model/pipeline'
 
 type Color = string
 

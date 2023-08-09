@@ -1,6 +1,5 @@
-import { ProjectWithLatestPipeline, Status } from '$model/pipeline'
-import { filterBy } from '$util/filter-by'
-import { identity } from '$util/identity'
+import { ProjectWithLatestPipeline, Status } from '$groups/model/pipeline'
+import { filterProject } from '$groups/util/filter'
 import { Injectable } from '@angular/core'
 import { Observable, combineLatest, map } from 'rxjs'
 import { LatestPipelineStore } from '../store/latest-pipeline.store'
@@ -17,12 +16,7 @@ export class ProjectFilterService {
     ]).pipe(
       map(([data, filterText, filterTopics]) => {
         return Array.from(data).reduce((current, [status, projects]) => {
-          const filtered = projects
-            .filter(({ project: { name } }) => filterBy(name, filterText))
-            .filter(({ project: { topics } }) => {
-              return filterTopics.length ? filterTopics.map((filter) => topics.includes(filter)).every(identity) : true
-            })
-
+          const filtered = projects.filter(({ project }) => filterProject(project, filterText, filterTopics))
           return filtered.length ? current.set(status, filtered) : current
         }, new Map<Status, ProjectWithLatestPipeline[]>())
       })

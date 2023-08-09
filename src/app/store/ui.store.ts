@@ -1,5 +1,5 @@
-import { GroupId } from '$model/group'
-import { ProjectId } from '$model/project'
+import { GroupId } from '$groups/model/group'
+import { ProjectId } from '$groups/model/project'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'

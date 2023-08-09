@@ -21,12 +21,10 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "paths": {
-      "$model/*": ["src/app/model/*"],
       "$groups/*": ["src/app/groups/*"],
       "$header/*": ["src/app/header/*"],
-      "$pipes/*": ["src/app/pipes/*"],
-      "$store/*": ["src/app/store/*"],
-      "$util/*": ["src/app/util/*"]
+      "$service/*": ["src/app/service/*"],
+      "$store/*": ["src/app/store/*"]
     }
   },
   "angularCompilerOptions": {

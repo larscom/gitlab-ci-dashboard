@@ -1,6 +1,5 @@
-import { ScheduleWithProjectAndPipeline } from '$model/schedule'
-import { filterBy } from '$util/filter-by'
-import { identity } from '$util/identity'
+import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { filterProject } from '$groups/util/filter'
 import { Injectable } from '@angular/core'
 import { Observable, combineLatest, map } from 'rxjs'
 import { ScheduleStore } from '../store/schedule.store'
@@ -11,13 +10,9 @@ export class ScheduleFilterService {
 
   getSchedules(): Observable<ScheduleWithProjectAndPipeline[]> {
     return combineLatest([this.store.schedules$, this.store.projectFilterText$, this.store.projectFilterTopics$]).pipe(
-      map(([data, filterText, filterTopics]) => {
-        return data
-          .filter(({ project: { name } }) => filterBy(name, filterText))
-          .filter(({ project: { topics } }) => {
-            return filterTopics.length ? filterTopics.map((filter) => topics.includes(filter)).every(identity) : true
-          })
-      })
+      map(([data, filterText, filterTopics]) =>
+        data.filter(({ project }) => filterProject(project, filterText, filterTopics))
+      )
     )
   }
 }

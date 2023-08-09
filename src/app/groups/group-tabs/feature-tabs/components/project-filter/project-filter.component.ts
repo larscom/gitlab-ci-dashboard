@@ -1,4 +1,4 @@
-import { Project } from '$model/project'
+import { Project } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
 import {
   ChangeDetectionStrategy,

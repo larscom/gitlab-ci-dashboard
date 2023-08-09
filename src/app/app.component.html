@@ -1,4 +1,21 @@
 <gcd-header></gcd-header>
-<main class="container">
-  <gcd-group-tabs></gcd-group-tabs>
-</main>
+<ng-container *ngIf="error$ | async as error; else groups">
+  <div class="alert">
+    <nz-alert
+      nzShowIcon
+      nzType="error"
+      [nzMessage]="'Server Error (' + error + ')'"
+      [nzDescription]="'There was a problem communicating with the server, try refreshing the page.'"
+      [nzAction]="action"
+    ></nz-alert>
+    <ng-template #action>
+      <button nz-button nzSize="small" nzType="default" (click)="OnClick()" nzDanger>Refresh</button>
+    </ng-template>
+  </div>
+</ng-container>
+
+<ng-template #groups>
+  <main class="container">
+    <gcd-group-tabs></gcd-group-tabs>
+  </main>
+</ng-template>

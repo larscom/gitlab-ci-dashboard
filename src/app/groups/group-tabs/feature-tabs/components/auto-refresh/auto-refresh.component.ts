@@ -1,5 +1,5 @@
-import { GroupId } from '$model/group'
-import { ProjectId } from '$model/project'
+import { GroupId } from '$groups/model/group'
+import { ProjectId } from '$groups/model/project'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import {

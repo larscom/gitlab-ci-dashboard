@@ -1,5 +1,5 @@
-import { ProjectWithLatestPipeline } from '$model/pipeline'
-import { compareStringDate } from '$util/compare'
+import { ProjectWithLatestPipeline } from '$groups/model/pipeline'
+import { compareStringDate } from '$groups/util/compare'
 import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({

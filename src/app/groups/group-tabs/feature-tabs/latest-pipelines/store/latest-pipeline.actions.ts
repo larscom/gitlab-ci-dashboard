@@ -1,5 +1,5 @@
-import { GroupId } from '$model/group'
-import { ProjectId } from '$model/project'
+import { GroupId } from '$groups/model/group'
+import { ProjectId } from '$groups/model/project'
 import { actionsFactory, props } from '@ngneat/effects'
 import { storeName } from './latest-pipeline.store'
 

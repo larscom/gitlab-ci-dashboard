@@ -1,5 +1,5 @@
 import { GroupStore } from '$groups/store/group.store'
-import { GroupId } from '$model/group'
+import { GroupId } from '$groups/model/group'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import { Component, OnInit } from '@angular/core'

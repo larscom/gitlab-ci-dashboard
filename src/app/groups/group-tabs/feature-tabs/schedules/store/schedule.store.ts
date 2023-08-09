@@ -1,9 +1,10 @@
-import { ScheduleWithProjectAndPipeline } from '$model/schedule'
+import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
 import {
   createRequestsStatusOperator,
+  selectIsRequestPending,
   selectRequestStatus,
   updateRequestStatus,
   withRequestsStatus
@@ -40,8 +41,7 @@ export class ScheduleStore {
     distinctUntilChanged()
   )
   readonly loading$ = store.pipe(
-    selectRequestStatus('getSchedules'),
-    map(({ value }) => value === 'pending'),
+    selectIsRequestPending('getSchedules'),
     distinctUntilChanged()
   )
 
