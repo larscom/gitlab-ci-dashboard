@@ -85,6 +85,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/master'
+    needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
       - run: |
