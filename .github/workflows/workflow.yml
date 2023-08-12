@@ -82,3 +82,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: ${{ github.repository }}
           short-description: ${{ github.event.repository.description }}
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -X POST -H 'Secret-Token: ${{ secrets.RUN_APPS_SECRET }}' ${{ secrets.RUN_APPS_URL }}
