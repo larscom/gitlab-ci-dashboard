@@ -1,5 +1,6 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { Pipeline } from '$groups/model/pipeline'
+import { Project } from '$groups/model/project'
 import { ScheduleId, ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { CommonModule } from '@angular/common'
@@ -10,6 +11,7 @@ import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 
 interface Header<T> {
   title: string
@@ -20,7 +22,16 @@ interface Header<T> {
 @Component({
   selector: 'gcd-schedule-table',
   standalone: true,
-  imports: [CommonModule, NzTableModule, NzToolTipModule, NzButtonModule, NzIconModule, NzBadgeModule, StatusColorPipe],
+  imports: [
+    CommonModule,
+    NzTableModule,
+    NzToolTipModule,
+    NzButtonModule,
+    NzIconModule,
+    NzBadgeModule,
+    NextRunAtPipe,
+    StatusColorPipe
+  ],
   templateUrl: './schedule-table.component.html',
   styleUrls: ['./schedule-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -35,7 +46,7 @@ export class ScheduleTableComponent {
       sortable: true,
       compare: (a, b) => compareString(a.schedule.description, b.schedule.description)
     },
-    { title: 'Target', sortable: false, compare: null },
+    { title: 'Branch', sortable: false, compare: null },
     {
       title: 'Next Run',
       sortable: true,
@@ -65,9 +76,14 @@ export class ScheduleTableComponent {
     return timeZone
   }
 
-  onActionClick(e: Event, { web_url }: Pipeline): void {
+  onPipelineClick(e: Event, { web_url }: Pipeline): void {
     e.stopPropagation()
     window.open(web_url, '_blank')
+  }
+
+  onScheduleClick(e: Event, { web_url }: Project): void {
+    e.stopPropagation()
+    window.open(`${web_url}/-/pipeline_schedules`, '_blank')
   }
 
   trackByScheduleId(_: number, { schedule: { id } }: ScheduleWithProjectAndPipeline): ScheduleId {

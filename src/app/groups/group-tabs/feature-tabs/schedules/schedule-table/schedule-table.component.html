@@ -1,4 +1,4 @@
-<nz-table #nzTable nzSize="middle" nzTableLayout="fixed" [nzData]="schedules" [nzPageSize]="10">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedules" [nzPageSize]="10">
   <thead>
     <tr>
       <ng-container *ngFor="let header of headers">
@@ -11,21 +11,44 @@
   </thead>
   <tbody>
     <ng-container *ngFor="let data of nzTable.data; trackBy: trackByScheduleId">
-      <tr>
+      <tr
+        nz-tooltip
+        [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not activated'"
+        [ngStyle]="{ opacity: data.schedule.active ? '1' : '0.3' }"
+      >
         <td>{{ data.project.name }}</td>
         <td class="lowercase">{{ data.schedule.description }}</td>
-        <td>{{ data.schedule.ref }}</td>
-        <td>{{ data.schedule.next_run_at | date : 'medium' : timeZone : locale }}</td>
-        <td>{{ data.schedule.owner.name }}</td>
         <td>
-          <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
-            <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+          <span
+            nz-tooltip
+            [nzTooltipTitle]="
+              data.schedule.ref === data.project.default_branch ? 'default branch: yes' : 'default branch: no'
+            "
+            >{{ data.schedule.ref }}</span
+          >
+        </td>
+        <td>
+          <span nz-tooltip [nzTooltipTitle]="data.schedule.next_run_at | date : 'medium' : timeZone : locale">{{
+            data.schedule.next_run_at | nextRunAt
+          }}</span>
+        </td>
+        <td>
+          <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
+        </td>
+        <td>
+          <ng-container *ngIf="data.latest_pipeline as pipeline">
+            <nz-badge
+              nz-tooltip
+              [nzTooltipTitle]="pipeline.updated_at | date : 'medium' : timeZone : locale"
+              [nzColor]="pipeline.status | statusColor"
+              [nzText]="pipeline.status"
+            ></nz-badge>
           </ng-container>
         </td>
         <td>
-          <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+          <ng-container *ngIf="data.latest_pipeline as pipeline">
             <button
-              (click)="onActionClick($event, pipeline)"
+              (click)="onPipelineClick($event, pipeline)"
               nzType="text"
               nz-tooltip
               [nzTooltipTitle]="'Show pipeline (' + data.project.default_branch + ')'"
@@ -35,7 +58,16 @@
               <span nz-icon nzType="ci"></span>
             </button>
           </ng-container>
-          <ng-template #empty>-</ng-template>
+          <button
+            (click)="onScheduleClick($event, data.project)"
+            nzType="text"
+            nz-tooltip
+            [nzTooltipTitle]="'Show schedules (' + data.project.name + ')'"
+            nz-button
+            nzShape="circle"
+          >
+            <span nz-icon nzType="schedule"></span>
+          </button>
         </td>
       </tr>
     </ng-container>

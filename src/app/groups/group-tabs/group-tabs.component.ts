@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { filter, firstValueFrom, map, switchMap, take, tap } from 'rxjs'
 import { fetchGroups } from '../store/group.actions'
 import { GroupStore } from '../store/group.store'
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'gcd-group-tabs',
   standalone: true,
-  imports: [CommonModule, NzTabsModule, NzSpinModule, FeatureTabsComponent],
+  imports: [CommonModule, NzTabsModule, NzSpinModule, NzToolTipModule, FeatureTabsComponent],
   templateUrl: './group-tabs.component.html',
   styleUrls: ['./group-tabs.component.scss']
 })

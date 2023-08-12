@@ -6,7 +6,12 @@
 <ng-template #loaded>
   <nz-tabset nzType="card" [nzSelectedIndex]="selectedIndex$ | async" (nzSelectChange)="onChange($event)">
     <ng-container *ngFor="let group of groups$ | async; trackBy: trackById">
-      <nz-tab [nzTitle]="group.name | uppercase">
+      <nz-tab [nzTitle]="title">
+        <ng-template #title>
+          <span class="uppercase" nz-tooltip [nzTooltipMouseEnterDelay]="1.5" [nzTooltipTitle]="'ID=' + group.id">{{
+            group.name
+          }}</span>
+        </ng-template>
         <ng-template nz-tab>
           <gcd-feature-tabs></gcd-feature-tabs>
         </ng-template>
