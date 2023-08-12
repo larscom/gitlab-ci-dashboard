@@ -1,4 +1,4 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects" [nzPageSize]="8">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects" [nzPageSize]="10">
   <thead>
     <tr>
       <ng-container *ngFor="let header of headers">
@@ -11,7 +11,7 @@
   </thead>
   <tbody>
     <ng-container *ngFor="let data of nzTable.data; trackBy: trackByProjectId">
-      <tr class="pointer" (click)="onRowClick(data.project)">
+      <tr class="pointer" [attr.data-project-id]="data.project.id" (click)="onRowClick(data.project)">
         <td>{{ data.project.name }}</td>
         <td>{{ data.project.default_branch }}</td>
         <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>

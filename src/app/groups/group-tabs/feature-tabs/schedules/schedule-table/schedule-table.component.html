@@ -13,8 +13,9 @@
     <ng-container *ngFor="let data of nzTable.data; trackBy: trackByScheduleId">
       <tr
         nz-tooltip
-        [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not activated'"
+        [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not active'"
         [ngStyle]="{ opacity: data.schedule.active ? '1' : '0.3' }"
+        [attr.data-project-id]="data.project.id"
       >
         <td>{{ data.project.name }}</td>
         <td class="lowercase">{{ data.schedule.description }}</td>
