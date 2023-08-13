@@ -10,19 +10,31 @@
 
 ![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
-> Gitlab CI Dashboard will provide you a **global** overview of all pipelines, schedules and their status in Gitlab.
+Gitlab CI Dashboard will provide you a **global** overview of all pipelines, schedules and their status within a single group.
 
-## 👉 [Demo](https://gitlab-ci-dashboard.larscom.nl)
+Gitlab's native functionality is limited to offering information at the project level, potentially resulting in undetected failed pipelines.
+
+## 👉 [Preview (master)](https://gitlab-ci-dashboard.larscom.nl)
+
+> Preview may contain functionality that has not been released yet.
 
 <br />
 
 ## 🚀 Highlights
 
-- View all Gitlab CI pipeline statuses in one view
-- View all Gitlab CI pipeline schedules in one view
+- View all pipeline statuses per group (e.g: failed/canceled/success)
+- View all pipeline schedules per group
 - Communication to the Gitlab API happens server side
   - Only 1 `read only` token is needed to serve a whole team
   - You won't get rate limited by the Gitlab API, due to caching
+
+## 📒 Checklist
+
+- Overview of all latest pipeline statuses within a group ✅
+- Overview of all pipeline statuses within a group ✅
+- Overview of all schedules within a group ✅
+- Overview of all artifacts within a group
+- ...
 
 ## ⚡️ Requirements
 
@@ -39,7 +51,7 @@
 2. Run docker with the required environment variables (GITLAB_BASE_URL, GITLAB_API_TOKEN)
 
 ```bash
-docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_API_TOKEN=my_token larscom/gitlab-ci-dashboard
+docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_API_TOKEN=my_token larscom/gitlab-ci-dashboard:latest
 ```
 
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
