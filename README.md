@@ -88,12 +88,3 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 | GITLAB_PIPELINE_HISTORY_DAYS      | int     | How far back in time (days), it should fetch pipelines from gitlab                                     | no       | 5       |
 | GITLAB_BRANCH_CACHE_TTL_SECONDS   | int     | Expire after write time in seconds for branches (cache)                                                | no       | 60      |
 | GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int     | Expire after write time in seconds for schedules (cache)                                               | no       | 300     |
-
-<br />
-
-## 🧐 Why?
-
-At the moment there is no **global** overview of all pipelines/schedules within Gitlab, so you might not be aware of a failed
-pipeline somewhere in Gitlab.
-
-This dashboard is supposed to give you a `readonly` overview of all pipelines/schedules (configurable) within a Gitlab server.
