@@ -21,7 +21,7 @@ func NewProjectClient(client client.GitlabClient) ProjectClient {
 }
 
 func (c *ProjectClientImpl) GetProjects(groupId int) []model.Project {
-	projects, response, err := c.client.ListGroupProjects(groupId, c.createOptions(1))
+	projects, response, err := c.client.ListGroupProjects(groupId, createOptions(1))
 	if err != nil {
 		return projects
 	}
@@ -46,11 +46,11 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []model.Project {
 }
 
 func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, chn chan<- []model.Project) {
-	projects, _, _ := c.client.ListGroupProjects(groupId, c.createOptions(pageNumber))
+	projects, _, _ := c.client.ListGroupProjects(groupId, createOptions(pageNumber))
 	chn <- projects
 }
 
-func (c *ProjectClientImpl) createOptions(pageNumber int) *gitlab.ListGroupProjectsOptions {
+func createOptions(pageNumber int) *gitlab.ListGroupProjectsOptions {
 	return &gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    pageNumber,

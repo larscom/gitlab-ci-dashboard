@@ -21,7 +21,7 @@ func NewBranchClient(client client.GitlabClient) BranchClient {
 }
 
 func (c *BranchClientImpl) GetBranches(projectId int) []model.Branch {
-	branches, response, err := c.client.ListBranches(projectId, c.createOptions(1))
+	branches, response, err := c.client.ListBranches(projectId, createOptions(1))
 	if err != nil {
 		return branches
 	}
@@ -46,11 +46,11 @@ func (c *BranchClientImpl) GetBranches(projectId int) []model.Branch {
 }
 
 func (c *BranchClientImpl) getBranchesByPage(projectId int, pageNumber int, chn chan<- []model.Branch) {
-	branches, _, _ := c.client.ListBranches(projectId, c.createOptions(pageNumber))
+	branches, _, _ := c.client.ListBranches(projectId, createOptions(pageNumber))
 	chn <- branches
 }
 
-func (c *BranchClientImpl) createOptions(pageNumber int) *gitlab.ListBranchesOptions {
+func createOptions(pageNumber int) *gitlab.ListBranchesOptions {
 	return &gitlab.ListBranchesOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    pageNumber,

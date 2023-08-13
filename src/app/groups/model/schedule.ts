@@ -4,7 +4,7 @@ import { Project } from './project'
 export interface ScheduleWithProjectAndPipeline {
   schedule: Schedule
   project: Project
-  latest_pipeline?: Pipeline
+  pipeline?: Pipeline
 }
 
 export interface Owner {

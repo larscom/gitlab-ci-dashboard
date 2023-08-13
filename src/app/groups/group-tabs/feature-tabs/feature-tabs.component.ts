@@ -1,16 +1,16 @@
-import { GroupStore } from '$groups/store/group.store'
 import { GroupId } from '$groups/model/group'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
-import { filter, firstValueFrom, switchMap } from 'rxjs'
+import { Observable } from 'rxjs'
 import { LatestPipelinesComponent } from './latest-pipelines/latest-pipelines.component'
+import { PipelinesComponent } from './pipelines/pipelines.component'
 import { SchedulesComponent } from './schedules/schedules.component'
 
 interface Tab {
-  id: 'latest_pipelines' | 'schedules'
+  id: 'latest_pipelines' | 'pipelines' | 'schedules'
   title: string
   icon: string
 }
@@ -18,19 +18,25 @@ interface Tab {
 @Component({
   selector: 'gcd-feature-tabs',
   standalone: true,
-  imports: [CommonModule, NzTabsModule, NzIconModule, LatestPipelinesComponent, SchedulesComponent],
+  imports: [CommonModule, NzTabsModule, NzIconModule, LatestPipelinesComponent, PipelinesComponent, SchedulesComponent],
   templateUrl: './feature-tabs.component.html',
-  styleUrls: ['./feature-tabs.component.scss']
+  styleUrls: ['./feature-tabs.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeatureTabsComponent {
-  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filter((id): id is GroupId => id != null))
+export class FeatureTabsComponent implements OnChanges {
+  @Input({ required: true }) selectedGroupId!: GroupId
 
-  selectedIndex$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.selectedFeatureTabIndex(groupId)))
+  selectedIndex$!: Observable<number>
 
   tabs: Tab[] = [
     {
       id: 'latest_pipelines',
       title: 'Pipelines (latest)',
+      icon: 'ci'
+    },
+    {
+      id: 'pipelines',
+      title: 'Pipelines',
       icon: 'ci'
     },
     {
@@ -40,10 +46,15 @@ export class FeatureTabsComponent {
     }
   ]
 
-  constructor(private uiStore: UIStore, private groupStore: GroupStore) {}
+  constructor(private uiStore: UIStore) {}
+
+  ngOnChanges({ selectedGroupId }: SimpleChanges): void {
+    if (selectedGroupId) {
+      this.selectedIndex$ = this.uiStore.selectedFeatureTabIndex(this.selectedGroupId)
+    }
+  }
 
   async onChange({ index }: NzTabChangeEvent): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
-    this.uiStore.selectFeatureTabIndex(groupId, index!)
+    this.uiStore.selectFeatureTabIndex(this.selectedGroupId, index!)
   }
 }

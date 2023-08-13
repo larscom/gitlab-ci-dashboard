@@ -8,13 +8,11 @@
       (filterTextChanged)="onFilterTextChanged($event)"
       (filterTopicsChanged)="onFilterTopicsChanged($event)"
     ></gcd-project-filter>
-    <ng-container *ngIf="selectedGroupId$ | async as selectedGroupId">
-      <gcd-auto-refresh
-        [id]="selectedGroupId"
-        [loading]="(autoRefreshLoading$ | async)!"
-        (refresh)="fetch()"
-      ></gcd-auto-refresh>
-    </ng-container>
+    <gcd-auto-refresh
+      [id]="selectedGroupId"
+      [loading]="(autoRefreshLoading$ | async)!"
+      (refresh)="fetch()"
+    ></gcd-auto-refresh>
   </div>
   <ng-container *ngIf="loading$ | async; else loaded">
     <nz-spin></nz-spin>

@@ -36,6 +36,7 @@ func TestMinimumWithDefaults(t *testing.T) {
 	assert.Equal(t, 300, config.ProjectCacheTTLSeconds)
 
 	assert.Equal(t, 10, config.PipelineCacheTTLSeconds)
+	assert.Equal(t, 5, config.PipelineHistoryDays)
 	assert.Equal(t, 60, config.BranchCacheTTLSeconds)
 	assert.Equal(t, 300, config.ScheduleCacheTTLSeconds)
 }
@@ -52,6 +53,7 @@ func TestMaximum(t *testing.T) {
 	t.Setenv("GITLAB_PROJECT_HIDE_UNKNOWN", "true")
 	t.Setenv("GITLAB_PROJECT_CACHE_TTL_SECONDS", "75")
 	t.Setenv("GITLAB_PIPELINE_CACHE_TTL_SECONDS", "85")
+	t.Setenv("GITLAB_PIPELINE_HISTORY_DAYS", "10")
 	t.Setenv("GITLAB_BRANCH_CACHE_TTL_SECONDS", "95")
 	t.Setenv("GITLAB_SCHEDULE_CACHE_TTL_SECONDS", "105")
 
@@ -70,6 +72,7 @@ func TestMaximum(t *testing.T) {
 	assert.Equal(t, 75, config.ProjectCacheTTLSeconds)
 
 	assert.Equal(t, 85, config.PipelineCacheTTLSeconds)
+	assert.Equal(t, 10, config.PipelineHistoryDays)
 	assert.Equal(t, 95, config.BranchCacheTTLSeconds)
 	assert.Equal(t, 105, config.ScheduleCacheTTLSeconds)
 }
@@ -109,6 +112,10 @@ func TestPanics(t *testing.T) {
 	t.Run("GITLAB_PIPELINE_CACHE_TTL_SECONDS", func(t *testing.T) {
 		t.Setenv("GITLAB_PIPELINE_CACHE_TTL_SECONDS", "TT")
 		assert.PanicsWithValue(t, "GITLAB_PIPELINE_CACHE_TTL_SECONDS contains: 'TT' which is not an int", func() { NewGitlabConfig() })
+	})
+	t.Run("GITLAB_PIPELINE_HISTORY_DAYS", func(t *testing.T) {
+		t.Setenv("GITLAB_PIPELINE_HISTORY_DAYS", "TT")
+		assert.PanicsWithValue(t, "GITLAB_PIPELINE_HISTORY_DAYS contains: 'TT' which is not an int", func() { NewGitlabConfig() })
 	})
 	t.Run("GITLAB_BRANCH_CACHE_TTL_SECONDS", func(t *testing.T) {
 		t.Setenv("GITLAB_BRANCH_CACHE_TTL_SECONDS", "TT")

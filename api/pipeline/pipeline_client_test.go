@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetLatestPipeline(t *testing.T) {
-	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil))
+	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipeline(1, "master")
 	assert.NoError(t, err)
@@ -17,7 +17,7 @@ func TestGetLatestPipeline(t *testing.T) {
 }
 
 func TestGetLatestPipelineError(t *testing.T) {
-	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil))
+	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipeline(0, "master")
 	assert.Error(t, err)
@@ -25,7 +25,7 @@ func TestGetLatestPipelineError(t *testing.T) {
 }
 
 func TestGetLatestPipelineBySourceError(t *testing.T) {
-	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil))
+	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipelineBySource(0, "master", "schedule")
 	assert.Error(t, err)
@@ -33,7 +33,7 @@ func TestGetLatestPipelineBySourceError(t *testing.T) {
 }
 
 func TestGetLatestPipelineBySourceErrorNotFound(t *testing.T) {
-	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil))
+	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipelineBySource(1, "master", "web")
 	assert.Error(t, err)
@@ -42,7 +42,7 @@ func TestGetLatestPipelineBySourceErrorNotFound(t *testing.T) {
 }
 
 func TestGetLatestPipelineBySource(t *testing.T) {
-	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil))
+	client := NewPipelineClient(mock.NewMockGitlabClient(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipelineBySource(1, "master", "schedule")
 	assert.NoError(t, err)

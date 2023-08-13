@@ -1,15 +1,14 @@
-import { GroupStore } from '$groups/store/group.store'
 import { GroupId } from '$groups/model/group'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { filter, firstValueFrom, map, switchMap } from 'rxjs'
+import { Observable, map } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs/pipeline-status-tabs.component'
-import { fetchProjectsWithLatestPipeline } from './store/latest-pipeline.actions'
+import { fetchProjectsWithLatestPipeline, resetAllFilters } from './store/latest-pipeline.actions'
 import { LatestPipelineStore } from './store/latest-pipeline.store'
 
 @Component({
@@ -17,14 +16,15 @@ import { LatestPipelineStore } from './store/latest-pipeline.store'
   standalone: true,
   imports: [CommonModule, NzSpinModule, PipelineStatusTabsComponent, ProjectFilterComponent, AutoRefreshComponent],
   templateUrl: './latest-pipelines.component.html',
-  styleUrls: ['./latest-pipelines.component.scss']
+  styleUrls: ['./latest-pipelines.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LatestPipelinesComponent {
-  selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filter((id): id is GroupId => id != null))
+export class LatestPipelinesComponent implements OnInit {
+  @Input({ required: true }) selectedGroupId!: GroupId
+
+  autoRefreshLoading$!: Observable<boolean>
 
   loading$ = this.latestPipelineStore.projectsLoading$
-  autoRefreshLoading$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.autoRefreshLoading(groupId)))
-
   projects$ = this.latestPipelineStore.projectsWithLatestPipeline$.pipe(
     map((map) =>
       Array.from(map.values())
@@ -35,15 +35,18 @@ export class LatestPipelinesComponent {
   currentFilterTopics$ = this.latestPipelineStore.projectFilterTopics$
   currentFilterText$ = this.latestPipelineStore.projectFilterText$
 
-  constructor(
-    private actions: Actions,
-    private groupStore: GroupStore,
-    private latestPipelineStore: LatestPipelineStore,
-    private uiStore: UIStore
-  ) {}
+  constructor(private actions: Actions, private latestPipelineStore: LatestPipelineStore, private uiStore: UIStore) {}
+
+  ngOnInit(): void {
+    const { selectedGroupId: groupId } = this
+
+    this.autoRefreshLoading$ = this.uiStore.autoRefreshLoading(groupId)
+    this.actions.dispatch(resetAllFilters())
+    this.actions.dispatch(fetchProjectsWithLatestPipeline({ groupId }))
+  }
 
   async fetch(): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
+    const { selectedGroupId: groupId } = this
     this.actions.dispatch(fetchProjectsWithLatestPipeline({ groupId, withLoader: false }))
   }
 

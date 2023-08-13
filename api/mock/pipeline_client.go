@@ -15,3 +15,7 @@ func (c *MockPipelineClient) GetLatestPipeline(projectId int, ref string) (*mode
 func (c *MockPipelineClient) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
 	return &model.Pipeline{ProjectId: projectId, Ref: ref, Source: source, Status: "success", Id: 1337}, nil
 }
+
+func (c *MockPipelineClient) GetPipelines(projectId int) []model.Pipeline {
+	return make([]model.Pipeline, 0)
+}

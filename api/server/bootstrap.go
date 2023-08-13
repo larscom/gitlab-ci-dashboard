@@ -38,18 +38,21 @@ func NewBootstrap(
 func (b *Bootstrap) setupProjectHandler(router fiber.Router) {
 	service := project.NewProjectService(
 		b.config,
-		b.caches.projectLoader,
+		b.caches.projectsLoader,
 		b.caches.pipelineLatestLoader,
+		b.caches.pipelinesLoader,
 	)
 
 	handler := project.NewProjectHandler(service)
 
 	// path: /api/projects/latest-pipelines?groupId={groupId}
 	router.Get("/projects/latest-pipelines", handler.HandleGetProjectsWithLatestPipeline)
+	// path: /api/projects/pipelines?groupId={groupId}
+	router.Get("/projects/pipelines", handler.HandleGetProjectsWithPipeline)
 }
 
 func (b *Bootstrap) setupBranchHandler(router fiber.Router) {
-	service := branch.NewBranchService(b.caches.pipelineLatestLoader, b.caches.branchLoader)
+	service := branch.NewBranchService(b.caches.pipelineLatestLoader, b.caches.branchesLoader)
 	handler := branch.NewBranchHandler(service)
 
 	// path: /api/branches/latest-pipelines?projectId={projectId}
@@ -58,8 +61,8 @@ func (b *Bootstrap) setupBranchHandler(router fiber.Router) {
 
 func (b *Bootstrap) setupSchedulesHandler(router fiber.Router) {
 	service := schedule.NewScheduleService(
-		b.caches.projectLoader,
-		b.caches.scheduleLoader,
+		b.caches.projectsLoader,
+		b.caches.schedulesLoader,
 		b.caches.pipelineLatestLoader,
 	)
 	handler := schedule.NewScheduleHandler(service)

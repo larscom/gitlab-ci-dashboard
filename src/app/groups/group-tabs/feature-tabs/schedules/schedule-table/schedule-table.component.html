@@ -1,4 +1,4 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedules" [nzPageSize]="10">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedules" [nzPageSize]="13">
   <thead>
     <tr>
       <ng-container *ngFor="let header of headers">
@@ -37,7 +37,7 @@
           <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
         </td>
         <td>
-          <ng-container *ngIf="data.latest_pipeline as pipeline">
+          <ng-container *ngIf="data.pipeline as pipeline">
             <nz-badge
               nz-tooltip
               [nzTooltipTitle]="pipeline.updated_at | date : 'medium' : timeZone : locale"
@@ -47,7 +47,7 @@
           </ng-container>
         </td>
         <td>
-          <ng-container *ngIf="data.latest_pipeline as pipeline">
+          <ng-container *ngIf="data.pipeline as pipeline">
             <button
               (click)="onPipelineClick($event, pipeline)"
               nzType="text"

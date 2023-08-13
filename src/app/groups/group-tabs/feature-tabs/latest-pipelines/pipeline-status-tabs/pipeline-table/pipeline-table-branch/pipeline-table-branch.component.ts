@@ -1,6 +1,6 @@
 import { AutoRefreshComponent } from '$groups/group-tabs/feature-tabs/components/auto-refresh/auto-refresh.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { BranchWithLatestPipeline, Pipeline } from '$groups/model/pipeline'
+import { BranchWithPipeline, Pipeline } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { UIStore } from '$store/ui.store'
@@ -43,24 +43,24 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableBranchComponent {
-  @Input({ required: true }) branches!: BranchWithLatestPipeline[]
+  @Input({ required: true }) branches!: BranchWithPipeline[]
 
-  headers: Header<BranchWithLatestPipeline>[] = [
+  headers: Header<BranchWithPipeline>[] = [
     { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
     {
       title: 'Status',
       sortable: true,
-      compare: (a, b) => compareString(a.latest_pipeline?.status, b.latest_pipeline?.status)
+      compare: (a, b) => compareString(a.pipeline?.status, b.pipeline?.status)
     },
     {
       title: 'Trigger',
       sortable: true,
-      compare: (a, b) => compareString(a.latest_pipeline?.source, b.latest_pipeline?.source)
+      compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
     },
     {
       title: 'Last Run',
       sortable: true,
-      compare: (a, b) => compareStringDate(a.latest_pipeline?.updated_at, b.latest_pipeline?.updated_at)
+      compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
     }
   ]
 
@@ -92,7 +92,7 @@ export class PipelineTableBranchComponent {
     window.open(web_url, '_blank')
   }
 
-  trackByBranchName(_: number, { branch: { name } }: BranchWithLatestPipeline): string {
+  trackByBranchName(_: number, { branch: { name } }: BranchWithPipeline): string {
     return name
   }
 

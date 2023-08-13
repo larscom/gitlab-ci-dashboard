@@ -8,7 +8,7 @@ export interface Branch {
   can_push: boolean
   web_url: string
   commit: Commit
-  latest_pipeline?: Pipeline
+  pipeline?: Pipeline
 }
 
 export interface Commit {

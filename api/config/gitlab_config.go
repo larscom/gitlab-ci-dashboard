@@ -21,6 +21,7 @@ type GitlabConfig struct {
 	ProjectCacheTTLSeconds int
 
 	PipelineCacheTTLSeconds int
+	PipelineHistoryDays     int
 
 	BranchCacheTTLSeconds int
 
@@ -42,6 +43,7 @@ func NewGitlabConfig() *GitlabConfig {
 		ProjectCacheTTLSeconds: getProjectCacheTTLSeconds(),
 
 		PipelineCacheTTLSeconds: getPipelineCacheTTLSeconds(),
+		PipelineHistoryDays:     getPipelineHistoryDays(),
 
 		BranchCacheTTLSeconds: getBranchCacheTTLSeconds(),
 
@@ -157,6 +159,10 @@ func getProjectCacheTTLSeconds() int {
 
 func getPipelineCacheTTLSeconds() int {
 	return parseInt("GITLAB_PIPELINE_CACHE_TTL_SECONDS", 10)
+}
+
+func getPipelineHistoryDays() int {
+	return parseInt("GITLAB_PIPELINE_HISTORY_DAYS", 5)
 }
 
 func getBranchCacheTTLSeconds() int {

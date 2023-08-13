@@ -12,9 +12,10 @@ type Caches struct {
 	groupCache cache.Cache[string, []model.Group]
 
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
-	projectLoader        cache.Cache[model.GroupId, []model.Project]
-	branchLoader         cache.Cache[model.ProjectId, []model.Branch]
-	scheduleLoader       cache.Cache[model.ProjectId, []model.Schedule]
+	pipelinesLoader      cache.Cache[model.ProjectId, []model.Pipeline]
+	projectsLoader       cache.Cache[model.GroupId, []model.Project]
+	branchesLoader       cache.Cache[model.ProjectId, []model.Branch]
+	schedulesLoader      cache.Cache[model.ProjectId, []model.Schedule]
 }
 
 func NewCaches(config *config.GitlabConfig, clients *Clients) *Caches {
@@ -22,9 +23,11 @@ func NewCaches(config *config.GitlabConfig, clients *Clients) *Caches {
 		groupCache: createGroupCache(config),
 
 		pipelineLatestLoader: createPipelineLatestLoader(config, clients),
-		projectLoader:        createProjectLoader(config, clients),
-		branchLoader:         createBranchLoader(config, clients),
-		scheduleLoader:       createScheduleLoader(config, clients),
+		pipelinesLoader:      createPipelinesLoader(config, clients),
+
+		projectsLoader:  createProjectsLoader(config, clients),
+		branchesLoader:  createBranchesLoader(config, clients),
+		schedulesLoader: createSchedulesLoader(config, clients),
 	}
 }
 
@@ -33,7 +36,7 @@ func createGroupCache(cfg *config.GitlabConfig) cache.Cache[string, []model.Grou
 	return cache.New(cache.WithExpireAfterWrite[string, []model.Group](ttl))
 }
 
-func createScheduleLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.ProjectId, []model.Schedule] {
+func createSchedulesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.ProjectId, []model.Schedule] {
 	return cache.New(
 		cache.WithExpireAfterWrite[model.ProjectId, []model.Schedule](time.Second*time.Duration(cfg.ScheduleCacheTTLSeconds)),
 		cache.WithLoader(func(projectId model.ProjectId) ([]model.Schedule, error) {
@@ -41,7 +44,7 @@ func createScheduleLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[mode
 		}))
 }
 
-func createBranchLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.ProjectId, []model.Branch] {
+func createBranchesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.ProjectId, []model.Branch] {
 	return cache.New(
 		cache.WithExpireAfterWrite[model.ProjectId, []model.Branch](time.Second*time.Duration(cfg.BranchCacheTTLSeconds)),
 		cache.WithLoader(func(projectId model.ProjectId) ([]model.Branch, error) {
@@ -49,7 +52,7 @@ func createBranchLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.
 		}))
 }
 
-func createProjectLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.GroupId, []model.Project] {
+func createProjectsLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.GroupId, []model.Project] {
 	return cache.New(
 		cache.WithExpireAfterWrite[model.GroupId, []model.Project](time.Second*time.Duration(cfg.ProjectCacheTTLSeconds)),
 		cache.WithLoader(func(groupId model.GroupId) ([]model.Project, error) {
@@ -70,5 +73,14 @@ func createPipelineLatestLoader(cfg *config.GitlabConfig, c *Clients) cache.Cach
 
 			pipeline, _ := c.pipelineClient.GetLatestPipeline(id, ref)
 			return pipeline, nil
+		}))
+}
+
+func createPipelinesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.ProjectId, []model.Pipeline] {
+	return cache.New(
+		cache.WithExpireAfterWrite[model.ProjectId, []model.Pipeline](time.Second*time.Duration(cfg.PipelineCacheTTLSeconds)),
+		cache.WithLoader(func(projectId model.ProjectId) ([]model.Pipeline, error) {
+			pipelines := c.pipelineClient.GetPipelines(int(projectId))
+			return pipelines, nil
 		}))
 }

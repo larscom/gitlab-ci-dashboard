@@ -1,5 +1,5 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { ProjectWithLatestPipeline, Status } from '$groups/model/pipeline'
+import { ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
@@ -7,12 +7,12 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
 import { Observable, map } from 'rxjs'
 import { SortProjectsPipe } from '../pipes/sort-projects.pipe'
-import { ProjectFilterService } from '../service/project-filter.service'
+import { ProjectFilterService } from '../../service/project-filter.service'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
 
 interface Tab {
   status: Status
-  projects: ProjectWithLatestPipeline[]
+  projects: ProjectWithPipeline[]
 }
 
 @Component({

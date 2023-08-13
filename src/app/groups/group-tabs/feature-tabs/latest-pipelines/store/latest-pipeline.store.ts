@@ -1,4 +1,4 @@
-import { BranchWithLatestPipeline, ProjectWithLatestPipeline, Status } from '$groups/model/pipeline'
+import { BranchWithPipeline, ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { recordToMap } from '$groups/util/map-record'
 import { Injectable } from '@angular/core'
@@ -14,8 +14,8 @@ import { distinctUntilChanged, map } from 'rxjs'
 
 interface State {
   selectedProjectId?: ProjectId
-  projectsWithLatestPipeline: Record<Status, ProjectWithLatestPipeline[]>
-  branchesWithLatestPipeline: BranchWithLatestPipeline[]
+  projectsWithLatestPipeline: Record<Status, ProjectWithPipeline[]>
+  branchesWithLatestPipeline: BranchWithPipeline[]
   projectFilterText: string
   projectFilterTopics: string[]
   branchFilterText: string
@@ -129,7 +129,7 @@ export class LatestPipelineStore {
     })
   }
 
-  setProjectsWithLatestPipeline(projectsWithLatestPipeline: Record<Status, ProjectWithLatestPipeline[]>): void {
+  setProjectsWithLatestPipeline(projectsWithLatestPipeline: Record<Status, ProjectWithPipeline[]>): void {
     store.update((state) => {
       return {
         ...state,
@@ -138,7 +138,7 @@ export class LatestPipelineStore {
     }, updateRequestStatus('getProjectsWithLatestPipeline', 'success'))
   }
 
-  setBranchesWithLatestPipeline(branchesWithLatestPipeline: BranchWithLatestPipeline[]): void {
+  setBranchesWithLatestPipeline(branchesWithLatestPipeline: BranchWithPipeline[]): void {
     store.update((state) => {
       return {
         ...state,

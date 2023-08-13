@@ -60,7 +60,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/latest-pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		projectsGroupedByStatus := make(map[string][]model.ProjectWithLatestPipeline)
+		projectsGroupedByStatus := make(map[string][]model.ProjectWithPipeline)
 		err := json.Unmarshal(body, &projectsGroupedByStatus)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -71,14 +71,14 @@ func TestServerWithConfig(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, success, 1)
 		assert.Equal(t, "project-1", success[0].Project.Name)
-		assert.Equal(t, "success", success[0].LatestPipeline.Status)
+		assert.Equal(t, "success", success[0].Pipeline.Status)
 	})
 
 	t.Run("TestBranchesLatestPipelinesEndpoint", func(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/latest-pipelines?projectId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		branchesWithPipeline := make([]model.BranchWithLatestPipeline, 0)
+		branchesWithPipeline := make([]model.BranchWithPipeline, 0)
 		err := json.Unmarshal(body, &branchesWithPipeline)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -87,7 +87,7 @@ func TestServerWithConfig(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, branchesWithPipeline, 1)
 		assert.Equal(t, "branch-1", branchesWithPipeline[0].Branch.Name)
-		assert.Equal(t, "success", branchesWithPipeline[0].LatestPipeline.Status)
+		assert.Equal(t, "success", branchesWithPipeline[0].Pipeline.Status)
 	})
 
 	t.Run("TestSchedulesEndpoint", func(t *testing.T) {

@@ -2,20 +2,20 @@ package model
 
 import "time"
 
-type ProjectWithLatestPipeline struct {
-	Project        Project   `json:"project"`
-	LatestPipeline *Pipeline `json:"latest_pipeline"`
+type ProjectWithPipeline struct {
+	Project  Project   `json:"project"`
+	Pipeline *Pipeline `json:"pipeline"`
 }
 
-type BranchWithLatestPipeline struct {
-	Branch         Branch    `json:"branch"`
-	LatestPipeline *Pipeline `json:"latest_pipeline"`
+type BranchWithPipeline struct {
+	Branch   Branch    `json:"branch"`
+	Pipeline *Pipeline `json:"pipeline"`
 }
 
 type ScheduleWithProjectAndPipeline struct {
-	Schedule       Schedule  `json:"schedule"`
-	Project        Project   `json:"project"`
-	LatestPipeline *Pipeline `json:"latest_pipeline"`
+	Schedule Schedule  `json:"schedule"`
+	Project  Project   `json:"project"`
+	Pipeline *Pipeline `json:"pipeline"`
 }
 
 type GroupId int

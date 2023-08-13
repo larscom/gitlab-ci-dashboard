@@ -1,4 +1,4 @@
-import { Pipeline, ProjectWithLatestPipeline } from '$groups/model/pipeline'
+import { Pipeline, ProjectWithPipeline } from '$groups/model/pipeline'
 import { Project, ProjectId } from '$groups/model/project'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { CommonModule } from '@angular/common'
@@ -39,9 +39,9 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
-  @Input({ required: true }) projects!: ProjectWithLatestPipeline[]
+  @Input({ required: true }) projects!: ProjectWithPipeline[]
 
-  headers: Header<ProjectWithLatestPipeline>[] = [
+  headers: Header<ProjectWithPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
     {
       title: 'Branch',
@@ -52,12 +52,12 @@ export class PipelineTableComponent {
     {
       title: 'Trigger',
       sortable: true,
-      compare: (a, b) => compareString(a.latest_pipeline?.source, b.latest_pipeline?.source)
+      compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
     },
     {
       title: 'Last Run',
       sortable: true,
-      compare: (a, b) => compareStringDate(a.latest_pipeline?.updated_at, b.latest_pipeline?.updated_at)
+      compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
     }
   ]
 
@@ -97,7 +97,7 @@ export class PipelineTableComponent {
     }
   }
 
-  trackByProjectId(_: number, { project: { id } }: ProjectWithLatestPipeline): ProjectId {
+  trackByProjectId(_: number, { project: { id } }: ProjectWithPipeline): ProjectId {
     return id
   }
 }

@@ -31,12 +31,14 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsWithLatestPipeline", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []model.Project]()
+		projectsLoader := cache.New[model.GroupId, []model.Project]()
+		pipelinesLoader := cache.New[model.ProjectId, []model.Pipeline]()
+
 		cfg := createConfig(t, make([]int, 0), false)
 
-		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
+		service := NewProjectService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 
-		projectLoader.Put(model.GroupId(1),
+		projectsLoader.Put(model.GroupId(1),
 			[]model.Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
@@ -57,12 +59,12 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		for _, entry := range success {
 			if entry.Project.Id == 111 {
 				assert.Equal(t, "project-1", entry.Project.Name)
-				assert.Equal(t, 1010, entry.LatestPipeline.Id)
-				assert.Equal(t, "success", entry.LatestPipeline.Status)
+				assert.Equal(t, 1010, entry.Pipeline.Id)
+				assert.Equal(t, "success", entry.Pipeline.Status)
 			} else if entry.Project.Id == 333 {
 				assert.Equal(t, "project-3", entry.Project.Name)
-				assert.Equal(t, 3030, entry.LatestPipeline.Id)
-				assert.Equal(t, "success", entry.LatestPipeline.Status)
+				assert.Equal(t, 3030, entry.Pipeline.Id)
+				assert.Equal(t, "success", entry.Pipeline.Status)
 			} else {
 				t.Errorf("expected projectId 111 and projectId 333")
 			}
@@ -72,18 +74,19 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		assert.Len(t, failed, 1)
 		assert.Equal(t, "project-2", failed[0].Project.Name)
 		assert.Equal(t, 222, failed[0].Project.Id)
-		assert.Equal(t, 2020, failed[0].LatestPipeline.Id)
-		assert.Equal(t, "failed", failed[0].LatestPipeline.Status)
+		assert.Equal(t, 2020, failed[0].Pipeline.Id)
+		assert.Equal(t, "failed", failed[0].Pipeline.Status)
 	})
 
 	t.Run("GetProjectsWithLatestPipelineUnknown", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []model.Project]()
+		projectsLoader := cache.New[model.GroupId, []model.Project]()
+		pipelinesLoader := cache.New[model.ProjectId, []model.Pipeline]()
 		cfg := createConfig(t, make([]int, 0), false)
 
-		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
+		service := NewProjectService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 
-		projectLoader.Put(model.GroupId(1), []model.Project{{Id: 111, Name: "project-1", DefaultBranch: "master"}})
+		projectsLoader.Put(model.GroupId(1), []model.Project{{Id: 111, Name: "project-1", DefaultBranch: "master"}})
 
 		pipelineLatestLoader.Put(model.NewPipelineKey(111, "master", nil), nil)
 
@@ -95,19 +98,20 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		assert.Len(t, result, 1)
 		assert.Equal(t, "project-1", result[0].Project.Name)
 		assert.Equal(t, 111, result[0].Project.Id)
-		assert.Nil(t, result[0].LatestPipeline)
+		assert.Nil(t, result[0].Pipeline)
 	})
 
 	t.Run("GetProjectsWithLatestPipelineHideUnknown", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []model.Project]()
+		projectsLoader := cache.New[model.GroupId, []model.Project]()
+		pipelinesLoader := cache.New[model.ProjectId, []model.Pipeline]()
 
 		const hideUnknown = true
 		cfg := createConfig(t, make([]int, 0), hideUnknown)
 
-		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
+		service := NewProjectService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 
-		projectLoader.Put(model.GroupId(1),
+		projectsLoader.Put(model.GroupId(1),
 			[]model.Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
@@ -128,14 +132,15 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsWithLatestPipelineSkipProjectIds", func(t *testing.T) {
 		pipelineLatestLoader := cache.New[model.PipelineKey, *model.Pipeline]()
-		projectLoader := cache.New[model.GroupId, []model.Project]()
+		projectsLoader := cache.New[model.GroupId, []model.Project]()
+		pipelinesLoader := cache.New[model.ProjectId, []model.Pipeline]()
 
 		skipProjectIds := []int{111, 222}
 		cfg := createConfig(t, skipProjectIds, false)
 
-		service := NewProjectService(cfg, projectLoader, pipelineLatestLoader)
+		service := NewProjectService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 
-		projectLoader.Put(model.GroupId(1),
+		projectsLoader.Put(model.GroupId(1),
 			[]model.Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},

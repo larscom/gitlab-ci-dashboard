@@ -8,33 +8,33 @@ import (
 )
 
 type BranchService interface {
-	GetBranchesWithLatestPipeline(projectId int) []model.BranchWithLatestPipeline
+	GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline
 }
 
 type BranchServiceImpl struct {
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
-	branchLoader         cache.Cache[model.ProjectId, []model.Branch]
+	branchesLoader       cache.Cache[model.ProjectId, []model.Branch]
 }
 
 func NewBranchService(
 	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
-	branchLoader cache.Cache[model.ProjectId, []model.Branch],
+	branchesLoader cache.Cache[model.ProjectId, []model.Branch],
 ) BranchService {
 	return &BranchServiceImpl{
 		pipelineLatestLoader,
-		branchLoader,
+		branchesLoader,
 	}
 }
 
-func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithLatestPipeline {
-	branches, _ := s.branchLoader.Get(model.ProjectId(projectId))
+func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline {
+	branches, _ := s.branchesLoader.Get(model.ProjectId(projectId))
 
-	chn := make(chan model.BranchWithLatestPipeline, len(branches))
+	chn := make(chan model.BranchWithPipeline, len(branches))
 	for _, branch := range branches {
 		go s.getLatestPipeline(projectId, branch, chn)
 	}
 
-	result := make([]model.BranchWithLatestPipeline, len(branches))
+	result := make([]model.BranchWithPipeline, len(branches))
 	for i := 0; i < len(branches); i++ {
 		result[i] = <-chn
 	}
@@ -44,18 +44,18 @@ func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model
 	return sortByUpdatedDate(result)
 }
 
-func (s *BranchServiceImpl) getLatestPipeline(projectId int, branch model.Branch, chn chan<- model.BranchWithLatestPipeline) {
+func (s *BranchServiceImpl) getLatestPipeline(projectId int, branch model.Branch, chn chan<- model.BranchWithPipeline) {
 	pipeline, _ := s.pipelineLatestLoader.Get(model.NewPipelineKey(projectId, branch.Name, nil))
-	chn <- model.BranchWithLatestPipeline{
-		Branch:         branch,
-		LatestPipeline: pipeline,
+	chn <- model.BranchWithPipeline{
+		Branch:   branch,
+		Pipeline: pipeline,
 	}
 }
 
-func sortByUpdatedDate(branches []model.BranchWithLatestPipeline) []model.BranchWithLatestPipeline {
+func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPipeline {
 	sort.SliceStable(branches[:], func(a, b int) bool {
-		pipelineA := branches[a].LatestPipeline
-		pipelineB := branches[b].LatestPipeline
+		pipelineA := branches[a].Pipeline
+		pipelineB := branches[b].Pipeline
 
 		if pipelineA != nil && pipelineB == nil {
 			return true

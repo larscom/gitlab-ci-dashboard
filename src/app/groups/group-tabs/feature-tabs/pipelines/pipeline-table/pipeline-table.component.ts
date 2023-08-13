@@ -1,7 +1,4 @@
-import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { Pipeline } from '$groups/model/pipeline'
-import { Project } from '$groups/model/project'
-import { ScheduleId, ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { Pipeline, PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
@@ -9,9 +6,10 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { NextRunAtPipe } from './pipes/next-run-at.pipe'
+import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
 interface Header<T> {
   title: string
@@ -20,42 +18,41 @@ interface Header<T> {
 }
 
 @Component({
-  selector: 'gcd-schedule-table',
+  selector: 'gcd-pipeline-table',
   standalone: true,
   imports: [
     CommonModule,
     NzTableModule,
     NzToolTipModule,
     NzButtonModule,
-    NzIconModule,
     NzBadgeModule,
-    NextRunAtPipe,
+    NzIconModule,
+    NzSpinModule,
     StatusColorPipe
   ],
-  templateUrl: './schedule-table.component.html',
-  styleUrls: ['./schedule-table.component.scss'],
+  templateUrl: './pipeline-table.component.html',
+  styleUrls: ['./pipeline-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ScheduleTableComponent {
-  @Input({ required: true }) schedules!: ScheduleWithProjectAndPipeline[]
+export class PipelineTableComponent {
+  @Input({ required: true }) projects!: ProjectWithPipeline[]
 
-  headers: Header<ScheduleWithProjectAndPipeline>[] = [
+  headers: Header<ProjectWithPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
     {
-      title: 'Description',
+      title: 'Branch',
       sortable: true,
-      compare: (a, b) => compareString(a.schedule.description, b.schedule.description)
-    },
-    { title: 'Branch', sortable: false, compare: null },
-    {
-      title: 'Next Run',
-      sortable: true,
-      compare: (a, b) => compareStringDate(a.schedule.next_run_at, b.schedule.next_run_at)
+      compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)
     },
     {
-      title: 'Owner',
+      title: 'Trigger',
       sortable: true,
-      compare: (a, b) => compareString(a.schedule.owner.name, b.schedule.owner.name)
+      compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
+    },
+    {
+      title: 'Last Run',
+      sortable: true,
+      compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
     },
     {
       title: 'Status',
@@ -76,17 +73,12 @@ export class ScheduleTableComponent {
     return timeZone
   }
 
-  onPipelineClick(e: Event, { web_url }: Pipeline): void {
+  onActionClick(e: Event, { web_url }: Pipeline): void {
     e.stopPropagation()
     window.open(web_url, '_blank')
   }
 
-  onScheduleClick(e: Event, { web_url }: Project): void {
-    e.stopPropagation()
-    window.open(`${web_url}/-/pipeline_schedules`, '_blank')
-  }
-
-  trackByScheduleId(_: number, { schedule: { id } }: ScheduleWithProjectAndPipeline): ScheduleId {
-    return id
+  trackBy(index: number, { pipeline }: ProjectWithPipeline): PipelineId | number {
+    return pipeline?.id || index
   }
 }

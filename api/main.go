@@ -25,7 +25,7 @@ func main() {
 	clients := server.NewClients(
 		project.NewProjectClient(client),
 		group.NewGroupClient(client, config),
-		pipeline.NewPipelineClient(client),
+		pipeline.NewPipelineClient(client, config),
 		branch.NewBranchClient(client),
 		schedule.NewScheduleClient(client),
 	)

@@ -1,0 +1,42 @@
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects" [nzPageSize]="13">
+  <thead>
+    <tr>
+      <ng-container *ngFor="let header of headers">
+        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+          {{ header.title }}
+        </th>
+      </ng-container>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let data of nzTable.data; trackBy: trackBy">
+      <tr [attr.data-project-id]="data.project.id">
+        <td>{{ data.project.name }}</td>
+        <td>{{ data.pipeline?.ref }}</td>
+        <td>{{ data.pipeline?.source || '-' }}</td>
+        <td>{{ (data.pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+        <td>
+          <ng-container *ngIf="data.pipeline as pipeline">
+            <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+          </ng-container>
+        </td>
+        <td>
+          <ng-container *ngIf="data.pipeline as pipeline; else empty">
+            <button
+              (click)="onActionClick($event, pipeline)"
+              nzType="text"
+              nz-tooltip
+              [nzTooltipTitle]="'Show pipeline (' + pipeline.ref + ')'"
+              nz-button
+              nzShape="circle"
+            >
+              <span nz-icon nzType="ci"></span>
+            </button>
+          </ng-container>
+          <ng-template #empty>-</ng-template>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</nz-table>

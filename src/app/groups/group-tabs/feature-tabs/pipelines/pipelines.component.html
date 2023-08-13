@@ -19,6 +19,8 @@
     <nz-spin></nz-spin>
   </ng-container>
   <ng-template #loaded>
-    <gcd-pipeline-status-tabs></gcd-pipeline-status-tabs>
+    <ng-container *ngIf="projectsWithPipeline$ | async as projects">
+      <gcd-pipeline-table [projects]="projects"></gcd-pipeline-table>
+    </ng-container>
   </ng-template>
 </div>

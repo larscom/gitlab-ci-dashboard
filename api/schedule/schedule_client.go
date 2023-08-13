@@ -21,7 +21,7 @@ func NewScheduleClient(client client.GitlabClient) ScheduleClient {
 }
 
 func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []model.Schedule {
-	schedules, response, err := c.client.ListPipelineSchedules(projectId, c.createOptions(1))
+	schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
 	if err != nil {
 		return schedules
 	}
@@ -46,11 +46,11 @@ func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []model.Schedul
 }
 
 func (c *ScheduleClientImpl) getSchedulesByPage(projectId int, pageNumber int, chn chan<- []model.Schedule) {
-	schedules, _, _ := c.client.ListPipelineSchedules(projectId, c.createOptions(pageNumber))
+	schedules, _, _ := c.client.ListPipelineSchedules(projectId, createOptions(pageNumber))
 	chn <- schedules
 }
 
-func (c *ScheduleClientImpl) createOptions(pageNumber int) *gitlab.ListPipelineSchedulesOptions {
+func createOptions(pageNumber int) *gitlab.ListPipelineSchedulesOptions {
 	return &gitlab.ListPipelineSchedulesOptions{
 		Page:    pageNumber,
 		PerPage: 100,

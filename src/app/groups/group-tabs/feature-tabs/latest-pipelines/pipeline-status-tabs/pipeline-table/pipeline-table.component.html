@@ -15,10 +15,10 @@
         <td>{{ data.project.name }}</td>
         <td>{{ data.project.default_branch }}</td>
         <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
-        <td>{{ data.latest_pipeline?.source || '-' }}</td>
-        <td>{{ (data.latest_pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+        <td>{{ data.pipeline?.source || '-' }}</td>
+        <td>{{ (data.pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
         <td>
-          <ng-container *ngIf="data.latest_pipeline as pipeline; else empty">
+          <ng-container *ngIf="data.pipeline as pipeline; else empty">
             <button
               (click)="onActionClick($event, pipeline)"
               nzType="text"

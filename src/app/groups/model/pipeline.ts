@@ -1,16 +1,14 @@
 import { Branch } from './branch'
-import { Project } from './project'
+import { Project, ProjectId } from './project'
 
-export interface LatestPipeline {
-  latest_pipeline?: Pipeline
-}
-
-export interface ProjectWithLatestPipeline extends LatestPipeline {
+export interface ProjectWithPipeline {
   project: Project
+  pipeline?: Pipeline
 }
 
-export interface BranchWithLatestPipeline extends LatestPipeline {
+export interface BranchWithPipeline {
   branch: Branch
+  pipeline?: Pipeline
 }
 
 export enum Source {
@@ -45,9 +43,10 @@ export enum Status {
   UNKNOWN = 'unknown'
 }
 
+export type PipelineId = number
 export interface Pipeline {
-  id: number
-  project_id: number
+  id: PipelineId
+  project_id: ProjectId
   status: Status
   source: Source
   ref: string

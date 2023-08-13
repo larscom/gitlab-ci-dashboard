@@ -9,6 +9,7 @@ import { NzI18nService, en_US, nl_NL } from 'ng-zorro-antd/i18n'
 import { GroupEffects } from './groups/store/group.effects'
 
 import { LatestPipelineEffects } from '$groups/group-tabs/feature-tabs/latest-pipelines/store/latest-pipeline.effects'
+import { PipelineEffects } from '$groups/group-tabs/feature-tabs/pipelines/store/pipeline.effects'
 import { ScheduleEffects } from '$groups/group-tabs/feature-tabs/schedules/store/schedule.effects'
 import en from '@angular/common/locales/en'
 import nl from '@angular/common/locales/nl'
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(),
     provideEffectsManager(),
-    provideEffects(GroupEffects, LatestPipelineEffects, ScheduleEffects),
+    provideEffects(GroupEffects, LatestPipelineEffects, PipelineEffects, ScheduleEffects),
     provideI18n()
   ]
 }

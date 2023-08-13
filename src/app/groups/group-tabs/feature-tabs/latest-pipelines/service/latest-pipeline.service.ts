@@ -1,5 +1,5 @@
 import { GroupId } from '$groups/model/group'
-import { BranchWithLatestPipeline, ProjectWithLatestPipeline, Status } from '$groups/model/pipeline'
+import { BranchWithPipeline, ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { ErrorService } from '$service/alert.service'
 import { HttpClient } from '@angular/common/http'
@@ -14,11 +14,11 @@ export class LatestPipelineService {
   getProjectsWithLatestPipeline(
     groupId: GroupId,
     withLoader: boolean = true
-  ): Observable<Record<Status, ProjectWithLatestPipeline[]>> {
+  ): Observable<Record<Status, ProjectWithPipeline[]>> {
     const url = `${location.origin}/api/projects/latest-pipelines`
 
     const params = { groupId }
-    return this.http.get<Record<Status, ProjectWithLatestPipeline[]>>(url, { params }).pipe(
+    return this.http.get<Record<Status, ProjectWithPipeline[]>>(url, { params }).pipe(
       withLoader ? trackRequestsStatus('getProjectsWithLatestPipeline') : identity,
       catchError((err) => {
         this.errorService.setError(err.status)
@@ -30,11 +30,11 @@ export class LatestPipelineService {
   getBranchesWithLatestPipeline(
     projectId: ProjectId,
     withLoader: boolean = true
-  ): Observable<BranchWithLatestPipeline[]> {
+  ): Observable<BranchWithPipeline[]> {
     const url = `${location.origin}/api/branches/latest-pipelines`
 
     const params = { projectId }
-    return this.http.get<BranchWithLatestPipeline[]>(url, { params }).pipe(
+    return this.http.get<BranchWithPipeline[]>(url, { params }).pipe(
       map((branches) => branches.filter(({ branch }) => !branch.default)),
       withLoader ? trackRequestsStatus('getBranchesWithLatestPipeline') : identity,
       catchError((err) => {
