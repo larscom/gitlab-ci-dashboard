@@ -30,11 +30,11 @@ Gitlab's native functionality is limited to offering information at the project 
 
 ## 📒 Checklist
 
-- Overview of all latest pipeline statuses within a group ✅
-- Overview of all pipeline statuses within a group ✅
-- Overview of all schedules within a group ✅
-- Overview of all artifacts within a group
-- ...
+- [x] Overview of all latest pipeline statuses within a group
+- [x] Overview of all pipeline statuses within a group
+- [x] Overview of all schedules within a group
+- [ ] Overview of all artifacts within a group
+- [ ] ...
 
 ## ⚡️ Requirements
 
