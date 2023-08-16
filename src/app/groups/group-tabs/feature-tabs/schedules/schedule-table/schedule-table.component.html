@@ -22,9 +22,7 @@
         <td>
           <span
             nz-tooltip
-            [nzTooltipTitle]="
-              data.schedule.ref === data.project.default_branch ? 'default branch: yes' : 'default branch: no'
-            "
+            [nzTooltipTitle]="data.schedule.ref === data.project.default_branch ? 'default: yes' : 'default: no'"
             >{{ data.schedule.ref }}</span
           >
         </td>
@@ -37,7 +35,7 @@
           <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
         </td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline">
+          <ng-container *ngIf="data.pipeline as pipeline; else noStatus">
             <nz-badge
               nz-tooltip
               [nzTooltipTitle]="pipeline.updated_at | date : 'medium' : timeZone : locale"
@@ -45,20 +43,28 @@
               [nzText]="pipeline.status"
             ></nz-badge>
           </ng-container>
+          <ng-template #noStatus>
+            <nz-badge [nzColor]="'unknown' | statusColor" nzText="unknown"></nz-badge>
+          </ng-template>
         </td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline">
+          <ng-container *ngIf="data.pipeline as pipeline; else noAction">
             <button
               (click)="onPipelineClick($event, pipeline)"
               nzType="text"
               nz-tooltip
-              [nzTooltipTitle]="'Show pipeline (' + data.project.default_branch + ')'"
+              [nzTooltipTitle]="'Show pipeline (' + data.pipeline.ref + ')'"
               nz-button
               nzShape="circle"
             >
-              <span nz-icon nzType="ci"></span>
+              <span nz-icon nzType="right-circle"></span>
             </button>
           </ng-container>
+          <ng-template #noAction>
+            <button nzType="text" nz-button nzShape="circle" disabled>
+              <span nz-icon nzType="right-circle"></span>
+            </button>
+          </ng-template>
           <button
             (click)="onScheduleClick($event, data.project)"
             nzType="text"

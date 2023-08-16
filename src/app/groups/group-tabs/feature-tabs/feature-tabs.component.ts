@@ -32,12 +32,12 @@ export class FeatureTabsComponent implements OnChanges {
     {
       id: 'latest_pipelines',
       title: 'Pipelines (latest)',
-      icon: 'ci'
+      icon: 'swap-right'
     },
     {
       id: 'pipelines',
       title: 'Pipelines',
-      icon: 'ci'
+      icon: 'retweet'
     },
     {
       id: 'schedules',

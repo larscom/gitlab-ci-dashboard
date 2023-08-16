@@ -7,7 +7,7 @@ import { Pipe, PipeTransform } from '@angular/core'
   standalone: true
 })
 export class StatusColorPipe implements PipeTransform {
-  transform(status?: Status): string {
+  transform(status?: Status | string): string {
     return statusToColor(status)
   }
 }

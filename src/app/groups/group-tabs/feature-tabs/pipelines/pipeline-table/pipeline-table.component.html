@@ -22,7 +22,7 @@
           </ng-container>
         </td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline; else empty">
+          <ng-container *ngIf="data.pipeline as pipeline">
             <button
               (click)="onActionClick($event, pipeline)"
               nzType="text"
@@ -31,10 +31,9 @@
               nz-button
               nzShape="circle"
             >
-              <span nz-icon nzType="ci"></span>
+              <span nz-icon nzType="right-circle"></span>
             </button>
           </ng-container>
-          <ng-template #empty>-</ng-template>
         </td>
       </tr>
     </ng-container>

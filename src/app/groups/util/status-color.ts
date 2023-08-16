@@ -3,7 +3,7 @@ import { Status } from '$groups/model/pipeline'
 type Color = string
 
 const dark6 = '#25262B'
-const colorMap = new Map<Status, Color>([
+const colorMap = new Map<Status | string, Color>([
   [Status.CREATED, dark6],
   [Status.WAITING_FOR_RESOURCE, dark6],
   [Status.PREPARING, '#4C6EF5'],
@@ -18,6 +18,6 @@ const colorMap = new Map<Status, Color>([
   [Status.UNKNOWN, '#868E96']
 ])
 
-export function statusToColor(status?: Status): Color {
+export function statusToColor(status?: Status | string): Color {
   return status ? colorMap.get(status) || dark6 : dark6
 }

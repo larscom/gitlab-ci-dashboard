@@ -11,19 +11,19 @@ import (
 )
 
 type GitlabClient interface {
-	ListBranches(int, *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error)
+	ListBranches(projectId int, opts *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error)
 
-	ListGroups(*gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error)
+	ListGroups(opts *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error)
 
-	GetGroup(int, *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error)
+	GetGroup(groupId int, opts *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error)
 
-	GetLatestPipeline(int, *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error)
+	GetLatestPipeline(projectId int, opts *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error)
 
-	ListProjectPipelines(int, *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error)
+	ListProjectPipelines(projectId int, opts *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error)
 
-	ListGroupProjects(int, *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error)
+	ListGroupProjects(groupId int, opts *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error)
 
-	ListPipelineSchedules(int, *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error)
+	ListPipelineSchedules(projectId int, opts *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
