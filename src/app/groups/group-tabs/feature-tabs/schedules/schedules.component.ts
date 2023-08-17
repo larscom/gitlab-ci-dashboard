@@ -1,15 +1,16 @@
-import { GroupId } from '$groups/model/group'
+import { GroupStore } from '$groups/store/group.store'
+import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { Observable, map } from 'rxjs'
+import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { ScheduleTableComponent } from './schedule-table/schedule-table.component'
 import { ScheduleFilterService } from './service/schedule-filter.service'
-import { fetchSchedules, resetAllFilters } from './store/schedule.actions'
+import { fetchSchedules } from './store/schedule.actions'
 import { ScheduleStore } from './store/schedule.store'
 
 @Component({
@@ -17,45 +18,43 @@ import { ScheduleStore } from './store/schedule.store'
   standalone: true,
   imports: [CommonModule, NzSpinModule, ScheduleTableComponent, AutoRefreshComponent, ProjectFilterComponent],
   templateUrl: './schedules.component.html',
-  styleUrls: ['./schedules.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./schedules.component.scss']
 })
-export class SchedulesComponent implements OnInit {
-  @Input({ required: true }) selectedGroupId!: GroupId
+export class SchedulesComponent {
+  selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
-  autoRefreshLoading$!: Observable<boolean>
+  autoRefreshLoading$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.autoRefreshLoading(groupId)))
 
   loading$ = this.scheduleStore.loading$
   schedules$ = this.scheduleFilterService.getSchedules()
   projects$ = this.scheduleStore.schedules$.pipe(map((schedules) => schedules.map(({ project }) => project)))
-  currentFilterTopics$ = this.scheduleStore.projectFilterTopics$
-  currentFilterText$ = this.scheduleStore.projectFilterText$
+  currentFilterTopics$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.scheduleStore.topicsFilter(groupId))
+  )
+  currentFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.projectFilter(groupId)))
 
   constructor(
     private actions: Actions,
     private scheduleStore: ScheduleStore,
+    private groupStore: GroupStore,
     private uiStore: UIStore,
     private scheduleFilterService: ScheduleFilterService
-  ) {}
-
-  ngOnInit(): void {
-    const { selectedGroupId: groupId } = this
-
-    this.autoRefreshLoading$ = this.uiStore.autoRefreshLoading(groupId)
-    this.actions.dispatch(resetAllFilters())
-    this.actions.dispatch(fetchSchedules({ groupId }))
+  ) {
+    this.selectedGroupId$.pipe(take(1)).subscribe((groupId) => this.actions.dispatch(fetchSchedules({ groupId })))
   }
 
   async fetch(): Promise<void> {
-    const { selectedGroupId: groupId } = this
+    const groupId = await firstValueFrom(this.selectedGroupId$)
     this.actions.dispatch(fetchSchedules({ groupId, withLoader: false }))
   }
 
-  onFilterTopicsChanged(topics: string[]): void {
-    this.scheduleStore.setProjectFilterTopics(topics)
+  async onFilterTopicsChanged(topics: string[]): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.scheduleStore.setTopicsFilter(groupId, topics)
   }
 
-  onFilterTextChanged(filterText: string): void {
-    this.scheduleStore.setProjectFilterText(filterText)
+  async onFilterTextChanged(filterText: string): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.scheduleStore.setProjectFilter(groupId, filterText)
   }
 }

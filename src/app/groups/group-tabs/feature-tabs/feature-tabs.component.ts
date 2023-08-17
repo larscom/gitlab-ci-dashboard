@@ -1,10 +1,11 @@
-import { GroupId } from '$groups/model/group'
+import { GroupStore } from '$groups/store/group.store'
+import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core'
+import { Component } from '@angular/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
-import { Observable } from 'rxjs'
+import { firstValueFrom, switchMap } from 'rxjs'
 import { LatestPipelinesComponent } from './latest-pipelines/latest-pipelines.component'
 import { PipelinesComponent } from './pipelines/pipelines.component'
 import { SchedulesComponent } from './schedules/schedules.component'
@@ -20,13 +21,12 @@ interface Tab {
   standalone: true,
   imports: [CommonModule, NzTabsModule, NzIconModule, LatestPipelinesComponent, PipelinesComponent, SchedulesComponent],
   templateUrl: './feature-tabs.component.html',
-  styleUrls: ['./feature-tabs.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./feature-tabs.component.scss']
 })
-export class FeatureTabsComponent implements OnChanges {
-  @Input({ required: true }) selectedGroupId!: GroupId
+export class FeatureTabsComponent {
+  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
-  selectedIndex$!: Observable<number>
+  selectedIndex$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.selectedFeatureTabIndex(groupId)))
 
   tabs: Tab[] = [
     {
@@ -46,15 +46,10 @@ export class FeatureTabsComponent implements OnChanges {
     }
   ]
 
-  constructor(private uiStore: UIStore) {}
-
-  ngOnChanges({ selectedGroupId }: SimpleChanges): void {
-    if (selectedGroupId) {
-      this.selectedIndex$ = this.uiStore.selectedFeatureTabIndex(this.selectedGroupId)
-    }
-  }
+  constructor(private uiStore: UIStore, private groupStore: GroupStore) {}
 
   async onChange({ index }: NzTabChangeEvent): Promise<void> {
-    this.uiStore.selectFeatureTabIndex(this.selectedGroupId, index!)
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.uiStore.selectFeatureTabIndex(groupId, index!)
   }
 }

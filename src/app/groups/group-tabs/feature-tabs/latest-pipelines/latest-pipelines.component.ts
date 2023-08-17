@@ -1,14 +1,15 @@
-import { GroupId } from '$groups/model/group'
+import { GroupStore } from '$groups/store/group.store'
+import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { Observable, map } from 'rxjs'
+import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs/pipeline-status-tabs.component'
-import { fetchProjectsWithLatestPipeline, resetAllFilters } from './store/latest-pipeline.actions'
+import { fetchProjectsWithLatestPipeline } from './store/latest-pipeline.actions'
 import { LatestPipelineStore } from './store/latest-pipeline.store'
 
 @Component({
@@ -16,13 +17,18 @@ import { LatestPipelineStore } from './store/latest-pipeline.store'
   standalone: true,
   imports: [CommonModule, NzSpinModule, PipelineStatusTabsComponent, ProjectFilterComponent, AutoRefreshComponent],
   templateUrl: './latest-pipelines.component.html',
-  styleUrls: ['./latest-pipelines.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./latest-pipelines.component.scss']
 })
-export class LatestPipelinesComponent implements OnInit {
-  @Input({ required: true }) selectedGroupId!: GroupId
+export class LatestPipelinesComponent {
+  selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
-  autoRefreshLoading$!: Observable<boolean>
+  autoRefreshLoading$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.autoRefreshLoading(groupId)))
+  currentFilterTopics$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.latestPipelineStore.topicsFilter(groupId))
+  )
+  currentFilterText$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.latestPipelineStore.projectFilter(groupId))
+  )
 
   loading$ = this.latestPipelineStore.projectsLoading$
   projects$ = this.latestPipelineStore.projectsWithLatestPipeline$.pipe(
@@ -32,29 +38,30 @@ export class LatestPipelinesComponent implements OnInit {
         .map(({ project }) => project)
     )
   )
-  currentFilterTopics$ = this.latestPipelineStore.projectFilterTopics$
-  currentFilterText$ = this.latestPipelineStore.projectFilterText$
 
-  constructor(private actions: Actions, private latestPipelineStore: LatestPipelineStore, private uiStore: UIStore) {}
-
-  ngOnInit(): void {
-    const { selectedGroupId: groupId } = this
-
-    this.autoRefreshLoading$ = this.uiStore.autoRefreshLoading(groupId)
-    this.actions.dispatch(resetAllFilters())
-    this.actions.dispatch(fetchProjectsWithLatestPipeline({ groupId }))
+  constructor(
+    private actions: Actions,
+    private latestPipelineStore: LatestPipelineStore,
+    private groupStore: GroupStore,
+    private uiStore: UIStore
+  ) {
+    this.selectedGroupId$
+      .pipe(take(1))
+      .subscribe((groupId) => this.actions.dispatch(fetchProjectsWithLatestPipeline({ groupId })))
   }
 
   async fetch(): Promise<void> {
-    const { selectedGroupId: groupId } = this
+    const groupId = await firstValueFrom(this.selectedGroupId$)
     this.actions.dispatch(fetchProjectsWithLatestPipeline({ groupId, withLoader: false }))
   }
 
-  onFilterTopicsChanged(topics: string[]): void {
-    this.latestPipelineStore.setProjectFilterTopics(topics)
+  async onFilterTopicsChanged(topics: string[]): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.latestPipelineStore.setTopicsFilter(groupId, topics)
   }
 
-  onFilterTextChanged(filterText: string): void {
-    this.latestPipelineStore.setProjectFilterText(filterText)
+  async onFilterTextChanged(filterText: string): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.latestPipelineStore.setProjectFilter(groupId, filterText)
   }
 }

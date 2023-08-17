@@ -1,3 +1,4 @@
+import { GroupId } from '$groups/model/group'
 import { BranchWithPipeline, ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { recordToMap } from '$groups/util/map-record'
@@ -16,18 +17,21 @@ interface State {
   selectedProjectId?: ProjectId
   projectsWithLatestPipeline: Record<Status, ProjectWithPipeline[]>
   branchesWithLatestPipeline: BranchWithPipeline[]
-  projectFilterText: string
-  projectFilterTopics: string[]
-  branchFilterText: string
+
+  filters: {
+    [groupId: GroupId]: {
+      project: string
+      topics: string[]
+      branch: string
+    }
+  }
 }
 
 const { state, config } = createState(
   withProps<State>({
     projectsWithLatestPipeline: Object(),
     branchesWithLatestPipeline: [],
-    projectFilterText: '',
-    projectFilterTopics: [],
-    branchFilterText: ''
+    filters: Object()
   }),
   withRequestsStatus()
 )
@@ -40,14 +44,7 @@ persistState(store, {
   storage: localStorageStrategy,
   source: () =>
     store.pipe(
-      excludeKeys([
-        'branchFilterText',
-        'projectFilterText',
-        'branchesWithLatestPipeline',
-        'projectsWithLatestPipeline',
-        'requestsStatus',
-        'selectedProjectId'
-      ])
+      excludeKeys(['branchesWithLatestPipeline', 'projectsWithLatestPipeline', 'requestsStatus', 'selectedProjectId'])
     )
 })
 
@@ -79,19 +76,25 @@ export class LatestPipelineStore {
     distinctUntilChanged()
   )
 
-  readonly projectFilterTopics$ = store.pipe(
-    map(({ projectFilterTopics }) => projectFilterTopics),
+  private readonly filters$ = store.pipe(
+    map(({ filters }) => filters),
     distinctUntilChanged()
   )
-  readonly projectFilterText$ = store.pipe(
-    map(({ projectFilterText }) => projectFilterText),
-    distinctUntilChanged()
-  )
-
-  readonly branchFilterText$ = store.pipe(
-    map(({ branchFilterText }) => branchFilterText),
-    distinctUntilChanged()
-  )
+  readonly topicsFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.topics || []),
+      distinctUntilChanged()
+    )
+  readonly projectFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.project || ''),
+      distinctUntilChanged()
+    )
+  readonly branchFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.branch || ''),
+      distinctUntilChanged()
+    )
 
   selectProjectId(projectId?: ProjectId): void {
     store.update((state) => {
@@ -102,29 +105,47 @@ export class LatestPipelineStore {
     })
   }
 
-  setProjectFilterText(text: string): void {
+  setProjectFilter(groupId: GroupId, project: string): void {
     store.update((state) => {
       return {
         ...state,
-        projectFilterText: text
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            project
+          }
+        }
       }
     })
   }
 
-  setProjectFilterTopics(topics: string[]): void {
+  setTopicsFilter(groupId: GroupId, topics: string[]): void {
     store.update((state) => {
       return {
         ...state,
-        projectFilterTopics: topics
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            topics
+          }
+        }
       }
     })
   }
 
-  setBranchFilterText(text: string): void {
+  setBranchFilter(groupId: GroupId, branch: string): void {
     store.update((state) => {
       return {
         ...state,
-        branchFilterText: text
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            branch
+          }
+        }
       }
     })
   }

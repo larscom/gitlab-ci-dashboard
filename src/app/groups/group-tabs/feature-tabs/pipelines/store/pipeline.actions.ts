@@ -8,5 +8,3 @@ export const fetchProjectsWithPipeline = actions.create(
   '- Fetch Projects',
   props<{ groupId: GroupId; withLoader?: boolean }>()
 )
-
-export const resetAllFilters = actions.create('- Reset Filters')

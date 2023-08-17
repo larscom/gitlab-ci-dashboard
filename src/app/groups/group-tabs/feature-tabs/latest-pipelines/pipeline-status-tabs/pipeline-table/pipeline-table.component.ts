@@ -15,6 +15,8 @@ import { fetchBranchesWithLatestPipeline } from '../../store/latest-pipeline.act
 import { LatestPipelineStore } from '../../store/latest-pipeline.store'
 import { BranchFilterService } from './pipeline-table-branch/branch-filter/branch-filter.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
+import { GroupStore } from '$groups/store/group.store'
+import { filterNotNull } from '$groups/util/filter'
 
 interface Header<T> {
   title: string
@@ -62,11 +64,12 @@ export class PipelineTableComponent {
   ]
 
   branches$ = this.branchFilterService.getBranchesWithLatestPipeline()
-  selectedProjectId$ = this.store.selectedProjectId$
+  selectedProjectId$ = this.latestPipelineStore.selectedProjectId$
 
   constructor(
     private i18n: NzI18nService,
-    private store: LatestPipelineStore,
+    private latestPipelineStore: LatestPipelineStore,
+    private groupStore: GroupStore,
     private branchFilterService: BranchFilterService,
     private actions: Actions
   ) {}
@@ -89,11 +92,12 @@ export class PipelineTableComponent {
   async onRowClick({ id: projectId }: Project): Promise<void> {
     const selectedId = await firstValueFrom(this.selectedProjectId$)
     if (projectId === selectedId) {
-      this.store.selectProjectId(undefined)
+      this.latestPipelineStore.selectProjectId(undefined)
     } else {
-      this.store.selectProjectId(projectId)
+      const groupId = await firstValueFrom(this.groupStore.selectedGroupId$.pipe(filterNotNull))
+      this.latestPipelineStore.selectProjectId(projectId)
       this.actions.dispatch(fetchBranchesWithLatestPipeline({ projectId }))
-      this.store.setBranchFilterText('')
+      this.latestPipelineStore.setBranchFilter(groupId, '')
     }
   }
 

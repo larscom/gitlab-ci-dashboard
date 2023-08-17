@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core'
 import { createEffect, ofType } from '@ngneat/effects'
 import { of, switchMap, tap, zip } from 'rxjs'
 import { PipelineService } from '../service/pipeline.service'
-import { fetchProjectsWithPipeline, resetAllFilters } from './pipeline.actions'
+import { fetchProjectsWithPipeline } from './pipeline.actions'
 import { PipelineStore } from './pipeline.store'
 
 @Injectable({ providedIn: 'root' })
@@ -17,16 +17,6 @@ export class PipelineEffects {
       ),
       tap(([_, projects]) => this.pipelineStore.setProjectsWithPipeline(projects)),
       tap(([groupId]) => this.uiStore.setAutoRefreshLoading(groupId, false))
-    )
-  })
-
-  resetAllFilters = createEffect((actions) => {
-    return actions.pipe(
-      ofType(resetAllFilters),
-      tap(() => {
-        this.pipelineStore.setProjectFilterText('')
-        this.pipelineStore.setProjectFilterTopics([])
-      })
     )
   })
 

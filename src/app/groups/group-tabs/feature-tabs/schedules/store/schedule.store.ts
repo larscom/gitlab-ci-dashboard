@@ -1,3 +1,4 @@
+import { GroupId } from '$groups/model/group'
 import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
@@ -5,7 +6,6 @@ import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-per
 import {
   createRequestsStatusOperator,
   selectIsRequestPending,
-  selectRequestStatus,
   updateRequestStatus,
   withRequestsStatus
 } from '@ngneat/elf-requests'
@@ -13,22 +13,24 @@ import { distinctUntilChanged, map } from 'rxjs'
 
 interface State {
   schedules: ScheduleWithProjectAndPipeline[]
-  projectFilterText: string
-  projectFilterTopics: string[]
+
+  filters: {
+    [groupId: GroupId]: {
+      project: string
+      topics: string[]
+    }
+  }
 }
 
-const { state, config } = createState(
-  withProps<State>({ schedules: [], projectFilterText: '', projectFilterTopics: [] }),
-  withRequestsStatus()
-)
+const { state, config } = createState(withProps<State>({ schedules: [], filters: Object() }), withRequestsStatus())
 
-export const storeName = 'schedules'
+export const storeName = 'schedule'
 const store = new Store({ state, name: storeName, config })
 
 persistState(store, {
   key: storeName,
   storage: localStorageStrategy,
-  source: () => store.pipe(excludeKeys(['projectFilterText', 'requestsStatus', 'schedules']))
+  source: () => store.pipe(excludeKeys(['requestsStatus', 'schedules']))
 })
 
 export const trackRequestsStatus = createRequestsStatusOperator(store)
@@ -40,19 +42,22 @@ export class ScheduleStore {
     map(({ schedules }) => schedules),
     distinctUntilChanged()
   )
-  readonly loading$ = store.pipe(
-    selectIsRequestPending('getSchedules'),
-    distinctUntilChanged()
-  )
+  readonly loading$ = store.pipe(selectIsRequestPending('getSchedules'), distinctUntilChanged())
 
-  readonly projectFilterTopics$ = store.pipe(
-    map(({ projectFilterTopics }) => projectFilterTopics),
+  private readonly filters$ = store.pipe(
+    map(({ filters }) => filters),
     distinctUntilChanged()
   )
-  readonly projectFilterText$ = store.pipe(
-    map(({ projectFilterText }) => projectFilterText),
-    distinctUntilChanged()
-  )
+  readonly topicsFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.topics || []),
+      distinctUntilChanged()
+    )
+  readonly projectFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.project || ''),
+      distinctUntilChanged()
+    )
 
   setSchedules(schedules: ScheduleWithProjectAndPipeline[]): void {
     store.update((state) => {
@@ -63,20 +68,32 @@ export class ScheduleStore {
     }, updateRequestStatus('getSchedules', 'success'))
   }
 
-  setProjectFilterText(text: string): void {
+  setProjectFilter(groupId: GroupId, project: string): void {
     store.update((state) => {
       return {
         ...state,
-        projectFilterText: text
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            project
+          }
+        }
       }
     })
   }
 
-  setProjectFilterTopics(topics: string[]): void {
+  setTopicsFilter(groupId: GroupId, topics: string[]): void {
     store.update((state) => {
       return {
         ...state,
-        projectFilterTopics: topics
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            topics
+          }
+        }
       }
     })
   }

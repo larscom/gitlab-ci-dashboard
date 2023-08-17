@@ -1,4 +1,5 @@
 import { Group, GroupId } from '$groups/model/group'
+import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
@@ -8,7 +9,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { filter, firstValueFrom, map, switchMap, tap } from 'rxjs'
+import { firstValueFrom, map, switchMap, tap } from 'rxjs'
 import { fetchGroups } from '../store/group.actions'
 import { GroupStore } from '../store/group.store'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
@@ -31,7 +32,7 @@ import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
 export class GroupTabsComponent {
   groups$ = this.groupStore.groups$
   loading$ = this.groupStore.loading$
-  selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filter((id): id is GroupId => id != null))
+  selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
   selectedIndex$ = this.groupStore.selectedGroupId$.pipe(
     switchMap((gid) => this.groups$.pipe(map((groups) => groups.findIndex(({ id }) => id === gid)))),

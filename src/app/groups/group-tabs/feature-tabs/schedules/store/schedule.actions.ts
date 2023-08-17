@@ -5,5 +5,3 @@ import { storeName } from './schedule.store'
 const actions = actionsFactory(storeName)
 
 export const fetchSchedules = actions.create('- Fetch Schedules', props<{ groupId: GroupId; withLoader?: boolean }>())
-
-export const resetAllFilters = actions.create('- Reset Filters')

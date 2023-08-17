@@ -1,3 +1,4 @@
+import { GroupId } from '$groups/model/group'
 import { ProjectWithPipeline } from '$groups/model/pipeline'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
@@ -12,15 +13,19 @@ import { distinctUntilChanged, map } from 'rxjs'
 
 interface State {
   projectsWithPipeline: ProjectWithPipeline[]
-  projectFilterText: string
-  projectFilterTopics: string[]
+
+  filters: {
+    [groupId: GroupId]: {
+      project: string
+      topics: string[]
+    }
+  }
 }
 
 const { state, config } = createState(
   withProps<State>({
     projectsWithPipeline: [],
-    projectFilterText: '',
-    projectFilterTopics: []
+    filters: Object()
   }),
   withRequestsStatus()
 )
@@ -31,7 +36,7 @@ const store = new Store({ state, name: storeName, config })
 persistState(store, {
   key: storeName,
   storage: localStorageStrategy,
-  source: () => store.pipe(excludeKeys(['projectsWithPipeline', 'projectFilterText', 'requestsStatus']))
+  source: () => store.pipe(excludeKeys(['projectsWithPipeline', 'requestsStatus']))
 })
 
 export const trackRequestsStatus = createRequestsStatusOperator(store)
@@ -45,29 +50,47 @@ export class PipelineStore {
   )
   readonly projectsLoading$ = store.pipe(selectIsRequestPending('getProjectsWithPipeline'), distinctUntilChanged())
 
-  readonly projectFilterTopics$ = store.pipe(
-    map(({ projectFilterTopics }) => projectFilterTopics),
+  private readonly filters$ = store.pipe(
+    map(({ filters }) => filters),
     distinctUntilChanged()
   )
-  readonly projectFilterText$ = store.pipe(
-    map(({ projectFilterText }) => projectFilterText),
-    distinctUntilChanged()
-  )
+  readonly topicsFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.topics || []),
+      distinctUntilChanged()
+    )
+  readonly projectFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.project || ''),
+      distinctUntilChanged()
+    )
 
-  setProjectFilterText(text: string): void {
+  setProjectFilter(groupId: GroupId, project: string): void {
     store.update((state) => {
       return {
         ...state,
-        projectFilterText: text
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            project
+          }
+        }
       }
     })
   }
 
-  setProjectFilterTopics(topics: string[]): void {
+  setTopicsFilter(groupId: GroupId, topics: string[]): void {
     store.update((state) => {
       return {
         ...state,
-        projectFilterTopics: topics
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            topics
+          }
+        }
       }
     })
   }

@@ -1,8 +1,8 @@
 import { AutoRefreshComponent } from '$groups/group-tabs/feature-tabs/components/auto-refresh/auto-refresh.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { BranchWithPipeline, Pipeline } from '$groups/model/pipeline'
-import { ProjectId } from '$groups/model/project'
 import { compareString, compareStringDate } from '$groups/util/compare'
+import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
@@ -13,7 +13,7 @@ import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { filter, firstValueFrom, switchMap } from 'rxjs'
+import { firstValueFrom, switchMap } from 'rxjs'
 import { fetchBranchesWithLatestPipeline } from '../../../store/latest-pipeline.actions'
 import { LatestPipelineStore } from '../../../store/latest-pipeline.store'
 import { BranchFilterComponent } from './branch-filter/branch-filter.component'
@@ -65,7 +65,7 @@ export class PipelineTableBranchComponent {
   ]
 
   loading$ = this.latestPipelineStore.branchesLoading$
-  selectedProjectId$ = this.latestPipelineStore.selectedProjectId$.pipe(filter((id): id is ProjectId => id != null))
+  selectedProjectId$ = this.latestPipelineStore.selectedProjectId$.pipe(filterNotNull)
   autoRefreshLoading$ = this.selectedProjectId$.pipe(
     switchMap((projectId) => this.uiStore.autoRefreshLoading(projectId))
   )

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core'
 import { createEffect, ofType } from '@ngneat/effects'
 import { of, switchMap, tap, zip } from 'rxjs'
 import { ScheduleService } from '../service/schedule.service'
-import { fetchSchedules, resetAllFilters } from './schedule.actions'
+import { fetchSchedules } from './schedule.actions'
 import { ScheduleStore } from './schedule.store'
 
 @Injectable({ providedIn: 'root' })
@@ -15,16 +15,6 @@ export class ScheduleEffects {
       switchMap(({ groupId, withLoader }) => zip(of(groupId), this.scheduleService.getSchedules(groupId, withLoader))),
       tap(([_, schedules]) => this.scheduleStore.setSchedules(schedules)),
       tap(([groupId]) => this.uiStore.setAutoRefreshLoading(groupId, false))
-    )
-  })
-
-  resetAllFilters = createEffect((actions) => {
-    return actions.pipe(
-      ofType(resetAllFilters),
-      tap(() => {
-        this.scheduleStore.setProjectFilterText('')
-        this.scheduleStore.setProjectFilterTopics([])
-      })
     )
   })
 

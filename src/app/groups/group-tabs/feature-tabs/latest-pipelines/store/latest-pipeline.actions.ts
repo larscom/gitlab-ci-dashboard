@@ -14,5 +14,3 @@ export const fetchBranchesWithLatestPipeline = actions.create(
   '- Fetch Branches',
   props<{ projectId: ProjectId; withLoader?: boolean }>()
 )
-
-export const resetAllFilters = actions.create('- Reset Filters')
