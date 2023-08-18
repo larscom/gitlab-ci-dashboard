@@ -52,4 +52,6 @@ export class FeatureTabsComponent {
     const groupId = await firstValueFrom(this.selectedGroupId$)
     this.uiStore.selectFeatureTabIndex(groupId, index!)
   }
+
+
 }

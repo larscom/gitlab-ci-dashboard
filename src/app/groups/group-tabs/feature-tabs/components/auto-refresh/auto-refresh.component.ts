@@ -34,7 +34,7 @@ export class AutoRefreshComponent implements OnChanges, OnDestroy {
 
   intervalSeconds = ''
 
-  intervalRef?: NodeJS.Timer
+  intervalRef?: NodeJS.Timeout
   subscription?: Subscription
 
   constructor(private uiStore: UIStore) {}

@@ -2,6 +2,7 @@ package schedule
 
 import (
 	"sort"
+	"sync"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/go-cache"
@@ -32,22 +33,30 @@ func NewScheduleService(
 func (s *ScheduleServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
 	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
 
-	chn := make(chan []model.ScheduleWithProjectAndPipeline, len(projects))
+	chn := make(chan []model.ScheduleWithProjectAndPipeline, 20)
+
+	var wg sync.WaitGroup
 	for _, project := range projects {
-		go s.getSchedules(project, chn)
+		wg.Add(1)
+		go s.getSchedules(project, &wg, chn)
 	}
+
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
 	schedules := make([]model.ScheduleWithProjectAndPipeline, 0)
-	for i := 0; i < len(projects); i++ {
-		schedules = append(schedules, <-chn...)
+	for value := range chn {
+		schedules = append(schedules, value...)
 	}
-
-	close(chn)
 
 	return sortById(schedules)
 }
 
-func (s *ScheduleServiceImpl) getSchedules(project model.Project, chn chan<- []model.ScheduleWithProjectAndPipeline) {
+func (s *ScheduleServiceImpl) getSchedules(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ScheduleWithProjectAndPipeline) {
+	defer wg.Done()
+
 	schedules, _ := s.schedulesLoader.Get(model.ProjectId(project.Id))
 
 	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))

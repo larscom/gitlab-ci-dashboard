@@ -2,6 +2,7 @@ package branch
 
 import (
 	"sort"
+	"sync"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/go-cache"
@@ -30,21 +31,28 @@ func (s *BranchServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model
 	branches, _ := s.branchesLoader.Get(model.ProjectId(projectId))
 
 	chn := make(chan model.BranchWithPipeline, len(branches))
+
+	var wg sync.WaitGroup
 	for _, branch := range branches {
-		go s.getLatestPipeline(projectId, branch, chn)
+		wg.Add(1)
+		go s.getLatestPipeline(projectId, &wg, branch, chn)
 	}
 
-	result := make([]model.BranchWithPipeline, len(branches))
-	for i := 0; i < len(branches); i++ {
-		result[i] = <-chn
-	}
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	close(chn)
+	result := make([]model.BranchWithPipeline, 0)
+	for value := range chn {
+		result = append(result, value)
+	}
 
 	return sortByUpdatedDate(result)
 }
 
-func (s *BranchServiceImpl) getLatestPipeline(projectId int, branch model.Branch, chn chan<- model.BranchWithPipeline) {
+func (s *BranchServiceImpl) getLatestPipeline(projectId int, wg *sync.WaitGroup, branch model.Branch, chn chan<- model.BranchWithPipeline) {
+	defer wg.Done()
 	pipeline, _ := s.pipelineLatestLoader.Get(model.NewPipelineKey(projectId, branch.Name, nil))
 	chn <- model.BranchWithPipeline{
 		Branch:   branch,

@@ -47,38 +47,50 @@ func (s *ProjectServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[Pipe
 		})
 	}
 
-	chn := make(chan model.ProjectWithPipeline, len(projects))
+	chn := make(chan model.ProjectWithPipeline, 20)
+
+	var wg sync.WaitGroup
 	for _, project := range projects {
-		go s.getLatestPipeline(project, chn)
+		wg.Add(1)
+		go s.getLatestPipeline(project, &wg, chn)
 	}
 
-	projectsWithLatestPipeline := make(map[string][]model.ProjectWithPipeline)
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	for i := 0; i < len(projects); i++ {
-		p := <-chn
+	result := make(map[string][]model.ProjectWithPipeline)
+
+	for value := range chn {
 		status := "unknown"
-		if p.Pipeline != nil {
-			status = p.Pipeline.Status
+		if value.Pipeline != nil {
+			status = value.Pipeline.Status
 		}
 		if status == "unknown" && s.config.ProjectHideUnknown {
 			continue
 		}
-		c, hasStatus := projectsWithLatestPipeline[status]
+		c, hasStatus := result[status]
 		if hasStatus {
-			projectsWithLatestPipeline[status] = append(c, p)
+			result[status] = append(c, value)
 		} else {
-			projectsWithLatestPipeline[status] = []model.ProjectWithPipeline{p}
+			result[status] = []model.ProjectWithPipeline{value}
 		}
 	}
 
-	close(chn)
-
-	return projectsWithLatestPipeline
+	return result
 }
 
 func (s *ProjectServiceImpl) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
 	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
-	chn := make(chan []model.ProjectWithPipeline, len(projects))
+
+	if len(s.config.ProjectSkipIds) > 0 {
+		projects = slices.Filter(projects, func(p model.Project) bool {
+			return !slices.Contains(s.config.ProjectSkipIds, p.Id)
+		})
+	}
+
+	chn := make(chan []model.ProjectWithPipeline, 20)
 
 	var wg sync.WaitGroup
 	for _, project := range projects {
@@ -87,8 +99,8 @@ func (s *ProjectServiceImpl) GetProjectsWithPipeline(groupId int) []model.Projec
 	}
 
 	go func() {
+		defer close(chn)
 		wg.Wait()
-		close(chn)
 	}()
 
 	result := make([]model.ProjectWithPipeline, 0)
@@ -117,7 +129,9 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	return projects
 }
 
-func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, chn chan<- model.ProjectWithPipeline) {
+func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGroup, chn chan<- model.ProjectWithPipeline) {
+	defer wg.Done()
+
 	key := model.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, _ := s.pipelineLatestLoader.Get(key)
 	chn <- model.ProjectWithPipeline{

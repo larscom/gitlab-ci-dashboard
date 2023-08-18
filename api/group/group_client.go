@@ -1,6 +1,8 @@
 package group
 
 import (
+	"sync"
+
 	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -53,23 +55,28 @@ func (c *GroupClientImpl) GetGroups() []model.Group {
 		return groups
 	}
 
-	capacity := response.TotalPages - 1
-	chn := make(chan []model.Group, capacity)
+	chn := make(chan []model.Group, response.TotalPages)
 
+	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getGroupsByPage(page, chn)
+		wg.Add(1)
+		go c.getGroupsByPage(page, &wg, chn)
 	}
 
-	for i := 0; i < capacity; i++ {
-		groups = append(groups, <-chn...)
-	}
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	close(chn)
+	for value := range chn {
+		groups = append(groups, value...)
+	}
 
 	return groups
 }
 
-func (c *GroupClientImpl) getGroupsByPage(pageNumber int, chn chan<- []model.Group) {
+func (c *GroupClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []model.Group) {
+	defer wg.Done()
 	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
 	chn <- groups
 }

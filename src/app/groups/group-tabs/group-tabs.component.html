@@ -6,7 +6,12 @@
 <ng-template #loaded>
   <ng-container *ngIf="groups$ | async as groups">
     <ng-container *ngIf="groups.length; else noGroups">
-      <nz-tabset nzType="card" [nzSelectedIndex]="selectedIndex$ | async" (nzSelectChange)="onChange($event)">
+      <nz-tabset
+        nzSize="small"
+        nzType="card"
+        [nzSelectedIndex]="selectedIndex$ | async"
+        (nzSelectChange)="onChange($event)"
+      >
         <ng-container *ngFor="let group of groups; trackBy: trackById">
           <nz-tab [nzTitle]="title">
             <ng-template #title>

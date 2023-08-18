@@ -1,6 +1,8 @@
 package schedule
 
 import (
+	"sync"
+
 	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/xanzy/go-gitlab"
@@ -29,23 +31,28 @@ func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []model.Schedul
 		return schedules
 	}
 
-	capacity := response.TotalPages - 1
-	chn := make(chan []model.Schedule, capacity)
+	chn := make(chan []model.Schedule, response.TotalPages)
 
+	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getSchedulesByPage(projectId, page, chn)
+		wg.Add(1)
+		go c.getSchedulesByPage(projectId, &wg, page, chn)
 	}
 
-	for i := 0; i < capacity; i++ {
-		schedules = append(schedules, <-chn...)
-	}
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	close(chn)
+	for value := range chn {
+		schedules = append(schedules, value...)
+	}
 
 	return schedules
 }
 
-func (c *ScheduleClientImpl) getSchedulesByPage(projectId int, pageNumber int, chn chan<- []model.Schedule) {
+func (c *ScheduleClientImpl) getSchedulesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Schedule) {
+	defer wg.Done()
 	schedules, _, _ := c.client.ListPipelineSchedules(projectId, createOptions(pageNumber))
 	chn <- schedules
 }

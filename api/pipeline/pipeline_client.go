@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/larscom/gitlab-ci-dashboard/client"
@@ -65,23 +66,28 @@ func (c *PipelineClientImpl) GetPipelines(projectId int) []model.Pipeline {
 		return pipelines
 	}
 
-	capacity := response.TotalPages - 1
-	chn := make(chan []model.Pipeline, capacity)
+	chn := make(chan []model.Pipeline, response.TotalPages)
 
+	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getPipelinesByPage(projectId, page, chn)
+		wg.Add(1)
+		go c.getPipelinesByPage(projectId, &wg, page, chn)
 	}
 
-	for i := 0; i < capacity; i++ {
-		pipelines = append(pipelines, <-chn...)
-	}
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	close(chn)
+	for value := range chn {
+		pipelines = append(pipelines, value...)
+	}
 
 	return pipelines
 }
 
-func (c *PipelineClientImpl) getPipelinesByPage(projectId int, pageNumber int, chn chan<- []model.Pipeline) {
+func (c *PipelineClientImpl) getPipelinesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Pipeline) {
+	defer wg.Done()
 	pipelines, _, _ := c.client.ListProjectPipelines(projectId, c.createOptions(pageNumber))
 	chn <- pipelines
 }

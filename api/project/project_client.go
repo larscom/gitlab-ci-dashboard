@@ -1,6 +1,8 @@
 package project
 
 import (
+	"sync"
+
 	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/xanzy/go-gitlab"
@@ -29,23 +31,28 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []model.Project {
 		return projects
 	}
 
-	capacity := response.TotalPages - 1
-	chn := make(chan []model.Project, capacity)
+	chn := make(chan []model.Project, response.TotalPages)
 
+	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getProjectsByPage(groupId, page, chn)
+		wg.Add(1)
+		go c.getProjectsByPage(groupId, &wg, page, chn)
 	}
 
-	for i := 0; i < capacity; i++ {
-		projects = append(projects, <-chn...)
-	}
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	close(chn)
+	for value := range chn {
+		projects = append(projects, value...)
+	}
 
 	return projects
 }
 
-func (c *ProjectClientImpl) getProjectsByPage(groupId int, pageNumber int, chn chan<- []model.Project) {
+func (c *ProjectClientImpl) getProjectsByPage(groupId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Project) {
+	defer wg.Done()
 	projects, _, _ := c.client.ListGroupProjects(groupId, createOptions(pageNumber))
 	chn <- projects
 }

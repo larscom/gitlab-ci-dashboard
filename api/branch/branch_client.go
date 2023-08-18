@@ -1,6 +1,8 @@
 package branch
 
 import (
+	"sync"
+
 	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/xanzy/go-gitlab"
@@ -29,23 +31,28 @@ func (c *BranchClientImpl) GetBranches(projectId int) []model.Branch {
 		return branches
 	}
 
-	capacity := response.TotalPages - 1
-	chn := make(chan []model.Branch, capacity)
+	chn := make(chan []model.Branch, response.TotalPages)
 
+	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		go c.getBranchesByPage(projectId, page, chn)
+		wg.Add(1)
+		go c.getBranchesByPage(projectId, &wg, page, chn)
 	}
 
-	for i := 0; i < capacity; i++ {
-		branches = append(branches, <-chn...)
-	}
+	go func() {
+		defer close(chn)
+		wg.Wait()
+	}()
 
-	close(chn)
+	for value := range chn {
+		branches = append(branches, value...)
+	}
 
 	return branches
 }
 
-func (c *BranchClientImpl) getBranchesByPage(projectId int, pageNumber int, chn chan<- []model.Branch) {
+func (c *BranchClientImpl) getBranchesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Branch) {
+	defer wg.Done()
 	branches, _, _ := c.client.ListBranches(projectId, createOptions(pageNumber))
 	chn <- branches
 }
