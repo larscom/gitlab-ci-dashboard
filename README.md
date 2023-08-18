@@ -10,13 +10,15 @@
 
 ![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
-Gitlab CI Dashboard will provide you a **global** overview of all pipelines, schedules and their status within a single group.
+<br />
 
-Gitlab's native functionality is limited to offering information at the project level, potentially resulting in undetected failed pipelines.
 
-## 👉 [Preview (master)](https://gitlab-ci-dashboard.larscom.nl)
+Gitlab CI Dashboard will provide you with a **global** overview of all pipelines, schedules, and their statuses within a single group.
+The default functionality of Gitlab is limited at the project level. This can become problematic when you have a lot of projects to manage, potentially resulting in undetected failed pipelines.
 
-> Preview may contain functionality that has not been released yet.
+## 👉 [Demo (master)](https://gitlab-ci-dashboard.larscom.nl)
+
+> Demo may contain functionality that has not been released yet.
 
 <br />
 
@@ -24,9 +26,9 @@ Gitlab's native functionality is limited to offering information at the project 
 
 - View all pipeline statuses per group (e.g: failed/canceled/success)
 - View all pipeline schedules per group
-- Communication to the Gitlab API happens server side
-  - Only 1 `read only` token is needed to serve a whole team
-  - You won't get rate limited by the Gitlab API, due to caching
+- You won't get rate limited by the Gitlab API, due to server-side caching
+- Communication to the Gitlab API happens only server side
+- Only 1 `read only` token is needed to serve a whole team
 
 ## 📒 Checklist
 
