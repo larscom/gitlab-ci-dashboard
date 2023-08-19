@@ -1,15 +1,16 @@
 import { Group, GroupId } from '$groups/model/group'
 import { filterNotNull } from '$groups/util/filter'
-import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { ActivatedRoute, Router } from '@angular/router'
 import { Actions } from '@ngneat/effects-ng'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { firstValueFrom, map, switchMap, tap } from 'rxjs'
+import { combineLatestWith, firstValueFrom, map, switchMap, tap } from 'rxjs'
 import { fetchGroups } from '../store/group.actions'
 import { GroupStore } from '../store/group.store'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
@@ -39,7 +40,27 @@ export class GroupTabsComponent {
     tap((index) => index === -1 && this.onChange({ index: 0, tab: null }))
   )
 
-  constructor(private groupStore: GroupStore, private uiStore: UIStore, private actions: Actions) {
+  constructor(
+    private groupStore: GroupStore,
+    private actions: Actions,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
+    this.route.paramMap
+      .pipe(
+        takeUntilDestroyed(),
+        map((map) => map.get('groupId')),
+        filterNotNull,
+        map(Number),
+        combineLatestWith(this.groups$)
+      )
+      .subscribe(([groupId, groups]) => {
+        if (groups.length > 0 && !groups.map(({ id }) => id).includes(groupId)) {
+          this.router.navigate([groups[0].id, 'latest-pipelines'])
+        } else {
+          this.groupStore.selectGroupId(groupId)
+        }
+      })
     this.actions.dispatch(fetchGroups())
   }
 
@@ -50,9 +71,8 @@ export class GroupTabsComponent {
   async onChange({ index }: NzTabChangeEvent): Promise<void> {
     const groups = await firstValueFrom(this.groups$)
     if (groups.length > 0) {
-      const { id: groupId } = groups[index!]
-      this.groupStore.selectGroupId(groupId)
-      this.uiStore.selectFeatureTabIndex(groupId, 0)
+      const { id: groupId } = groups.at(index!)!
+      this.router.navigate([groupId, 'latest-pipelines'])
     }
   }
 

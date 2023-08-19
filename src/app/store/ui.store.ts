@@ -9,12 +9,9 @@ import { distinctUntilChanged, map } from 'rxjs'
 interface State {
   autoRefreshLoading: Record<GroupId | ProjectId, boolean>
   autoRefreshInterval: Record<GroupId | ProjectId, string>
-  selectedFeatureTabIndex: Record<GroupId, number>
 }
 
-const { state, config } = createState(
-  withProps<State>({ autoRefreshLoading: Object(), autoRefreshInterval: Object(), selectedFeatureTabIndex: Object() })
-)
+const { state, config } = createState(withProps<State>({ autoRefreshLoading: Object(), autoRefreshInterval: Object() }))
 
 export const storeName = 'ui'
 
@@ -39,11 +36,6 @@ export class UIStore {
       map(({ autoRefreshInterval }) => autoRefreshInterval[id] || ''),
       distinctUntilChanged()
     )
-    readonly selectedFeatureTabIndex = (id: GroupId) =>
-    store.pipe(
-      map(({ selectedFeatureTabIndex }) => selectedFeatureTabIndex[id] || 0),
-      distinctUntilChanged()
-    )
 
   setAutoRefreshLoading(id: GroupId | ProjectId, loading: boolean): void {
     store.update((state) => {
@@ -64,18 +56,6 @@ export class UIStore {
         autoRefreshInterval: {
           ...state.autoRefreshInterval,
           [id]: interval
-        }
-      }
-    })
-  }
-
-  selectFeatureTabIndex(id: GroupId, index: number): void {
-    store.update((state) => {
-      return {
-        ...state,
-        selectedFeatureTabIndex: {
-          ...state.selectedFeatureTabIndex,
-          [id]: index
         }
       }
     })

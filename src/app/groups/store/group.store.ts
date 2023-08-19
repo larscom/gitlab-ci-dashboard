@@ -1,7 +1,6 @@
 import { Group, GroupId } from '$groups/model/group'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
-import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
 import {
   createRequestsStatusOperator,
   selectIsRequestPending,
@@ -19,11 +18,6 @@ const { state, config } = createState(withProps<State>({ groups: [] }), withRequ
 
 export const storeName = 'group'
 const store = new Store({ state, name: storeName, config })
-persistState(store, {
-  key: storeName,
-  storage: localStorageStrategy,
-  source: () => store.pipe(excludeKeys(['groups', 'requestsStatus']))
-})
 
 export const trackRequestsStatus = createRequestsStatusOperator(store)
 

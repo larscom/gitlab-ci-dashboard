@@ -1,17 +1,17 @@
-import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull } from '$groups/util/filter'
-import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { ActivatedRoute, Router } from '@angular/router'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
-import { firstValueFrom, switchMap } from 'rxjs'
+import { map } from 'rxjs'
 import { LatestPipelinesComponent } from './latest-pipelines/latest-pipelines.component'
 import { PipelinesComponent } from './pipelines/pipelines.component'
 import { SchedulesComponent } from './schedules/schedules.component'
 
 interface Tab {
-  id: 'latest_pipelines' | 'pipelines' | 'schedules'
+  id: 'latest-pipelines' | 'pipelines' | 'schedules'
   title: string
   icon: string
 }
@@ -24,13 +24,9 @@ interface Tab {
   styleUrls: ['./feature-tabs.component.scss']
 })
 export class FeatureTabsComponent {
-  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
-
-  selectedIndex$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.selectedFeatureTabIndex(groupId)))
-
   tabs: Tab[] = [
     {
-      id: 'latest_pipelines',
+      id: 'latest-pipelines',
       title: 'Pipelines (latest)',
       icon: 'swap-right'
     },
@@ -46,12 +42,30 @@ export class FeatureTabsComponent {
     }
   ]
 
-  constructor(private uiStore: UIStore, private groupStore: GroupStore) {}
+  selectedIndex$ = this.route.paramMap.pipe(
+    map((map) => map.get('featureId')),
+    filterNotNull,
+    map((featureId) => this.tabs.findIndex(({ id }) => id === featureId))
+  )
 
-  async onChange({ index }: NzTabChangeEvent): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
-    this.uiStore.selectFeatureTabIndex(groupId, index!)
+  constructor(private route: ActivatedRoute, private router: Router) {
+    this.route.paramMap
+      .pipe(
+        takeUntilDestroyed(),
+        map((map) => map.get('featureId'))
+      )
+      .subscribe((featureId) => {
+        if (!this.tabs.map(({ id }) => id).includes(featureId as Tab['id'])) {
+          this.onChange({ index: 0, tab: null })
+        }
+      })
   }
 
+  onChange({ index }: NzTabChangeEvent): void {
+    const { id } = this.tabs[index!]
+    const currentSegments = this.route.snapshot.url.map((segment) => segment.path)
+    const newSegments = [...currentSegments.slice(0, -1), id]
 
+    this.router.navigate(newSegments)
+  }
 }

@@ -11,11 +11,20 @@ import { GroupEffects } from './groups/store/group.effects'
 import { LatestPipelineEffects } from '$groups/group-tabs/feature-tabs/latest-pipelines/store/latest-pipeline.effects'
 import { PipelineEffects } from '$groups/group-tabs/feature-tabs/pipelines/store/pipeline.effects'
 import { ScheduleEffects } from '$groups/group-tabs/feature-tabs/schedules/store/schedule.effects'
+import { GroupTabsComponent } from '$groups/group-tabs/group-tabs.component'
 import en from '@angular/common/locales/en'
 import nl from '@angular/common/locales/nl'
+import { Route, provideRouter, withHashLocation } from '@angular/router'
 
 registerLocaleData(en)
 registerLocaleData(nl)
+
+const routes: Route[] = [
+  { path: '', component: GroupTabsComponent },
+  { path: ':groupId', component: GroupTabsComponent },
+  { path: ':groupId/:featureId', component: GroupTabsComponent },
+  { path: '**', redirectTo: '' }
+]
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +32,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(),
     provideEffectsManager(),
+    provideRouter(routes, withHashLocation()),
     provideEffects(GroupEffects, LatestPipelineEffects, PipelineEffects, ScheduleEffects),
     provideI18n()
   ]
