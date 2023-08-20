@@ -10,16 +10,6 @@
   background-color: rgb(37, 99, 235);
 }
 
-.version {
-  display: block;
-}
-
-@media (max-width: 768px) {
-  .version {
-    display: none;
-  }
-}
-
 button {
   padding: 0;
 }

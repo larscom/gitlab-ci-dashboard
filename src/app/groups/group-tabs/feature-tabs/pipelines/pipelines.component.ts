@@ -27,9 +27,7 @@ export class PipelinesComponent {
 
   loading$ = this.pipelineStore.projectsLoading$
   projectsWithPipeline$ = this.filterService.getProjectsWithPipeline()
-  currentFilterTopics$ = this.selectedGroupId$.pipe(
-    switchMap((groupId) => this.pipelineStore.topicsFilter(groupId))
-  )
+  currentFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId)))
   currentFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId)))
 
   projects$ = this.pipelineStore.projectsWithPipeline$.pipe(map((data) => data.map(({ project }) => project)))

@@ -56,7 +56,7 @@ export class GroupTabsComponent {
       )
       .subscribe(([groupId, groups]) => {
         if (groups.length > 0 && !groups.map(({ id }) => id).includes(groupId)) {
-          this.router.navigate([groups[0].id, 'latest-pipelines'])
+          this.nagivate(groups[0].id)
         } else {
           this.groupStore.selectGroupId(groupId)
         }
@@ -71,12 +71,16 @@ export class GroupTabsComponent {
   async onChange({ index }: NzTabChangeEvent): Promise<void> {
     const groups = await firstValueFrom(this.groups$)
     if (groups.length > 0) {
-      const { id: groupId } = groups.at(index!)!
-      this.router.navigate([groupId, 'latest-pipelines'])
+      const { id } = groups.at(index!)!
+      this.nagivate(id)
     }
   }
 
   trackById(_: number, { id }: Group): GroupId {
     return id
+  }
+
+  private nagivate(groupId: GroupId): void {
+    this.router.navigate([groupId, 'latest-pipelines'])
   }
 }

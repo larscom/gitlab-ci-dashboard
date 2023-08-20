@@ -1,6 +1,6 @@
 import { ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
-import { filterNotNull, filterProject } from '$groups/util/filter'
+import { filterNotNull, filterPipeline, filterProject } from '$groups/util/filter'
 import { Injectable } from '@angular/core'
 import { Observable, combineLatest, map, switchMap } from 'rxjs'
 import { LatestPipelineStore } from '../latest-pipelines/store/latest-pipeline.store'
@@ -35,10 +35,17 @@ export class ProjectFilterService {
     return combineLatest([
       this.pipelineStore.projectsWithPipeline$,
       this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId))),
-      this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId)))
+      this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId))),
+      this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.statusesFilter(groupId)))
     ]).pipe(
-      map(([data, filterText, filterTopics]) =>
-        data.filter(({ project }) => filterProject(project, filterText, filterTopics))
+      map(([data, filterText, filterTopics, filterStatuses]) =>
+        data.filter(({ pipeline, project }) => {
+          const filter = filterProject(project, filterText, filterTopics)
+          if (pipeline) {
+            return filter && filterPipeline(pipeline, filterStatuses)
+          }
+          return filter
+        })
       )
     )
   }
