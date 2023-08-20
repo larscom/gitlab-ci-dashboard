@@ -1,4 +1,5 @@
 import { GroupId } from '$groups/model/group'
+import { Status } from '$groups/model/pipeline'
 import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
@@ -18,6 +19,7 @@ interface State {
     [groupId: GroupId]: {
       project: string
       topics: string[]
+      statuses: Status[]
     }
   }
 }
@@ -58,6 +60,11 @@ export class ScheduleStore {
       map((filters) => filters[groupId]?.project || ''),
       distinctUntilChanged()
     )
+  readonly statusesFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.statuses || []),
+      distinctUntilChanged()
+    )
 
   setSchedules(schedules: ScheduleWithProjectAndPipeline[]): void {
     store.update((state) => {
@@ -92,6 +99,21 @@ export class ScheduleStore {
           [groupId]: {
             ...state.filters[groupId],
             topics
+          }
+        }
+      }
+    })
+  }
+
+  setStatusesFilter(groupId: GroupId, statuses: Status[]): void {
+    store.update((state) => {
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            statuses
           }
         }
       }

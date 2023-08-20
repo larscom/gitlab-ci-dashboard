@@ -23,10 +23,10 @@ export class LatestPipelinesComponent {
   selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
   autoRefreshLoading$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.autoRefreshLoading(groupId)))
-  currentFilterTopics$ = this.selectedGroupId$.pipe(
+  selectedFilterTopics$ = this.selectedGroupId$.pipe(
     switchMap((groupId) => this.latestPipelineStore.topicsFilter(groupId))
   )
-  currentFilterText$ = this.selectedGroupId$.pipe(
+  selectedFilterText$ = this.selectedGroupId$.pipe(
     switchMap((groupId) => this.latestPipelineStore.projectFilter(groupId))
   )
 

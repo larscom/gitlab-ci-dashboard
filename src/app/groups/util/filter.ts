@@ -12,7 +12,7 @@ export function filterProject({ name, topics }: Project, filterText: string, fil
 }
 
 export function filterPipeline({ status }: Pipeline, filterStatuses: Status[]): boolean {
-  return filterStatuses.length === 0 || filterStatuses.every((filter) => status.includes(filter))
+  return filterStatuses.length === 0 || filterStatuses.some((filter) => status.includes(filter))
 }
 
 export function filterNotNull<T>(source: Observable<T | null | undefined>): Observable<T> {

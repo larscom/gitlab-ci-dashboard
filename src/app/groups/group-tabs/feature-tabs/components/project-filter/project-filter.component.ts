@@ -39,8 +39,8 @@ import { debounceTime } from 'rxjs'
 })
 export class ProjectFilterComponent implements OnChanges {
   @Input({ required: true }) projects: Project[] = []
-  @Input({ required: true }) currentFilterText: string = ''
-  @Input({ required: true }) currentFilterTopics: string[] = []
+  @Input({ required: true }) selectedFilterText: string = ''
+  @Input({ required: true }) selectedFilterTopics: string[] = []
   @Input() loading = false
 
   @Output() filterTopicsChanged = new EventEmitter<string[]>()
@@ -60,12 +60,12 @@ export class ProjectFilterComponent implements OnChanges {
       this.topics.set(new Set(this.projects.flatMap(({ topics }) => topics).sort((a, b) => a.localeCompare(b))))
     }
     if (currentFilterText) {
-      this.searchControl.setValue(this.currentFilterText, { emitEvent: false })
+      this.searchControl.setValue(this.selectedFilterText, { emitEvent: false })
     }
   }
 
   onTopicChange(checked: boolean, topic: string): void {
-    const selected = this.currentFilterTopics
+    const selected = this.selectedFilterTopics
     if (checked) {
       this.filterTopicsChanged.next([...selected, topic])
     } else {

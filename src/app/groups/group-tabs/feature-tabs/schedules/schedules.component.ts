@@ -1,3 +1,4 @@
+import { Status } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
@@ -8,6 +9,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
+import { StatusFilterComponent } from '../pipelines/components/status-filter/status-filter.component'
 import { ScheduleTableComponent } from './schedule-table/schedule-table.component'
 import { ScheduleFilterService } from './service/schedule-filter.service'
 import { fetchSchedules } from './store/schedule.actions'
@@ -16,7 +18,14 @@ import { ScheduleStore } from './store/schedule.store'
 @Component({
   selector: 'gcd-schedules',
   standalone: true,
-  imports: [CommonModule, NzSpinModule, ScheduleTableComponent, AutoRefreshComponent, ProjectFilterComponent],
+  imports: [
+    CommonModule,
+    NzSpinModule,
+    ScheduleTableComponent,
+    AutoRefreshComponent,
+    ProjectFilterComponent,
+    StatusFilterComponent
+  ],
   templateUrl: './schedules.component.html',
   styleUrls: ['./schedules.component.scss']
 })
@@ -28,10 +37,12 @@ export class SchedulesComponent {
   loading$ = this.scheduleStore.loading$
   schedules$ = this.scheduleFilterService.getSchedules()
   projects$ = this.scheduleStore.schedules$.pipe(map((schedules) => schedules.map(({ project }) => project)))
-  currentFilterTopics$ = this.selectedGroupId$.pipe(
-    switchMap((groupId) => this.scheduleStore.topicsFilter(groupId))
+
+  selectedFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.topicsFilter(groupId)))
+  selectedFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.projectFilter(groupId)))
+  selectedFilterStatuses$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.scheduleStore.statusesFilter(groupId))
   )
-  currentFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.projectFilter(groupId)))
 
   constructor(
     private actions: Actions,
@@ -56,5 +67,10 @@ export class SchedulesComponent {
   async onFilterTextChanged(filterText: string): Promise<void> {
     const groupId = await firstValueFrom(this.selectedGroupId$)
     this.scheduleStore.setProjectFilter(groupId, filterText)
+  }
+
+  async onFilterStatusesChanged(statuses: Status[]): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.scheduleStore.setStatusesFilter(groupId, statuses)
   }
 }

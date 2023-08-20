@@ -3,8 +3,8 @@
     <gcd-project-filter
       [loading]="(loading$ | async)!"
       [projects]="(projects$ | async)!"
-      [currentFilterText]="(currentFilterText$ | async)!"
-      [currentFilterTopics]="(currentFilterTopics$ | async)!"
+      [selectedFilterText]="(selectedFilterText$ | async)!"
+      [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
       (filterTextChanged)="onFilterTextChanged($event)"
       (filterTopicsChanged)="onFilterTopicsChanged($event)"
     >

@@ -1,3 +1,4 @@
+import { Status } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
@@ -9,6 +10,7 @@ import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { ProjectFilterService } from '../service/project-filter.service'
+import { StatusFilterComponent } from './components/status-filter/status-filter.component'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
 import { fetchProjectsWithPipeline } from './store/pipeline.actions'
 import { PipelineStore } from './store/pipeline.store'
@@ -16,7 +18,14 @@ import { PipelineStore } from './store/pipeline.store'
 @Component({
   selector: 'gcd-pipelines',
   standalone: true,
-  imports: [CommonModule, NzSpinModule, ProjectFilterComponent, PipelineTableComponent, AutoRefreshComponent],
+  imports: [
+    CommonModule,
+    NzSpinModule,
+    ProjectFilterComponent,
+    StatusFilterComponent,
+    PipelineTableComponent,
+    AutoRefreshComponent
+  ],
   templateUrl: './pipelines.component.html',
   styleUrls: ['./pipelines.component.scss']
 })
@@ -27,8 +36,11 @@ export class PipelinesComponent {
 
   loading$ = this.pipelineStore.projectsLoading$
   projectsWithPipeline$ = this.filterService.getProjectsWithPipeline()
-  currentFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId)))
-  currentFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId)))
+  selectedFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId)))
+  selectedFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId)))
+  selectedFilterStatuses$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.pipelineStore.statusesFilter(groupId))
+  )
 
   projects$ = this.pipelineStore.projectsWithPipeline$.pipe(map((data) => data.map(({ project }) => project)))
 
@@ -57,5 +69,10 @@ export class PipelinesComponent {
   async onFilterTextChanged(filterText: string): Promise<void> {
     const groupId = await firstValueFrom(this.selectedGroupId$)
     this.pipelineStore.setProjectFilter(groupId, filterText)
+  }
+
+  async onFilterStatusesChanged(statuses: Status[]): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.pipelineStore.setStatusesFilter(groupId, statuses)
   }
 }

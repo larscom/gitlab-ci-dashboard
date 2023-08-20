@@ -1,0 +1,12 @@
+<div class="flex flex-wrap gap-050 items-center">
+  <span class="font-sm font-bold">Status:</span>
+  <ng-container *ngFor="let status of statuses">
+    <nz-tag
+      nzMode="checkable"
+      [nzChecked]="selectedFilterStatuses.includes(status)"
+      (nzCheckedChange)="onChange($event, status)"
+    >
+      {{ status }}
+    </nz-tag>
+  </ng-container>
+</div>
