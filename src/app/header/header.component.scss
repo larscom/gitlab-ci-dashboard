@@ -6,9 +6,25 @@
   align-items: center;
   height: 3.75rem;
   max-height: 3.75rem;
+  min-width: 768px;
   background-color: rgb(37, 99, 235);
+}
+
+.version {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .version {
+    display: none;
+  }
 }
 
 button {
   padding: 0;
+}
+
+.title {
+  padding: 0;
+  margin: 0;
 }
