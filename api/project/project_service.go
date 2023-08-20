@@ -47,7 +47,7 @@ func (s *ProjectServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[Pipe
 		})
 	}
 
-	chn := make(chan model.ProjectWithPipeline, 20)
+	chn := make(chan map[PipelineStatus]model.ProjectWithPipeline, 20)
 
 	var wg sync.WaitGroup
 	for _, project := range projects {
@@ -60,21 +60,16 @@ func (s *ProjectServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[Pipe
 		wg.Wait()
 	}()
 
-	result := make(map[string][]model.ProjectWithPipeline)
+	result := make(map[PipelineStatus][]model.ProjectWithPipeline)
 
-	for value := range chn {
-		status := "unknown"
-		if value.Pipeline != nil {
-			status = value.Pipeline.Status
-		}
-		if status == "unknown" && s.config.ProjectHideUnknown {
-			continue
-		}
-		c, hasStatus := result[status]
-		if hasStatus {
-			result[status] = append(c, value)
-		} else {
-			result[status] = []model.ProjectWithPipeline{value}
+	for m := range chn {
+		for status, value := range m {
+			current, hasStatus := result[status]
+			if hasStatus {
+				result[status] = append(current, value)
+			} else {
+				result[status] = []model.ProjectWithPipeline{value}
+			}
 		}
 	}
 
@@ -129,15 +124,28 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	return projects
 }
 
-func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGroup, chn chan<- model.ProjectWithPipeline) {
+func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGroup, chn chan<- map[PipelineStatus]model.ProjectWithPipeline) {
 	defer wg.Done()
 
 	key := model.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, _ := s.pipelineLatestLoader.Get(key)
-	chn <- model.ProjectWithPipeline{
-		Project:  project,
-		Pipeline: pipeline,
+
+	if pipeline != nil {
+		chn <- map[PipelineStatus]model.ProjectWithPipeline{
+			pipeline.Status: {
+				Project:  project,
+				Pipeline: pipeline,
+			},
+		}
+	} else if !s.config.ProjectHideUnknown {
+		chn <- map[PipelineStatus]model.ProjectWithPipeline{
+			"unknown": {
+				Project:  project,
+				Pipeline: nil,
+			},
+		}
 	}
+
 }
 
 func (s *ProjectServiceImpl) getPipelines(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ProjectWithPipeline) {
