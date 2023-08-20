@@ -76,9 +76,4 @@ export class ProjectFilterComponent implements OnChanges {
   resetSearch(): void {
     this.searchControl.setValue('')
   }
-
-  resetFilters(): void {
-    this.filterTopicsChanged.next([])
-    this.resetSearch()
-  }
 }
