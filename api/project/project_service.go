@@ -110,15 +110,14 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	sort.SliceStable(projects[:], func(a, b int) bool {
 		pipelineA := projects[a].Pipeline
 		pipelineB := projects[b].Pipeline
-		if pipelineA != nil && pipelineB == nil {
+
+		if pipelineA == nil {
+			return false
+		}
+		if pipelineB == nil {
 			return true
 		}
-		if pipelineA == nil && pipelineB != nil {
-			return false
-		}
-		if pipelineA == nil && pipelineB == nil {
-			return false
-		}
+
 		return pipelineA.UpdatedAt.After(pipelineB.UpdatedAt)
 	})
 	return projects

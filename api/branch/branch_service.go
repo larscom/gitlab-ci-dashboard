@@ -65,14 +65,11 @@ func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPi
 		pipelineA := branches[a].Pipeline
 		pipelineB := branches[b].Pipeline
 
-		if pipelineA != nil && pipelineB == nil {
+		if pipelineA == nil {
+			return false
+		}
+		if pipelineB == nil {
 			return true
-		}
-		if pipelineA == nil && pipelineB != nil {
-			return false
-		}
-		if pipelineA == nil && pipelineB == nil {
-			return false
 		}
 
 		return pipelineA.UpdatedAt.After(pipelineB.UpdatedAt)
