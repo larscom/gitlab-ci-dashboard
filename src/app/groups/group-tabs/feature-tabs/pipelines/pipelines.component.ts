@@ -1,4 +1,4 @@
-import { Status } from '$groups/model/pipeline'
+import { PipelineId, Status } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
@@ -41,6 +41,7 @@ export class PipelinesComponent {
   selectedFilterStatuses$ = this.selectedGroupId$.pipe(
     switchMap((groupId) => this.pipelineStore.statusesFilter(groupId))
   )
+  pinnedPipelines$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.pinnedPipelines(groupId)))
 
   projects$ = this.pipelineStore.projectsWithPipeline$.pipe(map((data) => data.map(({ project }) => project)))
 
@@ -74,5 +75,10 @@ export class PipelinesComponent {
   async onFilterStatusesChanged(statuses: Status[]): Promise<void> {
     const groupId = await firstValueFrom(this.selectedGroupId$)
     this.pipelineStore.setStatusesFilter(groupId, statuses)
+  }
+
+  async onPinnedPipelinesChanged(pinnedPipelines: PipelineId[]): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.pipelineStore.setPinnedPipelines(groupId, pinnedPipelines)
   }
 }

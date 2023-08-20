@@ -28,7 +28,9 @@
   </ng-container>
   <ng-template #loaded>
     <ng-container *ngIf="projectsWithPipeline$ | async as projects">
-      <gcd-pipeline-table [projects]="projects"></gcd-pipeline-table>
+      <ng-container *ngIf="pinnedPipelines$ | async as pinnedPipelines">
+        <gcd-pipeline-table [projects]="projects" [pinnedPipelines]="pinnedPipelines" (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"></gcd-pipeline-table>
+      </ng-container>
     </ng-container>
   </ng-template>
 </div>

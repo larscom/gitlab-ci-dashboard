@@ -63,9 +63,7 @@ export class FeatureTabsComponent {
 
   onChange({ index }: NzTabChangeEvent): void {
     const { id } = this.tabs[index!]
-    const currentSegments = this.route.snapshot.url.map((segment) => segment.path)
-    const newSegments = [...currentSegments.slice(0, -1), id]
-
-    this.router.navigate(newSegments)
+    const currentSegments = this.route.snapshot.url.map(({ path }) => path)
+    this.router.navigate([...currentSegments.slice(0, -1), id])
   }
 }

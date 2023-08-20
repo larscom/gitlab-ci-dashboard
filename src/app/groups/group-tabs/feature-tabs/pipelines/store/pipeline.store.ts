@@ -1,5 +1,5 @@
 import { GroupId } from '$groups/model/group'
-import { ProjectWithPipeline, Status } from '$groups/model/pipeline'
+import { PipelineId, ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
@@ -19,6 +19,7 @@ interface State {
       project: string
       topics: string[]
       statuses: Status[]
+      pinnedPipelines: PipelineId[]
     }
   }
 }
@@ -70,6 +71,11 @@ export class PipelineStore {
       map((filters) => filters[groupId]?.statuses || []),
       distinctUntilChanged()
     )
+  readonly pinnedPipelines = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.pinnedPipelines || []),
+      distinctUntilChanged()
+    )
 
   setProjectFilter(groupId: GroupId, project: string): void {
     store.update((state) => {
@@ -110,6 +116,21 @@ export class PipelineStore {
           [groupId]: {
             ...state.filters[groupId],
             statuses
+          }
+        }
+      }
+    })
+  }
+
+  setPinnedPipelines(groupId: GroupId, pinnedPipelines: PipelineId[]): void {
+    store.update((state) => {
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            pinnedPipelines
           }
         }
       }

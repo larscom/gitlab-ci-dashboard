@@ -1,7 +1,7 @@
 import { Pipeline, PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -36,6 +36,9 @@ interface Header<T> {
 })
 export class PipelineTableComponent {
   @Input({ required: true }) projects!: ProjectWithPipeline[]
+  @Input({ required: true }) pinnedPipelines!: PipelineId[]
+
+  @Output() pinnedPipelinesChanged = new EventEmitter<PipelineId[]>()
 
   headers: Header<ProjectWithPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -75,7 +78,19 @@ export class PipelineTableComponent {
 
   onActionClick(e: Event, { web_url }: Pipeline): void {
     e.stopPropagation()
+
     window.open(web_url, '_blank')
+  }
+
+  onPinClick(e: Event, { id }: Pipeline): void {
+    e.stopPropagation()
+
+    const selected = this.pinnedPipelines
+    if (selected.includes(id)) {
+      this.pinnedPipelinesChanged.next(selected.filter((i) => i !== id))
+    } else {
+      setTimeout(() => this.pinnedPipelinesChanged.next([...selected, id]), 125)
+    }
   }
 
   trackBy(index: number, { pipeline }: ProjectWithPipeline): PipelineId | number {
