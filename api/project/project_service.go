@@ -107,9 +107,9 @@ func (s *ProjectServiceImpl) GetProjectsWithPipeline(groupId int) []model.Projec
 }
 
 func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWithPipeline {
-	sort.SliceStable(projects[:], func(a, b int) bool {
-		pipelineA := projects[a].Pipeline
-		pipelineB := projects[b].Pipeline
+	sort.SliceStable(projects[:], func(i, j int) bool {
+		pipelineA := projects[i].Pipeline
+		pipelineB := projects[j].Pipeline
 
 		if pipelineA == nil {
 			return false

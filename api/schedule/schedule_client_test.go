@@ -9,9 +9,10 @@ import (
 )
 
 func TestGetPipelineSchedulesWith1Page(t *testing.T) {
-
-	const totalPages = 1
-	client := NewScheduleClient(mock.NewMockGitlabClient(totalPages, nil))
+	var (
+		totalPages = 1
+		client     = NewScheduleClient(mock.NewMockGitlabClient(totalPages, nil))
+	)
 
 	schedules := client.GetPipelineSchedules(1)
 
@@ -21,9 +22,10 @@ func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 }
 
 func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
-
-	const totalPages = 2
-	client := NewScheduleClient(mock.NewMockGitlabClient(totalPages, nil))
+	var (
+		totalPages = 2
+		client     = NewScheduleClient(mock.NewMockGitlabClient(totalPages, nil))
+	)
 
 	schedules := client.GetPipelineSchedules(1)
 

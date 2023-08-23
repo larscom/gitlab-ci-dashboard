@@ -49,6 +49,7 @@ func TestHandleGetSchedules(t *testing.T) {
 
 func TestGetSchedulesBadRequest(t *testing.T) {
 	app := fiber.New()
+
 	app.Get("/schedules", NewScheduleHandler(&MockScheduleService{}).HandleGetSchedules)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules", nil), -1)

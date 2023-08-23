@@ -29,10 +29,11 @@ func TestGroupClientWithConfig(t *testing.T) {
 	}
 
 	t.Run("TestGetGroupsWith1Page", func(t *testing.T) {
-		cfg := createConfig(t, make([]int, 0), false)
-
-		const totalPages = 1
-		client := NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		var (
+			cfg        = createConfig(t, make([]int, 0), false)
+			totalPages = 1
+			client     = NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		)
 
 		groups := client.GetGroups()
 
@@ -41,10 +42,11 @@ func TestGroupClientWithConfig(t *testing.T) {
 		assert.Equal(t, "group-2", groups[1].Name)
 	})
 	t.Run("TestGetGroupsWith2Pages", func(t *testing.T) {
-		cfg := createConfig(t, make([]int, 0), false)
-
-		const totalPages = 2
-		client := NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		var (
+			cfg        = createConfig(t, make([]int, 0), false)
+			totalPages = 2
+			client     = NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		)
 
 		groups := client.GetGroups()
 
@@ -55,11 +57,12 @@ func TestGroupClientWithConfig(t *testing.T) {
 		assert.Equal(t, "group-4", groups[3].Name)
 	})
 	t.Run("TestGetGroupsWithTopLevelOnly", func(t *testing.T) {
-		const topLevelOnly = true
-		cfg := createConfig(t, make([]int, 0), topLevelOnly)
-
-		const totalPages = 1
-		client := NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		var (
+			topLevelOnly = true
+			cfg          = createConfig(t, make([]int, 0), topLevelOnly)
+			totalPages   = 1
+			client       = NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		)
 
 		groups := client.GetGroups()
 
@@ -68,11 +71,12 @@ func TestGroupClientWithConfig(t *testing.T) {
 		assert.Equal(t, "group-21", groups[1].Name)
 	})
 	t.Run("TestGetGroupsWithSkipIds", func(t *testing.T) {
-		skipIds := []int{1}
-		cfg := createConfig(t, skipIds, false)
-
-		const totalPages = 1
-		client := NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		var (
+			skipIds    = []int{1}
+			cfg        = createConfig(t, skipIds, false)
+			totalPages = 1
+			client     = NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		)
 
 		groups := client.GetGroups()
 
@@ -81,19 +85,21 @@ func TestGroupClientWithConfig(t *testing.T) {
 		assert.Equal(t, "group-11", groups[1].Name)
 	})
 	t.Run("TestGetGroupsWithErrorEmptySlice", func(t *testing.T) {
-		cfg := createConfig(t, make([]int, 0), false)
-
-		client := NewGroupClient(mock.NewMockGitlabClient(1, fmt.Errorf("ERROR")), cfg)
+		var (
+			cfg    = createConfig(t, make([]int, 0), false)
+			client = NewGroupClient(mock.NewMockGitlabClient(1, fmt.Errorf("ERROR")), cfg)
+		)
 
 		groups := client.GetGroups()
 
 		assert.Len(t, groups, 0)
 	})
 	t.Run("TestGetGroupsById", func(t *testing.T) {
-		cfg := createConfig(t, make([]int, 0), false)
-
-		const totalPages = 1
-		client := NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		var (
+			cfg        = createConfig(t, make([]int, 0), false)
+			totalPages = 1
+			client     = NewGroupClient(mock.NewMockGitlabClient(totalPages, nil), cfg)
+		)
 
 		groups := client.GetGroupsById([]int{1, 2})
 

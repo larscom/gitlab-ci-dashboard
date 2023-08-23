@@ -21,17 +21,18 @@ func TestServerWithConfig(t *testing.T) {
 		return config.NewGitlabConfig()
 	}
 
-	clients := &Clients{
-		groupClient:    mock.NewMockGroupClient(),
-		projectClient:  mock.NewMockProjectClient(),
-		pipelineClient: mock.NewMockPipelineClient(),
-		branchClient:   mock.NewMockBranchClient(),
-		scheduleClient: mock.NewMockScheduleClient(),
-	}
-
-	config := createConfig(t)
-	caches := NewCaches(config, clients)
-	server := NewServer(NewBootstrap(config, mock.NewMockGitlabClient(1, nil), caches, clients))
+	var (
+		clients = &Clients{
+			groupClient:    mock.NewMockGroupClient(),
+			projectClient:  mock.NewMockProjectClient(),
+			pipelineClient: mock.NewMockPipelineClient(),
+			branchClient:   mock.NewMockBranchClient(),
+			scheduleClient: mock.NewMockScheduleClient(),
+		}
+		config = createConfig(t)
+		caches = NewCaches(config, clients)
+		server = NewServer(NewBootstrap(config, mock.NewMockGitlabClient(1, nil), caches, clients))
+	)
 
 	t.Run("TestVersionEndpoint", func(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/version", nil), -1)

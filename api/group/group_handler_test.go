@@ -24,9 +24,11 @@ func (s *MockGroupService) GetGroups() []model.Group {
 }
 
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
-	app := fiber.New()
+	var (
+		app        = fiber.New()
+		groupCache = cache.New[string, []model.Group]()
+	)
 
-	groupCache := cache.New[string, []model.Group]()
 	assert.Zero(t, groupCache.Count())
 
 	app.Get("/", NewGroupHandler(&MockGroupService{}, groupCache).HandleGetGroups)
@@ -50,9 +52,11 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 }
 
 func TestHandleGetGroupsFromCache(t *testing.T) {
-	app := fiber.New()
+	var (
+		app        = fiber.New()
+		groupCache = cache.New[string, []model.Group]()
+	)
 
-	groupCache := cache.New[string, []model.Group]()
 	groupCache.Put("/", []model.Group{{Name: "group-2"}})
 
 	app.Get("/", NewGroupHandler(&MockGroupService{}, groupCache).HandleGetGroups)
@@ -72,9 +76,10 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 }
 
 func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
-	app := fiber.New()
-
-	groupCache := cache.New[string, []model.Group]()
+	var (
+		app        = fiber.New()
+		groupCache = cache.New[string, []model.Group]()
+	)
 
 	app.Get("/", NewGroupHandler(&MockGroupService{empty: true}, groupCache).HandleGetGroups)
 

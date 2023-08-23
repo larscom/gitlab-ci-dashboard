@@ -61,9 +61,9 @@ func (s *BranchServiceImpl) getLatestPipeline(projectId int, wg *sync.WaitGroup,
 }
 
 func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPipeline {
-	sort.SliceStable(branches[:], func(a, b int) bool {
-		pipelineA := branches[a].Pipeline
-		pipelineB := branches[b].Pipeline
+	sort.SliceStable(branches[:], func(i, j int) bool {
+		pipelineA := branches[i].Pipeline
+		pipelineB := branches[j].Pipeline
 
 		if pipelineA == nil {
 			return false
@@ -74,5 +74,6 @@ func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPi
 
 		return pipelineA.UpdatedAt.After(pipelineB.UpdatedAt)
 	})
+
 	return branches
 }

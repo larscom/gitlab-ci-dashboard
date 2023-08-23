@@ -9,9 +9,10 @@ import (
 )
 
 func TestGetProjectsWith1Page(t *testing.T) {
-
-	const totalPages = 1
-	client := NewProjectClient(mock.NewMockGitlabClient(totalPages, nil))
+	var (
+		totalPages = 1
+		client     = NewProjectClient(mock.NewMockGitlabClient(totalPages, nil))
+	)
 
 	projects := client.GetProjects(1)
 
@@ -21,9 +22,10 @@ func TestGetProjectsWith1Page(t *testing.T) {
 }
 
 func TestGetProjectsWith2Pages(t *testing.T) {
-
-	const totalPages = 2
-	client := NewProjectClient(mock.NewMockGitlabClient(totalPages, nil))
+	var (
+		totalPages = 2
+		client     = NewProjectClient(mock.NewMockGitlabClient(totalPages, nil))
+	)
 
 	projects := client.GetProjects(1)
 

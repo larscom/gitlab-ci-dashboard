@@ -56,6 +56,7 @@ func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 
 func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 	app := fiber.New()
+
 	app.Get("/projects", NewProjectHandler(&MockProjectService{}).HandleGetProjectsWithLatestPipeline)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects", nil), -1)

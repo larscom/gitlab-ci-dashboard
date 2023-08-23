@@ -8,6 +8,7 @@ import (
 
 func TestParse(t *testing.T) {
 	key := NewPipelineKey(1, "master", nil)
+
 	projectId, ref, source := key.Parse()
 
 	assert.Equal(t, "1@master", string(key))
@@ -17,8 +18,11 @@ func TestParse(t *testing.T) {
 }
 
 func TestParseWithSource(t *testing.T) {
-	s := "schedule"
-	key := NewPipelineKey(1, "master", &s)
+	var (
+		s   = "schedule"
+		key = NewPipelineKey(1, "master", &s)
+	)
+
 	projectId, ref, source := key.Parse()
 
 	assert.Equal(t, "1@master@schedule", string(key))
