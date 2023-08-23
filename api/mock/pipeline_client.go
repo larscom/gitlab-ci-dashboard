@@ -17,5 +17,8 @@ func (c *MockPipelineClient) GetLatestPipelineBySource(projectId int, ref string
 }
 
 func (c *MockPipelineClient) GetPipelines(projectId int) []model.Pipeline {
-	return make([]model.Pipeline, 0)
+	return []model.Pipeline{
+		{ProjectId: projectId, Status: "success", Id: 1},
+		{ProjectId: projectId, Status: "failed", Id: 2},
+	}
 }
