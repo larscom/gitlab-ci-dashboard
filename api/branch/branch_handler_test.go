@@ -26,9 +26,12 @@ func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []model
 }
 
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
-	app := fiber.New()
+	var (
+		app     = fiber.New()
+		handler = NewBranchHandler(&MockBranchService{})
+	)
 
-	app.Get("/branches", NewBranchHandler(&MockBranchService{}).HandleGetBranchesWithLatestPipeline)
+	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
@@ -45,9 +48,12 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 }
 
 func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
-	app := fiber.New()
+	var (
+		app     = fiber.New()
+		handler = NewBranchHandler(&MockBranchService{})
+	)
 
-	app.Get("/branches", NewBranchHandler(&MockBranchService{}).HandleGetBranchesWithLatestPipeline)
+	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
@@ -63,9 +69,12 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 }
 
 func TestHandleGetBranchesWithLatestPipelineBadRequest(t *testing.T) {
-	app := fiber.New()
+	var (
+		app     = fiber.New()
+		handler = NewBranchHandler(&MockBranchService{})
+	)
 
-	app.Get("/branches", NewBranchHandler(&MockBranchService{}).HandleGetBranchesWithLatestPipeline)
+	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches", nil), -1)
 

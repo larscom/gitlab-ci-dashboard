@@ -29,9 +29,12 @@ func (s *MockScheduleService) GetSchedules(groupId int) []model.ScheduleWithProj
 }
 
 func TestHandleGetSchedules(t *testing.T) {
-	app := fiber.New()
+	var (
+		app     = fiber.New()
+		handler = NewScheduleHandler(&MockScheduleService{})
+	)
 
-	app.Get("/schedules", NewScheduleHandler(&MockScheduleService{}).HandleGetSchedules)
+	app.Get("/schedules", handler.HandleGetSchedules)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
@@ -48,9 +51,12 @@ func TestHandleGetSchedules(t *testing.T) {
 }
 
 func TestGetSchedulesBadRequest(t *testing.T) {
-	app := fiber.New()
+	var (
+		app     = fiber.New()
+		handler = NewScheduleHandler(&MockScheduleService{})
+	)
 
-	app.Get("/schedules", NewScheduleHandler(&MockScheduleService{}).HandleGetSchedules)
+	app.Get("/schedules", handler.HandleGetSchedules)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules", nil), -1)
 
