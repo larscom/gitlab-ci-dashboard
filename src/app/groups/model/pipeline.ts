@@ -39,8 +39,7 @@ export enum Status {
   CANCELED = 'canceled',
   SKIPPED = 'skipped',
   MANUAL = 'manual',
-  SCHEDULED = 'scheduled',
-  UNKNOWN = 'unknown'
+  SCHEDULED = 'scheduled'
 }
 
 export type PipelineId = number

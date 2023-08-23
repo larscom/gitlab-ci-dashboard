@@ -32,7 +32,6 @@ func TestMinimumWithDefaults(t *testing.T) {
 	assert.False(t, config.GroupOnlyTopLevel)
 
 	assert.Empty(t, config.ProjectSkipIds)
-	assert.False(t, config.ProjectHideUnknown)
 	assert.Equal(t, 300, config.ProjectCacheTTLSeconds)
 
 	assert.Equal(t, 10, config.PipelineCacheTTLSeconds)
@@ -50,7 +49,6 @@ func TestMaximum(t *testing.T) {
 	t.Setenv("GITLAB_GROUP_CACHE_TTL_SECONDS", "65")
 	t.Setenv("GITLAB_GROUP_ONLY_TOP_LEVEL", "true")
 	t.Setenv("GITLAB_PROJECT_SKIP_IDS", "7,8,9")
-	t.Setenv("GITLAB_PROJECT_HIDE_UNKNOWN", "true")
 	t.Setenv("GITLAB_PROJECT_CACHE_TTL_SECONDS", "75")
 	t.Setenv("GITLAB_PIPELINE_CACHE_TTL_SECONDS", "85")
 	t.Setenv("GITLAB_PIPELINE_HISTORY_DAYS", "10")
@@ -68,7 +66,6 @@ func TestMaximum(t *testing.T) {
 	assert.True(t, config.GroupOnlyTopLevel)
 
 	assert.Equal(t, []int{7, 8, 9}, config.ProjectSkipIds)
-	assert.True(t, config.ProjectHideUnknown)
 	assert.Equal(t, 75, config.ProjectCacheTTLSeconds)
 
 	assert.Equal(t, 85, config.PipelineCacheTTLSeconds)
@@ -100,10 +97,6 @@ func TestPanics(t *testing.T) {
 	t.Run("GITLAB_PROJECT_SKIP_IDS", func(t *testing.T) {
 		t.Setenv("GITLAB_PROJECT_SKIP_IDS", "1,TT")
 		assert.PanicsWithValue(t, "GITLAB_PROJECT_SKIP_IDS contains: 'TT' which is not an int", func() { NewGitlabConfig() })
-	})
-	t.Run("GITLAB_PROJECT_HIDE_UNKNOWN", func(t *testing.T) {
-		t.Setenv("GITLAB_PROJECT_HIDE_UNKNOWN", "TT")
-		assert.PanicsWithValue(t, "GITLAB_PROJECT_HIDE_UNKNOWN contains: 'false' which is not a bool", func() { NewGitlabConfig() })
 	})
 	t.Run("GITLAB_PROJECT_CACHE_TTL_SECONDS", func(t *testing.T) {
 		t.Setenv("GITLAB_PROJECT_CACHE_TTL_SECONDS", "TT")

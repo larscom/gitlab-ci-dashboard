@@ -85,7 +85,6 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 | GITLAB_GROUP_CACHE_TTL_SECONDS    | int     | Expire after write time in seconds for groups (cache)                                                  | no       | 300     |
 | GITLAB_PROJECT_SKIP_IDS           | string  | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)               | no       |         |
 | GITLAB_PROJECT_CACHE_TTL_SECONDS  | int     | Expire after write time in seconds for projects (cache)                                                | no       | 300     |
-| GITLAB_PROJECT_HIDE_UNKNOWN       | boolean | Hide projects with 'unknown' pipeline status (mostly means that the pipeline is not configured)        | no       | false   |
 | GITLAB_PIPELINE_CACHE_TTL_SECONDS | int     | Expire after write time in seconds for pipelines (cache)                                               | no       | 10      |
 | GITLAB_PIPELINE_HISTORY_DAYS      | int     | How far back in time (days), it should fetch pipelines from gitlab                                     | no       | 5       |
 | GITLAB_BRANCH_CACHE_TTL_SECONDS   | int     | Expire after write time in seconds for branches (cache)                                                | no       | 60      |

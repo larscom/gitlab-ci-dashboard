@@ -64,6 +64,10 @@ export class ProjectFilterComponent implements OnChanges {
     }
   }
 
+  get projectCount(): number {
+    return new Set(this.projects.map(({ id }) => id)).size
+  }
+
   onTopicChange(checked: boolean, topic: string): void {
     const selected = this.selectedFilterTopics
     if (checked) {

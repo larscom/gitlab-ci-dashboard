@@ -17,7 +17,6 @@ type GitlabConfig struct {
 	GroupOnlyTopLevel    bool
 
 	ProjectSkipIds         []int
-	ProjectHideUnknown     bool
 	ProjectCacheTTLSeconds int
 
 	PipelineCacheTTLSeconds int
@@ -39,7 +38,6 @@ func NewGitlabConfig() *GitlabConfig {
 		GroupOnlyTopLevel:    getGroupOnlyTopLevel(),
 
 		ProjectSkipIds:         getProjectSkipIds(),
-		ProjectHideUnknown:     getProjectHideUnknown(),
 		ProjectCacheTTLSeconds: getProjectCacheTTLSeconds(),
 
 		PipelineCacheTTLSeconds: getPipelineCacheTTLSeconds(),
@@ -147,10 +145,6 @@ func getGroupOnlyTopLevel() bool {
 
 func getProjectSkipIds() []int {
 	return parseIntSlice("GITLAB_PROJECT_SKIP_IDS", make([]int, 0))
-}
-
-func getProjectHideUnknown() bool {
-	return parseBool("GITLAB_PROJECT_HIDE_UNKNOWN", false)
 }
 
 func getProjectCacheTTLSeconds() int {

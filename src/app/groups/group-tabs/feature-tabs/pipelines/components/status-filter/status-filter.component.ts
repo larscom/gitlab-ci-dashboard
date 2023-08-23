@@ -19,10 +19,7 @@ export class StatusFilterComponent {
 
   @Output() filterStatusesChanged = new EventEmitter<Status[]>()
 
-  statuses = Object.values(Status)
-    .filter((s) => s !== Status.UNKNOWN)
-    .filter((s) => s !== Status.WAITING_FOR_RESOURCE)
-    .sort()
+  statuses = Object.values(Status).sort()
 
   onChange(checked: boolean, status: Status): void {
     const selected = this.selectedFilterStatuses

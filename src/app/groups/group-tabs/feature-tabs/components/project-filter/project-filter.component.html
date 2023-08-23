@@ -2,7 +2,12 @@
   <div class="flex items-center">
     <div class="max-width-275">
       <nz-input-group [nzSuffix]="suffixIcon">
-        <input type="text" [formControl]="searchControl" nz-input placeholder="Search projects..." />
+        <input
+          type="text"
+          [formControl]="searchControl"
+          nz-input
+          [placeholder]="projectCount > 0 ? 'Search ' + projectCount + ' projects...' : 'Search projects...'"
+        />
       </nz-input-group>
       <ng-template #suffixIcon>
         <span

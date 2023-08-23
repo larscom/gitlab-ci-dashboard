@@ -136,15 +136,7 @@ func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, wg *sync.W
 				Pipeline: pipeline,
 			},
 		}
-	} else if !s.config.ProjectHideUnknown {
-		chn <- map[PipelineStatus]model.ProjectWithPipeline{
-			"unknown": {
-				Project:  project,
-				Pipeline: nil,
-			},
-		}
 	}
-
 }
 
 func (s *ProjectServiceImpl) getPipelines(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ProjectWithPipeline) {
