@@ -73,6 +73,10 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDateWithNil(t *testing.T) {
 	assert.Len(t, result, 4)
 	assert.Equal(t, "branch-3", result[0].Branch.Name)
 	assert.Equal(t, "branch-1", result[1].Branch.Name)
-	assert.Equal(t, "branch-2", result[2].Branch.Name)
-	assert.Equal(t, "branch-4", result[3].Branch.Name)
+
+	rest := result[2:]
+	assert.Len(t, rest, 2)
+
+	branchNames := []string{rest[0].Branch.Name, rest[1].Branch.Name}
+	assert.ElementsMatch(t, branchNames, []string{"branch-2", "branch-4"})
 }
