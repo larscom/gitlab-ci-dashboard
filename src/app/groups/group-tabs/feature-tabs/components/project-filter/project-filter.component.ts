@@ -55,11 +55,11 @@ export class ProjectFilterComponent implements OnChanges {
       .subscribe((value) => this.filterTextChanged.next(String(value)))
   }
 
-  ngOnChanges({ projects, currentFilterText }: SimpleChanges): void {
+  ngOnChanges({ projects, selectedFilterText }: SimpleChanges): void {
     if (projects) {
       this.topics.set(new Set(this.projects.flatMap(({ topics }) => topics).sort((a, b) => a.localeCompare(b))))
     }
-    if (currentFilterText) {
+    if (selectedFilterText) {
       this.searchControl.setValue(this.selectedFilterText, { emitEvent: false })
     }
   }
