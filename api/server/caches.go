@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"time"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
@@ -11,7 +12,7 @@ import (
 type Caches struct {
 	groupCache cache.Cache[string, []model.Group]
 
-	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
 	pipelinesLoader      cache.Cache[model.ProjectId, []model.Pipeline]
 	projectsLoader       cache.Cache[model.GroupId, []model.Project]
 	branchesLoader       cache.Cache[model.ProjectId, []model.Branch]
@@ -60,10 +61,10 @@ func createProjectsLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[mode
 		}))
 }
 
-func createPipelineLatestLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[model.PipelineKey, *model.Pipeline] {
+func createPipelineLatestLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[pipeline.Key, *model.Pipeline] {
 	return cache.New(
-		cache.WithExpireAfterWrite[model.PipelineKey, *model.Pipeline](time.Second*time.Duration(cfg.PipelineCacheTTLSeconds)),
-		cache.WithLoader(func(pipelineKey model.PipelineKey) (*model.Pipeline, error) {
+		cache.WithExpireAfterWrite[pipeline.Key, *model.Pipeline](time.Second*time.Duration(cfg.PipelineCacheTTLSeconds)),
+		cache.WithLoader(func(pipelineKey pipeline.Key) (*model.Pipeline, error) {
 			id, ref, source := pipelineKey.Parse()
 
 			if source != nil {

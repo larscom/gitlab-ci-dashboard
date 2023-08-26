@@ -5,10 +5,10 @@ import (
 )
 
 type BranchHandler struct {
-	service BranchService
+	service Service
 }
 
-func NewBranchHandler(service BranchService) *BranchHandler {
+func NewBranchHandler(service Service) *BranchHandler {
 	return &BranchHandler{
 		service,
 	}

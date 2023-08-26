@@ -8,21 +8,21 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-type ProjectClient interface {
+type Client interface {
 	GetProjects(groupId int) []model.Project
 }
 
-type ProjectClientImpl struct {
+type ClientImpl struct {
 	client client.GitlabClient
 }
 
-func NewProjectClient(client client.GitlabClient) ProjectClient {
-	return &ProjectClientImpl{
+func NewClient(client client.GitlabClient) Client {
+	return &ClientImpl{
 		client,
 	}
 }
 
-func (c *ProjectClientImpl) GetProjects(groupId int) []model.Project {
+func (c *ClientImpl) GetProjects(groupId int) []model.Project {
 	projects, response, err := c.client.ListGroupProjects(groupId, createOptions(1))
 	if err != nil {
 		return projects
@@ -51,7 +51,7 @@ func (c *ProjectClientImpl) GetProjects(groupId int) []model.Project {
 	return projects
 }
 
-func (c *ProjectClientImpl) getProjectsByPage(groupId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Project) {
+func (c *ClientImpl) getProjectsByPage(groupId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Project) {
 	defer wg.Done()
 	projects, _, _ := c.client.ListGroupProjects(groupId, createOptions(pageNumber))
 	chn <- projects

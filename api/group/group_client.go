@@ -9,24 +9,25 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-type GroupClient interface {
+type Client interface {
 	GetGroups() []model.Group
+
 	GetGroupsById(ids []int) []model.Group
 }
 
-type GroupClientImpl struct {
+type ClientImpl struct {
 	client client.GitlabClient
 	config *config.GitlabConfig
 }
 
-func NewGroupClient(client client.GitlabClient, config *config.GitlabConfig) GroupClient {
-	return &GroupClientImpl{
+func NewClient(client client.GitlabClient, config *config.GitlabConfig) Client {
+	return &ClientImpl{
 		client,
 		config,
 	}
 }
 
-func (c *GroupClientImpl) GetGroupsById(ids []int) []model.Group {
+func (c *ClientImpl) GetGroupsById(ids []int) []model.Group {
 	chn := make(chan *model.Group, len(ids))
 
 	for _, groupId := range ids {
@@ -46,7 +47,7 @@ func (c *GroupClientImpl) GetGroupsById(ids []int) []model.Group {
 	return groups
 }
 
-func (c *GroupClientImpl) GetGroups() []model.Group {
+func (c *ClientImpl) GetGroups() []model.Group {
 	groups, response, err := c.client.ListGroups(c.createOptions(1))
 	if err != nil {
 		return groups
@@ -75,18 +76,18 @@ func (c *GroupClientImpl) GetGroups() []model.Group {
 	return groups
 }
 
-func (c *GroupClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []model.Group) {
+func (c *ClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []model.Group) {
 	defer wg.Done()
 	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
 	chn <- groups
 }
 
-func (c *GroupClientImpl) getGroupById(groupId int, chn chan<- *model.Group) {
+func (c *ClientImpl) getGroupById(groupId int, chn chan<- *model.Group) {
 	group, _, _ := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
 	chn <- group
 }
 
-func (c *GroupClientImpl) createOptions(pageNumber int) *gitlab.ListGroupsOptions {
+func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListGroupsOptions {
 	return &gitlab.ListGroupsOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    pageNumber,

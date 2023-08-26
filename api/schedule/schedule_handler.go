@@ -5,10 +5,10 @@ import (
 )
 
 type ScheduleHandler struct {
-	service ScheduleService
+	service Service
 }
 
-func NewScheduleHandler(service ScheduleService) *ScheduleHandler {
+func NewScheduleHandler(service Service) *ScheduleHandler {
 	return &ScheduleHandler{
 		service,
 	}

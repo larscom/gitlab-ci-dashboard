@@ -23,15 +23,15 @@ func TestServerWithConfig(t *testing.T) {
 
 	var (
 		clients = &Clients{
-			groupClient:    mock.NewMockGroupClient(),
-			projectClient:  mock.NewMockProjectClient(),
-			pipelineClient: mock.NewMockPipelineClient(),
-			branchClient:   mock.NewMockBranchClient(),
-			scheduleClient: mock.NewMockScheduleClient(),
+			groupClient:    mock.NewGroupClient(),
+			projectClient:  mock.NewProjectClient(),
+			pipelineClient: mock.NewPipelineClient(),
+			branchClient:   mock.NewBranchClient(),
+			scheduleClient: mock.NewScheduleClient(),
 		}
-		config = createConfig(t)
-		caches = NewCaches(config, clients)
-		server = NewServer(NewBootstrap(config, mock.NewMockGitlabClient(1, nil), caches, clients))
+		cfg    = createConfig(t)
+		caches = NewCaches(cfg, clients)
+		server = NewServer(NewBootstrap(cfg, mock.NewGitlabClient(1, nil), caches, clients))
 	)
 
 	t.Run("TestVersionEndpoint", func(t *testing.T) {

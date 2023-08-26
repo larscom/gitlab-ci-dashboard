@@ -5,10 +5,10 @@ import (
 )
 
 type ProjectHandler struct {
-	service ProjectService
+	service Service
 }
 
-func NewProjectHandler(service ProjectService) *ProjectHandler {
+func NewProjectHandler(service Service) *ProjectHandler {
 	return &ProjectHandler{
 		service,
 	}

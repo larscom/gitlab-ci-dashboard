@@ -50,7 +50,6 @@ func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranc
 	b, err := util.Convert(branches, make([]model.Branch, 0))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return make([]model.Branch, 0), response, err
 	}
 
 	return b, response, err
@@ -65,7 +64,6 @@ func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]mode
 	g, err := util.Convert(groups, make([]model.Group, 0))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return make([]model.Group, 0), response, err
 	}
 
 	return g, response, err
@@ -80,7 +78,6 @@ func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions
 	g, err := util.Convert(group, new(model.Group))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return nil, response, err
 	}
 
 	return g, response, err
@@ -95,7 +92,6 @@ func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetL
 	p, err := util.Convert(pipeline, new(model.Pipeline))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return nil, response, err
 	}
 
 	return p, response, err
@@ -110,7 +106,6 @@ func (c *GitlabClientImpl) ListProjectPipelines(projectId int, options *gitlab.L
 	p, err := util.Convert(pipelines, make([]model.Pipeline, 0))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return make([]model.Pipeline, 0), response, err
 	}
 
 	return p, response, err
@@ -125,14 +120,13 @@ func (c *GitlabClientImpl) ListGroupProjects(groupId int, options *gitlab.ListGr
 	p, err := util.Convert(projects, make([]model.Project, 0))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return make([]model.Project, 0), response, err
 	}
 
 	return p, response, err
 }
 
-func (g *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
-	schedules, response, err := g.client.PipelineSchedules.ListPipelineSchedules(projectId, options)
+func (c *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
+	schedules, response, err := c.client.PipelineSchedules.ListPipelineSchedules(projectId, options)
 	if err != nil {
 		return handleError(make([]model.Schedule, 0), response, err)
 	}
@@ -140,7 +134,6 @@ func (g *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.
 	p, err := util.Convert(schedules, make([]model.Schedule, 0))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
-		return make([]model.Schedule, 0), response, err
 	}
 
 	return p, response, err

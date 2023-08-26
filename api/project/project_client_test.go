@@ -11,7 +11,7 @@ import (
 func TestGetProjectsWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewProjectClient(mock.NewMockGitlabClient(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
 	)
 
 	projects := client.GetProjects(1)
@@ -24,7 +24,7 @@ func TestGetProjectsWith1Page(t *testing.T) {
 func TestGetProjectsWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewProjectClient(mock.NewMockGitlabClient(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
 	)
 
 	projects := client.GetProjects(1)
@@ -37,7 +37,7 @@ func TestGetProjectsWith2Pages(t *testing.T) {
 }
 
 func TestGetProjectsWithErrorEmptySlice(t *testing.T) {
-	client := NewProjectClient(mock.NewMockGitlabClient(1, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClient(1, fmt.Errorf("ERROR")))
 
 	groups := client.GetProjects(1)
 

@@ -8,21 +8,21 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-type BranchClient interface {
+type Client interface {
 	GetBranches(projectId int) []model.Branch
 }
 
-type BranchClientImpl struct {
+type ClientImpl struct {
 	client client.GitlabClient
 }
 
-func NewBranchClient(client client.GitlabClient) BranchClient {
-	return &BranchClientImpl{
+func NewClient(client client.GitlabClient) Client {
+	return &ClientImpl{
 		client,
 	}
 }
 
-func (c *BranchClientImpl) GetBranches(projectId int) []model.Branch {
+func (c *ClientImpl) GetBranches(projectId int) []model.Branch {
 	branches, response, err := c.client.ListBranches(projectId, createOptions(1))
 	if err != nil {
 		return branches
@@ -51,7 +51,7 @@ func (c *BranchClientImpl) GetBranches(projectId int) []model.Branch {
 	return branches
 }
 
-func (c *BranchClientImpl) getBranchesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Branch) {
+func (c *ClientImpl) getBranchesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Branch) {
 	defer wg.Done()
 	branches, _, _ := c.client.ListBranches(projectId, createOptions(pageNumber))
 	chn <- branches

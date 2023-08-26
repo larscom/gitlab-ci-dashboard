@@ -1,4 +1,4 @@
-package model
+package pipeline
 
 import (
 	"testing"
@@ -32,11 +32,11 @@ func TestParseWithSource(t *testing.T) {
 }
 
 func TestParsePanicLength(t *testing.T) {
-	key := PipelineKey("master")
+	key := Key("master")
 	assert.PanicsWithValue(t, "unexpected length", func() { key.Parse() })
 }
 
 func TestParsePanicProjectId(t *testing.T) {
-	key := PipelineKey("nan@master")
+	key := Key("nan@master")
 	assert.PanicsWithValue(t, "could not parse nan", func() { key.Parse() })
 }

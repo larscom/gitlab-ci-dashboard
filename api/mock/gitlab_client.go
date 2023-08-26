@@ -7,16 +7,19 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-func NewMockGitlabClient(TotalPages int, err error) *MockGitlabClient {
-	return &MockGitlabClient{TotalPages, err}
+func NewGitlabClient(TotalPages int, err error) *GitlabClient {
+	return &GitlabClient{
+		TotalPages,
+		err,
+	}
 }
 
-type MockGitlabClient struct {
+type GitlabClient struct {
 	TotalPages int
 	err        error
 }
 
-func (c *MockGitlabClient) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error) {
+func (c *GitlabClient) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]model.Branch, 0), nil, c.err
 	}
@@ -33,7 +36,7 @@ func (c *MockGitlabClient) ListBranches(projectId int, options *gitlab.ListBranc
 	return make([]model.Branch, 0), nil, nil
 }
 
-func (c *MockGitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error) {
+func (c *GitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]model.Group, 0), nil, c.err
 	}
@@ -57,7 +60,7 @@ func (c *MockGitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]mode
 	return make([]model.Group, 0), nil, nil
 }
 
-func (c *MockGitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
+func (c *GitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
 	if groupId == 1 && !*options.WithProjects {
 		return &model.Group{Name: "group-1"}, nil, nil
 	}
@@ -67,23 +70,33 @@ func (c *MockGitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions
 	return nil, nil, nil
 }
 
-func (c *MockGitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
+func (c *GitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
 	if projectId == 1 && *options.Ref == "master" {
 		return &model.Pipeline{Id: 123}, nil, nil
 	}
 	return nil, nil, fmt.Errorf("ERROR")
 }
 
-func (c *MockGitlabClient) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
+func (c *GitlabClient) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
+	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}
+
+	if options.Page == 1 && options.PerPage == 100 {
+		return []model.Pipeline{{Id: 111, Status: "success"}, {Id: 222, Status: "failed"}}, response, nil
+	}
+	if options.Page == 2 && options.PerPage == 100 {
+		return []model.Pipeline{{Id: 333, Status: "failed"}, {Id: 444, Status: "success"}}, response, nil
+	}
+
 	if projectId == 1 && *options.Ref == "master" && *options.Source == "schedule" {
 		return []model.Pipeline{{Id: 456}}, nil, nil
 	} else if *options.Source == "web" {
 		return make([]model.Pipeline, 0), nil, nil
 	}
+
 	return nil, nil, fmt.Errorf("ERROR")
 }
 
-func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error) {
+func (c *GitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]model.Project, 0), nil, c.err
 	}
@@ -100,7 +113,7 @@ func (c *MockGitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGr
 	return make([]model.Project, 0), nil, nil
 }
 
-func (c *MockGitlabClient) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
+func (c *GitlabClient) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
 	if c.err != nil {
 		return make([]model.Schedule, 0), nil, c.err
 	}

@@ -7,23 +7,23 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 )
 
-type GroupService interface {
+type Service interface {
 	GetGroups() []model.Group
 }
 
-type GroupServiceImpl struct {
+type ServiceImpl struct {
 	config *config.GitlabConfig
-	client GroupClient
+	client Client
 }
 
-func NewGroupService(config *config.GitlabConfig, client GroupClient) GroupService {
-	return &GroupServiceImpl{
+func NewService(config *config.GitlabConfig, client Client) Service {
+	return &ServiceImpl{
 		config,
 		client,
 	}
 }
 
-func (s *GroupServiceImpl) GetGroups() []model.Group {
+func (s *ServiceImpl) GetGroups() []model.Group {
 	if len(s.config.GroupOnlyIds) > 0 {
 		return sortByName(s.client.GetGroupsById(s.config.GroupOnlyIds))
 	}

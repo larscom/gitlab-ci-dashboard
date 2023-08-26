@@ -1,4 +1,4 @@
-package model
+package pipeline
 
 import (
 	"fmt"
@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-type PipelineKey string
+type Key string
 
-func (p PipelineKey) Parse() (projectId int, ref string, source *string) {
+func (p Key) Parse() (projectId int, ref string, source *string) {
 	parts := strings.Split(string(p), "@")
 
 	if len(parts) < 2 || len(parts) > 3 {
@@ -29,9 +29,9 @@ func (p PipelineKey) Parse() (projectId int, ref string, source *string) {
 	return pid, r, &s
 }
 
-func NewPipelineKey(projectId int, ref string, source *string) PipelineKey {
+func NewPipelineKey(projectId int, ref string, source *string) Key {
 	if source != nil {
-		return PipelineKey(fmt.Sprintf("%d@%s@%s", projectId, ref, *source))
+		return Key(fmt.Sprintf("%d@%s@%s", projectId, ref, *source))
 	}
-	return PipelineKey(fmt.Sprintf("%d@%s", projectId, ref))
+	return Key(fmt.Sprintf("%d@%s", projectId, ref))
 }

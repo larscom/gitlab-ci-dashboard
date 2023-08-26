@@ -2,16 +2,16 @@ package mock
 
 import "github.com/larscom/gitlab-ci-dashboard/model"
 
-type MockGroupClient struct{}
+type GroupClient struct{}
 
-func NewMockGroupClient() *MockGroupClient {
-	return &MockGroupClient{}
+func NewGroupClient() *GroupClient {
+	return &GroupClient{}
 }
 
-func (c *MockGroupClient) GetGroupsById(ids []int) []model.Group {
+func (c *GroupClient) GetGroupsById(ids []int) []model.Group {
 	return []model.Group{{Name: "Z"}, {Name: "X"}, {Name: "Y"}}
 }
 
-func (c *MockGroupClient) GetGroups() []model.Group {
+func (c *GroupClient) GetGroups() []model.Group {
 	return []model.Group{{Name: "C"}, {Name: "A"}, {Name: "B"}}
 }

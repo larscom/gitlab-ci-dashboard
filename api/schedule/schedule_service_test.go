@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -10,10 +11,10 @@ import (
 
 func TestGetSchedules(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[model.PipelineKey, *model.Pipeline]()
+		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
 		schedulesLoader      = cache.New[model.ProjectId, []model.Schedule]()
 		projectsLoader       = cache.New[model.GroupId, []model.Project]()
-		service              = NewScheduleService(projectsLoader, schedulesLoader, pipelineLatestLoader)
+		service              = NewService(projectsLoader, schedulesLoader, pipelineLatestLoader)
 		groupId              = 1
 		projectId            = 22
 		ref                  = "master"
@@ -26,7 +27,7 @@ func TestGetSchedules(t *testing.T) {
 		},
 	)
 	schedulesLoader.Put(model.ProjectId(projectId), []model.Schedule{{Id: 3, Ref: ref}, {Id: 4, Ref: "nope"}})
-	pipelineLatestLoader.Put(model.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
 
 	result := service.GetSchedules(groupId)
 

@@ -17,22 +17,23 @@ import (
 
 func main() {
 	log.Printf(":: Gitlab CI Dashboard (%s) ::\n", os.Getenv("VERSION"))
-	godotenv.Load(".env")
 
-	config := config.NewGitlabConfig()
-	client := client.NewGitlabClient(config)
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println(":: Starting without .env file")
+	}
+
+	cfg := config.NewGitlabConfig()
+	c := client.NewGitlabClient(cfg)
 
 	clients := server.NewClients(
-		project.NewProjectClient(client),
-		group.NewGroupClient(client, config),
-		pipeline.NewPipelineClient(client, config),
-		branch.NewBranchClient(client),
-		schedule.NewScheduleClient(client),
+		project.NewClient(c),
+		group.NewClient(c, cfg),
+		pipeline.NewClient(c, cfg),
+		branch.NewClient(c),
+		schedule.NewClient(c),
 	)
-	caches := server.NewCaches(config, clients)
-	bootstrap := server.NewBootstrap(config, client, caches, clients)
+	caches := server.NewCaches(cfg, clients)
+	bootstrap := server.NewBootstrap(cfg, c, caches, clients)
 
-	server := server.NewServer(bootstrap)
-
-	log.Fatal(server.Listen(":8080"))
+	log.Fatal(server.NewServer(bootstrap).Listen(":8080"))
 }

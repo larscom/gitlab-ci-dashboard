@@ -1,6 +1,7 @@
 package project
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"sort"
 	"sync"
 
@@ -12,25 +13,26 @@ import (
 
 type PipelineStatus = string
 
-type ProjectService interface {
+type Service interface {
 	GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithPipeline
+
 	GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline
 }
 
-type ProjectServiceImpl struct {
+type ServiceImpl struct {
 	config               *config.GitlabConfig
 	projectsLoader       cache.Cache[model.GroupId, []model.Project]
-	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
 	pipelinesLoader      cache.Cache[model.ProjectId, []model.Pipeline]
 }
 
-func NewProjectService(
+func NewService(
 	config *config.GitlabConfig,
 	projectsLoader cache.Cache[model.GroupId, []model.Project],
-	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
 	pipelinesLoader cache.Cache[model.ProjectId, []model.Pipeline],
-) ProjectService {
-	return &ProjectServiceImpl{
+) Service {
+	return &ServiceImpl{
 		config,
 		projectsLoader,
 		pipelineLatestLoader,
@@ -38,7 +40,7 @@ func NewProjectService(
 	}
 }
 
-func (s *ProjectServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithPipeline {
+func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithPipeline {
 	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
 
 	if len(s.config.ProjectSkipIds) > 0 {
@@ -76,7 +78,7 @@ func (s *ProjectServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[Pipe
 	return result
 }
 
-func (s *ProjectServiceImpl) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
+func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
 	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
 
 	if len(s.config.ProjectSkipIds) > 0 {
@@ -123,10 +125,10 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	return projects
 }
 
-func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGroup, chn chan<- map[PipelineStatus]model.ProjectWithPipeline) {
+func (s *ServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGroup, chn chan<- map[PipelineStatus]model.ProjectWithPipeline) {
 	defer wg.Done()
 
-	key := model.NewPipelineKey(project.Id, project.DefaultBranch, nil)
+	key := pipeline.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, _ := s.pipelineLatestLoader.Get(key)
 
 	if pipeline != nil {
@@ -139,7 +141,7 @@ func (s *ProjectServiceImpl) getLatestPipeline(project model.Project, wg *sync.W
 	}
 }
 
-func (s *ProjectServiceImpl) getPipelines(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ProjectWithPipeline) {
+func (s *ServiceImpl) getPipelines(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ProjectWithPipeline) {
 	defer wg.Done()
 
 	pipelines, _ := s.pipelinesLoader.Get(model.ProjectId(project.Id))

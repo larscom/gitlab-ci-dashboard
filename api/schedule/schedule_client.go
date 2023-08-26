@@ -8,21 +8,21 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-type ScheduleClient interface {
+type Client interface {
 	GetPipelineSchedules(projectId int) []model.Schedule
 }
 
-type ScheduleClientImpl struct {
+type ClientImpl struct {
 	client client.GitlabClient
 }
 
-func NewScheduleClient(client client.GitlabClient) ScheduleClient {
-	return &ScheduleClientImpl{
+func NewClient(client client.GitlabClient) Client {
+	return &ClientImpl{
 		client,
 	}
 }
 
-func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []model.Schedule {
+func (c *ClientImpl) GetPipelineSchedules(projectId int) []model.Schedule {
 	schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
 	if err != nil {
 		return schedules
@@ -51,7 +51,7 @@ func (c *ScheduleClientImpl) GetPipelineSchedules(projectId int) []model.Schedul
 	return schedules
 }
 
-func (c *ScheduleClientImpl) getSchedulesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Schedule) {
+func (c *ClientImpl) getSchedulesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Schedule) {
 	defer wg.Done()
 	schedules, _, _ := c.client.ListPipelineSchedules(projectId, createOptions(pageNumber))
 	chn <- schedules

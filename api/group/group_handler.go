@@ -7,11 +7,11 @@ import (
 )
 
 type GroupHandler struct {
-	service GroupService
+	service Service
 	cache   cache.Cache[string, []model.Group]
 }
 
-func NewGroupHandler(service GroupService, cache cache.Cache[string, []model.Group]) *GroupHandler {
+func NewGroupHandler(service Service, cache cache.Cache[string, []model.Group]) *GroupHandler {
 	return &GroupHandler{
 		service,
 		cache,

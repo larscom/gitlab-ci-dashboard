@@ -2,12 +2,12 @@ package mock
 
 import "github.com/larscom/gitlab-ci-dashboard/model"
 
-type MockProjectClient struct{}
+type ProjectClient struct{}
 
-func NewMockProjectClient() *MockProjectClient {
-	return &MockProjectClient{}
+func NewProjectClient() *ProjectClient {
+	return &ProjectClient{}
 }
 
-func (c *MockProjectClient) GetProjects(groupId int) []model.Project {
+func (c *ProjectClient) GetProjects(groupId int) []model.Project {
 	return []model.Project{{Name: "project-1"}}
 }

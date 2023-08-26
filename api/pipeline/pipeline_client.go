@@ -11,31 +11,33 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-type PipelineClient interface {
+type Client interface {
 	GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error)
+
 	GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error)
+
 	GetPipelines(projectId int) []model.Pipeline
 }
 
-type PipelineClientImpl struct {
+type ClientImpl struct {
 	client client.GitlabClient
 	config *config.GitlabConfig
 }
 
-func NewPipelineClient(client client.GitlabClient, config *config.GitlabConfig) PipelineClient {
-	return &PipelineClientImpl{
+func NewClient(client client.GitlabClient, config *config.GitlabConfig) Client {
+	return &ClientImpl{
 		client,
 		config,
 	}
 }
 
-func (c *PipelineClientImpl) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
+func (c *ClientImpl) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
 	options := &gitlab.GetLatestPipelineOptions{Ref: &ref}
 	pipeline, _, err := c.client.GetLatestPipeline(projectId, options)
 	return pipeline, err
 }
 
-func (c *PipelineClientImpl) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
+func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
 	options := &gitlab.ListProjectPipelinesOptions{
 		Ref:    &ref,
 		Source: &source,
@@ -57,7 +59,7 @@ func (c *PipelineClientImpl) GetLatestPipelineBySource(projectId int, ref string
 	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)
 }
 
-func (c *PipelineClientImpl) GetPipelines(projectId int) []model.Pipeline {
+func (c *ClientImpl) GetPipelines(projectId int) []model.Pipeline {
 	pipelines, response, err := c.client.ListProjectPipelines(projectId, c.createOptions(1))
 	if err != nil {
 		return pipelines
@@ -86,19 +88,18 @@ func (c *PipelineClientImpl) GetPipelines(projectId int) []model.Pipeline {
 	return pipelines
 }
 
-func (c *PipelineClientImpl) getPipelinesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Pipeline) {
+func (c *ClientImpl) getPipelinesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Pipeline) {
 	defer wg.Done()
 	pipelines, _, _ := c.client.ListProjectPipelines(projectId, c.createOptions(pageNumber))
 	chn <- pipelines
 }
 
-func (c *PipelineClientImpl) createOptions(pageNumber int) *gitlab.ListProjectPipelinesOptions {
-	// make it negative
-	days := c.config.PipelineHistoryDays * -1
+func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListProjectPipelinesOptions {
+	minusDays := c.config.PipelineHistoryDays * -1
 
 	return &gitlab.ListProjectPipelinesOptions{
 		// X days ago until now
-		UpdatedAfter: gitlab.Time(time.Now().Add(time.Duration(days) * 24 * time.Hour)),
+		UpdatedAfter: gitlab.Time(time.Now().Add(time.Duration(minusDays) * 24 * time.Hour)),
 		ListOptions: gitlab.ListOptions{
 			Page:    pageNumber,
 			PerPage: 100,

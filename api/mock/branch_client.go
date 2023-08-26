@@ -2,12 +2,12 @@ package mock
 
 import "github.com/larscom/gitlab-ci-dashboard/model"
 
-type MockBranchClient struct{}
+type BranchClient struct{}
 
-func NewMockBranchClient() *MockBranchClient {
-	return &MockBranchClient{}
+func NewBranchClient() *BranchClient {
+	return &BranchClient{}
 }
 
-func (c *MockBranchClient) GetBranches(projectId int) []model.Branch {
+func (c *BranchClient) GetBranches(projectId int) []model.Branch {
 	return []model.Branch{{Name: "branch-1"}}
 }

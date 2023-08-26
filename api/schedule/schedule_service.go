@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"sort"
 	"sync"
 
@@ -8,29 +9,29 @@ import (
 	"github.com/larscom/go-cache"
 )
 
-type ScheduleService interface {
+type Service interface {
 	GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline
 }
 
-type ScheduleServiceImpl struct {
+type ServiceImpl struct {
 	projectsLoader       cache.Cache[model.GroupId, []model.Project]
 	schedulesLoader      cache.Cache[model.ProjectId, []model.Schedule]
-	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
 }
 
-func NewScheduleService(
+func NewService(
 	projectsLoader cache.Cache[model.GroupId, []model.Project],
 	schedulesLoader cache.Cache[model.ProjectId, []model.Schedule],
-	pipelineLatestLoader cache.Cache[model.PipelineKey, *model.Pipeline],
-) ScheduleService {
-	return &ScheduleServiceImpl{
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
+) Service {
+	return &ServiceImpl{
 		projectsLoader,
 		schedulesLoader,
 		pipelineLatestLoader,
 	}
 }
 
-func (s *ScheduleServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
+func (s *ServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
 	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
 
 	chn := make(chan []model.ScheduleWithProjectAndPipeline, 20)
@@ -54,7 +55,7 @@ func (s *ScheduleServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProj
 	return sortById(schedules)
 }
 
-func (s *ScheduleServiceImpl) getSchedules(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ScheduleWithProjectAndPipeline) {
+func (s *ServiceImpl) getSchedules(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ScheduleWithProjectAndPipeline) {
 	defer wg.Done()
 
 	schedules, _ := s.schedulesLoader.Get(model.ProjectId(project.Id))
@@ -62,7 +63,7 @@ func (s *ScheduleServiceImpl) getSchedules(project model.Project, wg *sync.WaitG
 	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
 	for _, schedule := range schedules {
 		source := "schedule"
-		pipeline, _ := s.pipelineLatestLoader.Get(model.NewPipelineKey(project.Id, schedule.Ref, &source))
+		pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
 
 		result = append(result, model.ScheduleWithProjectAndPipeline{
 			Schedule: schedule,

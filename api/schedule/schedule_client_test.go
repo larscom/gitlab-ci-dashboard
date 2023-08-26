@@ -11,7 +11,7 @@ import (
 func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewScheduleClient(mock.NewMockGitlabClient(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
 	)
 
 	schedules := client.GetPipelineSchedules(1)
@@ -24,7 +24,7 @@ func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewScheduleClient(mock.NewMockGitlabClient(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
 	)
 
 	schedules := client.GetPipelineSchedules(1)
@@ -37,7 +37,7 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 }
 
 func TestGetPipelineSchedulesErrorEmptySlice(t *testing.T) {
-	client := NewScheduleClient(mock.NewMockGitlabClient(1, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClient(1, fmt.Errorf("ERROR")))
 
 	schedules := client.GetPipelineSchedules(1)
 
