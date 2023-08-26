@@ -4,11 +4,10 @@ import (
 	"sort"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
 )
 
 type Service interface {
-	GetGroups() []model.Group
+	GetGroups() []Group
 }
 
 type ServiceImpl struct {
@@ -23,14 +22,14 @@ func NewService(config *config.GitlabConfig, client Client) Service {
 	}
 }
 
-func (s *ServiceImpl) GetGroups() []model.Group {
+func (s *ServiceImpl) GetGroups() []Group {
 	if len(s.config.GroupOnlyIds) > 0 {
 		return sortByName(s.client.GetGroupsById(s.config.GroupOnlyIds))
 	}
 	return sortByName(s.client.GetGroups())
 }
 
-func sortByName(groups []model.Group) []model.Group {
+func sortByName(groups []Group) []Group {
 	sort.SliceStable(groups[:], func(i, j int) bool {
 		return groups[i].Name < groups[j].Name
 	})

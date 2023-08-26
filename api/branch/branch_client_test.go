@@ -2,16 +2,16 @@ package branch
 
 import (
 	"fmt"
+
 	"testing"
 
-	"github.com/larscom/gitlab-ci-dashboard/mock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetBranchesWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
+		client     = NewClient(NewGitlabClientMock(totalPages, nil))
 	)
 
 	branches := client.GetBranches(1)
@@ -24,7 +24,7 @@ func TestGetBranchesWith1Page(t *testing.T) {
 func TestGetBranchesWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
+		client     = NewClient(NewGitlabClientMock(totalPages, nil))
 	)
 
 	branches := client.GetBranches(1)
@@ -37,7 +37,7 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 }
 
 func TestGetBranchesWithErrorEmptySlice(t *testing.T) {
-	client := NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")))
+	client := NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
 	branches := client.GetBranches(100)
 

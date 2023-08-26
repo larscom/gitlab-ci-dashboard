@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+
 	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
 )
@@ -31,23 +31,23 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsWithLatestPipeline", func(t *testing.T) {
 		var (
-			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			projectsLoader       = cache.New[model.GroupId, []model.Project]()
-			pipelinesLoader      = cache.New[model.ProjectId, []model.Pipeline]()
+			pipelineLatestLoader = cache.New[pipeline.Key, *pipeline.Pipeline]()
+			projectsLoader       = cache.New[int, []Project]()
+			pipelinesLoader      = cache.New[int, []pipeline.Pipeline]()
 			cfg                  = createConfig(t, make([]int, 0))
 			service              = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 		)
 
-		projectsLoader.Put(model.GroupId(1),
-			[]model.Project{
+		projectsLoader.Put(1,
+			[]Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
 				{Id: 333, Name: "project-3", DefaultBranch: "main"},
 			},
 		)
-		pipelineLatestLoader.Put(pipeline.NewPipelineKey(111, "master", nil), &model.Pipeline{Id: 1010, Status: "success"})
-		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "failed"})
-		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(111, "master", nil), &pipeline.Pipeline{Id: 1010, Status: "success"})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &pipeline.Pipeline{Id: 2020, Status: "failed"})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &pipeline.Pipeline{Id: 3030, Status: "success"})
 
 		result := service.GetProjectsWithLatestPipeline(1)
 		assert.Len(t, result, 2)
@@ -79,24 +79,24 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 	t.Run("GetProjectsWithLatestPipelineSkipProjectIds", func(t *testing.T) {
 		var (
-			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			projectsLoader       = cache.New[model.GroupId, []model.Project]()
-			pipelinesLoader      = cache.New[model.ProjectId, []model.Pipeline]()
+			pipelineLatestLoader = cache.New[pipeline.Key, *pipeline.Pipeline]()
+			projectsLoader       = cache.New[int, []Project]()
+			pipelinesLoader      = cache.New[int, []pipeline.Pipeline]()
 			skipProjectIds       = []int{111, 222}
 			cfg                  = createConfig(t, skipProjectIds)
 			service              = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 		)
 
-		projectsLoader.Put(model.GroupId(1),
-			[]model.Project{
+		projectsLoader.Put(1,
+			[]Project{
 				{Id: 111, Name: "project-1", DefaultBranch: "master"},
 				{Id: 222, Name: "project-2", DefaultBranch: "main"},
 				{Id: 333, Name: "project-3", DefaultBranch: "main"},
 			},
 		)
-		pipelineLatestLoader.Put(pipeline.NewPipelineKey(111, "master", nil), &model.Pipeline{Id: 1010, Status: "success"})
-		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "success"})
-		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(111, "master", nil), &pipeline.Pipeline{Id: 1010, Status: "success"})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &pipeline.Pipeline{Id: 2020, Status: "success"})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &pipeline.Pipeline{Id: 3030, Status: "success"})
 
 		result := service.GetProjectsWithLatestPipeline(1)
 		assert.Len(t, result, 1)

@@ -2,25 +2,28 @@ package branch
 
 import (
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/larscom/go-cache"
 	"sort"
 	"sync"
-
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/go-cache"
 )
 
+type BranchWithPipeline struct {
+	Branch   Branch             `json:"branch"`
+	Pipeline *pipeline.Pipeline `json:"pipeline"`
+}
+
 type Service interface {
-	GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline
+	GetBranchesWithLatestPipeline(projectId int) []BranchWithPipeline
 }
 
 type ServiceImpl struct {
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
-	branchesLoader       cache.Cache[model.ProjectId, []model.Branch]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *pipeline.Pipeline]
+	branchesLoader       cache.Cache[int, []Branch]
 }
 
 func NewService(
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
-	branchesLoader cache.Cache[model.ProjectId, []model.Branch],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *pipeline.Pipeline],
+	branchesLoader cache.Cache[int, []Branch],
 ) Service {
 	return &ServiceImpl{
 		pipelineLatestLoader,
@@ -28,10 +31,10 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline {
-	branches, _ := s.branchesLoader.Get(model.ProjectId(projectId))
+func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) []BranchWithPipeline {
+	branches, _ := s.branchesLoader.Get(int(projectId))
 
-	chn := make(chan model.BranchWithPipeline, len(branches))
+	chn := make(chan BranchWithPipeline, len(branches))
 
 	var wg sync.WaitGroup
 	for _, branch := range branches {
@@ -44,7 +47,7 @@ func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.Branc
 		wg.Wait()
 	}()
 
-	result := make([]model.BranchWithPipeline, 0)
+	result := make([]BranchWithPipeline, 0)
 	for value := range chn {
 		result = append(result, value)
 	}
@@ -52,16 +55,16 @@ func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.Branc
 	return sortByUpdatedDate(result)
 }
 
-func (s *ServiceImpl) getLatestPipeline(projectId int, wg *sync.WaitGroup, branch model.Branch, chn chan<- model.BranchWithPipeline) {
+func (s *ServiceImpl) getLatestPipeline(projectId int, wg *sync.WaitGroup, branch Branch, chn chan<- BranchWithPipeline) {
 	defer wg.Done()
 	pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(projectId, branch.Name, nil))
-	chn <- model.BranchWithPipeline{
+	chn <- BranchWithPipeline{
 		Branch:   branch,
 		Pipeline: pipeline,
 	}
 }
 
-func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPipeline {
+func sortByUpdatedDate(branches []BranchWithPipeline) []BranchWithPipeline {
 	sort.SliceStable(branches[:], func(i, j int) bool {
 		pipelineA := branches[i].Pipeline
 		pipelineB := branches[j].Pipeline

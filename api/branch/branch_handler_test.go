@@ -8,21 +8,21 @@ import (
 	"github.com/goccy/go-json"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+
 	"github.com/stretchr/testify/assert"
 )
 
 type MockBranchService struct{}
 
-func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline {
+func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []BranchWithPipeline {
 	if projectId == 1 {
-		return []model.BranchWithPipeline{
+		return []BranchWithPipeline{
 			{
-				Branch: model.Branch{Name: "branch-1"},
+				Branch: Branch{Name: "branch-1"},
 			},
 		}
 	}
-	return make([]model.BranchWithPipeline, 0)
+	return make([]BranchWithPipeline, 0)
 }
 
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
@@ -36,7 +36,7 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.BranchWithPipeline, 0)
+	result := make([]BranchWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -58,7 +58,7 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.BranchWithPipeline, 0)
+	result := make([]BranchWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

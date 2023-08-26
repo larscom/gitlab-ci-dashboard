@@ -2,16 +2,16 @@ package project
 
 import (
 	"fmt"
+
 	"testing"
 
-	"github.com/larscom/gitlab-ci-dashboard/mock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetProjectsWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
+		client     = NewClient(NewGitlabClientMock(totalPages, nil))
 	)
 
 	projects := client.GetProjects(1)
@@ -24,7 +24,7 @@ func TestGetProjectsWith1Page(t *testing.T) {
 func TestGetProjectsWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
+		client     = NewClient(NewGitlabClientMock(totalPages, nil))
 	)
 
 	projects := client.GetProjects(1)
@@ -37,7 +37,7 @@ func TestGetProjectsWith2Pages(t *testing.T) {
 }
 
 func TestGetProjectsWithErrorEmptySlice(t *testing.T) {
-	client := NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")))
+	client := NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
 	projects := client.GetProjects(1)
 

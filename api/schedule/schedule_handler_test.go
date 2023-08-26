@@ -8,24 +8,24 @@ import (
 	"github.com/goccy/go-json"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+
 	"github.com/stretchr/testify/assert"
 )
 
 type MockScheduleService struct{}
 
-func (s *MockScheduleService) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
+func (s *MockScheduleService) GetSchedules(groupId int) []ScheduleWithProjectAndPipeline {
 	if groupId == 1 {
-		return []model.ScheduleWithProjectAndPipeline{
+		return []ScheduleWithProjectAndPipeline{
 			{
-				Schedule: model.Schedule{
+				Schedule: Schedule{
 					Id: 123,
 				},
 			},
 		}
 	}
 
-	return make([]model.ScheduleWithProjectAndPipeline, 0)
+	return make([]ScheduleWithProjectAndPipeline, 0)
 }
 
 func TestHandleGetSchedules(t *testing.T) {
@@ -39,7 +39,7 @@ func TestHandleGetSchedules(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.ScheduleWithProjectAndPipeline, 0)
+	result := make([]ScheduleWithProjectAndPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

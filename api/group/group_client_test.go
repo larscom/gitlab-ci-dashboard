@@ -2,11 +2,11 @@ package group
 
 import (
 	"fmt"
+
 	"strings"
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +32,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 		var (
 			cfg        = createConfig(t, make([]int, 0), false)
 			totalPages = 1
-			client     = NewClient(mock.NewGitlabClient(totalPages, nil), cfg)
+			client     = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
 		groups := client.GetGroups()
@@ -45,7 +45,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 		var (
 			cfg        = createConfig(t, make([]int, 0), false)
 			totalPages = 2
-			client     = NewClient(mock.NewGitlabClient(totalPages, nil), cfg)
+			client     = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
 		groups := client.GetGroups()
@@ -61,7 +61,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			topLevelOnly = true
 			cfg          = createConfig(t, make([]int, 0), topLevelOnly)
 			totalPages   = 1
-			client       = NewClient(mock.NewGitlabClient(totalPages, nil), cfg)
+			client       = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
 		groups := client.GetGroups()
@@ -75,7 +75,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			skipIds    = []int{1}
 			cfg        = createConfig(t, skipIds, false)
 			totalPages = 1
-			client     = NewClient(mock.NewGitlabClient(totalPages, nil), cfg)
+			client     = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
 		groups := client.GetGroups()
@@ -87,7 +87,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 	t.Run("TestGetGroupsWithErrorEmptySlice", func(t *testing.T) {
 		var (
 			cfg    = createConfig(t, make([]int, 0), false)
-			client = NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")), cfg)
+			client = NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")), cfg)
 		)
 
 		groups := client.GetGroups()
@@ -98,7 +98,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 		var (
 			cfg        = createConfig(t, make([]int, 0), false)
 			totalPages = 1
-			client     = NewClient(mock.NewGitlabClient(totalPages, nil), cfg)
+			client     = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
 		groups := client.GetGroupsById([]int{1, 2})

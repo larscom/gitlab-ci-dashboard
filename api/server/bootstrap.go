@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
-	"github.com/larscom/gitlab-ci-dashboard/client"
+
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
 	"github.com/larscom/gitlab-ci-dashboard/project"
@@ -16,20 +16,17 @@ import (
 
 type Bootstrap struct {
 	config  *config.GitlabConfig
-	client  client.GitlabClient
 	caches  *Caches
 	clients *Clients
 }
 
 func NewBootstrap(
 	config *config.GitlabConfig,
-	client client.GitlabClient,
 	caches *Caches,
 	clients *Clients,
 ) *Bootstrap {
 	return &Bootstrap{
 		config,
-		client,
 		caches,
 		clients,
 	}

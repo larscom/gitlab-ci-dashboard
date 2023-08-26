@@ -2,27 +2,32 @@ package schedule
 
 import (
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/larscom/gitlab-ci-dashboard/project"
+	"github.com/larscom/go-cache"
 	"sort"
 	"sync"
-
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/go-cache"
 )
 
+type ScheduleWithProjectAndPipeline struct {
+	Schedule Schedule           `json:"schedule"`
+	Project  project.Project    `json:"project"`
+	Pipeline *pipeline.Pipeline `json:"pipeline"`
+}
+
 type Service interface {
-	GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline
+	GetSchedules(groupId int) []ScheduleWithProjectAndPipeline
 }
 
 type ServiceImpl struct {
-	projectsLoader       cache.Cache[model.GroupId, []model.Project]
-	schedulesLoader      cache.Cache[model.ProjectId, []model.Schedule]
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
+	projectsLoader       cache.Cache[int, []project.Project]
+	schedulesLoader      cache.Cache[int, []Schedule]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *pipeline.Pipeline]
 }
 
 func NewService(
-	projectsLoader cache.Cache[model.GroupId, []model.Project],
-	schedulesLoader cache.Cache[model.ProjectId, []model.Schedule],
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
+	projectsLoader cache.Cache[int, []project.Project],
+	schedulesLoader cache.Cache[int, []Schedule],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *pipeline.Pipeline],
 ) Service {
 	return &ServiceImpl{
 		projectsLoader,
@@ -31,10 +36,10 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
-	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
+func (s *ServiceImpl) GetSchedules(groupId int) []ScheduleWithProjectAndPipeline {
+	projects, _ := s.projectsLoader.Get(groupId)
 
-	chn := make(chan []model.ScheduleWithProjectAndPipeline, 20)
+	chn := make(chan []ScheduleWithProjectAndPipeline, 20)
 
 	var wg sync.WaitGroup
 	for _, project := range projects {
@@ -47,7 +52,7 @@ func (s *ServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPi
 		wg.Wait()
 	}()
 
-	schedules := make([]model.ScheduleWithProjectAndPipeline, 0)
+	schedules := make([]ScheduleWithProjectAndPipeline, 0)
 	for value := range chn {
 		schedules = append(schedules, value...)
 	}
@@ -55,17 +60,17 @@ func (s *ServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPi
 	return sortById(schedules)
 }
 
-func (s *ServiceImpl) getSchedules(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ScheduleWithProjectAndPipeline) {
+func (s *ServiceImpl) getSchedules(project project.Project, wg *sync.WaitGroup, chn chan<- []ScheduleWithProjectAndPipeline) {
 	defer wg.Done()
 
-	schedules, _ := s.schedulesLoader.Get(model.ProjectId(project.Id))
+	schedules, _ := s.schedulesLoader.Get(project.Id)
 
-	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
+	result := make([]ScheduleWithProjectAndPipeline, 0, len(schedules))
 	for _, schedule := range schedules {
 		source := "schedule"
 		pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
 
-		result = append(result, model.ScheduleWithProjectAndPipeline{
+		result = append(result, ScheduleWithProjectAndPipeline{
 			Schedule: schedule,
 			Project:  project,
 			Pipeline: pipeline,
@@ -75,7 +80,7 @@ func (s *ServiceImpl) getSchedules(project model.Project, wg *sync.WaitGroup, ch
 	chn <- result
 }
 
-func sortById(schedules []model.ScheduleWithProjectAndPipeline) []model.ScheduleWithProjectAndPipeline {
+func sortById(schedules []ScheduleWithProjectAndPipeline) []ScheduleWithProjectAndPipeline {
 	sort.SliceStable(schedules[:], func(i, j int) bool {
 		return schedules[i].Schedule.Id < schedules[j].Schedule.Id
 	})

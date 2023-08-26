@@ -3,38 +3,37 @@ package group
 import (
 	"sync"
 
-	"github.com/larscom/gitlab-ci-dashboard/client"
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+
 	"github.com/xanzy/go-gitlab"
 )
 
 type Client interface {
-	GetGroups() []model.Group
+	GetGroups() []Group
 
-	GetGroupsById(ids []int) []model.Group
+	GetGroupsById(ids []int) []Group
 }
 
 type ClientImpl struct {
-	client client.GitlabClient
+	client GitlabClient
 	config *config.GitlabConfig
 }
 
-func NewClient(client client.GitlabClient, config *config.GitlabConfig) Client {
+func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
 	return &ClientImpl{
 		client,
 		config,
 	}
 }
 
-func (c *ClientImpl) GetGroupsById(ids []int) []model.Group {
-	chn := make(chan *model.Group, len(ids))
+func (c *ClientImpl) GetGroupsById(ids []int) []Group {
+	chn := make(chan *Group, len(ids))
 
 	for _, groupId := range ids {
 		go c.getGroupById(groupId, chn)
 	}
 
-	groups := make([]model.Group, 0)
+	groups := make([]Group, 0)
 	for range ids {
 		group := <-chn
 		if group != nil {
@@ -47,7 +46,7 @@ func (c *ClientImpl) GetGroupsById(ids []int) []model.Group {
 	return groups
 }
 
-func (c *ClientImpl) GetGroups() []model.Group {
+func (c *ClientImpl) GetGroups() []Group {
 	groups, response, err := c.client.ListGroups(c.createOptions(1))
 	if err != nil {
 		return groups
@@ -56,7 +55,7 @@ func (c *ClientImpl) GetGroups() []model.Group {
 		return groups
 	}
 
-	chn := make(chan []model.Group, response.TotalPages)
+	chn := make(chan []Group, response.TotalPages)
 
 	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
@@ -76,13 +75,13 @@ func (c *ClientImpl) GetGroups() []model.Group {
 	return groups
 }
 
-func (c *ClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []model.Group) {
+func (c *ClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []Group) {
 	defer wg.Done()
 	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
 	chn <- groups
 }
 
-func (c *ClientImpl) getGroupById(groupId int, chn chan<- *model.Group) {
+func (c *ClientImpl) getGroupById(groupId int, chn chan<- *Group) {
 	group, _, _ := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
 	chn <- group
 }

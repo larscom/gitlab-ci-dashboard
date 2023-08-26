@@ -6,7 +6,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
-	"github.com/larscom/gitlab-ci-dashboard/client"
+
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
@@ -23,17 +23,15 @@ func main() {
 	}
 
 	cfg := config.NewGitlabConfig()
-	c := client.NewGitlabClient(cfg)
-
 	clients := server.NewClients(
-		project.NewClient(c),
-		group.NewClient(c, cfg),
-		pipeline.NewClient(c, cfg),
-		branch.NewClient(c),
-		schedule.NewClient(c),
+		project.NewClient(project.NewGitlabClient(cfg)),
+		group.NewClient(group.NewGitlabClient(cfg), cfg),
+		pipeline.NewClient(pipeline.NewGitlabClient(cfg), cfg),
+		branch.NewClient(branch.NewGitlabClient(cfg)),
+		schedule.NewClient(schedule.NewGitlabClient(cfg)),
 	)
 	caches := server.NewCaches(cfg, clients)
-	bootstrap := server.NewBootstrap(cfg, c, caches, clients)
+	bootstrap := server.NewBootstrap(cfg, caches, clients)
 
 	log.Fatal(server.NewServer(bootstrap).Listen(":8080"))
 }

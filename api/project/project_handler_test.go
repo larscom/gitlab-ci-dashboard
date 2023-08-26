@@ -2,42 +2,43 @@ package project
 
 import (
 	"encoding/json"
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"io"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+
 	"github.com/stretchr/testify/assert"
 )
 
 type MockProjectService struct{}
 
-func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]model.ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]ProjectWithPipeline {
 	if groupId == 1 {
-		return map[string][]model.ProjectWithPipeline{
+		return map[string][]ProjectWithPipeline{
 			"success": {
 				{
-					Project:  model.Project{Name: "project-1"},
-					Pipeline: &model.Pipeline{Id: 111},
+					Project:  Project{Name: "project-1"},
+					Pipeline: &pipeline.Pipeline{Id: 111},
 				},
 			},
 		}
 	}
 
-	return make(map[string][]model.ProjectWithPipeline)
+	return make(map[string][]ProjectWithPipeline)
 }
 
-func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []ProjectWithPipeline {
 	if groupId == 1 {
-		return []model.ProjectWithPipeline{
+		return []ProjectWithPipeline{
 			{
-				Project:  model.Project{Name: "project-2"},
-				Pipeline: &model.Pipeline{Id: 222},
+				Project:  Project{Name: "project-2"},
+				Pipeline: &pipeline.Pipeline{Id: 222},
 			},
 		}
 	}
-	return make([]model.ProjectWithPipeline, 0)
+	return make([]ProjectWithPipeline, 0)
 }
 
 func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
@@ -51,7 +52,7 @@ func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make(map[string][]model.ProjectWithPipeline)
+	result := make(map[string][]ProjectWithPipeline)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -89,7 +90,7 @@ func TestHandleGetProjectsWithPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.ProjectWithPipeline, 0)
+	result := make([]ProjectWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +27,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	}
 
 	t.Run("TestGetGroupsSortedByName", func(t *testing.T) {
-		service := NewService(createConfig(t, make([]int, 0)), mock.NewGroupClient())
+		service := NewService(createConfig(t, make([]int, 0)), NewClientMock())
 
 		groups := service.GetGroups()
 
@@ -39,7 +38,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	})
 
 	t.Run("TestGetGroupsByIdSortedByName", func(t *testing.T) {
-		service := NewService(createConfig(t, []int{1}), mock.NewGroupClient())
+		service := NewService(createConfig(t, []int{1}), NewClientMock())
 
 		groups := service.GetGroups()
 

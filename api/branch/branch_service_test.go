@@ -5,23 +5,22 @@ import (
 	"testing"
 	"time"
 
-	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[model.ProjectId, []model.Branch]()
+		pipelineLatestLoader = cache.New[pipeline.Key, *pipeline.Pipeline]()
+		branchesLoader       = cache.New[int, []Branch]()
 		service              = NewService(pipelineLatestLoader, branchesLoader)
 		projectId            = 1
 		ref                  = "branch-1"
 		status               = "success"
 	)
 
-	branchesLoader.Put(model.ProjectId(projectId), []model.Branch{{Name: ref}})
-	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, nil), &model.Pipeline{Status: status})
+	branchesLoader.Put(projectId, []Branch{{Name: ref}})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, nil), &pipeline.Pipeline{Status: status})
 
 	result := service.GetBranchesWithLatestPipeline(projectId)
 
@@ -32,18 +31,18 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[model.ProjectId, []model.Branch]()
+		pipelineLatestLoader = cache.New[pipeline.Key, *pipeline.Pipeline]()
+		branchesLoader       = cache.New[int, []Branch]()
 		service              = NewService(pipelineLatestLoader, branchesLoader)
 		projectId            = 1
 		now                  = time.Now()
 	)
 
-	branchesLoader.Put(model.ProjectId(projectId), []model.Branch{{Name: "branch-1"}, {Name: "branch-2"}, {Name: "branch-3"}})
+	branchesLoader.Put(projectId, []Branch{{Name: "branch-1"}, {Name: "branch-2"}, {Name: "branch-3"}})
 
-	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-1", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-10 * time.Minute)})
-	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-2", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
-	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-5 * time.Minute)})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-1", nil), &pipeline.Pipeline{Status: "success", UpdatedAt: now.Add(-10 * time.Minute)})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-2", nil), &pipeline.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &pipeline.Pipeline{Status: "success", UpdatedAt: now.Add(-5 * time.Minute)})
 
 	result := service.GetBranchesWithLatestPipeline(projectId)
 
@@ -55,18 +54,18 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDateWithNil(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[model.ProjectId, []model.Branch]()
+		pipelineLatestLoader = cache.New[pipeline.Key, *pipeline.Pipeline]()
+		branchesLoader       = cache.New[int, []Branch]()
 		service              = NewService(pipelineLatestLoader, branchesLoader)
 		projectId            = 1
 		now                  = time.Now()
 	)
 
-	branchesLoader.Put(model.ProjectId(projectId), []model.Branch{{Name: "branch-1"}, {Name: "branch-2"}, {Name: "branch-3"}, {Name: "branch-4"}})
+	branchesLoader.Put(projectId, []Branch{{Name: "branch-1"}, {Name: "branch-2"}, {Name: "branch-3"}, {Name: "branch-4"}})
 
-	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-1", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-10 * time.Minute)})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-1", nil), &pipeline.Pipeline{Status: "success", UpdatedAt: now.Add(-10 * time.Minute)})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-2", nil), nil)
-	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
+	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &pipeline.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-4", nil), nil)
 
 	result := service.GetBranchesWithLatestPipeline(projectId)

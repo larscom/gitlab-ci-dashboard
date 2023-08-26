@@ -7,30 +7,35 @@ import (
 
 	"github.com/bobg/go-generics/v2/slices"
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
+
 	"github.com/larscom/go-cache"
 )
+
+type ProjectWithPipeline struct {
+	Project  Project            `json:"project"`
+	Pipeline *pipeline.Pipeline `json:"pipeline"`
+}
 
 type PipelineStatus = string
 
 type Service interface {
-	GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithPipeline
+	GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]ProjectWithPipeline
 
-	GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline
+	GetProjectsWithPipeline(groupId int) []ProjectWithPipeline
 }
 
 type ServiceImpl struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cache[model.GroupId, []model.Project]
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
-	pipelinesLoader      cache.Cache[model.ProjectId, []model.Pipeline]
+	projectsLoader       cache.Cache[int, []Project]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *pipeline.Pipeline]
+	pipelinesLoader      cache.Cache[int, []pipeline.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cache[model.GroupId, []model.Project],
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
-	pipelinesLoader cache.Cache[model.ProjectId, []model.Pipeline],
+	projectsLoader cache.Cache[int, []Project],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *pipeline.Pipeline],
+	pipelinesLoader cache.Cache[int, []pipeline.Pipeline],
 ) Service {
 	return &ServiceImpl{
 		config,
@@ -40,16 +45,16 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]model.ProjectWithPipeline {
-	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
+func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineStatus][]ProjectWithPipeline {
+	projects, _ := s.projectsLoader.Get(groupId)
 
 	if len(s.config.ProjectSkipIds) > 0 {
-		projects = slices.Filter(projects, func(p model.Project) bool {
-			return !slices.Contains(s.config.ProjectSkipIds, p.Id)
+		projects = slices.Filter(projects, func(p Project) bool {
+			return !slices.Contains(s.config.ProjectSkipIds, int(p.Id))
 		})
 	}
 
-	chn := make(chan map[PipelineStatus]model.ProjectWithPipeline, 20)
+	chn := make(chan map[PipelineStatus]ProjectWithPipeline, 20)
 
 	var wg sync.WaitGroup
 	for _, project := range projects {
@@ -62,7 +67,7 @@ func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineSta
 		wg.Wait()
 	}()
 
-	result := make(map[PipelineStatus][]model.ProjectWithPipeline)
+	result := make(map[PipelineStatus][]ProjectWithPipeline)
 
 	for m := range chn {
 		for status, value := range m {
@@ -70,7 +75,7 @@ func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineSta
 			if hasStatus {
 				result[status] = append(current, value)
 			} else {
-				result[status] = []model.ProjectWithPipeline{value}
+				result[status] = []ProjectWithPipeline{value}
 			}
 		}
 	}
@@ -78,16 +83,16 @@ func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) map[PipelineSta
 	return result
 }
 
-func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
-	projects, _ := s.projectsLoader.Get(model.GroupId(groupId))
+func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) []ProjectWithPipeline {
+	projects, _ := s.projectsLoader.Get(groupId)
 
 	if len(s.config.ProjectSkipIds) > 0 {
-		projects = slices.Filter(projects, func(p model.Project) bool {
-			return !slices.Contains(s.config.ProjectSkipIds, p.Id)
+		projects = slices.Filter(projects, func(p Project) bool {
+			return !slices.Contains(s.config.ProjectSkipIds, int(p.Id))
 		})
 	}
 
-	chn := make(chan []model.ProjectWithPipeline, 20)
+	chn := make(chan []ProjectWithPipeline, 20)
 
 	var wg sync.WaitGroup
 	for _, project := range projects {
@@ -100,7 +105,7 @@ func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) []model.ProjectWithPi
 		wg.Wait()
 	}()
 
-	result := make([]model.ProjectWithPipeline, 0)
+	result := make([]ProjectWithPipeline, 0)
 	for value := range chn {
 		result = append(result, value...)
 	}
@@ -108,7 +113,7 @@ func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) []model.ProjectWithPi
 	return sortByUpdatedDate(result)
 }
 
-func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWithPipeline {
+func sortByUpdatedDate(projects []ProjectWithPipeline) []ProjectWithPipeline {
 	sort.SliceStable(projects[:], func(i, j int) bool {
 		pipelineA := projects[i].Pipeline
 		pipelineB := projects[j].Pipeline
@@ -125,14 +130,14 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	return projects
 }
 
-func (s *ServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGroup, chn chan<- map[PipelineStatus]model.ProjectWithPipeline) {
+func (s *ServiceImpl) getLatestPipeline(project Project, wg *sync.WaitGroup, chn chan<- map[PipelineStatus]ProjectWithPipeline) {
 	defer wg.Done()
 
 	key := pipeline.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, _ := s.pipelineLatestLoader.Get(key)
 
 	if pipeline != nil {
-		chn <- map[PipelineStatus]model.ProjectWithPipeline{
+		chn <- map[PipelineStatus]ProjectWithPipeline{
 			pipeline.Status: {
 				Project:  project,
 				Pipeline: pipeline,
@@ -141,15 +146,15 @@ func (s *ServiceImpl) getLatestPipeline(project model.Project, wg *sync.WaitGrou
 	}
 }
 
-func (s *ServiceImpl) getPipelines(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ProjectWithPipeline) {
+func (s *ServiceImpl) getPipelines(project Project, wg *sync.WaitGroup, chn chan<- []ProjectWithPipeline) {
 	defer wg.Done()
 
-	pipelines, _ := s.pipelinesLoader.Get(model.ProjectId(project.Id))
-	result := make([]model.ProjectWithPipeline, len(pipelines))
+	pipelines, _ := s.pipelinesLoader.Get(project.Id)
+	result := make([]ProjectWithPipeline, len(pipelines))
 
 	for i := 0; i < len(pipelines); i++ {
 		pipeline := pipelines[i]
-		result[i] = model.ProjectWithPipeline{
+		result[i] = ProjectWithPipeline{
 			Project:  project,
 			Pipeline: &pipeline,
 		}

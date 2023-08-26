@@ -2,16 +2,16 @@ package schedule
 
 import (
 	"fmt"
+
 	"testing"
 
-	"github.com/larscom/gitlab-ci-dashboard/mock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
+		client     = NewClient(NewGitlabClientMock(totalPages, nil))
 	)
 
 	schedules := client.GetPipelineSchedules(1)
@@ -24,7 +24,7 @@ func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewClient(mock.NewGitlabClient(totalPages, nil))
+		client     = NewClient(NewGitlabClientMock(totalPages, nil))
 	)
 
 	schedules := client.GetPipelineSchedules(1)
@@ -37,7 +37,7 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 }
 
 func TestGetPipelineSchedulesErrorEmptySlice(t *testing.T) {
-	client := NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")))
+	client := NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
 	schedules := client.GetPipelineSchedules(1)
 
