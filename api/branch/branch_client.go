@@ -1,12 +1,13 @@
 package branch
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"github.com/xanzy/go-gitlab"
 	"sync"
 )
 
 type Client interface {
-	GetBranches(projectId int) []Branch
+	GetBranches(projectId int) []data.Branch
 }
 
 type ClientImpl struct {
@@ -19,7 +20,7 @@ func NewClient(client GitlabClient) Client {
 	}
 }
 
-func (c *ClientImpl) GetBranches(projectId int) []Branch {
+func (c *ClientImpl) GetBranches(projectId int) []data.Branch {
 	branches, response, err := c.client.ListBranches(projectId, createOptions(1))
 	if err != nil {
 		return branches
@@ -28,7 +29,7 @@ func (c *ClientImpl) GetBranches(projectId int) []Branch {
 		return branches
 	}
 
-	chn := make(chan []Branch, response.TotalPages)
+	chn := make(chan []data.Branch, response.TotalPages)
 
 	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
@@ -48,7 +49,7 @@ func (c *ClientImpl) GetBranches(projectId int) []Branch {
 	return branches
 }
 
-func (c *ClientImpl) getBranchesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []Branch) {
+func (c *ClientImpl) getBranchesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []data.Branch) {
 	defer wg.Done()
 	branches, _, _ := c.client.ListBranches(projectId, createOptions(pageNumber))
 	chn <- branches

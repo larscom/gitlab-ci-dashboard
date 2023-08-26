@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -14,18 +15,18 @@ import (
 
 type MockScheduleService struct{}
 
-func (s *MockScheduleService) GetSchedules(groupId int) []ScheduleWithProjectAndPipeline {
+func (s *MockScheduleService) GetSchedules(groupId int) []data.ScheduleWithProjectAndPipeline {
 	if groupId == 1 {
-		return []ScheduleWithProjectAndPipeline{
+		return []data.ScheduleWithProjectAndPipeline{
 			{
-				Schedule: Schedule{
+				Schedule: data.Schedule{
 					Id: 123,
 				},
 			},
 		}
 	}
 
-	return make([]ScheduleWithProjectAndPipeline, 0)
+	return make([]data.ScheduleWithProjectAndPipeline, 0)
 }
 
 func TestHandleGetSchedules(t *testing.T) {
@@ -39,7 +40,7 @@ func TestHandleGetSchedules(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]ScheduleWithProjectAndPipeline, 0)
+	result := make([]data.ScheduleWithProjectAndPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

@@ -1,6 +1,7 @@
 package group
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"sync"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
@@ -9,9 +10,9 @@ import (
 )
 
 type Client interface {
-	GetGroups() []Group
+	GetGroups() []data.Group
 
-	GetGroupsById(ids []int) []Group
+	GetGroupsById(ids []int) []data.Group
 }
 
 type ClientImpl struct {
@@ -26,14 +27,14 @@ func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
 	}
 }
 
-func (c *ClientImpl) GetGroupsById(ids []int) []Group {
-	chn := make(chan *Group, len(ids))
+func (c *ClientImpl) GetGroupsById(ids []int) []data.Group {
+	chn := make(chan *data.Group, len(ids))
 
 	for _, groupId := range ids {
 		go c.getGroupById(groupId, chn)
 	}
 
-	groups := make([]Group, 0)
+	groups := make([]data.Group, 0)
 	for range ids {
 		group := <-chn
 		if group != nil {
@@ -46,7 +47,7 @@ func (c *ClientImpl) GetGroupsById(ids []int) []Group {
 	return groups
 }
 
-func (c *ClientImpl) GetGroups() []Group {
+func (c *ClientImpl) GetGroups() []data.Group {
 	groups, response, err := c.client.ListGroups(c.createOptions(1))
 	if err != nil {
 		return groups
@@ -55,7 +56,7 @@ func (c *ClientImpl) GetGroups() []Group {
 		return groups
 	}
 
-	chn := make(chan []Group, response.TotalPages)
+	chn := make(chan []data.Group, response.TotalPages)
 
 	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
@@ -75,13 +76,13 @@ func (c *ClientImpl) GetGroups() []Group {
 	return groups
 }
 
-func (c *ClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []Group) {
+func (c *ClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []data.Group) {
 	defer wg.Done()
 	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
 	chn <- groups
 }
 
-func (c *ClientImpl) getGroupById(groupId int, chn chan<- *Group) {
+func (c *ClientImpl) getGroupById(groupId int, chn chan<- *data.Group) {
 	group, _, _ := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
 	chn <- group
 }

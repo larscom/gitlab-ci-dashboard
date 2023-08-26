@@ -1,13 +1,14 @@
 package schedule
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"sync"
 
 	"github.com/xanzy/go-gitlab"
 )
 
 type Client interface {
-	GetPipelineSchedules(projectId int) []Schedule
+	GetPipelineSchedules(projectId int) []data.Schedule
 }
 
 type ClientImpl struct {
@@ -20,7 +21,7 @@ func NewClient(client GitlabClient) Client {
 	}
 }
 
-func (c *ClientImpl) GetPipelineSchedules(projectId int) []Schedule {
+func (c *ClientImpl) GetPipelineSchedules(projectId int) []data.Schedule {
 	schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
 	if err != nil {
 		return schedules
@@ -29,7 +30,7 @@ func (c *ClientImpl) GetPipelineSchedules(projectId int) []Schedule {
 		return schedules
 	}
 
-	chn := make(chan []Schedule, response.TotalPages)
+	chn := make(chan []data.Schedule, response.TotalPages)
 
 	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
@@ -49,7 +50,7 @@ func (c *ClientImpl) GetPipelineSchedules(projectId int) []Schedule {
 	return schedules
 }
 
-func (c *ClientImpl) getSchedulesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []Schedule) {
+func (c *ClientImpl) getSchedulesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []data.Schedule) {
 	defer wg.Done()
 	schedules, _, _ := c.client.ListPipelineSchedules(projectId, createOptions(pageNumber))
 	chn <- schedules

@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/project/mock"
 
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 func TestGetProjectsWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewClient(NewGitlabClientMock(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
 	projects := client.GetProjects(1)
@@ -24,7 +25,7 @@ func TestGetProjectsWith1Page(t *testing.T) {
 func TestGetProjectsWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewClient(NewGitlabClientMock(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
 	projects := client.GetProjects(1)
@@ -37,7 +38,7 @@ func TestGetProjectsWith2Pages(t *testing.T) {
 }
 
 func TestGetProjectsWithErrorEmptySlice(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
 	projects := client.GetProjects(1)
 

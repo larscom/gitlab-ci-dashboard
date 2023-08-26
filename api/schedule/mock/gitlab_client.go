@@ -1,6 +1,7 @@
-package branch
+package mock
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -16,19 +17,19 @@ type GitlabClientMock struct {
 	err        error
 }
 
-func (c *GitlabClientMock) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]Branch, *gitlab.Response, error) {
+func (c *GitlabClientMock) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]data.Schedule, *gitlab.Response, error) {
 	if c.err != nil {
-		return make([]Branch, 0), nil, c.err
+		return make([]data.Schedule, 0), nil, c.err
 	}
 
 	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}
 
 	if projectId == 1 && options.Page == 1 && options.PerPage == 100 {
-		return []Branch{{Name: "branch-1"}, {Name: "branch-2"}}, response, nil
+		return []data.Schedule{{Id: 1}, {Id: 2}}, response, nil
 	}
 	if projectId == 1 && options.Page == 2 && options.PerPage == 100 {
-		return []Branch{{Name: "branch-3"}, {Name: "branch-4"}}, response, nil
+		return []data.Schedule{{Id: 3}, {Id: 4}}, response, nil
 	}
 
-	return make([]Branch, 0), nil, nil
+	return make([]data.Schedule, 0), nil, nil
 }

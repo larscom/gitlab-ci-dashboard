@@ -2,6 +2,7 @@ package branch
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/branch/mock"
 
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 func TestGetBranchesWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewClient(NewGitlabClientMock(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
 	branches := client.GetBranches(1)
@@ -24,7 +25,7 @@ func TestGetBranchesWith1Page(t *testing.T) {
 func TestGetBranchesWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewClient(NewGitlabClientMock(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
 	branches := client.GetBranches(1)
@@ -37,7 +38,7 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 }
 
 func TestGetBranchesWithErrorEmptySlice(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
 	branches := client.GetBranches(100)
 

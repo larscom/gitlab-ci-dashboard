@@ -2,16 +2,17 @@ package group
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/larscom/gitlab-ci-dashboard/data"
 
 	"github.com/larscom/go-cache"
 )
 
 type GroupHandler struct {
 	service Service
-	cache   cache.Cache[string, []Group]
+	cache   cache.Cache[string, []data.Group]
 }
 
-func NewGroupHandler(service Service, cache cache.Cache[string, []Group]) *GroupHandler {
+func NewGroupHandler(service Service, cache cache.Cache[string, []data.Group]) *GroupHandler {
 	return &GroupHandler{
 		service,
 		cache,

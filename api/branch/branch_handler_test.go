@@ -1,6 +1,7 @@
 package branch
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -14,15 +15,15 @@ import (
 
 type MockBranchService struct{}
 
-func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []BranchWithPipeline {
+func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []data.BranchWithPipeline {
 	if projectId == 1 {
-		return []BranchWithPipeline{
+		return []data.BranchWithPipeline{
 			{
-				Branch: Branch{Name: "branch-1"},
+				Branch: data.Branch{Name: "branch-1"},
 			},
 		}
 	}
-	return make([]BranchWithPipeline, 0)
+	return make([]data.BranchWithPipeline, 0)
 }
 
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
@@ -36,7 +37,7 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]BranchWithPipeline, 0)
+	result := make([]data.BranchWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -58,7 +59,7 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]BranchWithPipeline, 0)
+	result := make([]data.BranchWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

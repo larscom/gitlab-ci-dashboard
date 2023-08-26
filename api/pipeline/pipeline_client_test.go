@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
 
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func TestGetLatestPipeline(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(1, nil), nil)
+	client := NewClient(mock.NewGitlabClientMock(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipeline(1, "master")
 	assert.NoError(t, err)
@@ -18,7 +19,7 @@ func TestGetLatestPipeline(t *testing.T) {
 }
 
 func TestGetLatestPipelineError(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(1, nil), nil)
+	client := NewClient(mock.NewGitlabClientMock(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipeline(0, "master")
 	assert.Error(t, err)
@@ -26,7 +27,7 @@ func TestGetLatestPipelineError(t *testing.T) {
 }
 
 func TestGetLatestPipelineBySourceError(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(1, nil), nil)
+	client := NewClient(mock.NewGitlabClientMock(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipelineBySource(0, "master", "schedule")
 	assert.Error(t, err)
@@ -34,7 +35,7 @@ func TestGetLatestPipelineBySourceError(t *testing.T) {
 }
 
 func TestGetLatestPipelineBySourceErrorNotFound(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(1, nil), nil)
+	client := NewClient(mock.NewGitlabClientMock(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipelineBySource(1, "master", "web")
 	assert.Error(t, err)
@@ -43,7 +44,7 @@ func TestGetLatestPipelineBySourceErrorNotFound(t *testing.T) {
 }
 
 func TestGetLatestPipelineBySource(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(1, nil), nil)
+	client := NewClient(mock.NewGitlabClientMock(1, nil), nil)
 
 	pipeline, err := client.GetLatestPipelineBySource(1, "master", "schedule")
 	assert.NoError(t, err)
@@ -54,7 +55,7 @@ func TestGetPipelinesWith1Page(t *testing.T) {
 	var (
 		cfg        = createConfig(t, 1)
 		totalPages = 1
-		client     = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 	)
 
 	pipelines := client.GetPipelines(100)
@@ -68,7 +69,7 @@ func TestGetPipelinesWith2Pages(t *testing.T) {
 	var (
 		cfg        = createConfig(t, 1)
 		totalPages = 2
-		client     = NewClient(NewGitlabClientMock(totalPages, nil), cfg)
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 	)
 
 	pipelines := client.GetPipelines(100)
@@ -83,7 +84,7 @@ func TestGetPipelinesWith2Pages(t *testing.T) {
 func TestGetPipelinesWithErrorEmptySlice(t *testing.T) {
 	var (
 		cfg    = createConfig(t, 1)
-		client = NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")), cfg)
+		client = NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")), cfg)
 	)
 
 	pipelines := client.GetPipelines(100)

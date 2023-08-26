@@ -3,12 +3,13 @@ package server
 import (
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/larscom/gitlab-ci-dashboard/branch"
+	branchMock "github.com/larscom/gitlab-ci-dashboard/branch/mock"
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/group"
-	"github.com/larscom/gitlab-ci-dashboard/pipeline"
-	"github.com/larscom/gitlab-ci-dashboard/project"
-	"github.com/larscom/gitlab-ci-dashboard/schedule"
+	"github.com/larscom/gitlab-ci-dashboard/data"
+	groupMock "github.com/larscom/gitlab-ci-dashboard/group/mock"
+	pipelineMock "github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
+	projectMock "github.com/larscom/gitlab-ci-dashboard/project/mock"
+	scheduleMock "github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http/httptest"
@@ -25,11 +26,11 @@ func TestServerWithConfig(t *testing.T) {
 
 	var (
 		clients = &Clients{
-			groupClient:    group.NewClientMock(),
-			projectClient:  project.NewClientMock(),
-			pipelineClient: pipeline.NewClientMock(),
-			branchClient:   branch.NewClientMock(),
-			scheduleClient: schedule.NewClientMock(),
+			groupClient:    groupMock.NewClientMock(),
+			projectClient:  projectMock.NewClientMock(),
+			pipelineClient: pipelineMock.NewClientMock(),
+			branchClient:   branchMock.NewClientMock(),
+			scheduleClient: scheduleMock.NewClientMock(),
 		}
 		cfg    = createConfig(t)
 		caches = NewCaches(cfg, clients)
@@ -48,7 +49,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		groups := make([]group.Group, 0)
+		groups := make([]data.Group, 0)
 		err := json.Unmarshal(body, &groups)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -63,7 +64,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/latest-pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make(map[string][]project.ProjectWithPipeline)
+		result := make(map[string][]data.ProjectWithPipeline)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -82,7 +83,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]project.ProjectWithPipeline, 0)
+		result := make([]data.ProjectWithPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -98,7 +99,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/latest-pipelines?projectId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]branch.BranchWithPipeline, 0)
+		result := make([]data.BranchWithPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -115,7 +116,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/schedules?groupId=333", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]schedule.ScheduleWithProjectAndPipeline, 0)
+		result := make([]data.ScheduleWithProjectAndPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {

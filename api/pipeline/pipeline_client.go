@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"sync"
 	"time"
 
@@ -11,11 +12,11 @@ import (
 )
 
 type Client interface {
-	GetLatestPipeline(projectId int, ref string) (*Pipeline, error)
+	GetLatestPipeline(projectId int, ref string) (*data.Pipeline, error)
 
-	GetLatestPipelineBySource(projectId int, ref string, source string) (*Pipeline, error)
+	GetLatestPipelineBySource(projectId int, ref string, source string) (*data.Pipeline, error)
 
-	GetPipelines(projectId int) []Pipeline
+	GetPipelines(projectId int) []data.Pipeline
 }
 
 type ClientImpl struct {
@@ -30,13 +31,13 @@ func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
 	}
 }
 
-func (c *ClientImpl) GetLatestPipeline(projectId int, ref string) (*Pipeline, error) {
+func (c *ClientImpl) GetLatestPipeline(projectId int, ref string) (*data.Pipeline, error) {
 	options := &gitlab.GetLatestPipelineOptions{Ref: &ref}
 	pipeline, _, err := c.client.GetLatestPipeline(projectId, options)
 	return pipeline, err
 }
 
-func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source string) (*Pipeline, error) {
+func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source string) (*data.Pipeline, error) {
 	options := &gitlab.ListProjectPipelinesOptions{
 		Ref:    &ref,
 		Source: &source,
@@ -58,7 +59,7 @@ func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source
 	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)
 }
 
-func (c *ClientImpl) GetPipelines(projectId int) []Pipeline {
+func (c *ClientImpl) GetPipelines(projectId int) []data.Pipeline {
 	pipelines, response, err := c.client.ListProjectPipelines(projectId, c.createOptions(1))
 	if err != nil {
 		return pipelines
@@ -67,7 +68,7 @@ func (c *ClientImpl) GetPipelines(projectId int) []Pipeline {
 		return pipelines
 	}
 
-	chn := make(chan []Pipeline, response.TotalPages)
+	chn := make(chan []data.Pipeline, response.TotalPages)
 
 	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
@@ -87,7 +88,7 @@ func (c *ClientImpl) GetPipelines(projectId int) []Pipeline {
 	return pipelines
 }
 
-func (c *ClientImpl) getPipelinesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []Pipeline) {
+func (c *ClientImpl) getPipelinesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []data.Pipeline) {
 	defer wg.Done()
 	pipelines, _, _ := c.client.ListProjectPipelines(projectId, c.createOptions(pageNumber))
 	chn <- pipelines

@@ -2,6 +2,7 @@ package schedule
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 	var (
 		totalPages = 1
-		client     = NewClient(NewGitlabClientMock(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
 	schedules := client.GetPipelineSchedules(1)
@@ -24,7 +25,7 @@ func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 	var (
 		totalPages = 2
-		client     = NewClient(NewGitlabClientMock(totalPages, nil))
+		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
 	schedules := client.GetPipelineSchedules(1)
@@ -37,7 +38,7 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 }
 
 func TestGetPipelineSchedulesErrorEmptySlice(t *testing.T) {
-	client := NewClient(NewGitlabClientMock(0, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
 	schedules := client.GetPipelineSchedules(1)
 

@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/group/mock"
 	"strings"
 	"testing"
 
@@ -27,7 +28,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	}
 
 	t.Run("TestGetGroupsSortedByName", func(t *testing.T) {
-		service := NewService(createConfig(t, make([]int, 0)), NewClientMock())
+		service := NewService(createConfig(t, make([]int, 0)), mock.NewClientMock())
 
 		groups := service.GetGroups()
 
@@ -38,7 +39,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	})
 
 	t.Run("TestGetGroupsByIdSortedByName", func(t *testing.T) {
-		service := NewService(createConfig(t, []int{1}), NewClientMock())
+		service := NewService(createConfig(t, []int{1}), mock.NewClientMock())
 
 		groups := service.GetGroups()
 

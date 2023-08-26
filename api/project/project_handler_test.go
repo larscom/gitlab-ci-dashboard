@@ -2,7 +2,7 @@ package project
 
 import (
 	"encoding/json"
-	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/larscom/gitlab-ci-dashboard/data"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -14,31 +14,31 @@ import (
 
 type MockProjectService struct{}
 
-func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]data.ProjectWithPipeline {
 	if groupId == 1 {
-		return map[string][]ProjectWithPipeline{
+		return map[string][]data.ProjectWithPipeline{
 			"success": {
 				{
-					Project:  Project{Name: "project-1"},
-					Pipeline: &pipeline.Pipeline{Id: 111},
+					Project:  data.Project{Name: "project-1"},
+					Pipeline: &data.Pipeline{Id: 111},
 				},
 			},
 		}
 	}
 
-	return make(map[string][]ProjectWithPipeline)
+	return make(map[string][]data.ProjectWithPipeline)
 }
 
-func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []data.ProjectWithPipeline {
 	if groupId == 1 {
-		return []ProjectWithPipeline{
+		return []data.ProjectWithPipeline{
 			{
-				Project:  Project{Name: "project-2"},
-				Pipeline: &pipeline.Pipeline{Id: 222},
+				Project:  data.Project{Name: "project-2"},
+				Pipeline: &data.Pipeline{Id: 222},
 			},
 		}
 	}
-	return make([]ProjectWithPipeline, 0)
+	return make([]data.ProjectWithPipeline, 0)
 }
 
 func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
@@ -52,7 +52,7 @@ func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make(map[string][]ProjectWithPipeline)
+	result := make(map[string][]data.ProjectWithPipeline)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -90,7 +90,7 @@ func TestHandleGetProjectsWithPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]ProjectWithPipeline, 0)
+	result := make([]data.ProjectWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
