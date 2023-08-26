@@ -40,7 +40,7 @@ func (b *Bootstrap) setupProjectHandler(router fiber.Router) {
 		b.caches.pipelinesLoader,
 	)
 
-	handler := project.NewProjectHandler(service)
+	handler := project.NewHandler(service)
 
 	// path: /api/projects/latest-pipelines?groupId={groupId}
 	router.Get("/projects/latest-pipelines", handler.HandleGetProjectsWithLatestPipeline)
@@ -50,7 +50,7 @@ func (b *Bootstrap) setupProjectHandler(router fiber.Router) {
 
 func (b *Bootstrap) setupBranchHandler(router fiber.Router) {
 	service := branch.NewService(b.caches.pipelineLatestLoader, b.caches.branchesLoader)
-	handler := branch.NewBranchHandler(service)
+	handler := branch.NewHandler(service)
 
 	// path: /api/branches/latest-pipelines?projectId={projectId}
 	router.Get("/branches/latest-pipelines", handler.HandleGetBranchesWithLatestPipeline)
@@ -62,7 +62,7 @@ func (b *Bootstrap) setupSchedulesHandler(router fiber.Router) {
 		b.caches.schedulesLoader,
 		b.caches.pipelineLatestLoader,
 	)
-	handler := schedule.NewScheduleHandler(service)
+	handler := schedule.NewHandler(service)
 
 	// path: /api/schedules?groupId={groupId}
 	router.Get("/schedules", handler.HandleGetSchedules)
@@ -70,7 +70,7 @@ func (b *Bootstrap) setupSchedulesHandler(router fiber.Router) {
 
 func (b *Bootstrap) setupGroupHandler(router fiber.Router) {
 	service := group.NewService(b.config, b.clients.groupClient)
-	handler := group.NewGroupHandler(service, b.caches.groupCache)
+	handler := group.NewHandler(service, b.caches.groupCache)
 
 	// path: /api/groups
 	router.Get("/groups", handler.HandleGetGroups)

@@ -1,14 +1,14 @@
 package project
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/data"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"sync"
 
 	"github.com/xanzy/go-gitlab"
 )
 
 type Client interface {
-	GetProjects(groupId int) []data.Project
+	GetProjects(groupId int) []model.Project
 }
 
 type ClientImpl struct {
@@ -21,7 +21,7 @@ func NewClient(client GitlabClient) Client {
 	}
 }
 
-func (c *ClientImpl) GetProjects(groupId int) []data.Project {
+func (c *ClientImpl) GetProjects(groupId int) []model.Project {
 	projects, response, err := c.client.ListGroupProjects(groupId, createOptions(1))
 	if err != nil {
 		return projects
@@ -30,7 +30,7 @@ func (c *ClientImpl) GetProjects(groupId int) []data.Project {
 		return projects
 	}
 
-	chn := make(chan []data.Project, response.TotalPages)
+	chn := make(chan []model.Project, response.TotalPages)
 
 	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
@@ -50,7 +50,7 @@ func (c *ClientImpl) GetProjects(groupId int) []data.Project {
 	return projects
 }
 
-func (c *ClientImpl) getProjectsByPage(groupId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []data.Project) {
+func (c *ClientImpl) getProjectsByPage(groupId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Project) {
 	defer wg.Done()
 	projects, _, _ := c.client.ListGroupProjects(groupId, createOptions(pageNumber))
 	chn <- projects

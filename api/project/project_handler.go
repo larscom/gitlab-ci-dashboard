@@ -4,17 +4,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ProjectHandler struct {
+type Handler struct {
 	service Service
 }
 
-func NewProjectHandler(service Service) *ProjectHandler {
-	return &ProjectHandler{
+func NewHandler(service Service) *Handler {
+	return &Handler{
 		service,
 	}
 }
 
-func (h *ProjectHandler) HandleGetProjectsWithLatestPipeline(c *fiber.Ctx) error {
+func (h *Handler) HandleGetProjectsWithLatestPipeline(c *fiber.Ctx) error {
 	groupId := c.QueryInt("groupId")
 
 	if groupId == 0 {
@@ -24,7 +24,7 @@ func (h *ProjectHandler) HandleGetProjectsWithLatestPipeline(c *fiber.Ctx) error
 	return c.JSON(h.service.GetProjectsWithLatestPipeline(groupId))
 }
 
-func (h *ProjectHandler) HandleGetProjectsWithPipeline(c *fiber.Ctx) error {
+func (h *Handler) HandleGetProjectsWithPipeline(c *fiber.Ctx) error {
 	groupId := c.QueryInt("groupId")
 
 	if groupId == 0 {

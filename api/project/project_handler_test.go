@@ -2,7 +2,7 @@ package project
 
 import (
 	"encoding/json"
-	"github.com/larscom/gitlab-ci-dashboard/data"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -14,37 +14,37 @@ import (
 
 type MockProjectService struct{}
 
-func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]data.ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]model.ProjectWithPipeline {
 	if groupId == 1 {
-		return map[string][]data.ProjectWithPipeline{
+		return map[string][]model.ProjectWithPipeline{
 			"success": {
 				{
-					Project:  data.Project{Name: "project-1"},
-					Pipeline: &data.Pipeline{Id: 111},
+					Project:  model.Project{Name: "project-1"},
+					Pipeline: &model.Pipeline{Id: 111},
 				},
 			},
 		}
 	}
 
-	return make(map[string][]data.ProjectWithPipeline)
+	return make(map[string][]model.ProjectWithPipeline)
 }
 
-func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []data.ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
 	if groupId == 1 {
-		return []data.ProjectWithPipeline{
+		return []model.ProjectWithPipeline{
 			{
-				Project:  data.Project{Name: "project-2"},
-				Pipeline: &data.Pipeline{Id: 222},
+				Project:  model.Project{Name: "project-2"},
+				Pipeline: &model.Pipeline{Id: 222},
 			},
 		}
 	}
-	return make([]data.ProjectWithPipeline, 0)
+	return make([]model.ProjectWithPipeline, 0)
 }
 
 func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewProjectHandler(&MockProjectService{})
+		handler = NewHandler(&MockProjectService{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithLatestPipeline)
@@ -52,7 +52,7 @@ func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make(map[string][]data.ProjectWithPipeline)
+	result := make(map[string][]model.ProjectWithPipeline)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -69,7 +69,7 @@ func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewProjectHandler(&MockProjectService{})
+		handler = NewHandler(&MockProjectService{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithLatestPipeline)
@@ -82,7 +82,7 @@ func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 func TestHandleGetProjectsWithPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewProjectHandler(&MockProjectService{})
+		handler = NewHandler(&MockProjectService{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithPipeline)
@@ -90,7 +90,7 @@ func TestHandleGetProjectsWithPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.ProjectWithPipeline, 0)
+	result := make([]model.ProjectWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -105,7 +105,7 @@ func TestHandleGetProjectsWithPipeline(t *testing.T) {
 func TestHandleGetProjectsWithPipelineBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewProjectHandler(&MockProjectService{})
+		handler = NewHandler(&MockProjectService{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithPipeline)

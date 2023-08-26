@@ -4,17 +4,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ScheduleHandler struct {
+type Handler struct {
 	service Service
 }
 
-func NewScheduleHandler(service Service) *ScheduleHandler {
-	return &ScheduleHandler{
+func NewHandler(service Service) *Handler {
+	return &Handler{
 		service,
 	}
 }
 
-func (h *ScheduleHandler) HandleGetSchedules(c *fiber.Ctx) error {
+func (h *Handler) HandleGetSchedules(c *fiber.Ctx) error {
 	groupId := c.QueryInt("groupId")
 
 	if groupId == 0 {

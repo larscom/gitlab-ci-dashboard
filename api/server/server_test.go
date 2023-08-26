@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	branchMock "github.com/larscom/gitlab-ci-dashboard/branch/mock"
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/data"
 	groupMock "github.com/larscom/gitlab-ci-dashboard/group/mock"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	pipelineMock "github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
 	projectMock "github.com/larscom/gitlab-ci-dashboard/project/mock"
 	scheduleMock "github.com/larscom/gitlab-ci-dashboard/schedule/mock"
@@ -49,7 +49,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/groups", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		groups := make([]data.Group, 0)
+		groups := make([]model.Group, 0)
 		err := json.Unmarshal(body, &groups)
 		if err != nil {
 			t.Fatal(err.Error())
@@ -64,7 +64,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/latest-pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make(map[string][]data.ProjectWithPipeline)
+		result := make(map[string][]model.ProjectWithPipeline)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -83,7 +83,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]data.ProjectWithPipeline, 0)
+		result := make([]model.ProjectWithPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -99,7 +99,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/latest-pipelines?projectId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]data.BranchWithPipeline, 0)
+		result := make([]model.BranchWithPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -116,7 +116,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/schedules?groupId=333", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]data.ScheduleWithProjectAndPipeline, 0)
+		result := make([]model.ScheduleWithProjectAndPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {

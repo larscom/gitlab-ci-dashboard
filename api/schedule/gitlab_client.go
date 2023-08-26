@@ -2,14 +2,14 @@ package schedule
 
 import (
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/data"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
 	"log"
 )
 
 type GitlabClient interface {
-	ListPipelineSchedules(projectId int, opts *gitlab.ListPipelineSchedulesOptions) ([]data.Schedule, *gitlab.Response, error)
+	ListPipelineSchedules(projectId int, opts *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
@@ -27,13 +27,13 @@ func NewGitlabClient(config *config.GitlabConfig) GitlabClient {
 	}
 }
 
-func (c *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]data.Schedule, *gitlab.Response, error) {
+func (c *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
 	schedules, response, err := c.client.PipelineSchedules.ListPipelineSchedules(projectId, options)
 	if err != nil {
-		return util.HandleError(make([]data.Schedule, 0), response, err)
+		return util.HandleError(make([]model.Schedule, 0), response, err)
 	}
 
-	p, err := util.Convert(schedules, make([]data.Schedule, 0))
+	p, err := util.Convert(schedules, make([]model.Schedule, 0))
 	if err != nil {
 		log.Panicf("unexpected JSON: %v", err)
 	}

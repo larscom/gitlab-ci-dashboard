@@ -1,7 +1,7 @@
 package branch
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/data"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -15,21 +15,21 @@ import (
 
 type MockBranchService struct{}
 
-func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []data.BranchWithPipeline {
+func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline {
 	if projectId == 1 {
-		return []data.BranchWithPipeline{
+		return []model.BranchWithPipeline{
 			{
-				Branch: data.Branch{Name: "branch-1"},
+				Branch: model.Branch{Name: "branch-1"},
 			},
 		}
 	}
-	return make([]data.BranchWithPipeline, 0)
+	return make([]model.BranchWithPipeline, 0)
 }
 
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewBranchHandler(&MockBranchService{})
+		handler = NewHandler(&MockBranchService{})
 	)
 
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
@@ -37,7 +37,7 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.BranchWithPipeline, 0)
+	result := make([]model.BranchWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -51,7 +51,7 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewBranchHandler(&MockBranchService{})
+		handler = NewHandler(&MockBranchService{})
 	)
 
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
@@ -59,7 +59,7 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.BranchWithPipeline, 0)
+	result := make([]model.BranchWithPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -72,7 +72,7 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 func TestHandleGetBranchesWithLatestPipelineBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewBranchHandler(&MockBranchService{})
+		handler = NewHandler(&MockBranchService{})
 	)
 
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)

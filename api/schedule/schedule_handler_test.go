@@ -1,7 +1,7 @@
 package schedule
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/data"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -15,24 +15,24 @@ import (
 
 type MockScheduleService struct{}
 
-func (s *MockScheduleService) GetSchedules(groupId int) []data.ScheduleWithProjectAndPipeline {
+func (s *MockScheduleService) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
 	if groupId == 1 {
-		return []data.ScheduleWithProjectAndPipeline{
+		return []model.ScheduleWithProjectAndPipeline{
 			{
-				Schedule: data.Schedule{
+				Schedule: model.Schedule{
 					Id: 123,
 				},
 			},
 		}
 	}
 
-	return make([]data.ScheduleWithProjectAndPipeline, 0)
+	return make([]model.ScheduleWithProjectAndPipeline, 0)
 }
 
 func TestHandleGetSchedules(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewScheduleHandler(&MockScheduleService{})
+		handler = NewHandler(&MockScheduleService{})
 	)
 
 	app.Get("/schedules", handler.HandleGetSchedules)
@@ -40,7 +40,7 @@ func TestHandleGetSchedules(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.ScheduleWithProjectAndPipeline, 0)
+	result := make([]model.ScheduleWithProjectAndPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -54,7 +54,7 @@ func TestHandleGetSchedules(t *testing.T) {
 func TestGetSchedulesBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewScheduleHandler(&MockScheduleService{})
+		handler = NewHandler(&MockScheduleService{})
 	)
 
 	app.Get("/schedules", handler.HandleGetSchedules)

@@ -2,35 +2,28 @@ package util
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/xanzy/go-gitlab"
-	"log"
 )
 
 func HandleError[T any](value T, r *gitlab.Response, err error) (T, *gitlab.Response, error) {
-	logger := log.Default()
-
 	if r == nil {
-		logger.Println("******************************************************")
-		logger.Printf("no response from gitlab, err: %v\n", err)
-		logger.Println("******************************************************")
-		return value, nil, err
+		return value, nil, fiber.NewError(fiber.StatusGatewayTimeout, "no response from gitlab")
 	}
 
 	switch r.StatusCode {
 	case fiber.StatusUnauthorized:
-		logger.Println("******************************************************")
-		logger.Println("unauthorized: token invalid/expired")
-		logger.Println("******************************************************")
+		const msg = "access token is invalid or has expired"
+		log.Debug(msg)
+		err = fiber.NewError(r.StatusCode, msg)
 	case fiber.StatusForbidden:
-		// do nothing
+		err = nil
 	case fiber.StatusNotFound:
-		logger.Println("******************************************************")
-		logger.Println("not found: requested resource can't be found")
-		logger.Println("******************************************************")
+		log.Debug("requested resource could not be found: ", r.Request.URL)
+		err = nil
 	default:
-		logger.Println("******************************************************")
-		logger.Printf("invalid response from gitlab, err: %v\n", err)
-		logger.Println("******************************************************")
+		log.Debug("requested resource returned an error: ", err.Error())
+		err = fiber.NewError(r.StatusCode, err.Error())
 	}
 
 	return value, r, err

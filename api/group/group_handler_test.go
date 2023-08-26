@@ -2,7 +2,7 @@ package group
 
 import (
 	"encoding/json"
-	"github.com/larscom/gitlab-ci-dashboard/data"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -17,18 +17,18 @@ type MockGroupService struct {
 	empty bool
 }
 
-func (s *MockGroupService) GetGroups() []data.Group {
+func (s *MockGroupService) GetGroups() []model.Group {
 	if s.empty {
-		return make([]data.Group, 0)
+		return make([]model.Group, 0)
 	}
-	return []data.Group{{Name: "group-1"}}
+	return []model.Group{{Name: "group-1"}}
 }
 
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = cache.New[string, []data.Group]()
-		handler    = NewGroupHandler(&MockGroupService{}, groupCache)
+		groupCache = cache.New[string, []model.Group]()
+		handler    = NewHandler(&MockGroupService{}, groupCache)
 	)
 
 	assert.Zero(t, groupCache.Count())
@@ -38,7 +38,7 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.Group, 0)
+	result := make([]model.Group, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -56,18 +56,18 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 func TestHandleGetGroupsFromCache(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = cache.New[string, []data.Group]()
-		handler    = NewGroupHandler(&MockGroupService{}, groupCache)
+		groupCache = cache.New[string, []model.Group]()
+		handler    = NewHandler(&MockGroupService{}, groupCache)
 	)
 
-	groupCache.Put("/", []data.Group{{Name: "group-2"}})
+	groupCache.Put("/", []model.Group{{Name: "group-2"}})
 
 	app.Get("/", handler.HandleGetGroups)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.Group, 0)
+	result := make([]model.Group, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -81,8 +81,8 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = cache.New[string, []data.Group]()
-		handler    = NewGroupHandler(&MockGroupService{empty: true}, groupCache)
+		groupCache = cache.New[string, []model.Group]()
+		handler    = NewHandler(&MockGroupService{empty: true}, groupCache)
 	)
 
 	app.Get("/", handler.HandleGetGroups)
@@ -90,7 +90,7 @@ func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]data.Group, 0)
+	result := make([]model.Group, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
