@@ -37,7 +37,7 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 }
 
 func TestGetPipelineSchedulesErrorEmptySlice(t *testing.T) {
-	client := NewClient(mock.NewGitlabClient(1, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")))
 
 	schedules := client.GetPipelineSchedules(1)
 

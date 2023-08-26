@@ -37,9 +37,9 @@ func TestGetProjectsWith2Pages(t *testing.T) {
 }
 
 func TestGetProjectsWithErrorEmptySlice(t *testing.T) {
-	client := NewClient(mock.NewGitlabClient(1, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")))
 
-	groups := client.GetProjects(1)
+	projects := client.GetProjects(1)
 
-	assert.Len(t, groups, 0)
+	assert.Len(t, projects, 0)
 }

@@ -78,8 +78,11 @@ func (c *GitlabClient) GetLatestPipeline(projectId int, options *gitlab.GetLates
 }
 
 func (c *GitlabClient) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
-	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}
+	if c.err != nil {
+		return make([]model.Pipeline, 0), nil, c.err
+	}
 
+	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}
 	if options.Page == 1 && options.PerPage == 100 {
 		return []model.Pipeline{{Id: 111, Status: "success"}, {Id: 222, Status: "failed"}}, response, nil
 	}

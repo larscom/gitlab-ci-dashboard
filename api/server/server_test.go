@@ -31,7 +31,7 @@ func TestServerWithConfig(t *testing.T) {
 		}
 		cfg    = createConfig(t)
 		caches = NewCaches(cfg, clients)
-		server = NewServer(NewBootstrap(cfg, mock.NewGitlabClient(1, nil), caches, clients))
+		server = NewServer(NewBootstrap(cfg, mock.NewGitlabClient(0, nil), caches, clients))
 	)
 
 	t.Run("TestVersionEndpoint", func(t *testing.T) {

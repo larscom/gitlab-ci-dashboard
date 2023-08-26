@@ -87,7 +87,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 	t.Run("TestGetGroupsWithErrorEmptySlice", func(t *testing.T) {
 		var (
 			cfg    = createConfig(t, make([]int, 0), false)
-			client = NewClient(mock.NewGitlabClient(1, fmt.Errorf("ERROR")), cfg)
+			client = NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")), cfg)
 		)
 
 		groups := client.GetGroups()

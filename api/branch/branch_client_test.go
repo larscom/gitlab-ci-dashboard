@@ -37,7 +37,7 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 }
 
 func TestGetBranchesWithErrorEmptySlice(t *testing.T) {
-	client := NewClient(mock.NewGitlabClient(1, fmt.Errorf("ERROR")))
+	client := NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")))
 
 	branches := client.GetBranches(100)
 

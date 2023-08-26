@@ -80,6 +80,16 @@ func TestGetPipelinesWith2Pages(t *testing.T) {
 	assert.Equal(t, 444, pipelines[3].Id)
 }
 
+func TestGetPipelinesWithErrorEmptySlice(t *testing.T) {
+	var (
+		cfg    = createConfig(t, 1)
+		client = NewClient(mock.NewGitlabClient(0, fmt.Errorf("ERROR")), cfg)
+	)
+
+	pipelines := client.GetPipelines(100)
+	assert.Len(t, pipelines, 0)
+}
+
 func createConfig(t *testing.T, pipelineHistoryDays int) *config.GitlabConfig {
 	t.Setenv("GITLAB_BASE_URL", "http://gitlab.fake")
 	t.Setenv("GITLAB_API_TOKEN", "abc123")
