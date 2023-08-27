@@ -30,6 +30,10 @@ The default functionality of Gitlab is limited at the project level. This can be
 - Communication to the Gitlab API happens only server side
 - Only 1 `read only` token is needed to serve a whole team
 
+![Diagram](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/diagram.png)
+
+<br />
+
 ## 📒 Checklist
 
 - [x] Overview of all latest pipeline statuses within a group
