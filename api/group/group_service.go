@@ -8,7 +8,7 @@ import (
 )
 
 type Service interface {
-	GetGroups() []model.Group
+	GetGroups() ([]model.Group, error)
 }
 
 type ServiceImpl struct {
@@ -23,11 +23,13 @@ func NewService(config *config.GitlabConfig, client Client) Service {
 	}
 }
 
-func (s *ServiceImpl) GetGroups() []model.Group {
+func (s *ServiceImpl) GetGroups() ([]model.Group, error) {
 	if len(s.config.GroupOnlyIds) > 0 {
-		return sortByName(s.client.GetGroupsById(s.config.GroupOnlyIds))
+		groups, err := s.client.GetGroupsById(s.config.GroupOnlyIds)
+		return sortByName(groups), err
 	}
-	return sortByName(s.client.GetGroups())
+	groups, err := s.client.GetGroups()
+	return sortByName(groups), err
 }
 
 func sortByName(groups []model.Group) []model.Group {

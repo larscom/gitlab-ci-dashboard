@@ -23,7 +23,8 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	branchesLoader.Put(projectId, []model.Branch{{Name: ref}})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, nil), &model.Pipeline{Status: status})
 
-	result := service.GetBranchesWithLatestPipeline(projectId)
+	result, err := service.GetBranchesWithLatestPipeline(projectId)
+	assert.Nil(t, err)
 
 	assert.Len(t, result, 1)
 	assert.Equal(t, ref, result[0].Branch.Name)
@@ -45,7 +46,8 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-2", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-5 * time.Minute)})
 
-	result := service.GetBranchesWithLatestPipeline(projectId)
+	result, err := service.GetBranchesWithLatestPipeline(projectId)
+	assert.Nil(t, err)
 
 	assert.Len(t, result, 3)
 	assert.Equal(t, "branch-2", result[0].Branch.Name)
@@ -69,7 +71,8 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDateWithNil(t *testing.T) {
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-4", nil), nil)
 
-	result := service.GetBranchesWithLatestPipeline(projectId)
+	result, err := service.GetBranchesWithLatestPipeline(projectId)
+	assert.Nil(t, err)
 
 	assert.Len(t, result, 4)
 	assert.Equal(t, "branch-3", result[0].Branch.Name)

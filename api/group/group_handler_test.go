@@ -17,11 +17,11 @@ type MockGroupService struct {
 	empty bool
 }
 
-func (s *MockGroupService) GetGroups() []model.Group {
+func (s *MockGroupService) GetGroups() ([]model.Group, error) {
 	if s.empty {
-		return make([]model.Group, 0)
+		return make([]model.Group, 0), nil
 	}
-	return []model.Group{{Name: "group-1"}}
+	return []model.Group{{Name: "group-1"}}, nil
 }
 
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {

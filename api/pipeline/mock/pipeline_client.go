@@ -16,9 +16,9 @@ func (c *ClientMock) GetLatestPipelineBySource(projectId int, ref string, source
 	return &model.Pipeline{ProjectId: projectId, Ref: ref, Source: source, Status: "success", Id: 1337}, nil
 }
 
-func (c *ClientMock) GetPipelines(projectId int) []model.Pipeline {
+func (c *ClientMock) GetPipelines(projectId int) ([]model.Pipeline, error) {
 	return []model.Pipeline{
 		{ProjectId: projectId, Status: "success", Id: 1},
 		{ProjectId: projectId, Status: "failed", Id: 2},
-	}
+	}, nil
 }

@@ -50,7 +50,8 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "failed"})
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
 
-		result := service.GetProjectsWithLatestPipeline(1)
+		result, err := service.GetProjectsWithLatestPipeline(1)
+		assert.Nil(t, err)
 		assert.Len(t, result, 2)
 
 		success := result["success"]
@@ -99,7 +100,8 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "success"})
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
 
-		result := service.GetProjectsWithLatestPipeline(1)
+		result, err := service.GetProjectsWithLatestPipeline(1)
+		assert.Nil(t, err)
 		assert.Len(t, result, 1)
 
 		success := result["success"]

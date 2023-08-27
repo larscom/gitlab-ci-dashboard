@@ -58,7 +58,7 @@ func TestGetPipelinesWith1Page(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 	)
 
-	pipelines := client.GetPipelines(100)
+	pipelines, _ := client.GetPipelines(100)
 
 	assert.Len(t, pipelines, 2)
 	assert.Equal(t, 111, pipelines[0].Id)
@@ -72,7 +72,7 @@ func TestGetPipelinesWith2Pages(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 	)
 
-	pipelines := client.GetPipelines(100)
+	pipelines, _ := client.GetPipelines(100)
 
 	assert.Len(t, pipelines, 4)
 	assert.Equal(t, 111, pipelines[0].Id)
@@ -87,7 +87,7 @@ func TestGetPipelinesWithErrorEmptySlice(t *testing.T) {
 		client = NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")), cfg)
 	)
 
-	pipelines := client.GetPipelines(100)
+	pipelines, _ := client.GetPipelines(100)
 	assert.Len(t, pipelines, 0)
 }
 

@@ -36,7 +36,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
-		groups := client.GetGroups()
+		groups, _ := client.GetGroups()
 
 		assert.Len(t, groups, 2)
 		assert.Equal(t, "group-1", groups[0].Name)
@@ -49,7 +49,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
-		groups := client.GetGroups()
+		groups, _ := client.GetGroups()
 
 		assert.Len(t, groups, 4)
 		assert.Equal(t, "group-1", groups[0].Name)
@@ -65,7 +65,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			client       = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
-		groups := client.GetGroups()
+		groups, _ := client.GetGroups()
 
 		assert.Len(t, groups, 2)
 		assert.Equal(t, "group-20", groups[0].Name)
@@ -79,7 +79,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
-		groups := client.GetGroups()
+		groups, _ := client.GetGroups()
 
 		assert.Len(t, groups, 2)
 		assert.Equal(t, "group-10", groups[0].Name)
@@ -91,7 +91,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			client = NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")), cfg)
 		)
 
-		groups := client.GetGroups()
+		groups, _ := client.GetGroups()
 
 		assert.Len(t, groups, 0)
 	})
@@ -102,7 +102,7 @@ func TestGroupClientWithConfig(t *testing.T) {
 			client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 		)
 
-		groups := client.GetGroupsById([]int{1, 2})
+		groups, _ := client.GetGroupsById([]int{1, 2})
 
 		assert.Len(t, groups, 2)
 

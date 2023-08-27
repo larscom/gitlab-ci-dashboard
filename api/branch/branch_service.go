@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline
+	GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error)
 }
 
 type ServiceImpl struct {
@@ -27,36 +27,59 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline {
-	branches, _ := s.branchesLoader.Get(int(projectId))
+func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
+	result := make([]model.BranchWithPipeline, 0)
 
-	chn := make(chan model.BranchWithPipeline, len(branches))
+	branches, err := s.branchesLoader.Get(projectId)
+	if err != nil {
+		return result, err
+	}
 
-	var wg sync.WaitGroup
+	var (
+		chn    = make(chan model.BranchWithPipeline, len(branches))
+		errchn = make(chan error)
+		wg     sync.WaitGroup
+	)
+
 	for _, branch := range branches {
 		wg.Add(1)
-		go s.getLatestPipeline(projectId, &wg, branch, chn)
+		go s.getLatestPipeline(projectId, &wg, branch, chn, errchn)
 	}
 
 	go func() {
+		defer close(errchn)
 		defer close(chn)
 		wg.Wait()
 	}()
 
-	result := make([]model.BranchWithPipeline, 0)
+	if e := <-errchn; e != nil {
+		return result, e
+	}
+
 	for value := range chn {
 		result = append(result, value)
 	}
 
-	return sortByUpdatedDate(result)
+	return sortByUpdatedDate(result), nil
 }
 
-func (s *ServiceImpl) getLatestPipeline(projectId int, wg *sync.WaitGroup, branch model.Branch, chn chan<- model.BranchWithPipeline) {
+func (s *ServiceImpl) getLatestPipeline(
+	projectId int,
+	wg *sync.WaitGroup,
+	branch model.Branch,
+	chn chan<- model.BranchWithPipeline,
+	errchn chan<- error,
+) {
 	defer wg.Done()
-	pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(projectId, branch.Name, nil))
-	chn <- model.BranchWithPipeline{
-		Branch:   branch,
-		Pipeline: pipeline,
+
+	pipeline, err := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(projectId, branch.Name, nil))
+	if err != nil {
+		errchn <- err
+	} else {
+		chn <- model.BranchWithPipeline{
+			Branch:   branch,
+			Pipeline: pipeline,
+		}
 	}
 }
 

@@ -14,7 +14,7 @@ import (
 
 type MockProjectService struct{}
 
-func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[string][]model.ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) (map[string][]model.ProjectWithPipeline, error) {
 	if groupId == 1 {
 		return map[string][]model.ProjectWithPipeline{
 			"success": {
@@ -23,22 +23,22 @@ func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) map[stri
 					Pipeline: &model.Pipeline{Id: 111},
 				},
 			},
-		}
+		}, nil
 	}
 
-	return make(map[string][]model.ProjectWithPipeline)
+	return make(map[string][]model.ProjectWithPipeline), nil
 }
 
-func (s *MockProjectService) GetProjectsWithPipeline(groupId int) []model.ProjectWithPipeline {
+func (s *MockProjectService) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
 	if groupId == 1 {
 		return []model.ProjectWithPipeline{
 			{
 				Project:  model.Project{Name: "project-2"},
 				Pipeline: &model.Pipeline{Id: 222},
 			},
-		}
+		}, nil
 	}
-	return make([]model.ProjectWithPipeline, 0)
+	return make([]model.ProjectWithPipeline, 0), nil
 }
 
 func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {

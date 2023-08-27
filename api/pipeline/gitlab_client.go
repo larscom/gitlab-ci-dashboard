@@ -1,11 +1,11 @@
 package pipeline
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/util"
-	"github.com/xanzy/go-gitlab"
-	"log"
+  "github.com/larscom/gitlab-ci-dashboard/config"
+  "github.com/larscom/gitlab-ci-dashboard/model"
+  "github.com/larscom/gitlab-ci-dashboard/util"
+  "github.com/xanzy/go-gitlab"
+  "log"
 )
 
 type GitlabClient interface {

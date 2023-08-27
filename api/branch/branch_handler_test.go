@@ -15,15 +15,15 @@ import (
 
 type MockBranchService struct{}
 
-func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) []model.BranchWithPipeline {
+func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
 	if projectId == 1 {
 		return []model.BranchWithPipeline{
 			{
 				Branch: model.Branch{Name: "branch-1"},
 			},
-		}
+		}, nil
 	}
-	return make([]model.BranchWithPipeline, 0)
+	return make([]model.BranchWithPipeline, 0), nil
 }
 
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {

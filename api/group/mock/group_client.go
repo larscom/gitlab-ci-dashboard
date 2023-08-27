@@ -8,10 +8,10 @@ func NewClientMock() *ClientMock {
 	return &ClientMock{}
 }
 
-func (c *ClientMock) GetGroupsById(ids []int) []model.Group {
-	return []model.Group{{Name: "Z"}, {Name: "X"}, {Name: "Y"}}
+func (c *ClientMock) GetGroupsById(ids []int) ([]model.Group, error) {
+	return []model.Group{{Name: "Z"}, {Name: "X"}, {Name: "Y"}}, nil
 }
 
-func (c *ClientMock) GetGroups() []model.Group {
-	return []model.Group{{Name: "C"}, {Name: "A"}, {Name: "B"}}
+func (c *ClientMock) GetGroups() ([]model.Group, error) {
+	return []model.Group{{Name: "C"}, {Name: "A"}, {Name: "B"}}, nil
 }

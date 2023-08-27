@@ -3,10 +3,10 @@ package schedule
 import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/larscom/go-cache"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSchedules(t *testing.T) {
@@ -29,7 +29,8 @@ func TestGetSchedules(t *testing.T) {
 	schedulesLoader.Put(projectId, []model.Schedule{{Id: 3, Ref: ref}, {Id: 4, Ref: "nope"}})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
 
-	result := service.GetSchedules(groupId)
+	result, err := service.GetSchedules(groupId)
+	assert.Nil(t, err)
 
 	assert.Len(t, result, 2)
 	assert.Equal(t, 3, result[0].Schedule.Id)

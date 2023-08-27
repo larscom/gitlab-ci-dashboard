@@ -15,7 +15,7 @@ func TestGetBranchesWith1Page(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	branches := client.GetBranches(1)
+	branches, _ := client.GetBranches(1)
 
 	assert.Len(t, branches, 2)
 	assert.Equal(t, "branch-1", branches[0].Name)
@@ -28,7 +28,7 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	branches := client.GetBranches(1)
+	branches, _ := client.GetBranches(1)
 
 	assert.Len(t, branches, 4)
 	assert.Equal(t, "branch-1", branches[0].Name)
@@ -40,7 +40,7 @@ func TestGetBranchesWith2Pages(t *testing.T) {
 func TestGetBranchesWithErrorEmptySlice(t *testing.T) {
 	client := NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
-	branches := client.GetBranches(100)
+	branches, _ := client.GetBranches(100)
 
 	assert.Len(t, branches, 0)
 }

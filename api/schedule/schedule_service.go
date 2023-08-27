@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline
+	GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error)
 }
 
 type ServiceImpl struct {
@@ -30,48 +30,67 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
-	projects, _ := s.projectsLoader.Get(groupId)
+func (s *ServiceImpl) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
+	result := make([]model.ScheduleWithProjectAndPipeline, 0)
 
-	chn := make(chan []model.ScheduleWithProjectAndPipeline, 20)
+	projects, err := s.projectsLoader.Get(groupId)
+	if err != nil {
+		return result, err
+	}
 
-	var wg sync.WaitGroup
+	var (
+		chn    = make(chan []model.ScheduleWithProjectAndPipeline, len(projects))
+		errchn = make(chan error)
+		wg     sync.WaitGroup
+	)
+
 	for _, project := range projects {
 		wg.Add(1)
-		go s.getSchedules(project, &wg, chn)
+		go s.getSchedules(project, &wg, chn, errchn)
 	}
 
 	go func() {
+		defer close(errchn)
 		defer close(chn)
 		wg.Wait()
 	}()
 
-	schedules := make([]model.ScheduleWithProjectAndPipeline, 0)
-	for value := range chn {
-		schedules = append(schedules, value...)
+	if e := <-errchn; e != nil {
+		return result, e
 	}
 
-	return sortById(schedules)
+	for value := range chn {
+		result = append(result, value...)
+	}
+
+	return sortById(result), nil
 }
 
-func (s *ServiceImpl) getSchedules(project model.Project, wg *sync.WaitGroup, chn chan<- []model.ScheduleWithProjectAndPipeline) {
+func (s *ServiceImpl) getSchedules(
+	project model.Project,
+	wg *sync.WaitGroup,
+	chn chan<- []model.ScheduleWithProjectAndPipeline,
+	errchn chan<- error,
+) {
 	defer wg.Done()
 
-	schedules, _ := s.schedulesLoader.Get(project.Id)
+	schedules, err := s.schedulesLoader.Get(project.Id)
+	if err != nil {
+		errchn <- err
+	} else {
+		result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
+		for _, schedule := range schedules {
+			source := "schedule"
+			pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
 
-	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
-	for _, schedule := range schedules {
-		source := "schedule"
-		pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
-
-		result = append(result, model.ScheduleWithProjectAndPipeline{
-			Schedule: schedule,
-			Project:  project,
-			Pipeline: pipeline,
-		})
+			result = append(result, model.ScheduleWithProjectAndPipeline{
+				Schedule: schedule,
+				Project:  project,
+				Pipeline: pipeline,
+			})
+		}
+		chn <- result
 	}
-
-	chn <- result
 }
 
 func sortById(schedules []model.ScheduleWithProjectAndPipeline) []model.ScheduleWithProjectAndPipeline {

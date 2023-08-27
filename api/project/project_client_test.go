@@ -15,7 +15,7 @@ func TestGetProjectsWith1Page(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	projects := client.GetProjects(1)
+	projects, _ := client.GetProjects(1)
 
 	assert.Len(t, projects, 2)
 	assert.Equal(t, "project-1", projects[0].Name)
@@ -28,7 +28,7 @@ func TestGetProjectsWith2Pages(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	projects := client.GetProjects(1)
+	projects, _ := client.GetProjects(1)
 
 	assert.Len(t, projects, 4)
 	assert.Equal(t, "project-1", projects[0].Name)
@@ -40,7 +40,7 @@ func TestGetProjectsWith2Pages(t *testing.T) {
 func TestGetProjectsWithErrorEmptySlice(t *testing.T) {
 	client := NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
-	projects := client.GetProjects(1)
+	projects, _ := client.GetProjects(1)
 
 	assert.Len(t, projects, 0)
 }

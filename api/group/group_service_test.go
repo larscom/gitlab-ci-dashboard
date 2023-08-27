@@ -30,7 +30,8 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	t.Run("TestGetGroupsSortedByName", func(t *testing.T) {
 		service := NewService(createConfig(t, make([]int, 0)), mock.NewClientMock())
 
-		groups := service.GetGroups()
+		groups, err := service.GetGroups()
+		assert.Nil(t, err)
 
 		assert.Len(t, groups, 3)
 		assert.Equal(t, "A", groups[0].Name)
@@ -41,7 +42,8 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	t.Run("TestGetGroupsByIdSortedByName", func(t *testing.T) {
 		service := NewService(createConfig(t, []int{1}), mock.NewClientMock())
 
-		groups := service.GetGroups()
+		groups, err := service.GetGroups()
+		assert.Nil(t, err)
 
 		assert.Len(t, groups, 3)
 		assert.Equal(t, "X", groups[0].Name)

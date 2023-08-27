@@ -21,5 +21,10 @@ func (h *Handler) HandleGetSchedules(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	return c.JSON(h.service.GetSchedules(groupId))
+	result, err := h.service.GetSchedules(groupId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(result)
 }

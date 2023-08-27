@@ -16,7 +16,7 @@ type Client interface {
 
 	GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error)
 
-	GetPipelines(projectId int) []model.Pipeline
+	GetPipelines(projectId int) ([]model.Pipeline, error)
 }
 
 type ClientImpl struct {
@@ -59,39 +59,58 @@ func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source
 	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)
 }
 
-func (c *ClientImpl) GetPipelines(projectId int) []model.Pipeline {
+func (c *ClientImpl) GetPipelines(projectId int) ([]model.Pipeline, error) {
 	pipelines, response, err := c.client.ListProjectPipelines(projectId, c.createOptions(1))
 	if err != nil {
-		return pipelines
+		return pipelines, err
 	}
 	if response.NextPage == 0 || response.TotalPages <= 1 {
-		return pipelines
+		return pipelines, nil
 	}
 
-	chn := make(chan []model.Pipeline, response.TotalPages)
+	var (
+		chn    = make(chan []model.Pipeline, response.TotalPages)
+		errchn = make(chan error)
+		wg     sync.WaitGroup
+	)
 
-	var wg sync.WaitGroup
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		wg.Add(1)
-		go c.getPipelinesByPage(projectId, &wg, page, chn)
+		go c.getPipelinesByPage(projectId, &wg, page, chn, errchn)
 	}
 
 	go func() {
+		defer close(errchn)
 		defer close(chn)
 		wg.Wait()
 	}()
+
+	if e := <-errchn; e != nil {
+		return pipelines, e
+	}
 
 	for value := range chn {
 		pipelines = append(pipelines, value...)
 	}
 
-	return pipelines
+	return pipelines, nil
 }
 
-func (c *ClientImpl) getPipelinesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Pipeline) {
+func (c *ClientImpl) getPipelinesByPage(
+	projectId int,
+	wg *sync.WaitGroup,
+	pageNumber int,
+	chn chan<- []model.Pipeline,
+	errchn chan<- error,
+) {
 	defer wg.Done()
-	pipelines, _, _ := c.client.ListProjectPipelines(projectId, c.createOptions(pageNumber))
-	chn <- pipelines
+
+	pipelines, _, err := c.client.ListProjectPipelines(projectId, c.createOptions(pageNumber))
+	if err != nil {
+		errchn <- err
+	} else {
+		chn <- pipelines
+	}
 }
 
 func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListProjectPipelinesOptions {

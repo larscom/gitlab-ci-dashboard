@@ -24,7 +24,10 @@ func (h *Handler) HandleGetGroups(c *fiber.Ctx) error {
 		return c.JSON(groups)
 	}
 
-	groups := h.service.GetGroups()
+	groups, err := h.service.GetGroups()
+	if err != nil {
+		return err
+	}
 
 	if len(groups) > 0 {
 		h.cache.Put(c.OriginalURL(), groups)

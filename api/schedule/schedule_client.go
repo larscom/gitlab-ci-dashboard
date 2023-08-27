@@ -1,64 +1,83 @@
 package schedule
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"sync"
+  "github.com/larscom/gitlab-ci-dashboard/model"
+  "sync"
 
-	"github.com/xanzy/go-gitlab"
+  "github.com/xanzy/go-gitlab"
 )
 
 type Client interface {
-	GetPipelineSchedules(projectId int) []model.Schedule
+  GetPipelineSchedules(projectId int) ([]model.Schedule, error)
 }
 
 type ClientImpl struct {
-	client GitlabClient
+  client GitlabClient
 }
 
 func NewClient(client GitlabClient) Client {
-	return &ClientImpl{
-		client,
-	}
+  return &ClientImpl{
+    client,
+  }
 }
 
-func (c *ClientImpl) GetPipelineSchedules(projectId int) []model.Schedule {
-	schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
-	if err != nil {
-		return schedules
-	}
-	if response.NextPage == 0 || response.TotalPages <= 1 {
-		return schedules
-	}
+func (c *ClientImpl) GetPipelineSchedules(projectId int) ([]model.Schedule, error) {
+  schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
+  if err != nil {
+    return schedules, err
+  }
+  if response.NextPage == 0 || response.TotalPages <= 1 {
+    return schedules, nil
+  }
 
-	chn := make(chan []model.Schedule, response.TotalPages)
+  var (
+    chn    = make(chan []model.Schedule, response.TotalPages)
+    errchn = make(chan error)
+    wg     sync.WaitGroup
+  )
 
-	var wg sync.WaitGroup
-	for page := response.NextPage; page <= response.TotalPages; page++ {
-		wg.Add(1)
-		go c.getSchedulesByPage(projectId, &wg, page, chn)
-	}
+  for page := response.NextPage; page <= response.TotalPages; page++ {
+    wg.Add(1)
+    go c.getSchedulesByPage(projectId, &wg, page, chn, errchn)
+  }
 
-	go func() {
-		defer close(chn)
-		wg.Wait()
-	}()
+  go func() {
+    defer close(errchn)
+    defer close(chn)
+    wg.Wait()
+  }()
 
-	for value := range chn {
-		schedules = append(schedules, value...)
-	}
+  if e := <-errchn; e != nil {
+    return schedules, e
+  }
 
-	return schedules
+  for value := range chn {
+    schedules = append(schedules, value...)
+  }
+
+  return schedules, nil
 }
 
-func (c *ClientImpl) getSchedulesByPage(projectId int, wg *sync.WaitGroup, pageNumber int, chn chan<- []model.Schedule) {
-	defer wg.Done()
-	schedules, _, _ := c.client.ListPipelineSchedules(projectId, createOptions(pageNumber))
-	chn <- schedules
+func (c *ClientImpl) getSchedulesByPage(
+  projectId int,
+  wg *sync.WaitGroup,
+  pageNumber int,
+  chn chan<- []model.Schedule,
+  errchn chan<- error,
+) {
+  defer wg.Done()
+
+  schedules, _, err := c.client.ListPipelineSchedules(projectId, createOptions(pageNumber))
+  if err != nil {
+    errchn <- err
+  } else {
+    chn <- schedules
+  }
 }
 
 func createOptions(pageNumber int) *gitlab.ListPipelineSchedulesOptions {
-	return &gitlab.ListPipelineSchedulesOptions{
-		Page:    pageNumber,
-		PerPage: 100,
-	}
+  return &gitlab.ListPipelineSchedulesOptions{
+    Page:    pageNumber,
+    PerPage: 100,
+  }
 }

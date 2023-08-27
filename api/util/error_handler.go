@@ -22,7 +22,6 @@ func HandleError[T any](value T, r *gitlab.Response, err error) (T, *gitlab.Resp
 		log.Debug("requested resource could not be found: ", r.Request.URL)
 		err = nil
 	default:
-		log.Debug("requested resource returned an error: ", err.Error())
 		err = fiber.NewError(r.StatusCode, err.Error())
 	}
 

@@ -42,7 +42,7 @@ func createSchedulesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Schedule](time.Second*time.Duration(cfg.ScheduleCacheTTLSeconds)),
 		cache.WithLoader(func(projectId int) ([]model.Schedule, error) {
-			return c.scheduleClient.GetPipelineSchedules(projectId), nil
+			return c.scheduleClient.GetPipelineSchedules(projectId)
 		}))
 }
 
@@ -50,7 +50,7 @@ func createBranchesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int,
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Branch](time.Second*time.Duration(cfg.BranchCacheTTLSeconds)),
 		cache.WithLoader(func(projectId int) ([]model.Branch, error) {
-			return c.branchClient.GetBranches(projectId), nil
+			return c.branchClient.GetBranches(projectId)
 		}))
 }
 
@@ -58,7 +58,7 @@ func createProjectsLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int,
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Project](time.Second*time.Duration(cfg.ProjectCacheTTLSeconds)),
 		cache.WithLoader(func(groupId int) ([]model.Project, error) {
-			return c.projectClient.GetProjects(groupId), nil
+			return c.projectClient.GetProjects(groupId)
 		}))
 }
 
@@ -67,14 +67,10 @@ func createPipelineLatestLoader(cfg *config.GitlabConfig, c *Clients) cache.Cach
 		cache.WithExpireAfterWrite[pipeline.Key, *model.Pipeline](time.Second*time.Duration(cfg.PipelineCacheTTLSeconds)),
 		cache.WithLoader(func(pipelineKey pipeline.Key) (*model.Pipeline, error) {
 			id, ref, source := pipelineKey.Parse()
-
 			if source != nil {
-				pipeline, err := c.pipelineClient.GetLatestPipelineBySource(id, ref, *source)
-				return pipeline, err
+				return c.pipelineClient.GetLatestPipelineBySource(id, ref, *source)
 			}
-
-			pipeline, err := c.pipelineClient.GetLatestPipeline(id, ref)
-			return pipeline, err
+			return c.pipelineClient.GetLatestPipeline(id, ref)
 		}))
 }
 
@@ -82,7 +78,6 @@ func createPipelinesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Pipeline](time.Second*time.Duration(cfg.PipelineCacheTTLSeconds)),
 		cache.WithLoader(func(projectId int) ([]model.Pipeline, error) {
-			pipelines := c.pipelineClient.GetPipelines(projectId)
-			return pipelines, nil
+			return c.pipelineClient.GetPipelines(projectId)
 		}))
 }

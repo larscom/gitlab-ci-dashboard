@@ -8,6 +8,6 @@ func NewClientMock() *ClientMock {
 	return &ClientMock{}
 }
 
-func (c *ClientMock) GetPipelineSchedules(projectId int) []model.Schedule {
-	return []model.Schedule{{Id: 777}}
+func (c *ClientMock) GetPipelineSchedules(projectId int) ([]model.Schedule, error) {
+	return []model.Schedule{{Id: 777}}, nil
 }

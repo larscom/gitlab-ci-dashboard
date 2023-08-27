@@ -15,7 +15,7 @@ import (
 
 type MockScheduleService struct{}
 
-func (s *MockScheduleService) GetSchedules(groupId int) []model.ScheduleWithProjectAndPipeline {
+func (s *MockScheduleService) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
 	if groupId == 1 {
 		return []model.ScheduleWithProjectAndPipeline{
 			{
@@ -23,10 +23,10 @@ func (s *MockScheduleService) GetSchedules(groupId int) []model.ScheduleWithProj
 					Id: 123,
 				},
 			},
-		}
+		}, nil
 	}
 
-	return make([]model.ScheduleWithProjectAndPipeline, 0)
+	return make([]model.ScheduleWithProjectAndPipeline, 0), nil
 }
 
 func TestHandleGetSchedules(t *testing.T) {

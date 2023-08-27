@@ -10,9 +10,9 @@ import (
 )
 
 type Client interface {
-	GetGroups() []model.Group
+	GetGroups() ([]model.Group, error)
 
-	GetGroupsById(ids []int) []model.Group
+	GetGroupsById(ids []int) ([]model.Group, error)
 }
 
 type ClientImpl struct {
@@ -27,64 +27,105 @@ func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
 	}
 }
 
-func (c *ClientImpl) GetGroupsById(ids []int) []model.Group {
-	chn := make(chan *model.Group, len(ids))
+func (c *ClientImpl) GetGroupsById(ids []int) ([]model.Group, error) {
+	var (
+		chn    = make(chan *model.Group, len(ids))
+		errchn = make(chan error)
+		result = make([]model.Group, 0)
+		wg     sync.WaitGroup
+	)
 
 	for _, groupId := range ids {
-		go c.getGroupById(groupId, chn)
-	}
-
-	groups := make([]model.Group, 0)
-	for range ids {
-		group := <-chn
-		if group != nil {
-			groups = append(groups, *group)
-		}
-	}
-
-	close(chn)
-
-	return groups
-}
-
-func (c *ClientImpl) GetGroups() []model.Group {
-	groups, response, err := c.client.ListGroups(c.createOptions(1))
-	if err != nil {
-		return groups
-	}
-	if response.NextPage == 0 || response.TotalPages <= 1 {
-		return groups
-	}
-
-	chn := make(chan []model.Group, response.TotalPages)
-
-	var wg sync.WaitGroup
-	for page := response.NextPage; page <= response.TotalPages; page++ {
 		wg.Add(1)
-		go c.getGroupsByPage(page, &wg, chn)
+		go c.getGroupById(groupId, &wg, chn, errchn)
 	}
 
 	go func() {
+		defer close(errchn)
 		defer close(chn)
 		wg.Wait()
 	}()
+
+	if e := <-errchn; e != nil {
+		return result, e
+	}
+
+	for value := range chn {
+		if value != nil {
+			result = append(result, *value)
+		}
+	}
+
+	return result, nil
+}
+
+func (c *ClientImpl) GetGroups() ([]model.Group, error) {
+	groups, response, err := c.client.ListGroups(c.createOptions(1))
+	if err != nil {
+		return groups, err
+	}
+	if response.NextPage == 0 || response.TotalPages <= 1 {
+		return groups, nil
+	}
+
+	var (
+		chn    = make(chan []model.Group, response.TotalPages)
+		errchn = make(chan error)
+		wg     sync.WaitGroup
+	)
+
+	for page := response.NextPage; page <= response.TotalPages; page++ {
+		wg.Add(1)
+		go c.getGroupsByPage(page, &wg, chn, errchn)
+	}
+
+	go func() {
+		defer close(errchn)
+		defer close(chn)
+		wg.Wait()
+	}()
+
+	if e := <-errchn; e != nil {
+		return groups, e
+	}
 
 	for value := range chn {
 		groups = append(groups, value...)
 	}
 
-	return groups
+	return groups, nil
 }
 
-func (c *ClientImpl) getGroupsByPage(pageNumber int, wg *sync.WaitGroup, chn chan<- []model.Group) {
+func (c *ClientImpl) getGroupsByPage(
+	pageNumber int,
+	wg *sync.WaitGroup,
+	chn chan<- []model.Group,
+	errchn chan<- error,
+) {
 	defer wg.Done()
-	groups, _, _ := c.client.ListGroups(c.createOptions(pageNumber))
-	chn <- groups
+
+	groups, _, err := c.client.ListGroups(c.createOptions(pageNumber))
+	if err != nil {
+		errchn <- err
+	} else {
+		chn <- groups
+	}
 }
 
-func (c *ClientImpl) getGroupById(groupId int, chn chan<- *model.Group) {
-	group, _, _ := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
-	chn <- group
+func (c *ClientImpl) getGroupById(
+	groupId int,
+	wg *sync.WaitGroup,
+	chn chan<- *model.Group,
+	errchn chan<- error,
+) {
+	defer wg.Done()
+
+	group, _, err := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
+	if err != nil {
+		errchn <- err
+	} else {
+		chn <- group
+	}
 }
 
 func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListGroupsOptions {
