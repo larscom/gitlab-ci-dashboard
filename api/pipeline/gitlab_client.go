@@ -1,11 +1,10 @@
 package pipeline
 
 import (
-  "github.com/larscom/gitlab-ci-dashboard/config"
-  "github.com/larscom/gitlab-ci-dashboard/model"
-  "github.com/larscom/gitlab-ci-dashboard/util"
-  "github.com/xanzy/go-gitlab"
-  "log"
+	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/util"
+	"github.com/xanzy/go-gitlab"
+	"log"
 )
 
 type GitlabClient interface {
@@ -18,12 +17,7 @@ type GitlabClientImpl struct {
 	client *gitlab.Client
 }
 
-func NewGitlabClient(config *config.GitlabConfig) GitlabClient {
-	client, err := gitlab.NewClient(config.GitlabToken, gitlab.WithBaseURL(config.GitlabUrl))
-	if err != nil {
-		log.Panicf("failed to create gitlab client: %v", err)
-	}
-
+func NewGitlabClient(client *gitlab.Client) GitlabClient {
 	return &GitlabClientImpl{
 		client,
 	}
