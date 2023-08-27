@@ -32,8 +32,6 @@ The default functionality of Gitlab is limited at the project level. This can be
 
 ![Diagram](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/diagram.png)
 
-<br />
-
 ## 📒 Checklist
 
 - [x] Overview of all latest pipeline statuses within a group
