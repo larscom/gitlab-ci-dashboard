@@ -1,6 +1,6 @@
 import { GroupId } from '$groups/model/group'
 import { ProjectWithPipeline } from '$groups/model/pipeline'
-import { ErrorService } from '$service/alert.service'
+import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable, catchError, identity, throwError } from 'rxjs'

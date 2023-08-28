@@ -87,6 +87,10 @@ func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) (map[PipelineSt
 		}
 	}
 
+	for status, value := range result {
+		result[status] = sortByUpdatedDate(value)
+	}
+
 	return result, nil
 }
 

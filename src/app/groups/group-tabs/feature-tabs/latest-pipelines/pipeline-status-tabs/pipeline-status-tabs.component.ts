@@ -6,7 +6,6 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzEmptyModule } from 'ng-zorro-antd/empty'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
 import { Observable, map } from 'rxjs'
-import { SortProjectsPipe } from '../pipes/sort-projects.pipe'
 import { ProjectFilterService } from '../../service/project-filter.service'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
 
@@ -24,8 +23,7 @@ interface Tab {
     NzBadgeModule,
     NzEmptyModule,
     PipelineTableComponent,
-    StatusColorPipe,
-    SortProjectsPipe
+    StatusColorPipe
   ],
   templateUrl: './pipeline-status-tabs.component.html',
   styleUrls: ['./pipeline-status-tabs.component.scss']

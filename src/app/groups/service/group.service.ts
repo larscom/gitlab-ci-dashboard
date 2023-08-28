@@ -3,7 +3,7 @@ import { Group } from '$groups/model/group'
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable, catchError, throwError } from 'rxjs'
-import { ErrorService } from '../../service/alert.service'
+import { ErrorService } from '$service/error.service'
 
 @Injectable({ providedIn: 'root' })
 export class GroupService {

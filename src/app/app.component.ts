@@ -1,4 +1,4 @@
-import { ErrorService } from '$service/alert.service'
+import { ErrorService } from '$service/error.service'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
 import { RouterOutlet } from '@angular/router'

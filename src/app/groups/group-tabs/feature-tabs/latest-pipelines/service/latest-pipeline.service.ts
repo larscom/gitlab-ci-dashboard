@@ -1,7 +1,7 @@
 import { GroupId } from '$groups/model/group'
 import { BranchWithPipeline, ProjectWithPipeline, Status } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
-import { ErrorService } from '$service/alert.service'
+import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable, catchError, identity, map, throwError } from 'rxjs'
