@@ -58,6 +58,7 @@ func (b *Bootstrap) setupBranchHandler(router fiber.Router) {
 
 func (b *Bootstrap) setupSchedulesHandler(router fiber.Router) {
 	service := schedule.NewService(
+		b.config,
 		b.caches.projectsLoader,
 		b.caches.schedulesLoader,
 		b.caches.pipelineLatestLoader,

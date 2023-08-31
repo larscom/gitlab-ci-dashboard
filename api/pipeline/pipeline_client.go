@@ -3,7 +3,9 @@ package pipeline
 import (
 	"fmt"
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	"sync"
+	"github.com/larscom/gitlab-ci-dashboard/util"
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 	"time"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
@@ -69,48 +71,38 @@ func (c *ClientImpl) GetPipelines(projectId int) ([]model.Pipeline, error) {
 	}
 
 	var (
-		chn    = make(chan []model.Pipeline, response.TotalPages)
-		errchn = make(chan error)
-		wg     sync.WaitGroup
+		resultchn = make(chan []model.Pipeline, util.GetMaxChanCapacity(response.TotalPages))
+		g, ctx    = errgroup.WithContext(context.Background())
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		wg.Add(1)
-		go c.getPipelinesByPage(projectId, &wg, page, chn, errchn)
+		run := util.CreateRunFunc[pipelinePageArgs, []model.Pipeline](c.getPipelinesByPage, resultchn, ctx)
+		g.Go(run(pipelinePageArgs{
+			projectId:  projectId,
+			pageNumber: page,
+		}))
 	}
 
 	go func() {
-		defer close(errchn)
-		defer close(chn)
-		wg.Wait()
+		defer close(resultchn)
+		g.Wait()
 	}()
 
-	if e := <-errchn; e != nil {
-		return pipelines, e
-	}
-
-	for value := range chn {
+	for value := range resultchn {
 		pipelines = append(pipelines, value...)
 	}
 
-	return pipelines, nil
+	return pipelines, g.Wait()
 }
 
-func (c *ClientImpl) getPipelinesByPage(
-	projectId int,
-	wg *sync.WaitGroup,
-	pageNumber int,
-	chn chan<- []model.Pipeline,
-	errchn chan<- error,
-) {
-	defer wg.Done()
+type pipelinePageArgs struct {
+	projectId  int
+	pageNumber int
+}
 
-	pipelines, _, err := c.client.ListProjectPipelines(projectId, c.createOptions(pageNumber))
-	if err != nil {
-		errchn <- err
-	} else {
-		chn <- pipelines
-	}
+func (c *ClientImpl) getPipelinesByPage(args pipelinePageArgs) ([]model.Pipeline, error) {
+	pipelines, _, err := c.client.ListProjectPipelines(args.projectId, c.createOptions(args.pageNumber))
+	return pipelines, err
 }
 
 func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListProjectPipelinesOptions {

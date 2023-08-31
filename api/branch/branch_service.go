@@ -3,9 +3,11 @@ package branch
 import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/larscom/go-cache"
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 	"sort"
-	"sync"
 )
 
 type Service interface {
@@ -28,59 +30,48 @@ func NewService(
 }
 
 func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
-	result := make([]model.BranchWithPipeline, 0)
-
 	branches, err := s.branchesLoader.Get(projectId)
 	if err != nil {
-		return result, err
+		return make([]model.BranchWithPipeline, 0), err
 	}
 
 	var (
-		chn    = make(chan model.BranchWithPipeline, len(branches))
-		errchn = make(chan error)
-		wg     sync.WaitGroup
+		resultchn = make(chan model.BranchWithPipeline, util.GetMaxChanCapacity(len(branches)))
+		g, ctx    = errgroup.WithContext(context.Background())
+		results   = make([]model.BranchWithPipeline, 0)
 	)
 
 	for _, branch := range branches {
-		wg.Add(1)
-		go s.getLatestPipeline(projectId, &wg, branch, chn, errchn)
+		run := util.CreateRunFunc[branchPipelineArgs, model.BranchWithPipeline](s.getLatestPipeline, resultchn, ctx)
+		g.Go(run(branchPipelineArgs{
+			projectId: projectId,
+			branch:    branch,
+		}))
 	}
 
 	go func() {
-		defer close(errchn)
-		defer close(chn)
-		wg.Wait()
+		defer close(resultchn)
+		g.Wait()
 	}()
 
-	if e := <-errchn; e != nil {
-		return result, e
+	for value := range resultchn {
+		results = append(results, value)
 	}
 
-	for value := range chn {
-		result = append(result, value)
-	}
-
-	return sortByUpdatedDate(result), nil
+	return sortByUpdatedDate(results), g.Wait()
 }
 
-func (s *ServiceImpl) getLatestPipeline(
-	projectId int,
-	wg *sync.WaitGroup,
-	branch model.Branch,
-	chn chan<- model.BranchWithPipeline,
-	errchn chan<- error,
-) {
-	defer wg.Done()
+type branchPipelineArgs struct {
+	projectId int
+	branch    model.Branch
+}
 
-	pipeline, err := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(projectId, branch.Name, nil))
-	if err != nil {
-		errchn <- err
-	} else {
-		chn <- model.BranchWithPipeline{
-			Branch:   branch,
-			Pipeline: pipeline,
-		}
-	}
+func (s *ServiceImpl) getLatestPipeline(args branchPipelineArgs) (model.BranchWithPipeline, error) {
+	pipeline, err := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(args.projectId, args.branch.Name, nil))
+	return model.BranchWithPipeline{
+		Branch:   args.branch,
+		Pipeline: pipeline,
+	}, err
 }
 
 func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPipeline {

@@ -2,9 +2,10 @@ package project
 
 import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	"sync"
-
+	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 )
 
 type Client interface {
@@ -29,49 +30,40 @@ func (c *ClientImpl) GetProjects(groupId int) ([]model.Project, error) {
 	if response.NextPage == 0 || response.TotalPages <= 1 {
 		return projects, nil
 	}
+
 	var (
-		chn    = make(chan []model.Project, response.TotalPages)
-		errchn = make(chan error)
-		wg     sync.WaitGroup
+		resultchn = make(chan []model.Project, util.GetMaxChanCapacity(response.TotalPages))
+		g, ctx    = errgroup.WithContext(context.Background())
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		wg.Add(1)
-		go c.getProjectsByPage(groupId, &wg, page, chn, errchn)
+		run := util.CreateRunFunc[projectPageArgs, []model.Project](c.getProjectsByPage, resultchn, ctx)
+		g.Go(run(projectPageArgs{
+			groupId:    groupId,
+			pageNumber: page,
+		}))
 	}
 
 	go func() {
-		defer close(errchn)
-		defer close(chn)
-		wg.Wait()
+		defer close(resultchn)
+		g.Wait()
 	}()
 
-	if e := <-errchn; e != nil {
-		return projects, e
-	}
-
-	for value := range chn {
+	for value := range resultchn {
 		projects = append(projects, value...)
 	}
 
-	return projects, nil
+	return projects, g.Wait()
 }
 
-func (c *ClientImpl) getProjectsByPage(
-	groupId int,
-	wg *sync.WaitGroup,
-	pageNumber int,
-	chn chan<- []model.Project,
-	errchn chan<- error,
-) {
-	defer wg.Done()
+type projectPageArgs struct {
+	groupId    int
+	pageNumber int
+}
 
-	projects, _, err := c.client.ListGroupProjects(groupId, createOptions(pageNumber))
-	if err != nil {
-		errchn <- err
-	} else {
-		chn <- projects
-	}
+func (c *ClientImpl) getProjectsByPage(args projectPageArgs) ([]model.Project, error) {
+	projects, _, err := c.client.ListGroupProjects(args.groupId, createOptions(args.pageNumber))
+	return projects, err
 }
 
 func createOptions(pageNumber int) *gitlab.ListGroupProjectsOptions {

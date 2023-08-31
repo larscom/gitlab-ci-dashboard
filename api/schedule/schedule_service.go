@@ -1,11 +1,15 @@
 package schedule
 
 import (
+	"github.com/bobg/go-generics/v2/slices"
+	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/larscom/go-cache"
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 	"sort"
-	"sync"
 )
 
 type Service interface {
@@ -13,17 +17,20 @@ type Service interface {
 }
 
 type ServiceImpl struct {
+	config               *config.GitlabConfig
 	projectsLoader       cache.Cache[int, []model.Project]
 	schedulesLoader      cache.Cache[int, []model.Schedule]
 	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
 }
 
 func NewService(
+	config *config.GitlabConfig,
 	projectsLoader cache.Cache[int, []model.Project],
 	schedulesLoader cache.Cache[int, []model.Schedule],
 	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
 ) Service {
 	return &ServiceImpl{
+		config,
 		projectsLoader,
 		schedulesLoader,
 		pipelineLatestLoader,
@@ -31,66 +38,62 @@ func NewService(
 }
 
 func (s *ServiceImpl) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
-	result := make([]model.ScheduleWithProjectAndPipeline, 0)
-
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
-		return result, err
+		return make([]model.ScheduleWithProjectAndPipeline, 0), err
 	}
+	projects = s.filterProjects(projects)
 
 	var (
-		chn    = make(chan []model.ScheduleWithProjectAndPipeline, len(projects))
-		errchn = make(chan error)
-		wg     sync.WaitGroup
+		resultchn = make(chan []model.ScheduleWithProjectAndPipeline, util.GetMaxChanCapacity(len(projects)))
+		g, ctx    = errgroup.WithContext(context.Background())
+		results   = make([]model.ScheduleWithProjectAndPipeline, 0)
 	)
 
 	for _, project := range projects {
-		wg.Add(1)
-		go s.getSchedules(project, &wg, chn, errchn)
+		run := util.CreateRunFunc[model.Project, []model.ScheduleWithProjectAndPipeline](s.getSchedules, resultchn, ctx)
+		g.Go(run(project))
 	}
 
 	go func() {
-		defer close(errchn)
-		defer close(chn)
-		wg.Wait()
+		defer close(resultchn)
+		g.Wait()
 	}()
 
-	if e := <-errchn; e != nil {
-		return result, e
+	for value := range resultchn {
+		results = append(results, value...)
 	}
 
-	for value := range chn {
-		result = append(result, value...)
-	}
-
-	return sortById(result), nil
+	return sortById(results), g.Wait()
 }
 
-func (s *ServiceImpl) getSchedules(
-	project model.Project,
-	wg *sync.WaitGroup,
-	chn chan<- []model.ScheduleWithProjectAndPipeline,
-	errchn chan<- error,
-) {
-	defer wg.Done()
-
+func (s *ServiceImpl) getSchedules(project model.Project) ([]model.ScheduleWithProjectAndPipeline, error) {
 	schedules, err := s.schedulesLoader.Get(project.Id)
 	if err != nil {
-		errchn <- err
-	} else {
-		result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
-		for _, schedule := range schedules {
-			source := "schedule"
-			pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
-
-			result = append(result, model.ScheduleWithProjectAndPipeline{
-				Schedule: schedule,
-				Project:  project,
-				Pipeline: pipeline,
-			})
-		}
-		chn <- result
+		return make([]model.ScheduleWithProjectAndPipeline, 0), err
 	}
+
+	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
+	for _, schedule := range schedules {
+		source := "schedule"
+		pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
+		result = append(result, model.ScheduleWithProjectAndPipeline{
+			Schedule: schedule,
+			Project:  project,
+			Pipeline: pipeline,
+		})
+	}
+
+	return result, nil
+}
+
+func (s *ServiceImpl) filterProjects(projects []model.Project) []model.Project {
+	if len(s.config.ProjectSkipIds) > 0 {
+		return slices.Filter(projects, func(project model.Project) bool {
+			return !slices.Contains(s.config.ProjectSkipIds, project.Id)
+		})
+	}
+	return projects
 }
 
 func sortById(schedules []model.ScheduleWithProjectAndPipeline) []model.ScheduleWithProjectAndPipeline {

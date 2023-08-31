@@ -6,11 +6,13 @@ require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.1
 	github.com/bobg/go-generics/v2 v2.2.2
 	github.com/goccy/go-json v0.10.2
-	github.com/gofiber/fiber/v2 v2.48.0
+	github.com/gofiber/fiber/v2 v2.49.0
 	github.com/joho/godotenv v1.5.1
 	github.com/larscom/go-cache v1.2.1
 	github.com/stretchr/testify v1.8.4
 	github.com/xanzy/go-gitlab v0.90.0
+	golang.org/x/net v0.14.0
+	golang.org/x/sync v0.3.0
 )
 
 require (
@@ -37,10 +39,9 @@ require (
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.48.0 // indirect
+	github.com/valyala/fasthttp v1.49.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
-	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
