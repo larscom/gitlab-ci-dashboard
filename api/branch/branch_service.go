@@ -15,13 +15,13 @@ type Service interface {
 }
 
 type ServiceImpl struct {
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
-	branchesLoader       cache.Cache[int, []model.Branch]
+	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
+	branchesLoader       cache.Cacher[int, []model.Branch]
 }
 
 func NewService(
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
-	branchesLoader cache.Cache[int, []model.Branch],
+	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
+	branchesLoader cache.Cacher[int, []model.Branch],
 ) Service {
 	return &ServiceImpl{
 		pipelineLatestLoader,

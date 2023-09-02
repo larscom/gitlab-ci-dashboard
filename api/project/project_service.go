@@ -22,16 +22,16 @@ type Service interface {
 
 type ServiceImpl struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cache[int, []model.Project]
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
-	pipelinesLoader      cache.Cache[int, []model.Pipeline]
+	projectsLoader       cache.Cacher[int, []model.Project]
+	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
+	pipelinesLoader      cache.Cacher[int, []model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cache[int, []model.Project],
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
-	pipelinesLoader cache.Cache[int, []model.Pipeline],
+	projectsLoader cache.Cacher[int, []model.Project],
+	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
+	pipelinesLoader cache.Cacher[int, []model.Pipeline],
 ) Service {
 	return &ServiceImpl{
 		config,
