@@ -13,7 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockBranchService struct{}
+type MockBranchService struct {
+	Error error
+}
 
 func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
 	if projectId == 1 {
@@ -21,9 +23,9 @@ func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) ([]mode
 			{
 				Branch: model.Branch{Name: "branch-1"},
 			},
-		}, nil
+		}, s.Error
 	}
-	return make([]model.BranchWithPipeline, 0), nil
+	return make([]model.BranchWithPipeline, 0), s.Error
 }
 
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
@@ -80,4 +82,23 @@ func TestHandleGetBranchesWithLatestPipelineBadRequest(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches", nil), -1)
 
 	assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func TestHandleGetBranchesWithLatestPipelineError(t *testing.T) {
+	var (
+		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
+		app     = fiber.New()
+		handler = NewHandler(&MockBranchService{
+			Error: err,
+		})
+	)
+
+	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
+
+	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, err.Error(), string(body))
 }

@@ -1,32 +1,53 @@
 package util
 
 import (
-	"context"
-	"testing"
-	"time"
+  "context"
+  "errors"
+  "testing"
+  "time"
 
-	"github.com/stretchr/testify/assert"
+  "github.com/stretchr/testify/assert"
 )
 
 func TestCreateRunFunc(t *testing.T) {
-	mockFn := func(input int) (int, error) {
-		return input * 2, nil
-	}
+  mockFn := func(input int) (int, error) {
+    return input, nil
+  }
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10)
-	defer cancel()
+  resultChan := make(chan int, 1)
 
-	resultChan := make(chan int, 1)
+  runFunc := CreateRunFunc(mockFn, resultChan, context.Background())
 
-	runFunc := CreateRunFunc(mockFn, resultChan, ctx)
+  err := runFunc(5)()
+  assert.NoError(t, err)
 
-	err := runFunc(5)()
-	assert.NoError(t, err)
+  assert.Equal(t, 5, <-resultChan)
+}
 
-	select {
-	case result := <-resultChan:
-		assert.Equal(t, 10, result)
-	case <-time.After(time.Millisecond * 20):
-		assert.Fail(t, "Timed out waiting for result")
-	}
+func TestCreateRunFuncError(t *testing.T) {
+  mockErr := errors.New("ERROR!")
+  mockFn := func(input int) (int, error) {
+    return input, mockErr
+  }
+
+  runFunc := CreateRunFunc(mockFn, make(chan int), context.Background())
+
+  err := runFunc(5)()
+  assert.Equal(t, mockErr, err)
+}
+
+func TestCreateRunFuncCancel(t *testing.T) {
+  mockFn := func(input int) (int, error) {
+    time.Sleep(time.Millisecond * 50)
+    return input, nil
+  }
+
+  ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10)
+  defer cancel()
+
+  runFunc := CreateRunFunc(mockFn, make(chan int), ctx)
+
+  err := runFunc(5)()
+
+  assert.Error(t, err)
 }

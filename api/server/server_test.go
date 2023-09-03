@@ -3,13 +3,13 @@ package server
 import (
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	branchMock "github.com/larscom/gitlab-ci-dashboard/branch/mock"
+	branch "github.com/larscom/gitlab-ci-dashboard/branch/mock"
 	"github.com/larscom/gitlab-ci-dashboard/config"
-	groupMock "github.com/larscom/gitlab-ci-dashboard/group/mock"
+	group "github.com/larscom/gitlab-ci-dashboard/group/mock"
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	pipelineMock "github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
-	projectMock "github.com/larscom/gitlab-ci-dashboard/project/mock"
-	scheduleMock "github.com/larscom/gitlab-ci-dashboard/schedule/mock"
+	pipeline "github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
+	project "github.com/larscom/gitlab-ci-dashboard/project/mock"
+	schedule "github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http/httptest"
@@ -26,11 +26,11 @@ func TestServerWithConfig(t *testing.T) {
 
 	var (
 		clients = &Clients{
-			groupClient:    groupMock.NewClientMock(),
-			projectClient:  projectMock.NewClientMock(),
-			pipelineClient: pipelineMock.NewClientMock(),
-			branchClient:   branchMock.NewClientMock(),
-			scheduleClient: scheduleMock.NewClientMock(),
+			groupClient:    &group.ClientMock{},
+			projectClient:  &project.ClientMock{},
+			pipelineClient: &pipeline.ClientMock{},
+			branchClient:   &branch.ClientMock{},
+			scheduleClient: &schedule.ClientMock{},
 		}
 		cfg    = createConfig(t)
 		caches = NewCaches(cfg, clients)

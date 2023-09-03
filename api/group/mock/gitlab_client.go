@@ -5,21 +5,21 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-func NewGitlabClientMock(TotalPages int, err error) *GitlabClientMock {
+func NewGitlabClientMock(totalPages int, err error) *GitlabClientMock {
 	return &GitlabClientMock{
-		TotalPages,
-		err,
+		TotalPages: totalPages,
+		Error:      err,
 	}
 }
 
 type GitlabClientMock struct {
 	TotalPages int
-	err        error
+	Error      error
 }
 
 func (c *GitlabClientMock) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error) {
-	if c.err != nil {
-		return make([]model.Group, 0), nil, c.err
+	if c.Error != nil {
+		return make([]model.Group, 0), nil, c.Error
 	}
 
 	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}

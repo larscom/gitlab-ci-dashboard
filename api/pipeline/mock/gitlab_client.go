@@ -6,16 +6,16 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-func NewGitlabClientMock(TotalPages int, err error) *GitlabClientMock {
+func NewGitlabClientMock(totalPages int, err error) *GitlabClientMock {
 	return &GitlabClientMock{
-		TotalPages,
-		err,
+		TotalPages: totalPages,
+		Error:      err,
 	}
 }
 
 type GitlabClientMock struct {
 	TotalPages int
-	err        error
+	Error      error
 }
 
 func (c *GitlabClientMock) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
@@ -26,8 +26,8 @@ func (c *GitlabClientMock) GetLatestPipeline(projectId int, options *gitlab.GetL
 }
 
 func (c *GitlabClientMock) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
-	if c.err != nil {
-		return make([]model.Pipeline, 0), nil, c.err
+	if c.Error != nil {
+		return make([]model.Pipeline, 0), nil, c.Error
 	}
 
 	response := &gitlab.Response{TotalPages: c.TotalPages, NextPage: options.Page + 1}

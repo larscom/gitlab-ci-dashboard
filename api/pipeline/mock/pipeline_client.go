@@ -4,10 +4,6 @@ import "github.com/larscom/gitlab-ci-dashboard/model"
 
 type ClientMock struct{}
 
-func NewClientMock() *ClientMock {
-	return &ClientMock{}
-}
-
 func (c *ClientMock) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
 	return &model.Pipeline{ProjectId: projectId, Ref: ref, Status: "success", Id: 1337}, nil
 }

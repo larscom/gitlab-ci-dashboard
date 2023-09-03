@@ -14,11 +14,11 @@ import (
 )
 
 type MockGroupService struct {
-	empty bool
+	Empty bool
 }
 
 func (s *MockGroupService) GetGroups() ([]model.Group, error) {
-	if s.empty {
+	if s.Empty {
 		return make([]model.Group, 0), nil
 	}
 	return []model.Group{{Name: "group-1"}}, nil
@@ -82,7 +82,7 @@ func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	var (
 		app        = fiber.New()
 		groupCache = cache.New[string, []model.Group]()
-		handler    = NewHandler(&MockGroupService{empty: true}, groupCache)
+		handler    = NewHandler(&MockGroupService{Empty: true}, groupCache)
 	)
 
 	app.Get("/", handler.HandleGetGroups)

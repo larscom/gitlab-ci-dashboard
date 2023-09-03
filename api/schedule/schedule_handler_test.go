@@ -13,7 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockScheduleService struct{}
+type MockScheduleService struct {
+	Error error
+}
 
 func (s *MockScheduleService) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
 	if groupId == 1 {
@@ -23,10 +25,10 @@ func (s *MockScheduleService) GetSchedules(groupId int) ([]model.ScheduleWithPro
 					Id: 123,
 				},
 			},
-		}, nil
+		}, s.Error
 	}
 
-	return make([]model.ScheduleWithProjectAndPipeline, 0), nil
+	return make([]model.ScheduleWithProjectAndPipeline, 0), s.Error
 }
 
 func TestHandleGetSchedules(t *testing.T) {
@@ -62,4 +64,23 @@ func TestGetSchedulesBadRequest(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules", nil), -1)
 
 	assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func TestGetSchedulesError(t *testing.T) {
+	var (
+		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
+		app     = fiber.New()
+		handler = NewHandler(&MockScheduleService{
+			Error: err,
+		})
+	)
+
+	app.Get("/schedules", handler.HandleGetSchedules)
+
+	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, err.Error(), string(body))
 }

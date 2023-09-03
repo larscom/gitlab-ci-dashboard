@@ -4,10 +4,6 @@ import "github.com/larscom/gitlab-ci-dashboard/model"
 
 type ClientMock struct{}
 
-func NewClientMock() *ClientMock {
-	return &ClientMock{}
-}
-
 func (c *ClientMock) GetGroupsById(ids []int) ([]model.Group, error) {
 	return []model.Group{{Name: "Z"}, {Name: "X"}, {Name: "Y"}}, nil
 }
