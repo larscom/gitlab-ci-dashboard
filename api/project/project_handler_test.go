@@ -3,6 +3,7 @@ package project
 import (
 	"encoding/json"
 	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/project/mock"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -12,39 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockProjectService struct{}
-
-func (s *MockProjectService) GetProjectsWithLatestPipeline(groupId int) (map[string][]model.ProjectWithPipeline, error) {
-	if groupId == 1 {
-		return map[string][]model.ProjectWithPipeline{
-			"success": {
-				{
-					Project:  model.Project{Name: "project-1"},
-					Pipeline: &model.Pipeline{Id: 111},
-				},
-			},
-		}, nil
-	}
-
-	return make(map[string][]model.ProjectWithPipeline), nil
-}
-
-func (s *MockProjectService) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
-	if groupId == 1 {
-		return []model.ProjectWithPipeline{
-			{
-				Project:  model.Project{Name: "project-2"},
-				Pipeline: &model.Pipeline{Id: 222},
-			},
-		}, nil
-	}
-	return make([]model.ProjectWithPipeline, 0), nil
-}
-
 func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockProjectService{})
+		handler = NewHandler(&mock.ProjectServiceMock{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithLatestPipeline)
@@ -69,7 +41,7 @@ func TestHandleGetProjectsWithLatestPipeline(t *testing.T) {
 func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockProjectService{})
+		handler = NewHandler(&mock.ProjectServiceMock{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithLatestPipeline)
@@ -82,7 +54,7 @@ func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 func TestHandleGetProjectsWithPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockProjectService{})
+		handler = NewHandler(&mock.ProjectServiceMock{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithPipeline)
@@ -105,7 +77,7 @@ func TestHandleGetProjectsWithPipeline(t *testing.T) {
 func TestHandleGetProjectsWithPipelineBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockProjectService{})
+		handler = NewHandler(&mock.ProjectServiceMock{})
 	)
 
 	app.Get("/projects", handler.HandleGetProjectsWithPipeline)

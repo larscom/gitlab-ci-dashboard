@@ -2,6 +2,7 @@ package group
 
 import (
 	"encoding/json"
+	"github.com/larscom/gitlab-ci-dashboard/group/mock"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
@@ -13,22 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockGroupService struct {
-	Empty bool
-}
-
-func (s *MockGroupService) GetGroups() ([]model.Group, error) {
-	if s.Empty {
-		return make([]model.Group, 0), nil
-	}
-	return []model.Group{{Name: "group-1"}}, nil
-}
-
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	var (
 		app        = fiber.New()
 		groupCache = cache.New[string, []model.Group]()
-		handler    = NewHandler(&MockGroupService{}, groupCache)
+		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
 	assert.Zero(t, groupCache.Count())
@@ -57,7 +47,7 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 	var (
 		app        = fiber.New()
 		groupCache = cache.New[string, []model.Group]()
-		handler    = NewHandler(&MockGroupService{}, groupCache)
+		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
 	groupCache.Put("/", []model.Group{{Name: "group-2"}})
@@ -82,7 +72,7 @@ func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	var (
 		app        = fiber.New()
 		groupCache = cache.New[string, []model.Group]()
-		handler    = NewHandler(&MockGroupService{Empty: true}, groupCache)
+		handler    = NewHandler(&mock.GroupServiceMock{Empty: true}, groupCache)
 	)
 
 	app.Get("/", handler.HandleGetGroups)

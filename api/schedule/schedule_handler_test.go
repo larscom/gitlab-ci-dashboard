@@ -2,6 +2,7 @@ package schedule
 
 import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -13,28 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockScheduleService struct {
-	Error error
-}
-
-func (s *MockScheduleService) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
-	if groupId == 1 {
-		return []model.ScheduleWithProjectAndPipeline{
-			{
-				Schedule: model.Schedule{
-					Id: 123,
-				},
-			},
-		}, s.Error
-	}
-
-	return make([]model.ScheduleWithProjectAndPipeline, 0), s.Error
-}
-
 func TestHandleGetSchedules(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockScheduleService{})
+		handler = NewHandler(&mock.ScheduleServiceMock{})
 	)
 
 	app.Get("/schedules", handler.HandleGetSchedules)
@@ -56,7 +39,7 @@ func TestHandleGetSchedules(t *testing.T) {
 func TestGetSchedulesBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockScheduleService{})
+		handler = NewHandler(&mock.ScheduleServiceMock{})
 	)
 
 	app.Get("/schedules", handler.HandleGetSchedules)
@@ -70,7 +53,7 @@ func TestGetSchedulesError(t *testing.T) {
 	var (
 		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
 		app     = fiber.New()
-		handler = NewHandler(&MockScheduleService{
+		handler = NewHandler(&mock.ScheduleServiceMock{
 			Error: err,
 		})
 	)

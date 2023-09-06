@@ -1,6 +1,7 @@
 package branch
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/branch/mock"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
@@ -13,25 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockBranchService struct {
-	Error error
-}
-
-func (s *MockBranchService) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
-	if projectId == 1 {
-		return []model.BranchWithPipeline{
-			{
-				Branch: model.Branch{Name: "branch-1"},
-			},
-		}, s.Error
-	}
-	return make([]model.BranchWithPipeline, 0), s.Error
-}
-
 func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockBranchService{})
+		handler = NewHandler(&mock.BranchServiceMock{})
 	)
 
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
@@ -53,7 +39,7 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockBranchService{})
+		handler = NewHandler(&mock.BranchServiceMock{})
 	)
 
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
@@ -74,7 +60,7 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 func TestHandleGetBranchesWithLatestPipelineBadRequest(t *testing.T) {
 	var (
 		app     = fiber.New()
-		handler = NewHandler(&MockBranchService{})
+		handler = NewHandler(&mock.BranchServiceMock{})
 	)
 
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
@@ -88,7 +74,7 @@ func TestHandleGetBranchesWithLatestPipelineError(t *testing.T) {
 	var (
 		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
 		app     = fiber.New()
-		handler = NewHandler(&MockBranchService{
+		handler = NewHandler(&mock.BranchServiceMock{
 			Error: err,
 		})
 	)
