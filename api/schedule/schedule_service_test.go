@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"errors"
 	"fmt"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -60,4 +61,45 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		assert.Nil(t, result[1].Pipeline)
 	})
 
+	t.Run("GetSchedulesProjectsError", func(t *testing.T) {
+		var (
+			mockErr              = errors.New("ERROR!")
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+			schedulesLoader      = cache.New[int, []model.Schedule]()
+			projectsLoader       = cache.New[int, []model.Project](cache.WithLoader[int, []model.Project](func(i int) ([]model.Project, error) {
+				return make([]model.Project, 0), mockErr
+			}))
+			cfg     = createConfig(t, make([]int, 0))
+			service = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
+		)
+
+		result, err := service.GetSchedules(1)
+		assert.Equal(t, mockErr, err)
+		assert.Empty(t, result)
+	})
+
+	t.Run("GetSchedulesError", func(t *testing.T) {
+		var (
+			mockErr              = errors.New("ERROR!")
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+			schedulesLoader      = cache.New[int, []model.Schedule](cache.WithLoader[int, []model.Schedule](func(i int) ([]model.Schedule, error) {
+				return make([]model.Schedule, 0), mockErr
+			}))
+			projectsLoader = cache.New[int, []model.Project]()
+			cfg            = createConfig(t, make([]int, 0))
+			service        = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
+			groupId        = 1
+			projectId      = 22
+		)
+
+		projectsLoader.Put(groupId,
+			[]model.Project{
+				{Id: projectId, Name: "project-1"},
+			},
+		)
+
+		result, err := service.GetSchedules(groupId)
+		assert.Equal(t, mockErr, err)
+		assert.Empty(t, result)
+	})
 }
