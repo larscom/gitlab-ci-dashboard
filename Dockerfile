@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:18.16.0-alpine AS fe
+FROM node:18.17.1-alpine AS fe
 WORKDIR /builder
 
 COPY . .

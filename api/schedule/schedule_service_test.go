@@ -61,6 +61,40 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		assert.Nil(t, result[1].Pipeline)
 	})
 
+	t.Run("GetSchedulesWithProjectFilter", func(t *testing.T) {
+		var (
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+			schedulesLoader      = cache.New[int, []model.Schedule]()
+			projectsLoader       = cache.New[int, []model.Project]()
+			projectIdSkipped     = 33
+			cfg                  = createConfig(t, []int{projectIdSkipped})
+			service              = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
+			groupId              = 1
+			projectId            = 22
+			ref                  = "master"
+			source               = "schedule"
+		)
+
+		projectsLoader.Put(groupId,
+			[]model.Project{
+				{Id: projectId, Name: "project-1"},
+				{Id: projectIdSkipped, Name: "project-2"},
+			},
+		)
+		schedulesLoader.Put(projectId, []model.Schedule{{Id: 3, Ref: ref}})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
+
+		schedulesLoader.Put(projectIdSkipped, []model.Schedule{{Id: 5, Ref: ref}})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectIdSkipped, ref, &source), &model.Pipeline{Id: 11, Status: "success"})
+
+		result, err := service.GetSchedules(groupId)
+		assert.Nil(t, err)
+
+		assert.Len(t, result, 1)
+		assert.Equal(t, 3, result[0].Schedule.Id)
+		assert.Equal(t, 10, result[0].Pipeline.Id)
+	})
+
 	t.Run("GetSchedulesProjectsError", func(t *testing.T) {
 		var (
 			mockErr              = errors.New("ERROR!")
