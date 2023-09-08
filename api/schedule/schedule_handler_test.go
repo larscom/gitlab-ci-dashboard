@@ -61,8 +61,13 @@ func TestGetSchedulesError(t *testing.T) {
 	app.Get("/schedules", handler.HandleGetSchedules)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
-	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
+
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Error(err)
+		}
+	})
 
 	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	assert.Equal(t, err.Error(), string(body))

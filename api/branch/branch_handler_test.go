@@ -82,8 +82,13 @@ func TestHandleGetBranchesWithLatestPipelineError(t *testing.T) {
 	app.Get("/branches", handler.HandleGetBranchesWithLatestPipeline)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
-	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
+
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Error(err)
+		}
+	})
 
 	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	assert.Equal(t, err.Error(), string(body))

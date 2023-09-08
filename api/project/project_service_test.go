@@ -67,7 +67,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 				assert.Equal(t, 3030, entry.Pipeline.Id)
 				assert.Equal(t, "success", entry.Pipeline.Status)
 			} else {
-				t.Errorf("expected projectId 111 and projectId 333")
+				t.Error("expected projectId 111 and projectId 333")
 			}
 		}
 

@@ -105,8 +105,13 @@ func TestHandleGetGroupsError(t *testing.T) {
 	app.Get("/groups", handler.HandleGetGroups)
 
 	resp, _ := app.Test(httptest.NewRequest("GET", "/groups", nil), -1)
-	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
+
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Error(err)
+		}
+	})
 
 	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	assert.Equal(t, err.Error(), string(body))
