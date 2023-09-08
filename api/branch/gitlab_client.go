@@ -8,7 +8,7 @@ import (
 )
 
 type GitlabClient interface {
-	ListBranches(projectId int, opts *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error)
+	ListBranches(model.ProjectId, *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
@@ -21,8 +21,8 @@ func NewGitlabClient(client *gitlab.Client) GitlabClient {
 	}
 }
 
-func (c *GitlabClientImpl) ListBranches(projectId int, options *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error) {
-	branches, response, err := c.client.Branches.ListBranches(projectId, options)
+func (c *GitlabClientImpl) ListBranches(id model.ProjectId, options *gitlab.ListBranchesOptions) ([]model.Branch, *gitlab.Response, error) {
+	branches, response, err := c.client.Branches.ListBranches(id, options)
 	if err != nil {
 		return util.HandleError(make([]model.Branch, 0), response, err)
 	}

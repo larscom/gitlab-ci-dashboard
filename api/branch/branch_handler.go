@@ -2,6 +2,7 @@ package branch
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 )
 
 type Handler struct {
@@ -21,7 +22,7 @@ func (h *Handler) HandleGetBranchesWithLatestPipeline(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "projectId is missing or invalid")
 	}
 
-	result, err := h.service.GetBranchesWithLatestPipeline(projectId)
+	result, err := h.service.GetBranchesWithLatestPipeline(model.ProjectId(projectId))
 	if err != nil {
 		return err
 	}

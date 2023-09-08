@@ -2,6 +2,7 @@ package schedule
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 )
 
 type Handler struct {
@@ -21,7 +22,7 @@ func (h *Handler) HandleGetSchedules(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	result, err := h.service.GetSchedules(groupId)
+	result, err := h.service.GetSchedules(model.GroupId(groupId))
 	if err != nil {
 		return err
 	}

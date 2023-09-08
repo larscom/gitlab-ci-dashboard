@@ -125,7 +125,7 @@ func TestServerWithConfig(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, result, 1)
-		assert.Equal(t, 777, result[0].Schedule.Id)
+		assert.Equal(t, model.ScheduleId(777), result[0].Schedule.Id)
 	})
 
 	t.Run("TestMetricsEndpoint", func(t *testing.T) {

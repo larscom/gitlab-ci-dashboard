@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ func TestParse(t *testing.T) {
 	projectId, ref, source := key.Parse()
 
 	assert.Equal(t, "1@master", string(key))
-	assert.Equal(t, 1, projectId)
+	assert.Equal(t, model.ProjectId(1), projectId)
 	assert.Equal(t, "master", ref)
 	assert.Nil(t, source)
 }
@@ -26,7 +27,7 @@ func TestParseWithSource(t *testing.T) {
 	projectId, ref, source := key.Parse()
 
 	assert.Equal(t, "1@master@schedule", string(key))
-	assert.Equal(t, 1, projectId)
+	assert.Equal(t, model.ProjectId(1), projectId)
 	assert.Equal(t, "master", ref)
 	assert.Equal(t, "schedule", *source)
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type Client interface {
-	GetPipelineSchedules(projectId int) ([]model.Schedule, error)
+	GetPipelineSchedules(model.ProjectId) ([]model.Schedule, error)
 }
 
 type ClientImpl struct {
@@ -22,8 +22,8 @@ func NewClient(client GitlabClient) Client {
 	}
 }
 
-func (c *ClientImpl) GetPipelineSchedules(projectId int) ([]model.Schedule, error) {
-	schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
+func (c *ClientImpl) GetPipelineSchedules(id model.ProjectId) ([]model.Schedule, error) {
+	schedules, response, err := c.client.ListPipelineSchedules(id, createOptions(1))
 	if err != nil {
 		return schedules, err
 	}
@@ -39,7 +39,7 @@ func (c *ClientImpl) GetPipelineSchedules(projectId int) ([]model.Schedule, erro
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		run := util.CreateRunFunc[schedulePageArgs, []model.Schedule](c.getSchedulesByPage, resultchn, ctx)
 		g.Go(run(schedulePageArgs{
-			projectId:  projectId,
+			projectId:  id,
 			pageNumber: page,
 		}))
 	}
@@ -57,7 +57,7 @@ func (c *ClientImpl) GetPipelineSchedules(projectId int) ([]model.Schedule, erro
 }
 
 type schedulePageArgs struct {
-	projectId  int
+	projectId  model.ProjectId
 	pageNumber int
 }
 

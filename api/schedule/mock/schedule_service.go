@@ -6,8 +6,8 @@ type ScheduleServiceMock struct {
 	Error error
 }
 
-func (s *ScheduleServiceMock) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
-	if groupId == 1 {
+func (s *ScheduleServiceMock) GetSchedules(id model.GroupId) ([]model.ScheduleWithProjectAndPipeline, error) {
+	if id == 1 {
 		return []model.ScheduleWithProjectAndPipeline{
 			{
 				Schedule: model.Schedule{

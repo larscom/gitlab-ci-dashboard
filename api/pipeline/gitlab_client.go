@@ -8,9 +8,9 @@ import (
 )
 
 type GitlabClient interface {
-	GetLatestPipeline(projectId int, opts *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error)
+	GetLatestPipeline(model.ProjectId, *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error)
 
-	ListProjectPipelines(projectId int, opts *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error)
+	ListProjectPipelines(model.ProjectId, *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
@@ -23,8 +23,8 @@ func NewGitlabClient(client *gitlab.Client) GitlabClient {
 	}
 }
 
-func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
-	pipeline, response, err := c.client.Pipelines.GetLatestPipeline(projectId, options)
+func (c *GitlabClientImpl) GetLatestPipeline(id model.ProjectId, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
+	pipeline, response, err := c.client.Pipelines.GetLatestPipeline(id, options)
 	if err != nil {
 		return util.HandleError[*model.Pipeline](nil, response, err)
 	}
@@ -37,8 +37,8 @@ func (c *GitlabClientImpl) GetLatestPipeline(projectId int, options *gitlab.GetL
 	return p, response, err
 }
 
-func (c *GitlabClientImpl) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
-	pipelines, response, err := c.client.Pipelines.ListProjectPipelines(projectId, options)
+func (c *GitlabClientImpl) ListProjectPipelines(id model.ProjectId, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
+	pipelines, response, err := c.client.Pipelines.ListProjectPipelines(id, options)
 	if err != nil {
 		return util.HandleError(make([]model.Pipeline, 0), response, err)
 	}

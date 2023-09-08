@@ -18,14 +18,14 @@ type GitlabClientMock struct {
 	Error      error
 }
 
-func (c *GitlabClientMock) GetLatestPipeline(projectId int, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
-	if projectId == 1 && *options.Ref == "master" {
+func (c *GitlabClientMock) GetLatestPipeline(id model.ProjectId, options *gitlab.GetLatestPipelineOptions) (*model.Pipeline, *gitlab.Response, error) {
+	if id == 1 && *options.Ref == "master" {
 		return &model.Pipeline{Id: 123}, nil, nil
 	}
 	return nil, nil, fmt.Errorf("ERROR")
 }
 
-func (c *GitlabClientMock) ListProjectPipelines(projectId int, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
+func (c *GitlabClientMock) ListProjectPipelines(id model.ProjectId, options *gitlab.ListProjectPipelinesOptions) ([]model.Pipeline, *gitlab.Response, error) {
 	if c.Error != nil {
 		return make([]model.Pipeline, 0), nil, c.Error
 	}
@@ -38,7 +38,7 @@ func (c *GitlabClientMock) ListProjectPipelines(projectId int, options *gitlab.L
 		return []model.Pipeline{{Id: 333, Status: "failed"}, {Id: 444, Status: "success"}}, response, nil
 	}
 
-	if projectId == 1 && *options.Ref == "master" && *options.Source == "schedule" {
+	if id == 1 && *options.Ref == "master" && *options.Source == "schedule" {
 		return []model.Pipeline{{Id: 456}}, nil, nil
 	} else if *options.Source == "web" {
 		return make([]model.Pipeline, 0), nil, nil

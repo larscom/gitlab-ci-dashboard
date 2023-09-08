@@ -15,23 +15,23 @@ import (
 type PipelineStatus = string
 
 type Service interface {
-	GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error)
+	GetProjectsWithLatestPipeline(model.GroupId) (map[PipelineStatus][]model.ProjectWithPipeline, error)
 
-	GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error)
+	GetProjectsWithPipeline(model.GroupId) ([]model.ProjectWithPipeline, error)
 }
 
 type ServiceImpl struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cacher[int, []model.Project]
+	projectsLoader       cache.Cacher[model.GroupId, []model.Project]
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
-	pipelinesLoader      cache.Cacher[int, []model.Pipeline]
+	pipelinesLoader      cache.Cacher[model.ProjectId, []model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cacher[int, []model.Project],
+	projectsLoader cache.Cacher[model.GroupId, []model.Project],
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
-	pipelinesLoader cache.Cacher[int, []model.Pipeline],
+	pipelinesLoader cache.Cacher[model.ProjectId, []model.Pipeline],
 ) Service {
 	return &ServiceImpl{
 		config,
@@ -41,8 +41,8 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
-	projects, err := s.projectsLoader.Get(groupId)
+func (s *ServiceImpl) GetProjectsWithLatestPipeline(id model.GroupId) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
+	projects, err := s.projectsLoader.Get(id)
 	if err != nil {
 		return make(map[PipelineStatus][]model.ProjectWithPipeline), err
 	}
@@ -86,8 +86,8 @@ func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) (map[PipelineSt
 	return results, g.Wait()
 }
 
-func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
-	projects, err := s.projectsLoader.Get(groupId)
+func (s *ServiceImpl) GetProjectsWithPipeline(id model.GroupId) ([]model.ProjectWithPipeline, error) {
+	projects, err := s.projectsLoader.Get(id)
 	if err != nil {
 		return make([]model.ProjectWithPipeline, 0), err
 	}
@@ -173,7 +173,7 @@ func (s *ServiceImpl) getLatestPipeline(project model.Project) (map[PipelineStat
 func (s *ServiceImpl) filterProjects(projects []model.Project) []model.Project {
 	if len(s.config.ProjectSkipIds) > 0 {
 		return slices.Filter(projects, func(project model.Project) bool {
-			return !slices.Contains(s.config.ProjectSkipIds, project.Id)
+			return !slices.Contains(s.config.ProjectSkipIds, int(project.Id))
 		})
 	}
 	return projects

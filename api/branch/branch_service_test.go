@@ -14,9 +14,9 @@ import (
 func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	var (
 		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch]()
+		branchesLoader       = cache.New[model.ProjectId, []model.Branch]()
 		service              = NewService(pipelineLatestLoader, branchesLoader)
-		projectId            = 1
+		projectId            = model.ProjectId(1)
 		ref                  = "branch-1"
 		status               = "success"
 	)
@@ -36,7 +36,7 @@ func TestGetBranchesWithLatestPipelineError(t *testing.T) {
 	var (
 		mockErr              = errors.New("ERROR!")
 		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch](cache.WithLoader[int, []model.Branch](func(i int) ([]model.Branch, error) {
+		branchesLoader       = cache.New[model.ProjectId, []model.Branch](cache.WithLoader[model.ProjectId, []model.Branch](func(i model.ProjectId) ([]model.Branch, error) {
 			return make([]model.Branch, 0), mockErr
 		}))
 		service = NewService(pipelineLatestLoader, branchesLoader)
@@ -50,9 +50,9 @@ func TestGetBranchesWithLatestPipelineError(t *testing.T) {
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 	var (
 		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch]()
+		branchesLoader       = cache.New[model.ProjectId, []model.Branch]()
 		service              = NewService(pipelineLatestLoader, branchesLoader)
-		projectId            = 1
+		projectId            = model.ProjectId(1)
 		now                  = time.Now()
 	)
 
@@ -74,9 +74,9 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDateWithNil(t *testing.T) {
 	var (
 		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch]()
+		branchesLoader       = cache.New[model.ProjectId, []model.Branch]()
 		service              = NewService(pipelineLatestLoader, branchesLoader)
-		projectId            = 1
+		projectId            = model.ProjectId(1)
 		now                  = time.Now()
 	)
 

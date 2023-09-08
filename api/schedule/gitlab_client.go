@@ -8,7 +8,7 @@ import (
 )
 
 type GitlabClient interface {
-	ListPipelineSchedules(projectId int, opts *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error)
+	ListPipelineSchedules(model.ProjectId, *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
@@ -21,8 +21,8 @@ func NewGitlabClient(client *gitlab.Client) GitlabClient {
 	}
 }
 
-func (c *GitlabClientImpl) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
-	schedules, response, err := c.client.PipelineSchedules.ListPipelineSchedules(projectId, options)
+func (c *GitlabClientImpl) ListPipelineSchedules(id model.ProjectId, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
+	schedules, response, err := c.client.PipelineSchedules.ListPipelineSchedules(id, options)
 	if err != nil {
 		return util.HandleError(make([]model.Schedule, 0), response, err)
 	}

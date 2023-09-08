@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
 
 	"testing"
@@ -15,7 +16,7 @@ func TestGetLatestPipeline(t *testing.T) {
 
 	pipeline, err := client.GetLatestPipeline(1, "master")
 	assert.NoError(t, err)
-	assert.Equal(t, 123, pipeline.Id)
+	assert.Equal(t, model.PipelineId(123), pipeline.Id)
 }
 
 func TestGetLatestPipelineError(t *testing.T) {
@@ -48,7 +49,7 @@ func TestGetLatestPipelineBySource(t *testing.T) {
 
 	pipeline, err := client.GetLatestPipelineBySource(1, "master", "schedule")
 	assert.NoError(t, err)
-	assert.Equal(t, 456, pipeline.Id)
+	assert.Equal(t, model.PipelineId(456), pipeline.Id)
 }
 
 func TestGetPipelinesWith1Page(t *testing.T) {
@@ -61,8 +62,8 @@ func TestGetPipelinesWith1Page(t *testing.T) {
 	pipelines, _ := client.GetPipelines(100)
 
 	assert.Len(t, pipelines, 2)
-	assert.Equal(t, 111, pipelines[0].Id)
-	assert.Equal(t, 222, pipelines[1].Id)
+	assert.Equal(t, model.PipelineId(111), pipelines[0].Id)
+	assert.Equal(t, model.PipelineId(222), pipelines[1].Id)
 }
 
 func TestGetPipelinesWith2Pages(t *testing.T) {
@@ -75,10 +76,10 @@ func TestGetPipelinesWith2Pages(t *testing.T) {
 	pipelines, _ := client.GetPipelines(100)
 
 	assert.Len(t, pipelines, 4)
-	assert.Equal(t, 111, pipelines[0].Id)
-	assert.Equal(t, 222, pipelines[1].Id)
-	assert.Equal(t, 333, pipelines[2].Id)
-	assert.Equal(t, 444, pipelines[3].Id)
+	assert.Equal(t, model.PipelineId(111), pipelines[0].Id)
+	assert.Equal(t, model.PipelineId(222), pipelines[1].Id)
+	assert.Equal(t, model.PipelineId(333), pipelines[2].Id)
+	assert.Equal(t, model.PipelineId(444), pipelines[3].Id)
 }
 
 func TestGetPipelinesWithErrorEmptySlice(t *testing.T) {

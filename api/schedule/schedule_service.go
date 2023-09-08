@@ -13,20 +13,20 @@ import (
 )
 
 type Service interface {
-	GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error)
+	GetSchedules(model.GroupId) ([]model.ScheduleWithProjectAndPipeline, error)
 }
 
 type ServiceImpl struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cacher[int, []model.Project]
-	schedulesLoader      cache.Cacher[int, []model.Schedule]
+	projectsLoader       cache.Cacher[model.GroupId, []model.Project]
+	schedulesLoader      cache.Cacher[model.ProjectId, []model.Schedule]
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cacher[int, []model.Project],
-	schedulesLoader cache.Cacher[int, []model.Schedule],
+	projectsLoader cache.Cacher[model.GroupId, []model.Project],
+	schedulesLoader cache.Cacher[model.ProjectId, []model.Schedule],
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
 ) Service {
 	return &ServiceImpl{
@@ -37,8 +37,8 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
-	projects, err := s.projectsLoader.Get(groupId)
+func (s *ServiceImpl) GetSchedules(id model.GroupId) ([]model.ScheduleWithProjectAndPipeline, error) {
+	projects, err := s.projectsLoader.Get(id)
 	if err != nil {
 		return make([]model.ScheduleWithProjectAndPipeline, 0), err
 	}
@@ -90,7 +90,7 @@ func (s *ServiceImpl) getSchedules(project model.Project) ([]model.ScheduleWithP
 func (s *ServiceImpl) filterProjects(projects []model.Project) []model.Project {
 	if len(s.config.ProjectSkipIds) > 0 {
 		return slices.Filter(projects, func(project model.Project) bool {
-			return !slices.Contains(s.config.ProjectSkipIds, project.Id)
+			return !slices.Contains(s.config.ProjectSkipIds, int(project.Id))
 		})
 	}
 	return projects

@@ -32,12 +32,12 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 	t.Run("GetSchedules", func(t *testing.T) {
 		var (
 			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			schedulesLoader      = cache.New[int, []model.Schedule]()
-			projectsLoader       = cache.New[int, []model.Project]()
+			schedulesLoader      = cache.New[model.ProjectId, []model.Schedule]()
+			projectsLoader       = cache.New[model.GroupId, []model.Project]()
 			cfg                  = createConfig(t, make([]int, 0))
 			service              = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
-			groupId              = 1
-			projectId            = 22
+			groupId              = model.GroupId(1)
+			projectId            = model.ProjectId(22)
 			ref                  = "master"
 			source               = "schedule"
 		)
@@ -54,23 +54,23 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		assert.Nil(t, err)
 
 		assert.Len(t, result, 2)
-		assert.Equal(t, 3, result[0].Schedule.Id)
+		assert.Equal(t, model.ScheduleId(3), result[0].Schedule.Id)
 		assert.Equal(t, "success", result[0].Pipeline.Status)
 
-		assert.Equal(t, 4, result[1].Schedule.Id)
+		assert.Equal(t, model.ScheduleId(4), result[1].Schedule.Id)
 		assert.Nil(t, result[1].Pipeline)
 	})
 
 	t.Run("GetSchedulesWithProjectFilter", func(t *testing.T) {
 		var (
 			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			schedulesLoader      = cache.New[int, []model.Schedule]()
-			projectsLoader       = cache.New[int, []model.Project]()
-			projectIdSkipped     = 33
-			cfg                  = createConfig(t, []int{projectIdSkipped})
+			schedulesLoader      = cache.New[model.ProjectId, []model.Schedule]()
+			projectsLoader       = cache.New[model.GroupId, []model.Project]()
+			projectIdSkipped     = model.ProjectId(33)
+			cfg                  = createConfig(t, []int{int(projectIdSkipped)})
 			service              = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
-			groupId              = 1
-			projectId            = 22
+			groupId              = model.GroupId(1)
+			projectId            = model.ProjectId(22)
 			ref                  = "master"
 			source               = "schedule"
 		)
@@ -91,16 +91,16 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		assert.Nil(t, err)
 
 		assert.Len(t, result, 1)
-		assert.Equal(t, 3, result[0].Schedule.Id)
-		assert.Equal(t, 10, result[0].Pipeline.Id)
+		assert.Equal(t, model.ScheduleId(3), result[0].Schedule.Id)
+		assert.Equal(t, model.PipelineId(10), result[0].Pipeline.Id)
 	})
 
 	t.Run("GetSchedulesProjectsError", func(t *testing.T) {
 		var (
 			mockErr              = errors.New("ERROR!")
 			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			schedulesLoader      = cache.New[int, []model.Schedule]()
-			projectsLoader       = cache.New[int, []model.Project](cache.WithLoader[int, []model.Project](func(i int) ([]model.Project, error) {
+			schedulesLoader      = cache.New[model.ProjectId, []model.Schedule]()
+			projectsLoader       = cache.New[model.GroupId, []model.Project](cache.WithLoader[model.GroupId, []model.Project](func(i model.GroupId) ([]model.Project, error) {
 				return make([]model.Project, 0), mockErr
 			}))
 			cfg     = createConfig(t, make([]int, 0))
@@ -116,14 +116,14 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		var (
 			mockErr              = errors.New("ERROR!")
 			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			schedulesLoader      = cache.New[int, []model.Schedule](cache.WithLoader[int, []model.Schedule](func(i int) ([]model.Schedule, error) {
+			schedulesLoader      = cache.New[model.ProjectId, []model.Schedule](cache.WithLoader[model.ProjectId, []model.Schedule](func(i model.ProjectId) ([]model.Schedule, error) {
 				return make([]model.Schedule, 0), mockErr
 			}))
-			projectsLoader = cache.New[int, []model.Project]()
+			projectsLoader = cache.New[model.GroupId, []model.Project]()
 			cfg            = createConfig(t, make([]int, 0))
 			service        = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
-			groupId        = 1
-			projectId      = 22
+			groupId        = model.GroupId(1)
+			projectId      = model.ProjectId(22)
 		)
 
 		projectsLoader.Put(groupId,

@@ -8,9 +8,9 @@ import (
 )
 
 type GitlabClient interface {
-	ListGroups(opts *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error)
+	ListGroups(*gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error)
 
-	GetGroup(groupId int, opts *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error)
+	GetGroup(model.GroupId, *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
@@ -37,8 +37,8 @@ func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]mode
 	return g, response, err
 }
 
-func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
-	group, response, err := c.client.Groups.GetGroup(groupId, options)
+func (c *GitlabClientImpl) GetGroup(id model.GroupId, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
+	group, response, err := c.client.Groups.GetGroup(id, options)
 	if err != nil {
 		return util.HandleError[*model.Group](nil, response, err)
 	}

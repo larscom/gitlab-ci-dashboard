@@ -14,11 +14,11 @@ import (
 )
 
 type Client interface {
-	GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error)
+	GetLatestPipeline(id model.ProjectId, ref string) (*model.Pipeline, error)
 
-	GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error)
+	GetLatestPipelineBySource(id model.ProjectId, ref string, source string) (*model.Pipeline, error)
 
-	GetPipelines(projectId int) ([]model.Pipeline, error)
+	GetPipelines(id model.ProjectId) ([]model.Pipeline, error)
 }
 
 type ClientImpl struct {
@@ -33,13 +33,13 @@ func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
 	}
 }
 
-func (c *ClientImpl) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
+func (c *ClientImpl) GetLatestPipeline(id model.ProjectId, ref string) (*model.Pipeline, error) {
 	options := &gitlab.GetLatestPipelineOptions{Ref: &ref}
-	pipeline, _, err := c.client.GetLatestPipeline(projectId, options)
+	pipeline, _, err := c.client.GetLatestPipeline(id, options)
 	return pipeline, err
 }
 
-func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
+func (c *ClientImpl) GetLatestPipelineBySource(id model.ProjectId, ref string, source string) (*model.Pipeline, error) {
 	options := &gitlab.ListProjectPipelinesOptions{
 		Ref:    &ref,
 		Source: &source,
@@ -49,7 +49,7 @@ func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source
 		},
 	}
 
-	pipelines, _, err := c.client.ListProjectPipelines(projectId, options)
+	pipelines, _, err := c.client.ListProjectPipelines(id, options)
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +58,11 @@ func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source
 		return &pipelines[0], nil
 	}
 
-	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)
+	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", id, ref)
 }
 
-func (c *ClientImpl) GetPipelines(projectId int) ([]model.Pipeline, error) {
-	pipelines, response, err := c.client.ListProjectPipelines(projectId, c.createOptions(1))
+func (c *ClientImpl) GetPipelines(id model.ProjectId) ([]model.Pipeline, error) {
+	pipelines, response, err := c.client.ListProjectPipelines(id, c.createOptions(1))
 	if err != nil {
 		return pipelines, err
 	}
@@ -78,7 +78,7 @@ func (c *ClientImpl) GetPipelines(projectId int) ([]model.Pipeline, error) {
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		run := util.CreateRunFunc[pipelinePageArgs, []model.Pipeline](c.getPipelinesByPage, resultchn, ctx)
 		g.Go(run(pipelinePageArgs{
-			projectId:  projectId,
+			projectId:  id,
 			pageNumber: page,
 		}))
 	}
@@ -96,7 +96,7 @@ func (c *ClientImpl) GetPipelines(projectId int) ([]model.Pipeline, error) {
 }
 
 type pipelinePageArgs struct {
-	projectId  int
+	projectId  model.ProjectId
 	pageNumber int
 }
 
