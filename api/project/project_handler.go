@@ -2,7 +2,6 @@ package project
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/larscom/gitlab-ci-dashboard/model"
 )
 
 type Handler struct {
@@ -22,7 +21,7 @@ func (h *Handler) HandleGetProjectsWithLatestPipeline(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	result, err := h.service.GetProjectsWithLatestPipeline(model.GroupId(groupId))
+	result, err := h.service.GetProjectsWithLatestPipeline(groupId)
 	if err != nil {
 		return err
 	}
@@ -37,7 +36,7 @@ func (h *Handler) HandleGetProjectsWithPipeline(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	result, err := h.service.GetProjectsWithPipeline(model.GroupId(groupId))
+	result, err := h.service.GetProjectsWithPipeline(groupId)
 	if err != nil {
 		return err
 	}

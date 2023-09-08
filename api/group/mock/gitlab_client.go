@@ -41,11 +41,11 @@ func (c *GitlabClientMock) ListGroups(options *gitlab.ListGroupsOptions) ([]mode
 	return make([]model.Group, 0), nil, nil
 }
 
-func (c *GitlabClientMock) GetGroup(id model.GroupId, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
-	if id == 1 && !*options.WithProjects {
+func (c *GitlabClientMock) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
+	if groupId == 1 && !*options.WithProjects {
 		return &model.Group{Name: "group-1"}, nil, nil
 	}
-	if id == 2 && !*options.WithProjects {
+	if groupId == 2 && !*options.WithProjects {
 		return &model.Group{Name: "group-2"}, nil, nil
 	}
 	return nil, nil, nil

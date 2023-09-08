@@ -11,17 +11,17 @@ import (
 )
 
 type Service interface {
-	GetBranchesWithLatestPipeline(model.ProjectId) ([]model.BranchWithPipeline, error)
+	GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error)
 }
 
 type ServiceImpl struct {
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
-	branchesLoader       cache.Cacher[model.ProjectId, []model.Branch]
+	branchesLoader       cache.Cacher[int, []model.Branch]
 }
 
 func NewService(
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
-	branchesLoader cache.Cacher[model.ProjectId, []model.Branch],
+	branchesLoader cache.Cacher[int, []model.Branch],
 ) Service {
 	return &ServiceImpl{
 		pipelineLatestLoader,
@@ -29,8 +29,8 @@ func NewService(
 	}
 }
 
-func (s *ServiceImpl) GetBranchesWithLatestPipeline(id model.ProjectId) ([]model.BranchWithPipeline, error) {
-	branches, err := s.branchesLoader.Get(id)
+func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
+	branches, err := s.branchesLoader.Get(projectId)
 	if err != nil {
 		return make([]model.BranchWithPipeline, 0), err
 	}
@@ -44,7 +44,7 @@ func (s *ServiceImpl) GetBranchesWithLatestPipeline(id model.ProjectId) ([]model
 	for _, branch := range branches {
 		run := util.CreateRunFunc[branchPipelineArgs, model.BranchWithPipeline](s.getLatestPipeline, resultchn, ctx)
 		g.Go(run(branchPipelineArgs{
-			projectId: id,
+			projectId: projectId,
 			branch:    branch,
 		}))
 	}
@@ -62,7 +62,7 @@ func (s *ServiceImpl) GetBranchesWithLatestPipeline(id model.ProjectId) ([]model
 }
 
 type branchPipelineArgs struct {
-	projectId model.ProjectId
+	projectId int
 	branch    model.Branch
 }
 

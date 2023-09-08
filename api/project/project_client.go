@@ -9,7 +9,7 @@ import (
 )
 
 type Client interface {
-	GetProjects(model.GroupId) ([]model.Project, error)
+	GetProjects(groupId int) ([]model.Project, error)
 }
 
 type ClientImpl struct {
@@ -22,8 +22,8 @@ func NewClient(client GitlabClient) Client {
 	}
 }
 
-func (c *ClientImpl) GetProjects(id model.GroupId) ([]model.Project, error) {
-	projects, response, err := c.client.ListGroupProjects(id, createOptions(1))
+func (c *ClientImpl) GetProjects(groupId int) ([]model.Project, error) {
+	projects, response, err := c.client.ListGroupProjects(groupId, createOptions(1))
 	if err != nil {
 		return projects, err
 	}
@@ -39,7 +39,7 @@ func (c *ClientImpl) GetProjects(id model.GroupId) ([]model.Project, error) {
 	for page := response.NextPage; page <= response.TotalPages; page++ {
 		run := util.CreateRunFunc[projectPageArgs, []model.Project](c.getProjectsByPage, resultchn, ctx)
 		g.Go(run(projectPageArgs{
-			groupId:    id,
+			groupId:    groupId,
 			pageNumber: page,
 		}))
 	}
@@ -57,7 +57,7 @@ func (c *ClientImpl) GetProjects(id model.GroupId) ([]model.Project, error) {
 }
 
 type projectPageArgs struct {
-	groupId    model.GroupId
+	groupId    int
 	pageNumber int
 }
 

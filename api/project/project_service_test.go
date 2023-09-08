@@ -33,8 +33,8 @@ func TestProjectServiceWithConfig(t *testing.T) {
 	t.Run("GetProjectsWithLatestPipeline", func(t *testing.T) {
 		var (
 			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			projectsLoader       = cache.New[model.GroupId, []model.Project]()
-			pipelinesLoader      = cache.New[model.ProjectId, []model.Pipeline]()
+			projectsLoader       = cache.New[int, []model.Project]()
+			pipelinesLoader      = cache.New[int, []model.Pipeline]()
 			cfg                  = createConfig(t, make([]int, 0))
 			service              = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 		)
@@ -60,11 +60,11 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		for _, entry := range success {
 			if entry.Project.Id == 111 {
 				assert.Equal(t, "project-1", entry.Project.Name)
-				assert.Equal(t, model.PipelineId(1010), entry.Pipeline.Id)
+				assert.Equal(t, 1010, entry.Pipeline.Id)
 				assert.Equal(t, "success", entry.Pipeline.Status)
 			} else if entry.Project.Id == 333 {
 				assert.Equal(t, "project-3", entry.Project.Name)
-				assert.Equal(t, model.PipelineId(3030), entry.Pipeline.Id)
+				assert.Equal(t, 3030, entry.Pipeline.Id)
 				assert.Equal(t, "success", entry.Pipeline.Status)
 			} else {
 				t.Error("expected projectId 111 and projectId 333")
@@ -74,16 +74,16 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		failed := result["failed"]
 		assert.Len(t, failed, 1)
 		assert.Equal(t, "project-2", failed[0].Project.Name)
-		assert.Equal(t, model.ProjectId(222), failed[0].Project.Id)
-		assert.Equal(t, model.PipelineId(2020), failed[0].Pipeline.Id)
+		assert.Equal(t, 222, failed[0].Project.Id)
+		assert.Equal(t, 2020, failed[0].Pipeline.Id)
 		assert.Equal(t, "failed", failed[0].Pipeline.Status)
 	})
 
 	t.Run("GetProjectsWithLatestPipelineSkipProjectIds", func(t *testing.T) {
 		var (
 			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-			projectsLoader       = cache.New[model.GroupId, []model.Project]()
-			pipelinesLoader      = cache.New[model.ProjectId, []model.Pipeline]()
+			projectsLoader       = cache.New[int, []model.Project]()
+			pipelinesLoader      = cache.New[int, []model.Pipeline]()
 			skipProjectIds       = []int{111, 222}
 			cfg                  = createConfig(t, skipProjectIds)
 			service              = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)

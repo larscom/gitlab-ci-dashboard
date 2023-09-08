@@ -6,8 +6,8 @@ type BranchServiceMock struct {
 	Error error
 }
 
-func (s *BranchServiceMock) GetBranchesWithLatestPipeline(id model.ProjectId) ([]model.BranchWithPipeline, error) {
-	if id == 1 {
+func (s *BranchServiceMock) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
+	if projectId == 1 {
 		return []model.BranchWithPipeline{
 			{
 				Branch: model.Branch{Name: "branch-1"},

@@ -13,7 +13,7 @@ import (
 type Client interface {
 	GetGroups() ([]model.Group, error)
 
-	GetGroupsById([]int) ([]model.Group, error)
+	GetGroupsById(ids []int) ([]model.Group, error)
 }
 
 type ClientImpl struct {
@@ -36,8 +36,8 @@ func (c *ClientImpl) GetGroupsById(ids []int) ([]model.Group, error) {
 	)
 
 	for _, groupId := range ids {
-		run := util.CreateRunFunc[model.GroupId, *model.Group](c.getGroupById, resultchn, ctx)
-		g.Go(run(model.GroupId(groupId)))
+		run := util.CreateRunFunc[int, *model.Group](c.getGroupById, resultchn, ctx)
+		g.Go(run(groupId))
 	}
 
 	go func() {
@@ -90,8 +90,8 @@ func (c *ClientImpl) getGroupsByPage(pageNumber int) ([]model.Group, error) {
 	return groups, err
 }
 
-func (c *ClientImpl) getGroupById(id model.GroupId) (*model.Group, error) {
-	group, _, err := c.client.GetGroup(id, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
+func (c *ClientImpl) getGroupById(groupId int) (*model.Group, error) {
+	group, _, err := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
 	return group, err
 }
 

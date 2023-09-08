@@ -20,19 +20,17 @@ type ScheduleWithProjectAndPipeline struct {
 	Pipeline *Pipeline `json:"pipeline"`
 }
 
-type GroupId int
 type Group struct {
-	Id   GroupId `json:"id"`
-	Name string  `json:"name"`
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
-type ProjectId int
 type Project struct {
-	Id            ProjectId `json:"id"`
-	Name          string    `json:"name"`
-	WebUrl        string    `json:"web_url"`
-	DefaultBranch string    `json:"default_branch"`
-	Topics        []string  `json:"topics"`
+	Id            int      `json:"id"`
+	Name          string   `json:"name"`
+	WebUrl        string   `json:"web_url"`
+	DefaultBranch string   `json:"default_branch"`
+	Topics        []string `json:"topics"`
 }
 
 type Branch struct {
@@ -53,32 +51,30 @@ type Commit struct {
 	Message       string    `json:"message"`
 }
 
-type PipelineId int
 type Pipeline struct {
-	Id        PipelineId `json:"id"`
-	Iid       int        `json:"iid"`
-	ProjectId ProjectId  `json:"project_id"`
-	Sha       string     `json:"sha"`
-	Ref       string     `json:"ref"`
-	Status    string     `json:"status"`
-	Source    string     `json:"source"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	WebUrl    string     `json:"web_url"`
+	Id        int       `json:"id"`
+	Iid       int       `json:"iid"`
+	ProjectId int       `json:"project_id"`
+	Sha       string    `json:"sha"`
+	Ref       string    `json:"ref"`
+	Status    string    `json:"status"`
+	Source    string    `json:"source"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	WebUrl    string    `json:"web_url"`
 }
 
-type ScheduleId int
 type Schedule struct {
-	Id           ScheduleId `json:"id"`
-	Description  string     `json:"description"`
-	Ref          string     `json:"ref"`
-	Cron         string     `json:"cron"`
-	CronTimezone string     `json:"cron_timezone"`
-	NextRunAt    time.Time  `json:"next_run_at"`
-	Active       bool       `json:"active"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	Owner        User       `json:"owner"`
+	Id           int       `json:"id"`
+	Description  string    `json:"description"`
+	Ref          string    `json:"ref"`
+	Cron         string    `json:"cron"`
+	CronTimezone string    `json:"cron_timezone"`
+	NextRunAt    time.Time `json:"next_run_at"`
+	Active       bool      `json:"active"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Owner        User      `json:"owner"`
 }
 type User struct {
 	Id       int    `json:"id"`

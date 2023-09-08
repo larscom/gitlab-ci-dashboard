@@ -4,17 +4,17 @@ import "github.com/larscom/gitlab-ci-dashboard/model"
 
 type ClientMock struct{}
 
-func (c *ClientMock) GetLatestPipeline(id model.ProjectId, ref string) (*model.Pipeline, error) {
-	return &model.Pipeline{ProjectId: id, Ref: ref, Status: "success", Id: 1337}, nil
+func (c *ClientMock) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
+	return &model.Pipeline{ProjectId: projectId, Ref: ref, Status: "success", Id: 1337}, nil
 }
 
-func (c *ClientMock) GetLatestPipelineBySource(id model.ProjectId, ref string, source string) (*model.Pipeline, error) {
-	return &model.Pipeline{ProjectId: id, Ref: ref, Source: source, Status: "success", Id: 1337}, nil
+func (c *ClientMock) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
+	return &model.Pipeline{ProjectId: projectId, Ref: ref, Source: source, Status: "success", Id: 1337}, nil
 }
 
-func (c *ClientMock) GetPipelines(id model.ProjectId) ([]model.Pipeline, error) {
+func (c *ClientMock) GetPipelines(projectId int) ([]model.Pipeline, error) {
 	return []model.Pipeline{
-		{ProjectId: id, Status: "success", Id: 1},
-		{ProjectId: id, Status: "failed", Id: 2},
+		{ProjectId: projectId, Status: "success", Id: 1},
+		{ProjectId: projectId, Status: "failed", Id: 2},
 	}, nil
 }

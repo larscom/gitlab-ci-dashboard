@@ -33,7 +33,7 @@ func TestHandleGetSchedules(t *testing.T) {
 
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Len(t, result, 1)
-	assert.Equal(t, model.ScheduleId(123), result[0].Schedule.Id)
+	assert.Equal(t, 123, result[0].Schedule.Id)
 }
 
 func TestGetSchedulesBadRequest(t *testing.T) {

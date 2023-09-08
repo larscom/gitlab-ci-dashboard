@@ -8,7 +8,7 @@ import (
 )
 
 type GitlabClient interface {
-	ListGroupProjects(model.GroupId, *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error)
+	ListGroupProjects(groupId int, opts *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error)
 }
 
 type GitlabClientImpl struct {
@@ -21,8 +21,8 @@ func NewGitlabClient(client *gitlab.Client) GitlabClient {
 	}
 }
 
-func (c *GitlabClientImpl) ListGroupProjects(id model.GroupId, options *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error) {
-	projects, response, err := c.client.Groups.ListGroupProjects(id, options)
+func (c *GitlabClientImpl) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error) {
+	projects, response, err := c.client.Groups.ListGroupProjects(groupId, options)
 	if err != nil {
 		return util.HandleError(make([]model.Project, 0), response, err)
 	}
