@@ -2,11 +2,12 @@ package project
 
 import (
 	"encoding/json"
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/project/mock"
 	"io"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/project/mock"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -51,6 +52,26 @@ func TestHandleGetProjectsWithLatestPipelineBadRequest(t *testing.T) {
 	assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 }
 
+func TestHandleGetProjectsWithLatestPipelineError(t *testing.T) {
+	var (
+		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
+		app     = fiber.New()
+		handler = NewHandler(&mock.ProjectServiceMock{
+			Error: err,
+		})
+	)
+
+	app.Get("/projects", handler.HandleGetProjectsWithLatestPipeline)
+
+	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
+
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, err.Error(), string(body))
+}
+
 func TestHandleGetProjectsWithPipeline(t *testing.T) {
 	var (
 		app     = fiber.New()
@@ -85,4 +106,24 @@ func TestHandleGetProjectsWithPipelineBadRequest(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/projects", nil), -1)
 
 	assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func TestHandleGetProjectsWithPipelineError(t *testing.T) {
+	var (
+		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
+		app     = fiber.New()
+		handler = NewHandler(&mock.ProjectServiceMock{
+			Error: err,
+		})
+	)
+
+	app.Get("/projects", handler.HandleGetProjectsWithPipeline)
+
+	resp, _ := app.Test(httptest.NewRequest("GET", "/projects?groupId=1", nil), -1)
+
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, err.Error(), string(body))
 }

@@ -2,7 +2,9 @@ package mock
 
 import "github.com/larscom/gitlab-ci-dashboard/model"
 
-type ProjectServiceMock struct{}
+type ProjectServiceMock struct {
+	Error error
+}
 
 func (s *ProjectServiceMock) GetProjectsWithLatestPipeline(groupId int) (map[string][]model.ProjectWithPipeline, error) {
 	if groupId == 1 {
@@ -13,10 +15,10 @@ func (s *ProjectServiceMock) GetProjectsWithLatestPipeline(groupId int) (map[str
 					Pipeline: &model.Pipeline{Id: 111},
 				},
 			},
-		}, nil
+		}, s.Error
 	}
 
-	return make(map[string][]model.ProjectWithPipeline), nil
+	return make(map[string][]model.ProjectWithPipeline), s.Error
 }
 
 func (s *ProjectServiceMock) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
@@ -26,7 +28,7 @@ func (s *ProjectServiceMock) GetProjectsWithPipeline(groupId int) ([]model.Proje
 				Project:  model.Project{Name: "project-2"},
 				Pipeline: &model.Pipeline{Id: 222},
 			},
-		}, nil
+		}, s.Error
 	}
-	return make([]model.ProjectWithPipeline, 0), nil
+	return make([]model.ProjectWithPipeline, 0), s.Error
 }

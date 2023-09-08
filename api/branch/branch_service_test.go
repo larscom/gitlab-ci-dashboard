@@ -1,6 +1,7 @@
 package branch
 
 import (
+	"errors"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"testing"
@@ -29,6 +30,21 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	assert.Len(t, result, 1)
 	assert.Equal(t, ref, result[0].Branch.Name)
 	assert.Equal(t, status, result[0].Pipeline.Status)
+}
+
+func TestGetBranchesWithLatestPipelineError(t *testing.T) {
+	var (
+		mockErr              = errors.New("ERROR!")
+		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+		branchesLoader       = cache.New[int, []model.Branch](cache.WithLoader[int, []model.Branch](func(i int) ([]model.Branch, error) {
+			return make([]model.Branch, 0), mockErr
+		}))
+		service = NewService(pipelineLatestLoader, branchesLoader)
+	)
+
+	result, err := service.GetBranchesWithLatestPipeline(1)
+	assert.Equal(t, mockErr, err)
+	assert.Empty(t, result)
 }
 
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
