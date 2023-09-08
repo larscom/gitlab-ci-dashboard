@@ -23,9 +23,9 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 
 	assert.Zero(t, groupCache.Count())
 
-	app.Get("/", handler.HandleGetGroups)
+	app.Get("/groups", handler.HandleGetGroups)
 
-	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
+	resp, _ := app.Test(httptest.NewRequest("GET", "/groups", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
 	result := make([]model.Group, 0)
@@ -38,7 +38,7 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	assert.Len(t, result, 1)
 	assert.Equal(t, result[0].Name, "group-1")
 
-	cachedValue, found := groupCache.GetIfPresent("/")
+	cachedValue, found := groupCache.GetIfPresent("/groups")
 	assert.True(t, found)
 	assert.Equal(t, cachedValue[0].Name, "group-1")
 }
@@ -50,11 +50,11 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
-	groupCache.Put("/", []model.Group{{Name: "group-2"}})
+	groupCache.Put("/groups", []model.Group{{Name: "group-2"}})
 
-	app.Get("/", handler.HandleGetGroups)
+	app.Get("/groups", handler.HandleGetGroups)
 
-	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
+	resp, _ := app.Test(httptest.NewRequest("GET", "/groups", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
 	result := make([]model.Group, 0)
@@ -75,9 +75,9 @@ func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 		handler    = NewHandler(&mock.GroupServiceMock{Empty: true}, groupCache)
 	)
 
-	app.Get("/", handler.HandleGetGroups)
+	app.Get("/groups", handler.HandleGetGroups)
 
-	resp, _ := app.Test(httptest.NewRequest("GET", "/", nil), -1)
+	resp, _ := app.Test(httptest.NewRequest("GET", "/groups", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
 	result := make([]model.Group, 0)
@@ -89,6 +89,25 @@ func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Empty(t, result)
 
-	_, found := groupCache.GetIfPresent("/")
+	_, found := groupCache.GetIfPresent("/groups")
 	assert.False(t, found)
+}
+
+func TestHandleGetGroupsError(t *testing.T) {
+	var (
+		err     = fiber.NewError(fiber.StatusInternalServerError, "something bad happened")
+		app     = fiber.New()
+		handler = NewHandler(&mock.GroupServiceMock{
+			Error: err,
+		}, cache.New[string, []model.Group]())
+	)
+
+	app.Get("/groups", handler.HandleGetGroups)
+
+	resp, _ := app.Test(httptest.NewRequest("GET", "/groups", nil), -1)
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+	assert.Equal(t, err.Error(), string(body))
 }
