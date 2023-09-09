@@ -1,6 +1,7 @@
 package project
 
 import (
+	"errors"
 	"fmt"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
@@ -77,6 +78,70 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		assert.Equal(t, 222, failed[0].Project.Id)
 		assert.Equal(t, 2020, failed[0].Pipeline.Id)
 		assert.Equal(t, "failed", failed[0].Pipeline.Status)
+	})
+
+	t.Run("GetProjectsWithLatestPipelineErrorProjects", func(t *testing.T) {
+		var (
+			mockErr              = errors.New("ERROR!")
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+			projectsLoader       = cache.New[int, []model.Project](cache.WithLoader[int, []model.Project](func(i int) ([]model.Project, error) {
+				return make([]model.Project, 0), mockErr
+			}))
+			pipelinesLoader = cache.New[int, []model.Pipeline]()
+			cfg             = createConfig(t, make([]int, 0))
+			service         = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
+		)
+
+		result, err := service.GetProjectsWithLatestPipeline(1)
+		assert.Equal(t, mockErr, err)
+		assert.Empty(t, result)
+	})
+
+	t.Run("GetProjectsWithLatestPipelineErrorPipeline", func(t *testing.T) {
+		var (
+			mockErr              = errors.New("ERROR!")
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline](cache.WithLoader[pipeline.Key, *model.Pipeline](func(key pipeline.Key) (*model.Pipeline, error) {
+				return nil, mockErr
+			}))
+			projectsLoader  = cache.New[int, []model.Project]()
+			pipelinesLoader = cache.New[int, []model.Pipeline]()
+			cfg             = createConfig(t, make([]int, 0))
+			service         = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
+			groupId         = 1
+		)
+
+		projectsLoader.Put(groupId,
+			[]model.Project{
+				{Id: 111, Name: "project-1", DefaultBranch: "master"},
+			},
+		)
+
+		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		assert.Equal(t, mockErr, err)
+		assert.Empty(t, result)
+	})
+
+	t.Run("GetProjectsWithLatestPipelineNilPipeline", func(t *testing.T) {
+		var (
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline](cache.WithLoader[pipeline.Key, *model.Pipeline](func(key pipeline.Key) (*model.Pipeline, error) {
+				return nil, nil
+			}))
+			projectsLoader  = cache.New[int, []model.Project]()
+			pipelinesLoader = cache.New[int, []model.Pipeline]()
+			cfg             = createConfig(t, make([]int, 0))
+			service         = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
+			groupId         = 1
+		)
+
+		projectsLoader.Put(groupId,
+			[]model.Project{
+				{Id: 111, Name: "project-1", DefaultBranch: "master"},
+			},
+		)
+
+		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		assert.Nil(t, err)
+		assert.Empty(t, result)
 	})
 
 	t.Run("GetProjectsWithLatestPipelineSkipProjectIds", func(t *testing.T) {
