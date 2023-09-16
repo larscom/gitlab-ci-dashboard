@@ -81,6 +81,46 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		assert.Equal(t, "failed", failed[0].Pipeline.Status)
 	})
 
+	t.Run("GetProjectsWithLatestPipelineSortedByUpdatedAt", func(t *testing.T) {
+		var (
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+			projectsLoader       = cache.New[int, []model.Project]()
+			pipelinesLoader      = cache.New[int, []model.Pipeline]()
+			cfg                  = createConfig(t, make([]int, 0))
+			service              = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
+			groupId              = 1
+			now                  = time.Now()
+		)
+
+		projectsLoader.Put(groupId,
+			[]model.Project{
+				{Id: 111, Name: "project-1", DefaultBranch: "master"},
+				{Id: 222, Name: "project-2", DefaultBranch: "master"},
+				{Id: 333, Name: "project-3", DefaultBranch: "master"},
+				{Id: 444, Name: "project-4", DefaultBranch: "master"},
+				{Id: 555, Name: "project-5", DefaultBranch: "master"},
+			},
+		)
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(111, "master", nil), &model.Pipeline{Id: 1010, Status: "success", UpdatedAt: now.Add(-10 * time.Minute)})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "master", nil), nil)
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "master", nil), &model.Pipeline{Id: 3030, Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(444, "master", nil), nil)
+		pipelineLatestLoader.Put(pipeline.NewPipelineKey(555, "master", nil), &model.Pipeline{Id: 5050, Status: "success", UpdatedAt: now.Add(-5 * time.Minute)})
+
+		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		assert.NoError(t, err)
+
+		success := result["success"]
+
+		assert.Len(t, success, 3)
+		assert.Equal(t, "project-3", success[0].Project.Name)
+		assert.Equal(t, 3030, success[0].Pipeline.Id)
+		assert.Equal(t, "project-5", success[1].Project.Name)
+		assert.Equal(t, 5050, success[1].Pipeline.Id)
+		assert.Equal(t, "project-1", success[2].Project.Name)
+		assert.Equal(t, 1010, success[2].Pipeline.Id)
+	})
+
 	t.Run("GetProjectsWithLatestPipelineErrorProjects", func(t *testing.T) {
 		var (
 			mockErr              = errors.New("ERROR!")
