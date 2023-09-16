@@ -3,12 +3,12 @@ package project
 import (
 	"errors"
 	"fmt"
+	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"strings"
 	"testing"
-
-	"github.com/larscom/gitlab-ci-dashboard/config"
+	"time"
 
 	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
@@ -173,5 +173,50 @@ func TestProjectServiceWithConfig(t *testing.T) {
 
 		assert.Len(t, success, 1)
 		assert.Equal(t, "project-3", success[0].Project.Name)
+	})
+
+	t.Run("GetProjectsWithPipelinesSortedByUpdatedAt", func(t *testing.T) {
+		var (
+			pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
+			projectsLoader       = cache.New[int, []model.Project]()
+			pipelinesLoader      = cache.New[int, []model.Pipeline]()
+			cfg                  = createConfig(t, make([]int, 0))
+			service              = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
+			groupId              = 1
+			now                  = time.Now()
+		)
+
+		projectsLoader.Put(groupId,
+			[]model.Project{
+				{Id: 111, Name: "project-1"},
+				{Id: 222, Name: "project-2"},
+			},
+		)
+
+		pipelinesLoader.Put(111, []model.Pipeline{
+			{
+				Ref:       "branch-1",
+				Status:    "failed",
+				UpdatedAt: now.Add(-20 * time.Minute),
+			},
+		})
+		pipelinesLoader.Put(222, []model.Pipeline{
+			{
+				Ref:       "master",
+				Status:    "success",
+				UpdatedAt: now.Add(-10 * time.Minute),
+			},
+		})
+
+		result, err := service.GetProjectsWithPipeline(groupId)
+
+		assert.NoError(t, err)
+		assert.Len(t, result, 2)
+
+		assert.Equal(t, 222, result[0].Project.Id)
+		assert.Equal(t, "master", result[0].Pipeline.Ref)
+
+		assert.Equal(t, 111, result[1].Project.Id)
+		assert.Equal(t, "branch-1", result[1].Pipeline.Ref)
 	})
 }
