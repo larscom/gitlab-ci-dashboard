@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
 
+import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { Status } from '$groups/model/pipeline'
 import { FormsModule } from '@angular/forms'
 import { NzSelectModule } from 'ng-zorro-antd/select'
@@ -9,7 +10,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 @Component({
   selector: 'gcd-status-filter',
   standalone: true,
-  imports: [CommonModule, FormsModule, NzTagModule, NzSelectModule],
+  imports: [CommonModule, FormsModule, NzTagModule, NzSelectModule, StatusColorPipe],
   templateUrl: './status-filter.component.html',
   styleUrls: ['./status-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
