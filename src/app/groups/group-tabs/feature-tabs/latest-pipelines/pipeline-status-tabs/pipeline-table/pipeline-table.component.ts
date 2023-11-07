@@ -50,7 +50,11 @@ export class PipelineTableComponent {
       sortable: true,
       compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)
     },
-    { title: 'Topics', sortable: false, compare: null },
+    {
+      title: 'Topics',
+      sortable: true,
+      compare: (a, b) => compareString(a.project.topics.join(','), b.project.topics.join(','))
+    },
     {
       title: 'Trigger',
       sortable: true,
