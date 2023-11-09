@@ -1,6 +1,8 @@
+const target = 'https://gitlab-ci-dashboard.larscom.nl'
+
 module.exports = {
   '/api/*': {
-    target: 'http://127.0.0.1:8080',
+    target,
     secure: false,
     logLevel: 'debug',
     changeOrigin: true

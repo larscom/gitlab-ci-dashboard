@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM node:18.18.0-alpine AS fe
+FROM node:20.9.0-alpine AS fe
 WORKDIR /builder
 
 COPY . .
 
 RUN npm ci --legacy-peer-deps --ignore-scripts && npm run build
 
-FROM golang:1.21.1-alpine AS be
+FROM golang:1.21.3-alpine AS be
 WORKDIR /builder
 
 COPY api ./
