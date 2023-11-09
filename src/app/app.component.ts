@@ -15,7 +15,7 @@ import { HeaderComponent } from './header/header.component'
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  error$ = this.errorService.error$
+  error = this.errorService.error
 
   constructor(private errorService: ErrorService) {}
 

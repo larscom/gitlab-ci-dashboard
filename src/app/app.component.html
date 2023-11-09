@@ -1,11 +1,13 @@
 <gcd-header></gcd-header>
-<ng-container *ngIf="error$ | async as error; else groups">
+<ng-container *ngIf="error() as error; else groups">
   <div class="alert">
     <nz-alert
       nzShowIcon
       nzType="error"
       [nzMessage]="'Server Error (' + error + ')'"
-      [nzDescription]="'The server reported a problem, try refreshing the page or read server logs for more information.'"
+      [nzDescription]="
+        'The server reported a problem, try refreshing the page or read server logs for more information.'
+      "
       [nzAction]="action"
     ></nz-alert>
     <ng-template #action>
