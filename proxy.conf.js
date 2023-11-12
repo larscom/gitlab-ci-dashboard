@@ -1,7 +1,7 @@
 const target = 'https://gitlab-ci-dashboard.larscom.nl'
 
 module.exports = {
-  '/api/*': {
+  '/api/**': {
     target,
     secure: false,
     logLevel: 'debug',
