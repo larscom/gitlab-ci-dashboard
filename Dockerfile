@@ -7,7 +7,7 @@ COPY . .
 
 RUN npm ci --legacy-peer-deps --ignore-scripts && npm run build
 
-FROM golang:1.21.3-alpine AS be
+FROM golang:1.21.4-alpine AS be
 WORKDIR /builder
 
 COPY api ./
@@ -22,9 +22,7 @@ WORKDIR /app
 ARG VERSION_ARG
 ENV VERSION=$VERSION_ARG
 
-COPY --from=fe /builder/dist/gitlab-ci-dashboard ./static
+COPY --from=fe /builder/dist/gitlab-ci-dashboard/browser ./static
 COPY --from=be /builder/dist/api ./api
-
-EXPOSE 8080
 
 CMD ["/app/api"]
