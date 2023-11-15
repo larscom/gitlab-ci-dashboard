@@ -12,7 +12,6 @@
 
 <br />
 
-
 Gitlab CI Dashboard will provide you with a **global** overview of all pipelines, schedules, and their statuses within a single group.
 The default functionality of Gitlab is limited at the project level. This can become problematic when you have a lot of projects to manage, potentially resulting in undetected failed pipelines.
 
@@ -81,6 +80,7 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 | --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ | -------- | ------- |
 | GITLAB_BASE_URL                   | string  | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |         |
 | GITLAB_API_TOKEN                  | string  | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |         |
+| SERVER_LISTEN_ADDR                | string  | Listen address, e.g: ":8080" or "127.0.0.1:8080"                                                       | no       | :8080   |
 | GITLAB_GROUP_ONLY_IDS             | string  | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |         |
 | GITLAB_GROUP_SKIP_IDS             | string  | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |         |
 | GITLAB_GROUP_ONLY_TOP_LEVEL       | boolean | Show only top level groups                                                                             | no       | false   |
