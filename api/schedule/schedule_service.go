@@ -1,6 +1,8 @@
 package schedule
 
 import (
+	"sort"
+
 	"github.com/bobg/go-generics/v2/slices"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -9,14 +11,13 @@ import (
 	"github.com/larscom/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
-	"sort"
 )
 
-type Service interface {
+type ScheduleService interface {
 	GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error)
 }
 
-type ServiceImpl struct {
+type scheduleService struct {
 	config               *config.GitlabConfig
 	projectsLoader       cache.Cacher[int, []model.Project]
 	schedulesLoader      cache.Cacher[int, []model.Schedule]
@@ -28,16 +29,16 @@ func NewService(
 	projectsLoader cache.Cacher[int, []model.Project],
 	schedulesLoader cache.Cacher[int, []model.Schedule],
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
-) Service {
-	return &ServiceImpl{
-		config,
-		projectsLoader,
-		schedulesLoader,
-		pipelineLatestLoader,
+) ScheduleService {
+	return &scheduleService{
+		config:               config,
+		projectsLoader:       projectsLoader,
+		schedulesLoader:      schedulesLoader,
+		pipelineLatestLoader: pipelineLatestLoader,
 	}
 }
 
-func (s *ServiceImpl) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
+func (s *scheduleService) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
 		return make([]model.ScheduleWithProjectAndPipeline, 0), err
@@ -67,7 +68,7 @@ func (s *ServiceImpl) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndP
 	return sortById(results), g.Wait()
 }
 
-func (s *ServiceImpl) getSchedules(project model.Project) ([]model.ScheduleWithProjectAndPipeline, error) {
+func (s *scheduleService) getSchedules(project model.Project) ([]model.ScheduleWithProjectAndPipeline, error) {
 	schedules, err := s.schedulesLoader.Get(project.Id)
 	if err != nil {
 		return make([]model.ScheduleWithProjectAndPipeline, 0), err
@@ -87,7 +88,7 @@ func (s *ServiceImpl) getSchedules(project model.Project) ([]model.ScheduleWithP
 	return result, nil
 }
 
-func (s *ServiceImpl) filterProjects(projects []model.Project) []model.Project {
+func (s *scheduleService) filterProjects(projects []model.Project) []model.Project {
 	if len(s.config.ProjectSkipIds) > 0 {
 		return slices.Filter(projects, func(project model.Project) bool {
 			return !slices.Contains(s.config.ProjectSkipIds, project.Id)

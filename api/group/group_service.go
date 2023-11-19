@@ -1,29 +1,30 @@
 package group
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/model"
 	"sort"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
 )
 
-type Service interface {
+type GroupService interface {
 	GetGroups() ([]model.Group, error)
 }
 
-type ServiceImpl struct {
+type groupService struct {
 	config *config.GitlabConfig
-	client Client
+	client GroupClient
 }
 
-func NewService(config *config.GitlabConfig, client Client) Service {
-	return &ServiceImpl{
-		config,
-		client,
+func NewService(config *config.GitlabConfig, client GroupClient) GroupService {
+	return &groupService{
+		config: config,
+		client: client,
 	}
 }
 
-func (s *ServiceImpl) GetGroups() ([]model.Group, error) {
+func (s *groupService) GetGroups() ([]model.Group, error) {
 	if len(s.config.GroupOnlyIds) > 0 {
 		groups, err := s.client.GetGroupsById(s.config.GroupOnlyIds)
 		return sortByName(groups), err

@@ -1,10 +1,11 @@
 package group
 
 import (
+	"log"
+
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/xanzy/go-gitlab"
-	"log"
 )
 
 type GitlabClient interface {
@@ -13,18 +14,18 @@ type GitlabClient interface {
 	GetGroup(groupId int, opts *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error)
 }
 
-type GitlabClientImpl struct {
-	client *gitlab.Client
+type gitlabClient struct {
+	gitlab *gitlab.Client
 }
 
-func NewGitlabClient(client *gitlab.Client) GitlabClient {
-	return &GitlabClientImpl{
-		client,
+func NewGitlabClient(gitlab *gitlab.Client) GitlabClient {
+	return &gitlabClient{
+		gitlab: gitlab,
 	}
 }
 
-func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error) {
-	groups, response, err := c.client.Groups.ListGroups(options)
+func (c *gitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error) {
+	groups, response, err := c.gitlab.Groups.ListGroups(options)
 	if err != nil {
 		return util.HandleError(make([]model.Group, 0), response, err)
 	}
@@ -37,8 +38,8 @@ func (c *GitlabClientImpl) ListGroups(options *gitlab.ListGroupsOptions) ([]mode
 	return g, response, err
 }
 
-func (c *GitlabClientImpl) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
-	group, response, err := c.client.Groups.GetGroup(groupId, options)
+func (c *gitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
+	group, response, err := c.gitlab.Groups.GetGroup(groupId, options)
 	if err != nil {
 		return util.HandleError[*model.Group](nil, response, err)
 	}

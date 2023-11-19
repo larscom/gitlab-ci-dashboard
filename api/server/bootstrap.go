@@ -26,9 +26,9 @@ func NewBootstrap(
 	clients *Clients,
 ) *Bootstrap {
 	return &Bootstrap{
-		config,
-		caches,
-		clients,
+		config:  config,
+		caches:  caches,
+		clients: clients,
 	}
 }
 

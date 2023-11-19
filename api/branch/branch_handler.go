@@ -4,17 +4,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type Handler struct {
-	service Service
+type BranchHandler struct {
+	service BranchService
 }
 
-func NewHandler(service Service) *Handler {
-	return &Handler{
-		service,
+func NewHandler(service BranchService) *BranchHandler {
+	return &BranchHandler{
+		service: service,
 	}
 }
 
-func (h *Handler) HandleGetBranchesWithLatestPipeline(c *fiber.Ctx) error {
+func (h *BranchHandler) HandleGetBranchesWithLatestPipeline(c *fiber.Ctx) error {
 	projectId := c.QueryInt("projectId")
 
 	if projectId == 0 {

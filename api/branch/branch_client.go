@@ -8,22 +8,22 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Client interface {
+type BranchClient interface {
 	GetBranches(projectId int) ([]model.Branch, error)
 }
 
-type ClientImpl struct {
-	client GitlabClient
+type branchClient struct {
+	gitlab GitlabClient
 }
 
-func NewClient(client GitlabClient) Client {
-	return &ClientImpl{
-		client,
+func NewClient(gitlab GitlabClient) BranchClient {
+	return &branchClient{
+		gitlab: gitlab,
 	}
 }
 
-func (c *ClientImpl) GetBranches(projectId int) ([]model.Branch, error) {
-	branches, response, err := c.client.ListBranches(projectId, createOptions(1))
+func (c *branchClient) GetBranches(projectId int) ([]model.Branch, error) {
+	branches, response, err := c.gitlab.ListBranches(projectId, createOptions(1))
 	if err != nil {
 		return branches, err
 	}
@@ -61,8 +61,8 @@ type branchPageArgs struct {
 	pageNumber int
 }
 
-func (c *ClientImpl) getBranchesByPage(args branchPageArgs) ([]model.Branch, error) {
-	branches, _, err := c.client.ListBranches(args.projectId, createOptions(args.pageNumber))
+func (c *branchClient) getBranchesByPage(args branchPageArgs) ([]model.Branch, error) {
+	branches, _, err := c.gitlab.ListBranches(args.projectId, createOptions(args.pageNumber))
 	return branches, err
 }
 

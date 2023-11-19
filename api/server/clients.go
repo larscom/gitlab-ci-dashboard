@@ -9,25 +9,25 @@ import (
 )
 
 type Clients struct {
-	projectClient  project.Client
-	groupClient    group.Client
-	pipelineClient pipeline.Client
-	branchClient   branch.Client
-	scheduleClient schedule.Client
+	projectClient  project.ProjectClient
+	groupClient    group.GroupClient
+	pipelineClient pipeline.PipelineClient
+	branchClient   branch.BranchClient
+	scheduleClient schedule.ScheduleClient
 }
 
 func NewClients(
-	projectClient project.Client,
-	groupClient group.Client,
-	pipelineClient pipeline.Client,
-	branchClient branch.Client,
-	scheduleClient schedule.Client,
+	projectClient project.ProjectClient,
+	groupClient group.GroupClient,
+	pipelineClient pipeline.PipelineClient,
+	branchClient branch.BranchClient,
+	scheduleClient schedule.ScheduleClient,
 ) *Clients {
 	return &Clients{
-		projectClient,
-		groupClient,
-		pipelineClient,
-		branchClient,
-		scheduleClient,
+		projectClient:  projectClient,
+		groupClient:    groupClient,
+		pipelineClient: pipelineClient,
+		branchClient:   branchClient,
+		scheduleClient: scheduleClient,
 	}
 }

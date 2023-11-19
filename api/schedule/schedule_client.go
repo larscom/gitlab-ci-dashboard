@@ -8,22 +8,22 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Client interface {
+type ScheduleClient interface {
 	GetPipelineSchedules(projectId int) ([]model.Schedule, error)
 }
 
-type ClientImpl struct {
-	client GitlabClient
+type scheduleClient struct {
+	gitlab GitlabClient
 }
 
-func NewClient(client GitlabClient) Client {
-	return &ClientImpl{
-		client,
+func NewClient(gitlab GitlabClient) ScheduleClient {
+	return &scheduleClient{
+		gitlab: gitlab,
 	}
 }
 
-func (c *ClientImpl) GetPipelineSchedules(projectId int) ([]model.Schedule, error) {
-	schedules, response, err := c.client.ListPipelineSchedules(projectId, createOptions(1))
+func (c *scheduleClient) GetPipelineSchedules(projectId int) ([]model.Schedule, error) {
+	schedules, response, err := c.gitlab.ListPipelineSchedules(projectId, createOptions(1))
 	if err != nil {
 		return schedules, err
 	}
@@ -61,8 +61,8 @@ type schedulePageArgs struct {
 	pageNumber int
 }
 
-func (c *ClientImpl) getSchedulesByPage(args schedulePageArgs) ([]model.Schedule, error) {
-	schedules, _, err := c.client.ListPipelineSchedules(args.projectId, createOptions(args.pageNumber))
+func (c *scheduleClient) getSchedulesByPage(args schedulePageArgs) ([]model.Schedule, error) {
+	schedules, _, err := c.gitlab.ListPipelineSchedules(args.projectId, createOptions(args.pageNumber))
 	return schedules, err
 }
 

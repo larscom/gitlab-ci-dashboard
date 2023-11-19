@@ -7,19 +7,19 @@ import (
 	"github.com/larscom/go-cache"
 )
 
-type Handler struct {
-	service Service
+type GroupHandler struct {
+	service GroupService
 	cache   cache.Cacher[string, []model.Group]
 }
 
-func NewHandler(service Service, cache cache.Cacher[string, []model.Group]) *Handler {
-	return &Handler{
-		service,
-		cache,
+func NewHandler(service GroupService, cache cache.Cacher[string, []model.Group]) *GroupHandler {
+	return &GroupHandler{
+		service: service,
+		cache:   cache,
 	}
 }
 
-func (h *Handler) HandleGetGroups(c *fiber.Ctx) error {
+func (h *GroupHandler) HandleGetGroups(c *fiber.Ctx) error {
 	if groups, ok := h.cache.GetIfPresent(c.OriginalURL()); ok {
 		return c.JSON(groups)
 	}

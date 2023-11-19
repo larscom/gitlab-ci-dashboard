@@ -1,20 +1,21 @@
 package branch
 
 import (
+	"sort"
+
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"github.com/larscom/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
-	"sort"
 )
 
-type Service interface {
+type BranchService interface {
 	GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error)
 }
 
-type ServiceImpl struct {
+type branchService struct {
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
 	branchesLoader       cache.Cacher[int, []model.Branch]
 }
@@ -22,14 +23,14 @@ type ServiceImpl struct {
 func NewService(
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
 	branchesLoader cache.Cacher[int, []model.Branch],
-) Service {
-	return &ServiceImpl{
-		pipelineLatestLoader,
-		branchesLoader,
+) BranchService {
+	return &branchService{
+		pipelineLatestLoader: pipelineLatestLoader,
+		branchesLoader:       branchesLoader,
 	}
 }
 
-func (s *ServiceImpl) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
+func (s *branchService) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
 	branches, err := s.branchesLoader.Get(projectId)
 	if err != nil {
 		return make([]model.BranchWithPipeline, 0), err
@@ -66,7 +67,7 @@ type branchPipelineArgs struct {
 	branch    model.Branch
 }
 
-func (s *ServiceImpl) getLatestPipeline(args branchPipelineArgs) (model.BranchWithPipeline, error) {
+func (s *branchService) getLatestPipeline(args branchPipelineArgs) (model.BranchWithPipeline, error) {
 	pipeline, err := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(args.projectId, args.branch.Name, nil))
 	return model.BranchWithPipeline{
 		Branch:   args.branch,

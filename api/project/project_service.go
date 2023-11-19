@@ -1,6 +1,8 @@
 package project
 
 import (
+	"sort"
+
 	"github.com/bobg/go-generics/v2/slices"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -9,18 +11,17 @@ import (
 	"github.com/larscom/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
-	"sort"
 )
 
 type PipelineStatus = string
 
-type Service interface {
+type ProjectService interface {
 	GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error)
 
 	GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error)
 }
 
-type ServiceImpl struct {
+type projectService struct {
 	config               *config.GitlabConfig
 	projectsLoader       cache.Cacher[int, []model.Project]
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
@@ -32,16 +33,16 @@ func NewService(
 	projectsLoader cache.Cacher[int, []model.Project],
 	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
 	pipelinesLoader cache.Cacher[int, []model.Pipeline],
-) Service {
-	return &ServiceImpl{
-		config,
-		projectsLoader,
-		pipelineLatestLoader,
-		pipelinesLoader,
+) ProjectService {
+	return &projectService{
+		config:               config,
+		projectsLoader:       projectsLoader,
+		pipelineLatestLoader: pipelineLatestLoader,
+		pipelinesLoader:      pipelinesLoader,
 	}
 }
 
-func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
+func (s *projectService) GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
 		return make(map[PipelineStatus][]model.ProjectWithPipeline), err
@@ -86,7 +87,7 @@ func (s *ServiceImpl) GetProjectsWithLatestPipeline(groupId int) (map[PipelineSt
 	return results, g.Wait()
 }
 
-func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
+func (s *projectService) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
 		return make([]model.ProjectWithPipeline, 0), err
@@ -116,7 +117,7 @@ func (s *ServiceImpl) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithP
 	return sortByUpdatedDate(results), g.Wait()
 }
 
-func (s *ServiceImpl) getPipelines(project model.Project) ([]model.ProjectWithPipeline, error) {
+func (s *projectService) getPipelines(project model.Project) ([]model.ProjectWithPipeline, error) {
 	pipelines, err := s.pipelinesLoader.Get(project.Id)
 	if err != nil {
 		return make([]model.ProjectWithPipeline, 0), err
@@ -150,7 +151,7 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	return projects
 }
 
-func (s *ServiceImpl) getLatestPipeline(project model.Project) (map[PipelineStatus]model.ProjectWithPipeline, error) {
+func (s *projectService) getLatestPipeline(project model.Project) (map[PipelineStatus]model.ProjectWithPipeline, error) {
 	key := pipeline.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, err := s.pipelineLatestLoader.Get(key)
 
@@ -170,7 +171,7 @@ func (s *ServiceImpl) getLatestPipeline(project model.Project) (map[PipelineStat
 	return make(map[PipelineStatus]model.ProjectWithPipeline), nil
 }
 
-func (s *ServiceImpl) filterProjects(projects []model.Project) []model.Project {
+func (s *projectService) filterProjects(projects []model.Project) []model.Project {
 	if len(s.config.ProjectSkipIds) > 0 {
 		return slices.Filter(projects, func(project model.Project) bool {
 			return !slices.Contains(s.config.ProjectSkipIds, project.Id)

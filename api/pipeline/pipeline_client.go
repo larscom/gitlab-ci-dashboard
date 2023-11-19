@@ -2,18 +2,19 @@ package pipeline
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
-	"time"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
 
 	"github.com/xanzy/go-gitlab"
 )
 
-type Client interface {
+type PipelineClient interface {
 	GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error)
 
 	GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error)
@@ -21,25 +22,25 @@ type Client interface {
 	GetPipelines(projectId int) ([]model.Pipeline, error)
 }
 
-type ClientImpl struct {
-	client GitlabClient
+type pipelineClient struct {
+	gitlab GitlabClient
 	config *config.GitlabConfig
 }
 
-func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
-	return &ClientImpl{
-		client,
-		config,
+func NewClient(gitlab GitlabClient, config *config.GitlabConfig) PipelineClient {
+	return &pipelineClient{
+		gitlab: gitlab,
+		config: config,
 	}
 }
 
-func (c *ClientImpl) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
+func (c *pipelineClient) GetLatestPipeline(projectId int, ref string) (*model.Pipeline, error) {
 	options := &gitlab.GetLatestPipelineOptions{Ref: &ref}
-	pipeline, _, err := c.client.GetLatestPipeline(projectId, options)
+	pipeline, _, err := c.gitlab.GetLatestPipeline(projectId, options)
 	return pipeline, err
 }
 
-func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
+func (c *pipelineClient) GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error) {
 	options := &gitlab.ListProjectPipelinesOptions{
 		Ref:    &ref,
 		Source: &source,
@@ -49,7 +50,7 @@ func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source
 		},
 	}
 
-	pipelines, _, err := c.client.ListProjectPipelines(projectId, options)
+	pipelines, _, err := c.gitlab.ListProjectPipelines(projectId, options)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +62,8 @@ func (c *ClientImpl) GetLatestPipelineBySource(projectId int, ref string, source
 	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)
 }
 
-func (c *ClientImpl) GetPipelines(projectId int) ([]model.Pipeline, error) {
-	pipelines, response, err := c.client.ListProjectPipelines(projectId, c.createOptions(1))
+func (c *pipelineClient) GetPipelines(projectId int) ([]model.Pipeline, error) {
+	pipelines, response, err := c.gitlab.ListProjectPipelines(projectId, c.createOptions(1))
 	if err != nil {
 		return pipelines, err
 	}
@@ -100,12 +101,12 @@ type pipelinePageArgs struct {
 	pageNumber int
 }
 
-func (c *ClientImpl) getPipelinesByPage(args pipelinePageArgs) ([]model.Pipeline, error) {
-	pipelines, _, err := c.client.ListProjectPipelines(args.projectId, c.createOptions(args.pageNumber))
+func (c *pipelineClient) getPipelinesByPage(args pipelinePageArgs) ([]model.Pipeline, error) {
+	pipelines, _, err := c.gitlab.ListProjectPipelines(args.projectId, c.createOptions(args.pageNumber))
 	return pipelines, err
 }
 
-func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListProjectPipelinesOptions {
+func (c *pipelineClient) createOptions(pageNumber int) *gitlab.ListProjectPipelinesOptions {
 	minusDays := c.config.PipelineHistoryDays * -1
 
 	return &gitlab.ListProjectPipelinesOptions{

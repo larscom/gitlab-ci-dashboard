@@ -8,22 +8,22 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Client interface {
+type ProjectClient interface {
 	GetProjects(groupId int) ([]model.Project, error)
 }
 
-type ClientImpl struct {
-	client GitlabClient
+type projectClient struct {
+	gitlab GitlabClient
 }
 
-func NewClient(client GitlabClient) Client {
-	return &ClientImpl{
-		client,
+func NewClient(gitlab GitlabClient) ProjectClient {
+	return &projectClient{
+		gitlab: gitlab,
 	}
 }
 
-func (c *ClientImpl) GetProjects(groupId int) ([]model.Project, error) {
-	projects, response, err := c.client.ListGroupProjects(groupId, createOptions(1))
+func (c *projectClient) GetProjects(groupId int) ([]model.Project, error) {
+	projects, response, err := c.gitlab.ListGroupProjects(groupId, createOptions(1))
 	if err != nil {
 		return projects, err
 	}
@@ -61,8 +61,8 @@ type projectPageArgs struct {
 	pageNumber int
 }
 
-func (c *ClientImpl) getProjectsByPage(args projectPageArgs) ([]model.Project, error) {
-	projects, _, err := c.client.ListGroupProjects(args.groupId, createOptions(args.pageNumber))
+func (c *projectClient) getProjectsByPage(args projectPageArgs) ([]model.Project, error) {
+	projects, _, err := c.gitlab.ListGroupProjects(args.groupId, createOptions(args.pageNumber))
 	return projects, err
 }
 

@@ -10,25 +10,25 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-type Client interface {
+type GroupClient interface {
 	GetGroups() ([]model.Group, error)
 
 	GetGroupsById(ids []int) ([]model.Group, error)
 }
 
-type ClientImpl struct {
-	client GitlabClient
+type groupClient struct {
+	gitlab GitlabClient
 	config *config.GitlabConfig
 }
 
-func NewClient(client GitlabClient, config *config.GitlabConfig) Client {
-	return &ClientImpl{
-		client,
-		config,
+func NewClient(gitlab GitlabClient, config *config.GitlabConfig) GroupClient {
+	return &groupClient{
+		gitlab: gitlab,
+		config: config,
 	}
 }
 
-func (c *ClientImpl) GetGroupsById(ids []int) ([]model.Group, error) {
+func (c *groupClient) GetGroupsById(ids []int) ([]model.Group, error) {
 	var (
 		resultchn = make(chan *model.Group, util.GetMaxChanCapacity(len(ids)))
 		g, ctx    = errgroup.WithContext(context.Background())
@@ -54,8 +54,8 @@ func (c *ClientImpl) GetGroupsById(ids []int) ([]model.Group, error) {
 	return results, g.Wait()
 }
 
-func (c *ClientImpl) GetGroups() ([]model.Group, error) {
-	groups, response, err := c.client.ListGroups(c.createOptions(1))
+func (c *groupClient) GetGroups() ([]model.Group, error) {
+	groups, response, err := c.gitlab.ListGroups(c.createOptions(1))
 	if err != nil {
 		return groups, err
 	}
@@ -85,17 +85,17 @@ func (c *ClientImpl) GetGroups() ([]model.Group, error) {
 	return groups, g.Wait()
 }
 
-func (c *ClientImpl) getGroupsByPage(pageNumber int) ([]model.Group, error) {
-	groups, _, err := c.client.ListGroups(c.createOptions(pageNumber))
+func (c *groupClient) getGroupsByPage(pageNumber int) ([]model.Group, error) {
+	groups, _, err := c.gitlab.ListGroups(c.createOptions(pageNumber))
 	return groups, err
 }
 
-func (c *ClientImpl) getGroupById(groupId int) (*model.Group, error) {
-	group, _, err := c.client.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
+func (c *groupClient) getGroupById(groupId int) (*model.Group, error) {
+	group, _, err := c.gitlab.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
 	return group, err
 }
 
-func (c *ClientImpl) createOptions(pageNumber int) *gitlab.ListGroupsOptions {
+func (c *groupClient) createOptions(pageNumber int) *gitlab.ListGroupsOptions {
 	return &gitlab.ListGroupsOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    pageNumber,
