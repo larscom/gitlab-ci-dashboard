@@ -23,16 +23,16 @@ type ProjectService interface {
 
 type projectService struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cacher[int, []model.Project]
-	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
-	pipelinesLoader      cache.Cacher[int, []model.Pipeline]
+	projectsLoader       cache.Cache[int, []model.Project]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
+	pipelinesLoader      cache.Cache[int, []model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cacher[int, []model.Project],
-	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
-	pipelinesLoader cache.Cacher[int, []model.Pipeline],
+	projectsLoader cache.Cache[int, []model.Project],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
+	pipelinesLoader cache.Cache[int, []model.Pipeline],
 ) ProjectService {
 	return &projectService{
 		config:               config,

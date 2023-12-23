@@ -16,13 +16,13 @@ type BranchService interface {
 }
 
 type branchService struct {
-	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
-	branchesLoader       cache.Cacher[int, []model.Branch]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
+	branchesLoader       cache.Cache[int, []model.Branch]
 }
 
 func NewService(
-	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
-	branchesLoader cache.Cacher[int, []model.Branch],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
+	branchesLoader cache.Cache[int, []model.Branch],
 ) BranchService {
 	return &branchService{
 		pipelineLatestLoader: pipelineLatestLoader,

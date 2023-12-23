@@ -9,10 +9,10 @@ import (
 
 type GroupHandler struct {
 	service GroupService
-	cache   cache.Cacher[string, []model.Group]
+	cache   cache.Cache[string, []model.Group]
 }
 
-func NewHandler(service GroupService, cache cache.Cacher[string, []model.Group]) *GroupHandler {
+func NewHandler(service GroupService, cache cache.Cache[string, []model.Group]) *GroupHandler {
 	return &GroupHandler{
 		service: service,
 		cache:   cache,

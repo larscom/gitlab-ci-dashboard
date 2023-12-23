@@ -19,16 +19,16 @@ type ScheduleService interface {
 
 type scheduleService struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cacher[int, []model.Project]
-	schedulesLoader      cache.Cacher[int, []model.Schedule]
-	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline]
+	projectsLoader       cache.Cache[int, []model.Project]
+	schedulesLoader      cache.Cache[int, []model.Schedule]
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cacher[int, []model.Project],
-	schedulesLoader cache.Cacher[int, []model.Schedule],
-	pipelineLatestLoader cache.Cacher[pipeline.Key, *model.Pipeline],
+	projectsLoader cache.Cache[int, []model.Project],
+	schedulesLoader cache.Cache[int, []model.Schedule],
+	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
 ) ScheduleService {
 	return &scheduleService{
 		config:               config,
