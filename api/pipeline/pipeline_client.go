@@ -111,7 +111,7 @@ func (c *pipelineClient) createOptions(pageNumber int) *gitlab.ListProjectPipeli
 
 	return &gitlab.ListProjectPipelinesOptions{
 		// X days ago until now
-		UpdatedAfter: gitlab.Time(time.Now().Add(time.Duration(minusDays) * 24 * time.Hour)),
+		UpdatedAfter: gitlab.Ptr(time.Now().Add(time.Duration(minusDays) * 24 * time.Hour)),
 		ListOptions: gitlab.ListOptions{
 			Page:    pageNumber,
 			PerPage: 100,

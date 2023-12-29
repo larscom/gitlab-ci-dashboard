@@ -1,12 +1,9 @@
 # Gitlab CI Dashboard
 
 [![Docker Image Version](https://img.shields.io/docker/v/larscom/gitlab-ci-dashboard?sort=semver&label=latest%20release&color=blue)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
-[![Dockerhub Pulls](https://img.shields.io/docker/pulls/larscom/gitlab-ci-dashboard)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
-[![Docker Image Size](https://img.shields.io/docker/image-size/larscom/gitlab-ci-dashboard?sort=semver)](https://hub.docker.com/r/larscom/gitlab-ci-dashboard)
-[![codecov](https://codecov.io/gh/larscom/gitlab-ci-dashboard/branch/master/graph/badge.svg?token=PK57YGR5YA)](https://codecov.io/gh/larscom/gitlab-ci-dashboard)
-
 [![workflow](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml/badge.svg)](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/gh/larscom/gitlab-ci-dashboard/branch/master/graph/badge.svg?token=PK57YGR5YA)](https://codecov.io/gh/larscom/gitlab-ci-dashboard)
 
 ![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
 
