@@ -21,12 +21,11 @@ jobs:
         with:
           node-version: 18
       - run: npm ci --ignore-scripts --legacy-peer-deps
-      - run: npm run test:ci
+      - run: npm run test
       # - uses: codecov/codecov-action@v3
       #   with:
       #     token: ${{ secrets.CODECOV_TOKEN }}
       #     files: ./coverage/coverage-final.json
-      #     verbose: true
 
   test-backend:
     runs-on: ubuntu-latest
@@ -47,7 +46,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./api/cover.out
-          verbose: true
 
   build-docker:
     if: github.event_name != 'pull_request'
