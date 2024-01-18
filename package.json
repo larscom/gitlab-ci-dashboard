@@ -1,6 +1,6 @@
 {
   "name": "gitlab-ci-dashboard",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
