@@ -28,12 +28,12 @@ export const { initialState } = store
 export class UIStore {
   readonly autoRefreshLoading = (id: GroupId | ProjectId) =>
     store.pipe(
-      map(({ autoRefreshLoading }) => autoRefreshLoading[id] || false),
+      map(({ autoRefreshLoading }) => autoRefreshLoading[id] ?? false),
       distinctUntilChanged()
     )
   readonly autoRefreshInterval = (id: GroupId | ProjectId) =>
     store.pipe(
-      map(({ autoRefreshInterval }) => autoRefreshInterval[id] || ''),
+      map(({ autoRefreshInterval }) => autoRefreshInterval[id] ?? '5'),
       distinctUntilChanged()
     )
 
