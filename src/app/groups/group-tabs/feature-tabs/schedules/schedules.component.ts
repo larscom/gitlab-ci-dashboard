@@ -9,6 +9,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
+import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { StatusFilterComponent } from '../pipelines/components/status-filter/status-filter.component'
 import { ScheduleTableComponent } from './schedule-table/schedule-table.component'
 import { ScheduleFilterService } from './service/schedule-filter.service'
@@ -24,6 +25,7 @@ import { ScheduleStore } from './store/schedule.store'
     ScheduleTableComponent,
     AutoRefreshComponent,
     ProjectFilterComponent,
+    TopicFilterComponent,
     StatusFilterComponent
   ],
   templateUrl: './schedules.component.html',

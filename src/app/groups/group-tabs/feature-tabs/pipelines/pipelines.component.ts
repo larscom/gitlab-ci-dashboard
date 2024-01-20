@@ -1,6 +1,6 @@
 import { PipelineId, Status } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
-import { filterNotNull } from '$groups/util/filter'
+import { filterArrayNotNull, filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
 import { Component } from '@angular/core'
@@ -9,7 +9,9 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
+import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { ProjectFilterService } from '../service/project-filter.service'
+import { BranchFilterComponent } from './components/branch-filter/branch-filter.component'
 import { StatusFilterComponent } from './components/status-filter/status-filter.component'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
 import { fetchProjectsWithPipeline } from './store/pipeline.actions'
@@ -22,6 +24,8 @@ import { PipelineStore } from './store/pipeline.store'
     CommonModule,
     NzSpinModule,
     ProjectFilterComponent,
+    TopicFilterComponent,
+    BranchFilterComponent,
     StatusFilterComponent,
     PipelineTableComponent,
     AutoRefreshComponent
@@ -37,13 +41,22 @@ export class PipelinesComponent {
   loading$ = this.pipelineStore.projectsLoading$
   projectsWithPipeline$ = this.filterService.getProjectsWithPipeline()
   selectedFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId)))
-  selectedFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId)))
+  selectedFilterTextProjects$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.pipelineStore.projectFilter(groupId))
+  )
+  selectedFilterTextBranches$ = this.selectedGroupId$.pipe(
+    switchMap((groupId) => this.pipelineStore.branchFilter(groupId))
+  )
   selectedFilterStatuses$ = this.selectedGroupId$.pipe(
     switchMap((groupId) => this.pipelineStore.statusesFilter(groupId))
   )
   pinnedPipelines$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.pinnedPipelines(groupId)))
 
   projects$ = this.pipelineStore.projectsWithPipeline$.pipe(map((data) => data.map(({ project }) => project)))
+
+  branches$ = this.pipelineStore.projectsWithPipeline$.pipe(
+    map((data) => filterArrayNotNull(data.map(({ pipeline }) => pipeline?.ref)))
+  )
 
   constructor(
     private actions: Actions,
@@ -67,9 +80,14 @@ export class PipelinesComponent {
     this.pipelineStore.setTopicsFilter(groupId, topics)
   }
 
-  async onFilterTextChanged(filterText: string): Promise<void> {
+  async onFilterTextProjectsChanged(filterText: string): Promise<void> {
     const groupId = await firstValueFrom(this.selectedGroupId$)
     this.pipelineStore.setProjectFilter(groupId, filterText)
+  }
+
+  async onFilterTextBranchesChanged(filterText: string): Promise<void> {
+    const groupId = await firstValueFrom(this.selectedGroupId$)
+    this.pipelineStore.setBranchFilter(groupId, filterText)
   }
 
   async onFilterStatusesChanged(statuses: Status[]): Promise<void> {

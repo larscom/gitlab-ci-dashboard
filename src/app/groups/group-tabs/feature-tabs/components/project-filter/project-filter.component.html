@@ -1,44 +1,23 @@
-<div class="flex flex-col gap-1">
-  <div class="flex items-center">
-    <div class="max-width-275">
-      <nz-input-group [nzSuffix]="suffixIcon">
-        <input
-          type="text"
-          [formControl]="searchControl"
-          nz-input
-          [placeholder]="projectCount > 0 ? 'Search ' + projectCount + ' projects...' : 'Search projects...'"
-        />
-      </nz-input-group>
-      <ng-template #suffixIcon>
-        <span
-          class="pointer"
-          nz-icon
-          nzType="close-square"
-          nz-tooltip
-          [nzTooltipMouseEnterDelay]="1"
-          nzTooltipTitle="Clear field"
-          (click)="resetSearch()"
-        ></span>
-      </ng-template>
-    </div>
+<div class="flex items-center">
+  <div class="max-width-275">
+    <nz-input-group [nzSuffix]="suffixIcon">
+      <input
+        type="text"
+        [formControl]="searchControl"
+        nz-input
+        [placeholder]="projectCount > 0 ? 'Search ' + projectCount + ' projects...' : 'Search projects...'"
+      />
+    </nz-input-group>
+    <ng-template #suffixIcon>
+      <span
+        class="pointer"
+        nz-icon
+        nzType="close-square"
+        nz-tooltip
+        [nzTooltipMouseEnterDelay]="1"
+        nzTooltipTitle="Clear field"
+        (click)="resetSearch()"
+      ></span>
+    </ng-template>
   </div>
-  <ng-container *ngIf="loading; else loaded">
-    <nz-spin nzSimple nzSize="small"></nz-spin>
-  </ng-container>
-  <ng-template #loaded>
-    <ng-container *ngIf="topics().size > 0">
-      <div class="flex flex-wrap gap-050 items-center">
-        <span class="font-sm font-bold">Filter by topic</span>
-        <ng-container *ngFor="let topic of topics()">
-          <nz-tag
-            nzMode="checkable"
-            [nzChecked]="selectedFilterTopics.includes(topic)"
-            (nzCheckedChange)="onTopicChange($event, topic)"
-          >
-            {{ topic | lowercase }}
-          </nz-tag>
-        </ng-container>
-      </div>
-    </ng-container>
-  </ng-template>
 </div>

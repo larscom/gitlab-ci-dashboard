@@ -1,4 +1,4 @@
-const target = 'https://gitlab-ci-dashboard.larscom.nl'
+const target = 'https://gitlab-ci-dashboard-at.cisvm.intranet.rws.nl'
 
 module.exports = {
   '/api/**': {

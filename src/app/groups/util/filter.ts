@@ -11,10 +11,17 @@ export function filterProject({ name, topics }: Project, filterText: string, fil
   return topicsMatch && filterString(name, filterText)
 }
 
-export function filterPipeline({ status }: Pipeline, filterStatuses: Status[]): boolean {
-  return filterStatuses.length === 0 || filterStatuses.some((filter) => status.includes(filter))
+export function filterPipeline({ status, ref }: Pipeline, filterText: string, filterStatuses: Status[]): boolean {
+  return (
+    (filterStatuses.length === 0 || filterStatuses.some((filter) => status.includes(filter))) &&
+    filterString(ref, filterText)
+  )
 }
 
 export function filterNotNull<T>(source: Observable<T | null | undefined>): Observable<T> {
   return source.pipe(filter((value): value is T => value != null))
+}
+
+export function filterArrayNotNull<T>(source: Array<T | null | undefined>): Array<T> {
+  return source.filter((value): value is T => value != null)
 }

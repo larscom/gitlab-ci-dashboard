@@ -8,6 +8,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
+import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs/pipeline-status-tabs.component'
 import { fetchProjectsWithLatestPipeline } from './store/latest-pipeline.actions'
 import { LatestPipelineStore } from './store/latest-pipeline.store'
@@ -15,7 +16,14 @@ import { LatestPipelineStore } from './store/latest-pipeline.store'
 @Component({
   selector: 'gcd-latest-pipelines',
   standalone: true,
-  imports: [CommonModule, NzSpinModule, PipelineStatusTabsComponent, ProjectFilterComponent, AutoRefreshComponent],
+  imports: [
+    CommonModule,
+    NzSpinModule,
+    PipelineStatusTabsComponent,
+    ProjectFilterComponent,
+    TopicFilterComponent,
+    AutoRefreshComponent
+  ],
   templateUrl: './latest-pipelines.component.html',
   styleUrls: ['./latest-pipelines.component.scss']
 })

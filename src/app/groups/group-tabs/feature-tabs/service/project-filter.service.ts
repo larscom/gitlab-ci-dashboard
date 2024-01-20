@@ -35,22 +35,33 @@ export class ProjectFilterService {
     return combineLatest([
       this.pipelineStore.projectsWithPipeline$,
       this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId))),
+      this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.branchFilter(groupId))),
       this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId))),
       this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.statusesFilter(groupId))),
       this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.pinnedPipelines(groupId)))
     ]).pipe(
-      map(([data, filterText, filterTopics, filterStatuses, pinnedPipelines]) =>
+      map(([data, projectText, branchText, filterTopics, filterStatuses, pinnedPipelines]) =>
         data
           .filter(({ pipeline, project }) => {
-            const filter = filterProject(project, filterText, filterTopics)
+            const filter = filterProject(project, projectText, filterTopics)
             if (pipeline) {
-              return filter && filterPipeline(pipeline, filterStatuses)
+              return filter && filterPipeline(pipeline, branchText, filterStatuses)
             }
             return filter
           })
-          .sort((a, b) =>
-            a.pipeline?.id === b.pipeline?.id ? 0 : pinnedPipelines.includes(Number(a.pipeline?.id)) ? -1 : 1
-          )
+          .sort((a, b) => {
+            const aPinned = pinnedPipelines.includes(Number(a.pipeline?.id))
+            const bPinned = pinnedPipelines.includes(Number(b.pipeline?.id))
+
+            if (aPinned && !bPinned) {
+              return -1
+            }
+            if (!aPinned && bPinned) {
+              return 1
+            }
+
+            return 0
+          })
       )
     )
   }

@@ -1,44 +1,34 @@
-import { Project } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges
-} from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core'
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { FormControl, ReactiveFormsModule } from '@angular/forms'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { debounceTime } from 'rxjs'
 
 @Component({
-  selector: 'gcd-project-filter',
+  selector: 'gcd-branch-filter',
   standalone: true,
   imports: [
     CommonModule,
     NzIconModule,
     NzInputModule,
-    NzTagModule,
     NzButtonModule,
     NzToolTipModule,
     NzSpinModule,
     ReactiveFormsModule
   ],
-  templateUrl: './project-filter.component.html',
-  styleUrls: ['./project-filter.component.scss'],
+  templateUrl: './branch-filter.component.html',
+  styleUrls: ['./branch-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProjectFilterComponent implements OnChanges {
-  @Input({ required: true }) projects: Project[] = []
+export class BranchFilterComponent {
   @Input({ required: true }) selectedFilterText: string = ''
+  @Input({ required: true }) branches: string[] = []
 
   @Output() filterTextChanged = new EventEmitter<string>()
 
@@ -56,8 +46,8 @@ export class ProjectFilterComponent implements OnChanges {
     }
   }
 
-  get projectCount(): number {
-    return new Set(this.projects.map(({ id }) => id)).size
+  get branchCount(): number {
+    return new Set(this.branches).size
   }
 
   resetSearch(): void {

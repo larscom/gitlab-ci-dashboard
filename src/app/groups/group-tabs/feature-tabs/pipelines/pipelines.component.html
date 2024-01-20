@@ -1,15 +1,27 @@
 <div class="flex flex-col gap-1">
   <div class="flex justify-between">
     <div class="flex flex-col gap-050">
-      <gcd-project-filter
+      <div class="flex gap-050">
+        <gcd-project-filter
+          [projects]="(projects$ | async)!"
+          [selectedFilterText]="(selectedFilterTextProjects$ | async)!"
+          (filterTextChanged)="onFilterTextProjectsChanged($event)"
+        >
+        </gcd-project-filter>
+        <gcd-branch-filter
+          [branches]="(branches$ | async)!"
+          [selectedFilterText]="(selectedFilterTextBranches$ | async)!"
+          (filterTextChanged)="onFilterTextBranchesChanged($event)"
+        >
+        </gcd-branch-filter>
+      </div>
+      <gcd-topic-filter
         [loading]="(loading$ | async)!"
         [projects]="(projects$ | async)!"
-        [selectedFilterText]="(selectedFilterText$ | async)!"
         [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
-        (filterTextChanged)="onFilterTextChanged($event)"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
       >
-      </gcd-project-filter>
+      </gcd-topic-filter>
       <gcd-status-filter
         (filterStatusesChanged)="onFilterStatusesChanged($event)"
         [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
@@ -29,7 +41,11 @@
   <ng-template #loaded>
     <ng-container *ngIf="projectsWithPipeline$ | async as projects">
       <ng-container *ngIf="pinnedPipelines$ | async as pinnedPipelines">
-        <gcd-pipeline-table [projects]="projects" [pinnedPipelines]="pinnedPipelines" (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"></gcd-pipeline-table>
+        <gcd-pipeline-table
+          [projects]="projects"
+          [pinnedPipelines]="pinnedPipelines"
+          (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"
+        ></gcd-pipeline-table>
       </ng-container>
     </ng-container>
   </ng-template>

@@ -22,7 +22,7 @@ export class ScheduleFilterService {
         data.filter(({ pipeline, project }) => {
           const filter = filterProject(project, filterText, filterTopics)
           if (pipeline) {
-            return filter && filterPipeline(pipeline, filterStatuses)
+            return filter && filterPipeline(pipeline, filterText, filterStatuses)
           }
           return filter
         })

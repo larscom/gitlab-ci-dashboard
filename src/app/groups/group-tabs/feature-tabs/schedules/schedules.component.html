@@ -2,17 +2,21 @@
   <div class="flex justify-between">
     <div class="flex flex-col gap-050">
       <gcd-project-filter
-        [loading]="(loading$ | async)!"
         [projects]="(projects$ | async)!"
         [selectedFilterText]="(selectedFilterText$ | async)!"
-        [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
         (filterTextChanged)="onFilterTextChanged($event)"
-        (filterTopicsChanged)="onFilterTopicsChanged($event)"
       ></gcd-project-filter>
+      <gcd-topic-filter
+        [loading]="(loading$ | async)!"
+        [projects]="(projects$ | async)!"
+        [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
+        (filterTopicsChanged)="onFilterTopicsChanged($event)"
+      >
+      </gcd-topic-filter>
       <gcd-status-filter
-      (filterStatusesChanged)="onFilterStatusesChanged($event)"
-      [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
-    ></gcd-status-filter>
+        (filterStatusesChanged)="onFilterStatusesChanged($event)"
+        [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
+      ></gcd-status-filter>
     </div>
     <ng-container *ngIf="selectedGroupId$ | async as selectedGroupId">
       <gcd-auto-refresh

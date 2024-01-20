@@ -17,6 +17,7 @@ interface State {
   filters: {
     [groupId: GroupId]: {
       project: string
+      branch: string
       topics: string[]
       statuses: Status[]
       pinnedPipelines: PipelineId[]
@@ -66,6 +67,11 @@ export class PipelineStore {
       map((filters) => filters[groupId]?.project || ''),
       distinctUntilChanged()
     )
+  readonly branchFilter = (groupId: GroupId) =>
+    this.filters$.pipe(
+      map((filters) => filters[groupId]?.branch || ''),
+      distinctUntilChanged()
+    )
   readonly statusesFilter = (groupId: GroupId) =>
     this.filters$.pipe(
       map((filters) => filters[groupId]?.statuses || []),
@@ -86,6 +92,21 @@ export class PipelineStore {
           [groupId]: {
             ...state.filters[groupId],
             project
+          }
+        }
+      }
+    })
+  }
+
+  setBranchFilter(groupId: GroupId, branch: string): void {
+    store.update((state) => {
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          [groupId]: {
+            ...state.filters[groupId],
+            branch
           }
         }
       }

@@ -1,6 +1,8 @@
 import { Pipeline, ProjectWithPipeline } from '$groups/model/pipeline'
 import { Project, ProjectId } from '$groups/model/project'
+import { GroupStore } from '$groups/store/group.store'
 import { compareString, compareStringDate } from '$groups/util/compare'
+import { filterNotNull } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
@@ -13,10 +15,8 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { firstValueFrom } from 'rxjs'
 import { fetchBranchesWithLatestPipeline } from '../../store/latest-pipeline.actions'
 import { LatestPipelineStore } from '../../store/latest-pipeline.store'
-import { BranchFilterService } from './pipeline-table-branch/branch-filter/branch-filter.service'
+import { LatestBranchFilterService } from './pipeline-table-branch/latest-branch-filter/latest-branch-filter.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
-import { GroupStore } from '$groups/store/group.store'
-import { filterNotNull } from '$groups/util/filter'
 
 interface Header<T> {
   title: string
@@ -74,7 +74,7 @@ export class PipelineTableComponent {
     private i18n: NzI18nService,
     private latestPipelineStore: LatestPipelineStore,
     private groupStore: GroupStore,
-    private branchFilterService: BranchFilterService,
+    private branchFilterService: LatestBranchFilterService,
     private actions: Actions
   ) {}
 

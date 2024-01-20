@@ -16,7 +16,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { firstValueFrom, switchMap } from 'rxjs'
 import { fetchBranchesWithLatestPipeline } from '../../../store/latest-pipeline.actions'
 import { LatestPipelineStore } from '../../../store/latest-pipeline.store'
-import { BranchFilterComponent } from './branch-filter/branch-filter.component'
+import { LatestBranchFilterComponent } from './latest-branch-filter/latest-branch-filter.component'
 
 interface Header<T> {
   title: string
@@ -29,7 +29,7 @@ interface Header<T> {
   standalone: true,
   imports: [
     CommonModule,
-    BranchFilterComponent,
+    LatestBranchFilterComponent,
     AutoRefreshComponent,
     NzTableModule,
     NzToolTipModule,

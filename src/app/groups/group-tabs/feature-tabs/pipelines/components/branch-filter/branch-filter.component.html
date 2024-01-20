@@ -1,0 +1,25 @@
+<div class="flex flex-col gap-1">
+  <div class="flex items-center">
+    <div class="max-width-275">
+      <nz-input-group [nzSuffix]="suffixIcon">
+        <input
+          type="text"
+          [formControl]="searchControl"
+          nz-input
+          [placeholder]="branchCount > 0 ? 'Search ' + branchCount + ' branches...' : 'Search branches...'"
+        />
+      </nz-input-group>
+      <ng-template #suffixIcon>
+        <span
+          class="pointer"
+          nz-icon
+          nzType="close-square"
+          nz-tooltip
+          [nzTooltipMouseEnterDelay]="1"
+          nzTooltipTitle="Clear field"
+          (click)="resetSearch()"
+        ></span>
+      </ng-template>
+    </div>
+  </div>
+</div>

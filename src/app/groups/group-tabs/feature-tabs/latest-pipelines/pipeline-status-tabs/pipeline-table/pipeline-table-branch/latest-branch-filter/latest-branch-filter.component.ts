@@ -12,13 +12,13 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { debounceTime, switchMap, withLatestFrom } from 'rxjs'
 
 @Component({
-  selector: 'gcd-branch-filter',
+  selector: 'gcd-latest-branch-filter',
   standalone: true,
   imports: [CommonModule, NzIconModule, NzInputModule, NzButtonModule, NzToolTipModule, ReactiveFormsModule],
-  templateUrl: './branch-filter.component.html',
-  styleUrls: ['./branch-filter.component.scss']
+  templateUrl: './latest-branch-filter.component.html',
+  styleUrls: ['./latest-branch-filter.component.scss']
 })
-export class BranchFilterComponent {
+export class LatestBranchFilterComponent {
   private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
   searchControl = new FormControl('')

@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core'
 import { Observable, combineLatest, map, switchMap } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
-export class BranchFilterService {
+export class LatestBranchFilterService {
   private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
   constructor(private latestPipelineStore: LatestPipelineStore, private groupStore: GroupStore) {}
