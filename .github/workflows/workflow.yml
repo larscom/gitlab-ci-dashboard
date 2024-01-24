@@ -70,7 +70,7 @@ jobs:
         with:
           push: true
           tags: ${{ github.repository }}:${{ github.ref_name }}
-          build-args: VERSION_ARG=v${{ github.sha }}@${{ github.ref_name }}
+          build-args: VERSION_ARG=${{ github.sha }}@${{ github.ref_name }}
       - uses: peter-evans/dockerhub-description@v3
         if: github.ref == 'refs/heads/master'
         with:
