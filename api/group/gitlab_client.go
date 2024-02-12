@@ -1,7 +1,7 @@
 package group
 
 import (
-	"log"
+	"log/slog"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
@@ -25,6 +25,7 @@ func NewGitlabClient(gitlab *gitlab.Client) GitlabClient {
 }
 
 func (c *gitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Group, *gitlab.Response, error) {
+	slog.Debug("fetching all groups from gitlab API", "page", options.Page, "per_page", options.PerPage)
 	groups, response, err := c.gitlab.Groups.ListGroups(options)
 	if err != nil {
 		return util.HandleError(make([]model.Group, 0), response, err)
@@ -32,13 +33,14 @@ func (c *gitlabClient) ListGroups(options *gitlab.ListGroupsOptions) ([]model.Gr
 
 	g, err := util.Convert(groups, make([]model.Group, 0))
 	if err != nil {
-		log.Panicf("unexpected JSON: %v", err)
+		slog.Error("unexpected JSON", "error", err.Error())
 	}
 
 	return g, response, err
 }
 
 func (c *gitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*model.Group, *gitlab.Response, error) {
+	slog.Debug("fetching group from gitlab API", "group_id", groupId)
 	group, response, err := c.gitlab.Groups.GetGroup(groupId, options)
 	if err != nil {
 		return util.HandleError[*model.Group](nil, response, err)
@@ -46,7 +48,7 @@ func (c *gitlabClient) GetGroup(groupId int, options *gitlab.GetGroupOptions) (*
 
 	g, err := util.Convert(group, new(model.Group))
 	if err != nil {
-		log.Panicf("unexpected JSON: %v", err)
+		slog.Error("unexpected JSON", "error", err.Error())
 	}
 
 	return g, response, err

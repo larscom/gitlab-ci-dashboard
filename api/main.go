@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/xanzy/go-gitlab"
 
@@ -18,11 +20,12 @@ import (
 )
 
 func main() {
-	log.Printf(":: Gitlab CI Dashboard (%s) ::\n", os.Getenv("VERSION"))
-
 	if err := godotenv.Load(".env"); err != nil {
 		log.Println(":: Starting without .env file")
 	}
+	setupLogger()
+
+	log.Printf(":: Gitlab CI Dashboard (%s) ::\n", os.Getenv("VERSION"))
 
 	cfg := config.NewGitlabConfig()
 	gc := createGitlabClient(cfg)
@@ -39,14 +42,41 @@ func main() {
 	log.Fatal(server.NewServer(bootstrap).Listen(getListenAddr()))
 }
 
+func setupLogger() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: getLogLevel(),
+	})))
+}
+
+func getLogLevel() slog.Level {
+	if getDebugLoggingEnabled() {
+		return slog.LevelDebug
+	}
+	return slog.LevelInfo
+}
+
+func getDebugLoggingEnabled() bool {
+	env := "SERVER_DEBUG_MODE"
+	str, found := os.LookupEnv("SERVER_DEBUG_MODE")
+	if found {
+		val, err := strconv.ParseBool(str)
+		if err != nil {
+			log.Panicf("%s contains: '%s' which is not an int", env, str)
+		}
+		return val
+	}
+	return false
+}
+
 func getListenAddr() string {
-	addr, found := os.LookupEnv("SERVER_LISTEN_ADDR")
+	env := "SERVER_LISTEN_ADDR"
+	addr, found := os.LookupEnv(env)
 
 	if !found {
 		addr = ":8080"
 	}
 
-	log.Printf("SERVER_LISTEN_ADDR = %s\n", addr)
+	log.Printf("%s = %s\n", env, addr)
 
 	return addr
 }

@@ -71,18 +71,19 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://example.gitlab.com -e GITLAB_
 
 ## 🔌 Environment variables
 
-| Variable                          | Type    | Description                                                                                            | Required | Default |
-| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ | -------- | ------- |
-| GITLAB_BASE_URL                   | string  | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |         |
-| GITLAB_API_TOKEN                  | string  | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |         |
-| SERVER_LISTEN_ADDR                | string  | Listen address, e.g: ":8080" or "127.0.0.1:8080"                                                       | no       | :8080   |
-| GITLAB_GROUP_ONLY_IDS             | string  | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |         |
-| GITLAB_GROUP_SKIP_IDS             | string  | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |         |
-| GITLAB_GROUP_ONLY_TOP_LEVEL       | boolean | Show only top level groups                                                                             | no       | false   |
-| GITLAB_GROUP_CACHE_TTL_SECONDS    | int     | Expire after write time in seconds for groups (cache)                                                  | no       | 300     |
-| GITLAB_PROJECT_SKIP_IDS           | string  | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)               | no       |         |
-| GITLAB_PROJECT_CACHE_TTL_SECONDS  | int     | Expire after write time in seconds for projects (cache)                                                | no       | 300     |
-| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int     | Expire after write time in seconds for pipelines (cache)                                               | no       | 10      |
-| GITLAB_PIPELINE_HISTORY_DAYS      | int     | How far back in time (days), it should fetch pipelines from gitlab                                     | no       | 5       |
-| GITLAB_BRANCH_CACHE_TTL_SECONDS   | int     | Expire after write time in seconds for branches (cache)                                                | no       | 60      |
-| GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int     | Expire after write time in seconds for schedules (cache)                                               | no       | 300     |
+| Variable                          | Type   | Description                                                                                            | Required | Default |
+| --------------------------------- | ------ | ------------------------------------------------------------------------------------------------------ | -------- | ------- |
+| GITLAB_BASE_URL                   | string | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |         |
+| GITLAB_API_TOKEN                  | string | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |         |
+| GITLAB_GROUP_ONLY_IDS             | string | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |         |
+| GITLAB_GROUP_SKIP_IDS             | string | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                 | no       |         |
+| GITLAB_GROUP_ONLY_TOP_LEVEL       | bool   | Show only top level groups                                                                             | no       | false   |
+| GITLAB_GROUP_CACHE_TTL_SECONDS    | int    | Expire after write time in seconds for groups (cache)                                                  | no       | 300     |
+| GITLAB_PROJECT_SKIP_IDS           | string | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)               | no       |         |
+| GITLAB_PROJECT_CACHE_TTL_SECONDS  | int    | Expire after write time in seconds for projects (cache)                                                | no       | 300     |
+| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for pipelines (cache)                                               | no       | 10      |
+| GITLAB_PIPELINE_HISTORY_DAYS      | int    | How far back in time (days), it should fetch pipelines from gitlab                                     | no       | 5       |
+| GITLAB_BRANCH_CACHE_TTL_SECONDS   | int    | Expire after write time in seconds for branches (cache)                                                | no       | 60      |
+| GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for schedules (cache)                                               | no       | 300     |
+| SERVER_LISTEN_ADDR                | string | Listen address, e.g: ":8080" or "127.0.0.1:8080"                                                       | no       | :8080   |
+| SERVER_DEBUG_MODE                 | bool   | Enable debug logging                                                                                   | no       | false   |

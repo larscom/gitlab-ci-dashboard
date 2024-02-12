@@ -1,7 +1,7 @@
 package project
 
 import (
-	"log"
+	"log/slog"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
@@ -23,6 +23,7 @@ func NewGitlabClient(gitlab *gitlab.Client) GitlabClient {
 }
 
 func (c *gitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupProjectsOptions) ([]model.Project, *gitlab.Response, error) {
+	slog.Debug("fetching all projects for group from gitlab API", "group_id", groupId, "page", options.Page, "per_page", options.PerPage)
 	projects, response, err := c.gitlab.Groups.ListGroupProjects(groupId, options)
 	if err != nil {
 		return util.HandleError(make([]model.Project, 0), response, err)
@@ -30,7 +31,7 @@ func (c *gitlabClient) ListGroupProjects(groupId int, options *gitlab.ListGroupP
 
 	p, err := util.Convert(projects, make([]model.Project, 0))
 	if err != nil {
-		log.Panicf("unexpected JSON: %v", err)
+		slog.Error("unexpected JSON", "error", err.Error())
 	}
 
 	return p, response, err

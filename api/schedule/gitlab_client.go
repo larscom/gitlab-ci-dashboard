@@ -1,7 +1,7 @@
 package schedule
 
 import (
-	"log"
+	"log/slog"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/util"
@@ -23,6 +23,7 @@ func NewGitlabClient(gitlab *gitlab.Client) GitlabClient {
 }
 
 func (c *gitlabClient) ListPipelineSchedules(projectId int, options *gitlab.ListPipelineSchedulesOptions) ([]model.Schedule, *gitlab.Response, error) {
+	slog.Debug("fetching all schedules for project from gitlab API", "project_id", projectId, "page", options.Page, "per_page", options.PerPage)
 	schedules, response, err := c.gitlab.PipelineSchedules.ListPipelineSchedules(projectId, options)
 	if err != nil {
 		return util.HandleError(make([]model.Schedule, 0), response, err)
@@ -30,7 +31,7 @@ func (c *gitlabClient) ListPipelineSchedules(projectId int, options *gitlab.List
 
 	p, err := util.Convert(schedules, make([]model.Schedule, 0))
 	if err != nil {
-		log.Panicf("unexpected JSON: %v", err)
+		slog.Error("unexpected JSON", "error", err.Error())
 	}
 
 	return p, response, err

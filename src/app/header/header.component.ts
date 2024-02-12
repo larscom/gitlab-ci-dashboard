@@ -15,7 +15,12 @@ import { map } from 'rxjs'
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
-  version$ = this.http.get(`${location.origin}/api/version`, { responseType: 'text' }).pipe(map((v) => v || 'v?.?.?'))
+  version$ = this.http.get(`${location.origin}/api/version`, { responseType: 'text' }).pipe(
+    map((v) => {
+      const parts = v.split('@')
+      return parts.length > 1 ? `${parts[0].slice(0, 7)}@${parts[1]}` : v
+    })
+  )
 
   constructor(private http: HttpClient) {}
 
