@@ -1,13 +1,15 @@
 <div class="flex flex-wrap gap-050 items-center">
   <span class="font-sm font-bold">Filter by status</span>
-  <ng-container *ngFor="let status of statuses">
+  @for (status of statuses; track status) {
     <nz-tag
-      [nzColor]="selectedFilterStatuses.includes(status) ? (status | statusColor) : undefined"
+      [nzColor]="selectedFilterStatuses().includes(status) ? (status | statusColor) : undefined"
       nzMode="checkable"
-      [nzChecked]="selectedFilterStatuses.includes(status)"
+      [nzChecked]="selectedFilterStatuses().includes(status)"
       (nzCheckedChange)="onChange($event, status)"
     >
-      <span [style.color]="selectedFilterStatuses.includes(status) ? 'inherit' : (status | statusColor)">{{ status }}</span>
+      <span [style.color]="selectedFilterStatuses().includes(status) ? 'inherit' : (status | statusColor)">{{
+        status
+      }}</span>
     </nz-tag>
-  </ng-container>
+  }
 </div>

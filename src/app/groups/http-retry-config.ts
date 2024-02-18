@@ -1,6 +1,6 @@
 import { RetryConfig } from 'rxjs'
 
 export const retryConfig: RetryConfig = {
-  count: 7,
+  count: 5,
   delay: 500
 }

@@ -1,15 +1,15 @@
 import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull, filterPipeline, filterProject } from '$groups/util/filter'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Observable, combineLatest, map, switchMap } from 'rxjs'
 import { ScheduleStore } from '../store/schedule.store'
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleFilterService {
+  private scheduleStore = inject(ScheduleStore)
+  private groupStore = inject(GroupStore)
   private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
-
-  constructor(private scheduleStore: ScheduleStore, private groupStore: GroupStore) {}
 
   getSchedules(): Observable<ScheduleWithProjectAndPipeline[]> {
     return combineLatest([
@@ -22,7 +22,7 @@ export class ScheduleFilterService {
         data.filter(({ pipeline, project }) => {
           const filter = filterProject(project, filterText, filterTopics)
           if (pipeline) {
-            return filter && filterPipeline(pipeline, filterText, filterStatuses)
+            return filter && filterPipeline(pipeline, '', filterStatuses)
           }
           return filter
         })

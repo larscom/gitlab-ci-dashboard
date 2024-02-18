@@ -5,7 +5,7 @@
         type="text"
         [formControl]="searchControl"
         nz-input
-        [placeholder]="projectCount > 0 ? 'Search ' + projectCount + ' projects...' : 'Search projects...'"
+        [placeholder]="projectCount() > 0 ? 'Search ' + projectCount() + ' projects...' : 'Search projects...'"
       />
     </nz-input-group>
     <ng-template #suffixIcon>

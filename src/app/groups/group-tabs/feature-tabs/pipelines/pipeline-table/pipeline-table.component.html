@@ -1,28 +1,28 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects" [nzPageSize]="10">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects()" [nzPageSize]="12">
   <thead>
     <tr>
-      <ng-container *ngFor="let header of headers">
+      @for (header of headers; track header) {
         <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
           {{ header.title }}
         </th>
-      </ng-container>
+      }
       <th>Action</th>
     </tr>
   </thead>
   <tbody>
-    <ng-container *ngFor="let data of nzTable.data; trackBy: trackBy">
+    @for (data of nzTable.data; track trackBy($index, data)) {
       <tr [attr.data-project-id]="data.project.id">
         <td>{{ data.project.name }}</td>
         <td>{{ data.pipeline?.ref }}</td>
         <td>{{ data.pipeline?.source || '-' }}</td>
-        <td>{{ (data.pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+        <td>{{ (data.pipeline?.updated_at | date: 'medium' : timeZone : locale) || '-' }}</td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline">
+          @if (data.pipeline; as pipeline) {
             <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
-          </ng-container>
+          }
         </td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline">
+          @if (data.pipeline; as pipeline) {
             <button
               (click)="onActionClick($event, pipeline)"
               nzType="text"
@@ -34,11 +34,11 @@
               <span nz-icon nzType="right-circle"></span>
             </button>
             <button
-              [class.pin-active]="pinnedPipelines.includes(pipeline.id)"
-              [nzType]="pinnedPipelines.includes(pipeline.id) ? 'default' : 'text'"
+              [class.pin-active]="pinnedPipelines().includes(pipeline.id)"
+              [nzType]="pinnedPipelines().includes(pipeline.id) ? 'default' : 'text'"
               nz-tooltip
               [nzTooltipTitle]="
-                pinnedPipelines.includes(pipeline.id)
+                pinnedPipelines().includes(pipeline.id)
                   ? 'Unpin pipeline (' + data.project.name + ')'
                   : 'Pin pipeline (' + data.project.name + ')'
               "
@@ -48,9 +48,9 @@
             >
               <span nz-icon nzType="pushpin"></span>
             </button>
-          </ng-container>
+          }
         </td>
       </tr>
-    </ng-container>
+    }
   </tbody>
 </nz-table>

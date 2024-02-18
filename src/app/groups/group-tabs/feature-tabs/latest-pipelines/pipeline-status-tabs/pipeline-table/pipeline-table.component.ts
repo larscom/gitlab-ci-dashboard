@@ -1,10 +1,13 @@
+import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { Pipeline, ProjectWithPipeline } from '$groups/model/pipeline'
 import { Project, ProjectId } from '$groups/model/project'
+import { Status } from '$groups/model/status'
 import { GroupStore } from '$groups/store/group.store'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { filterNotNull } from '$groups/util/filter'
+import { statusToScope } from '$groups/util/status-scope'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -33,15 +36,23 @@ interface Header<T> {
     NzToolTipModule,
     NzButtonModule,
     NzIconModule,
+    NzSpinModule,
     PipelineTableBranchComponent,
-    NzSpinModule
+    JobsComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
-  @Input({ required: true }) projects!: ProjectWithPipeline[]
+  projects = input.required<ProjectWithPipeline[]>()
+  status = input<Status>()
+
+  i18n = inject(NzI18nService)
+  latestPipelineStore = inject(LatestPipelineStore)
+  groupStore = inject(GroupStore)
+  branchFilterService = inject(LatestBranchFilterService)
+  actions = inject(Actions)
 
   headers: Header<ProjectWithPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -70,17 +81,13 @@ export class PipelineTableComponent {
   branches$ = this.branchFilterService.getBranchesWithLatestPipeline()
   selectedProjectId$ = this.latestPipelineStore.selectedProjectId$
 
-  constructor(
-    private i18n: NzI18nService,
-    private latestPipelineStore: LatestPipelineStore,
-    private groupStore: GroupStore,
-    private branchFilterService: LatestBranchFilterService,
-    private actions: Actions
-  ) {}
-
   get locale(): string {
     const { locale } = this.i18n.getLocale()
     return locale
+  }
+
+  get scope(): Status[] {
+    return statusToScope(this.status())
   }
 
   get timeZone(): string {

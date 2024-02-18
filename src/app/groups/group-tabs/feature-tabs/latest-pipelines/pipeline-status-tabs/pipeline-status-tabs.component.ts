@@ -1,7 +1,8 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { ProjectWithPipeline, Status } from '$groups/model/pipeline'
+import { ProjectWithPipeline } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { CommonModule } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzEmptyModule } from 'ng-zorro-antd/empty'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
@@ -17,18 +18,13 @@ interface Tab {
 @Component({
   selector: 'gcd-pipeline-status-tabs',
   standalone: true,
-  imports: [
-    CommonModule,
-    NzTabsModule,
-    NzBadgeModule,
-    NzEmptyModule,
-    PipelineTableComponent,
-    StatusColorPipe
-  ],
+  imports: [CommonModule, NzTabsModule, NzBadgeModule, NzEmptyModule, PipelineTableComponent, StatusColorPipe],
   templateUrl: './pipeline-status-tabs.component.html',
   styleUrls: ['./pipeline-status-tabs.component.scss']
 })
 export class PipelineStatusTabsComponent {
+  filterService = inject(ProjectFilterService)
+
   tabs$: Observable<Tab[]> = this.filterService.getProjectsWithLatestPipeline().pipe(
     map((map) =>
       Array.from(map)
@@ -36,8 +32,6 @@ export class PipelineStatusTabsComponent {
         .sort((a, b) => a.status.localeCompare(b.status))
     )
   )
-
-  constructor(private filterService: ProjectFilterService) {}
 
   trackByStatus(_: number, { status }: Tab): Status {
     return status

@@ -1,6 +1,10 @@
 package server
 
 import (
+	"io"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	branch "github.com/larscom/gitlab-ci-dashboard/branch/mock"
@@ -11,9 +15,6 @@ import (
 	project "github.com/larscom/gitlab-ci-dashboard/project/mock"
 	schedule "github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestServerWithConfig(t *testing.T) {

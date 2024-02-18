@@ -6,7 +6,7 @@
           type="text"
           [formControl]="searchControl"
           nz-input
-          [placeholder]="branchCount > 0 ? 'Search ' + branchCount + ' branches...' : 'Search branches...'"
+          [placeholder]="branchCount() > 0 ? 'Search ' + branchCount() + ' branches...' : 'Search branches...'"
         />
       </nz-input-group>
       <ng-template #suffixIcon>

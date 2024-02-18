@@ -1,7 +1,9 @@
 package pipeline
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
 
 	"testing"
@@ -58,7 +60,7 @@ func TestGetPipelinesWith1Page(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 	)
 
-	pipelines, _ := client.GetPipelines(100)
+	pipelines, _ := client.GetPipelines(100, context.Background())
 
 	assert.Len(t, pipelines, 2)
 	assert.Equal(t, 111, pipelines[0].Id)
@@ -72,7 +74,7 @@ func TestGetPipelinesWith2Pages(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil), cfg)
 	)
 
-	pipelines, _ := client.GetPipelines(100)
+	pipelines, _ := client.GetPipelines(100, context.Background())
 
 	assert.Len(t, pipelines, 4)
 	assert.Equal(t, 111, pipelines[0].Id)
@@ -87,7 +89,7 @@ func TestGetPipelinesWithErrorEmptySlice(t *testing.T) {
 		client = NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")), cfg)
 	)
 
-	pipelines, _ := client.GetPipelines(100)
+	pipelines, _ := client.GetPipelines(100, context.Background())
 	assert.Len(t, pipelines, 0)
 }
 

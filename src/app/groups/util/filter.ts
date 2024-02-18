@@ -1,5 +1,6 @@
-import { Pipeline, Status } from '$groups/model/pipeline'
+import { Pipeline } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
+import { Status } from '$groups/model/status'
 import { Observable, filter } from 'rxjs'
 
 export function filterString(value: string, filterText: string): boolean {

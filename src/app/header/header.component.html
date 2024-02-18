@@ -1,13 +1,13 @@
 <header class="header">
   <div class="flex gap-050 items-center">
-    <span class="font-md font-white" nz-icon nzType="dashboard"></span>
-    <h5 class="title font-white">Gitlab CI Dashboard</h5>
+    <span class="font-md font-white" nz-icon nzType="laptop"></span>
+    <h4 class="title font-white">Gitlab CI Dashboard</h4>
   </div>
   <div class="flex gap-050 items-center">
     <div>
       <span class="font-sm">{{ version$ | async }}</span>
     </div>
-    <button nzType="text" nz-button nz-tooltip nzTooltipTitle="Source code" (click)="onClick()">
+    <button nzType="text" nz-button nz-tooltip nzTooltipTitle="View on GitHub" (click)="onClick()">
       <span class="font-md font-white" nz-icon nzType="github"></span>
     </button>
   </div>

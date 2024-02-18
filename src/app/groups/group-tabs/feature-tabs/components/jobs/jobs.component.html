@@ -1,0 +1,16 @@
+<div>
+  @if (loading()) {
+  <nz-spin nzSize="small" />
+  } @else if (tags().length) { @for (tag of tags(); track trackById($index, tag.job)) {
+  <nz-tag
+    class="pointer"
+    (click)="onActionClick($event, tag.job)"
+    [nzColor]="tag.job.status | statusColor"
+    nz-tooltip
+    [nzTooltipTitle]="'Show job (' + tag.job.name + ')'"
+  >
+    <span nz-icon [nzType]="tag.icon" [nzSpin]="tag.spin"></span>
+    <span>{{ tag.job.name | slice : 0 : 12 }}<span *ngIf="tag.job.name.length > 12">...</span></span>
+  </nz-tag>
+  } } @else { - }
+</div>

@@ -1,7 +1,9 @@
 package schedule
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 
 	"testing"
@@ -15,7 +17,7 @@ func TestGetPipelineSchedulesWith1Page(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	schedules, _ := client.GetPipelineSchedules(1)
+	schedules, _ := client.GetPipelineSchedules(1, context.Background())
 
 	assert.Len(t, schedules, 2)
 	assert.Equal(t, 1, schedules[0].Id)
@@ -28,7 +30,7 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	schedules, _ := client.GetPipelineSchedules(1)
+	schedules, _ := client.GetPipelineSchedules(1, context.Background())
 
 	assert.Len(t, schedules, 4)
 	assert.Equal(t, 1, schedules[0].Id)
@@ -40,7 +42,7 @@ func TestGetPipelineSchedulesWith2Pages(t *testing.T) {
 func TestGetPipelineSchedulesErrorEmptySlice(t *testing.T) {
 	client := NewClient(mock.NewGitlabClientMock(0, fmt.Errorf("ERROR")))
 
-	schedules, _ := client.GetPipelineSchedules(1)
+	schedules, _ := client.GetPipelineSchedules(1, context.Background())
 
 	assert.Len(t, schedules, 0)
 }

@@ -1,60 +1,61 @@
 <div class="flex flex-col gap-050">
   <div class="flex justify-between">
-    <gcd-latest-branch-filter></gcd-latest-branch-filter>
-    <ng-container *ngIf="selectedProjectId$ | async as selectedProjectId">
-      <gcd-auto-refresh
-        [id]="selectedProjectId"
-        [loading]="(autoRefreshLoading$ | async)!"
-        (refresh)="fetch()"
-      ></gcd-auto-refresh>
-    </ng-container>
+    <gcd-latest-branch-filter />
+    @if (selectedProjectId$ | async; as selectedProjectId) {
+    <gcd-auto-refresh [id]="selectedProjectId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    }
   </div>
   <nz-table
     #nzTable
     [nzScroll]="{ y: '210px' }"
     nzSize="small"
-    [nzData]="branches"
+    [nzData]="branches()"
     [nzLoading]="loading$ | async"
     [nzPageSize]="10"
   >
     <thead>
       <tr>
-        <ng-container *ngFor="let header of headers">
-          <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-            {{ header.title }}
-          </th>
-        </ng-container>
+        @for (header of headers; track header) {
+        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+          {{ header.title }}
+        </th>
+        }
+        <th>Jobs</th>
         <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      <ng-template #empty>-</ng-template>
-      <ng-container *ngFor="let data of nzTable.data; trackBy: trackByBranchName">
-        <tr>
-          <td>{{ data.branch.name }}</td>
-          <td>
-            <ng-container *ngIf="data.pipeline as pipeline; else empty">
-              <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
-            </ng-container>
-          </td>
-          <td>{{ data.pipeline?.source || '-' }}</td>
-          <td>{{ (data.pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
-          <td>
-            <ng-container *ngIf="data.pipeline as pipeline; else empty">
-              <button
-                (click)="onActionClick($event, pipeline)"
-                nzType="text"
-                nz-tooltip
-                [nzTooltipTitle]="'Show pipeline (' + data.branch.name + ')'"
-                nz-button
-                nzShape="circle"
-              >
-                <span nz-icon nzType="right-circle"></span>
-              </button>
-            </ng-container>
-          </td>
-        </tr>
-      </ng-container>
+      @for (data of nzTable.data; track trackByBranchName($index, data)) {
+      <tr>
+        <td>{{ data.branch.name }}</td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+          <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+          } @else { - }
+        </td>
+        <td>{{ data.pipeline?.source || '-' }}</td>
+        <td>{{ (data.pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+          <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
+          } @else { - }
+        </td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+          <button
+            (click)="onActionClick($event, pipeline)"
+            nzType="text"
+            nz-tooltip
+            [nzTooltipTitle]="'Show pipeline (' + data.branch.name + ')'"
+            nz-button
+            nzShape="circle"
+          >
+            <span nz-icon nzType="right-circle"></span>
+          </button>
+          } @else { - }
+        </td>
+      </tr>
+      }
     </tbody>
   </nz-table>
 </div>

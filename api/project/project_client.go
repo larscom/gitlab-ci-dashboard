@@ -9,7 +9,7 @@ import (
 )
 
 type ProjectClient interface {
-	GetProjects(groupId int) ([]model.Project, error)
+	GetProjects(groupId int, ctx context.Context) ([]model.Project, error)
 }
 
 type projectClient struct {
@@ -22,7 +22,7 @@ func NewClient(gitlab GitlabClient) ProjectClient {
 	}
 }
 
-func (c *projectClient) GetProjects(groupId int) ([]model.Project, error) {
+func (c *projectClient) GetProjects(groupId int, ctx context.Context) ([]model.Project, error) {
 	projects, response, err := c.gitlab.ListGroupProjects(groupId, createOptions(1))
 	if err != nil {
 		return projects, err
@@ -33,11 +33,11 @@ func (c *projectClient) GetProjects(groupId int) ([]model.Project, error) {
 
 	var (
 		resultchn = make(chan []model.Project, util.GetMaxChanCapacity(response.TotalPages))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[projectPageArgs, []model.Project](c.getProjectsByPage, resultchn, ctx)
+		run := util.CreateRunFunc[projectPageArgs, []model.Project](c.getProjectsByPage, resultchn, gctx)
 		g.Go(run(projectPageArgs{
 			groupId:    groupId,
 			pageNumber: page,
@@ -72,6 +72,6 @@ func createOptions(pageNumber int) *gitlab.ListGroupProjectsOptions {
 			Page:    pageNumber,
 			PerPage: 100,
 		},
-		Archived: gitlab.Bool(false),
+		Archived: gitlab.Ptr(false),
 	}
 }

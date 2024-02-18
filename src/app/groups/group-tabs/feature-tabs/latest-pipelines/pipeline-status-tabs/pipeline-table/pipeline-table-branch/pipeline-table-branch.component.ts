@@ -1,11 +1,14 @@
 import { AutoRefreshComponent } from '$groups/group-tabs/feature-tabs/components/auto-refresh/auto-refresh.component'
+import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { BranchWithPipeline, Pipeline } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { filterNotNull } from '$groups/util/filter'
+import { statusToScope } from '$groups/util/status-scope'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
 import { Actions } from '@ngneat/effects-ng'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -31,19 +34,25 @@ interface Header<T> {
     CommonModule,
     LatestBranchFilterComponent,
     AutoRefreshComponent,
+    JobsComponent,
+    StatusColorPipe,
     NzTableModule,
     NzToolTipModule,
     NzButtonModule,
     NzIconModule,
-    NzBadgeModule,
-    StatusColorPipe
+    NzBadgeModule
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableBranchComponent {
-  @Input({ required: true }) branches!: BranchWithPipeline[]
+  branches = input.required<BranchWithPipeline[]>()
+
+  i18n = inject(NzI18nService)
+  latestPipelineStore = inject(LatestPipelineStore)
+  uiStore = inject(UIStore)
+  actions = inject(Actions)
 
   headers: Header<BranchWithPipeline>[] = [
     { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
@@ -70,13 +79,6 @@ export class PipelineTableBranchComponent {
     switchMap((projectId) => this.uiStore.autoRefreshLoading(projectId))
   )
 
-  constructor(
-    private i18n: NzI18nService,
-    private latestPipelineStore: LatestPipelineStore,
-    private uiStore: UIStore,
-    private actions: Actions
-  ) {}
-
   get locale(): string {
     const { locale } = this.i18n.getLocale()
     return locale
@@ -85,6 +87,10 @@ export class PipelineTableBranchComponent {
   get timeZone(): string {
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
     return timeZone
+  }
+
+  getScope(status?: Status): Status[] {
+    return statusToScope(status)
   }
 
   onActionClick(e: Event, { web_url }: Pipeline): void {

@@ -83,3 +83,24 @@ type User struct {
 	State    string `json:"state"`
 	IsAdmin  bool   `json:"is_admin"`
 }
+
+type Job struct {
+	Id                int       `json:"id"`
+	Commit            Commit    `json:"commit"`
+	AllowFailure      bool      `json:"allow_failure"`
+	CreatedAt         time.Time `json:"created_at"`
+	StartedAt         time.Time `json:"started_at"`
+	FinishedAt        time.Time `json:"finished_at"`
+	Duration          float64   `json:"duration"`
+	QueuedDuration    float64   `json:"queued_duration"`
+	ArtifactsExpireAt time.Time `json:"artifacts_expire_at"`
+	Name              string    `json:"name"`
+	Pipeline          Pipeline  `json:"pipeline"`
+	Ref               string    `json:"ref"`
+	Stage             string    `json:"stage"`
+	Status            string    `json:"status"`
+	FailureReason     string    `json:"failure_reason"`
+	Tag               bool      `json:"tag"`
+	WebUrl            string    `json:"web_url"`
+	User              User      `json:"user"`
+}

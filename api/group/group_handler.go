@@ -24,7 +24,7 @@ func (h *GroupHandler) HandleGetGroups(c *fiber.Ctx) error {
 		return c.JSON(groups)
 	}
 
-	groups, err := h.service.GetGroups()
+	groups, err := h.service.GetGroups(c.Context())
 	if err != nil {
 		return err
 	}

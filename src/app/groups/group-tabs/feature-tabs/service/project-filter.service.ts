@@ -1,20 +1,19 @@
-import { ProjectWithPipeline, Status } from '$groups/model/pipeline'
+import { ProjectWithPipeline } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull, filterPipeline, filterProject } from '$groups/util/filter'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Observable, combineLatest, map, switchMap } from 'rxjs'
 import { LatestPipelineStore } from '../latest-pipelines/store/latest-pipeline.store'
 import { PipelineStore } from '../pipelines/store/pipeline.store'
 
 @Injectable({ providedIn: 'root' })
 export class ProjectFilterService {
-  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
+  private latestPipelineStore = inject(LatestPipelineStore)
+  private pipelineStore = inject(PipelineStore)
+  private groupStore = inject(GroupStore)
 
-  constructor(
-    private latestPipelineStore: LatestPipelineStore,
-    private pipelineStore: PipelineStore,
-    private groupStore: GroupStore
-  ) {}
+  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
   getProjectsWithLatestPipeline(): Observable<Map<Status, ProjectWithPipeline[]>> {
     return combineLatest([

@@ -1,10 +1,12 @@
 package group
 
 import (
+	"context"
 	"fmt"
-	"github.com/larscom/gitlab-ci-dashboard/group/mock"
 	"strings"
 	"testing"
+
+	"github.com/larscom/gitlab-ci-dashboard/group/mock"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/stretchr/testify/assert"
@@ -30,7 +32,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	t.Run("TestGetGroupsSortedByName", func(t *testing.T) {
 		service := NewService(createConfig(t, make([]int, 0)), &mock.ClientMock{})
 
-		groups, err := service.GetGroups()
+		groups, err := service.GetGroups(context.Background())
 		assert.Nil(t, err)
 
 		assert.Len(t, groups, 3)
@@ -42,7 +44,7 @@ func TestGroupServiceWithConfig(t *testing.T) {
 	t.Run("TestGetGroupsByIdSortedByName", func(t *testing.T) {
 		service := NewService(createConfig(t, []int{1}), &mock.ClientMock{})
 
-		groups, err := service.GetGroups()
+		groups, err := service.GetGroups(context.Background())
 		assert.Nil(t, err)
 
 		assert.Len(t, groups, 3)

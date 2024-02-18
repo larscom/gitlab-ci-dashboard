@@ -1,46 +1,44 @@
-<ng-container *ngIf="loading$ | async; else loaded">
+@if (loading$ | async) {
   <div class="spinner">
-    <nz-spin></nz-spin>
+    <nz-spin />
   </div>
-</ng-container>
-<ng-template #loaded>
-  <ng-container *ngIf="groups$ | async as groups">
-    <ng-container *ngIf="groups.length; else noGroups">
+} @else {
+  @if (groups$ | async; as groups) {
+    @if (groups.length) {
       <nz-tabset
         nzSize="small"
         nzType="card"
         [nzSelectedIndex]="selectedIndex$ | async"
         (nzSelectChange)="onChange($event)"
       >
-        <ng-container *ngFor="let group of groups; trackBy: trackById">
+        @for (group of groups; track trackById($index, group)) {
           <nz-tab [nzTitle]="title">
             <ng-template #title>
               <span class="uppercase" [attr.data-group-id]="group.id">{{ group.name }}</span>
             </ng-template>
             <ng-template nz-tab>
-              <ng-container *ngIf="selectedGroupId$ | async as selectedGroupId">
-                <ng-container *ngIf="selectedGroupId == group.id">
-                  <gcd-feature-tabs></gcd-feature-tabs>
-                </ng-container>
-              </ng-container>
+              @if (selectedGroupId$ | async; as selectedGroupId) {
+                @if (selectedGroupId == group.id) {
+                  <gcd-feature-tabs />
+                }
+              }
             </ng-template>
           </nz-tab>
-        </ng-container>
+        }
       </nz-tabset>
-    </ng-container>
-  </ng-container>
-  <ng-template #noGroups>
-    <div class="alert">
-      <nz-alert
-        nzType="warning"
-        nzMessage="Warning"
-        nzDescription="Received 0 groups from API, maybe unauthorized?"
-        [nzAction]="action"
-        nzShowIcon
-      ></nz-alert>
-      <ng-template #action>
-        <button nz-button nzSize="small" nzType="primary" nzGhost (click)="OnReload()">Refresh</button>
-      </ng-template>
-    </div>
-  </ng-template>
-</ng-template>
+    } @else {
+      <div class="alert">
+        <nz-alert
+          [nzAction]="action"
+          nzType="warning"
+          nzMessage="Warning"
+          nzDescription="Received 0 groups from API, maybe unauthorized?"
+          nzShowIcon
+        />
+        <ng-template #action>
+          <button nz-button nzSize="small" nzType="primary" nzGhost (click)="OnReload()">Refresh</button>
+        </ng-template>
+      </div>
+    }
+  }
+}

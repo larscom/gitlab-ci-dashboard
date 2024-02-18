@@ -1,8 +1,7 @@
-import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, input } from '@angular/core'
 
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { Status } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { FormsModule } from '@angular/forms'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzTagModule } from 'ng-zorro-antd/tag'
@@ -10,20 +9,20 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 @Component({
   selector: 'gcd-status-filter',
   standalone: true,
-  imports: [CommonModule, FormsModule, NzTagModule, NzSelectModule, StatusColorPipe],
+  imports: [FormsModule, NzTagModule, NzSelectModule, StatusColorPipe],
   templateUrl: './status-filter.component.html',
   styleUrls: ['./status-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatusFilterComponent {
-  @Input({ required: true }) selectedFilterStatuses: Status[] = []
+  selectedFilterStatuses = input.required<Status[]>()
 
   @Output() filterStatusesChanged = new EventEmitter<Status[]>()
 
   statuses = Object.values(Status).sort()
 
   onChange(checked: boolean, status: Status): void {
-    const selected = this.selectedFilterStatuses
+    const selected = this.selectedFilterStatuses()
     if (checked) {
       this.filterStatusesChanged.next([...selected, status])
     } else {

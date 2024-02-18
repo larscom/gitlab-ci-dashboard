@@ -1,15 +1,6 @@
 import { Project } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-  signal
-} from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, input } from '@angular/core'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 
@@ -21,23 +12,24 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
   styleUrls: ['./topic-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TopicFilterComponent implements OnChanges {
-  @Input({ required: true }) projects: Project[] = []
-  @Input({ required: true }) selectedFilterTopics: string[] = []
-  @Input() loading = false
+export class TopicFilterComponent {
+  projects = input.required<Project[]>()
+  selectedFilterTopics = input.required<string[]>()
+  loading = input(false)
 
   @Output() filterTopicsChanged = new EventEmitter<string[]>()
 
-  topics = signal(new Set<string>())
-
-  ngOnChanges({ projects }: SimpleChanges): void {
-    if (projects) {
-      this.topics.set(new Set(this.projects.flatMap(({ topics }) => topics).sort((a, b) => a.localeCompare(b))))
-    }
-  }
+  topics = computed(
+    () =>
+      new Set(
+        this.projects()
+          .flatMap(({ topics }) => topics)
+          .sort((a, b) => a.localeCompare(b))
+      )
+  )
 
   onTopicChange(checked: boolean, topic: string): void {
-    const selected = this.selectedFilterTopics
+    const selected = this.selectedFilterTopics()
     if (checked) {
       this.filterTopicsChanged.next([...selected, topic])
     } else {

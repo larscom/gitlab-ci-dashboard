@@ -25,6 +25,7 @@ func NewServer(ctx *Bootstrap) *fiber.App {
 	ctx.setupProjectHandler(api)
 	ctx.setupBranchHandler(api)
 	ctx.setupSchedulesHandler(api)
+	ctx.setupJobsHandler(api)
 
 	return app
 }

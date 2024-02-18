@@ -9,7 +9,7 @@ import (
 )
 
 type BranchClient interface {
-	GetBranches(projectId int) ([]model.Branch, error)
+	GetBranches(projectId int, ctx context.Context) ([]model.Branch, error)
 }
 
 type branchClient struct {
@@ -22,7 +22,7 @@ func NewClient(gitlab GitlabClient) BranchClient {
 	}
 }
 
-func (c *branchClient) GetBranches(projectId int) ([]model.Branch, error) {
+func (c *branchClient) GetBranches(projectId int, ctx context.Context) ([]model.Branch, error) {
 	branches, response, err := c.gitlab.ListBranches(projectId, createOptions(1))
 	if err != nil {
 		return branches, err
@@ -33,11 +33,11 @@ func (c *branchClient) GetBranches(projectId int) ([]model.Branch, error) {
 
 	var (
 		resultchn = make(chan []model.Branch, util.GetMaxChanCapacity(response.TotalPages))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[branchPageArgs, []model.Branch](c.getBranchesByPage, resultchn, ctx)
+		run := util.CreateRunFunc[branchPageArgs, []model.Branch](c.getBranchesByPage, resultchn, gctx)
 		g.Go(run(branchPageArgs{
 			projectId:  projectId,
 			pageNumber: page,

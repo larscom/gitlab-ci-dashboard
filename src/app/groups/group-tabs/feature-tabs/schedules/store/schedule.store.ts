@@ -1,6 +1,6 @@
 import { GroupId } from '$groups/model/group'
-import { Status } from '$groups/model/pipeline'
 import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { Status } from '$groups/model/status'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
@@ -67,12 +67,15 @@ export class ScheduleStore {
     )
 
   setSchedules(schedules: ScheduleWithProjectAndPipeline[]): void {
-    store.update((state) => {
-      return {
-        ...state,
-        schedules
-      }
-    }, updateRequestStatus('getSchedules', 'success'))
+    store.update(
+      (state) => {
+        return {
+          ...state,
+          schedules
+        }
+      },
+      updateRequestStatus('getSchedules', 'success')
+    )
   }
 
   setProjectFilter(groupId: GroupId, project: string): void {

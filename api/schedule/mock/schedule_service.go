@@ -1,12 +1,16 @@
 package mock
 
-import "github.com/larscom/gitlab-ci-dashboard/model"
+import (
+	"context"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+)
 
 type ScheduleServiceMock struct {
 	Error error
 }
 
-func (s *ScheduleServiceMock) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
+func (s *ScheduleServiceMock) GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleWithProjectAndPipeline, error) {
 	if groupId == 1 {
 		return []model.ScheduleWithProjectAndPipeline{
 			{

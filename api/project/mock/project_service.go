@@ -1,12 +1,16 @@
 package mock
 
-import "github.com/larscom/gitlab-ci-dashboard/model"
+import (
+	"context"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+)
 
 type ProjectServiceMock struct {
 	Error error
 }
 
-func (s *ProjectServiceMock) GetProjectsWithLatestPipeline(groupId int) (map[string][]model.ProjectWithPipeline, error) {
+func (s *ProjectServiceMock) GetProjectsWithLatestPipeline(groupId int, ctx context.Context) (map[string][]model.ProjectWithPipeline, error) {
 	if groupId == 1 {
 		return map[string][]model.ProjectWithPipeline{
 			"success": {
@@ -21,7 +25,7 @@ func (s *ProjectServiceMock) GetProjectsWithLatestPipeline(groupId int) (map[str
 	return make(map[string][]model.ProjectWithPipeline), s.Error
 }
 
-func (s *ProjectServiceMock) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
+func (s *ProjectServiceMock) GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectWithPipeline, error) {
 	if groupId == 1 {
 		return []model.ProjectWithPipeline{
 			{

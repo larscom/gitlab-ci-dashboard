@@ -1,5 +1,6 @@
 import { GroupId } from '$groups/model/group'
-import { PipelineId, ProjectWithPipeline, Status } from '$groups/model/pipeline'
+import { PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
@@ -159,11 +160,14 @@ export class PipelineStore {
   }
 
   setProjectsWithPipeline(projectsWithPipeline: ProjectWithPipeline[]): void {
-    store.update((state) => {
-      return {
-        ...state,
-        projectsWithPipeline
-      }
-    }, updateRequestStatus('getProjectsWithPipeline', 'success'))
+    store.update(
+      (state) => {
+        return {
+          ...state,
+          projectsWithPipeline
+        }
+      },
+      updateRequestStatus('getProjectsWithPipeline', 'success')
+    )
   }
 }

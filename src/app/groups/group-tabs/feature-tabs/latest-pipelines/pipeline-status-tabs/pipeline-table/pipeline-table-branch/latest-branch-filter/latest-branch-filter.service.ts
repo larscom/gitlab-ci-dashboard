@@ -2,14 +2,15 @@ import { LatestPipelineStore } from '$groups/group-tabs/feature-tabs/latest-pipe
 import { BranchWithPipeline } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull, filterString } from '$groups/util/filter'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Observable, combineLatest, map, switchMap } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
 export class LatestBranchFilterService {
-  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
+  private latestPipelineStore = inject(LatestPipelineStore)
+  private groupStore = inject(GroupStore)
 
-  constructor(private latestPipelineStore: LatestPipelineStore, private groupStore: GroupStore) {}
+  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
   getBranchesWithLatestPipeline(): Observable<BranchWithPipeline[]> {
     return combineLatest([

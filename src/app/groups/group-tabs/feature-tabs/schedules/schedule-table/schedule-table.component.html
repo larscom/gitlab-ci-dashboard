@@ -1,16 +1,16 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedules" [nzPageSize]="12">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedules()" [nzPageSize]="12">
   <thead>
     <tr>
-      <ng-container *ngFor="let header of headers">
+      @for (header of headers; track header) {
         <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
           {{ header.title }}
         </th>
-      </ng-container>
+      }
       <th>Action</th>
     </tr>
   </thead>
   <tbody>
-    <ng-container *ngFor="let data of nzTable.data; trackBy: trackByScheduleId">
+    @for (data of nzTable.data; track trackByScheduleId($index, data)) {
       <tr
         nz-tooltip
         [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not active'"
@@ -27,7 +27,7 @@
           >
         </td>
         <td>
-          <span nz-tooltip [nzTooltipTitle]="data.schedule.next_run_at | date : 'medium' : timeZone : locale">{{
+          <span nz-tooltip [nzTooltipTitle]="data.schedule.next_run_at | date: 'medium' : timeZone : locale">{{
             data.schedule.next_run_at | nextRunAt
           }}</span>
         </td>
@@ -35,36 +35,34 @@
           <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
         </td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline; else noStatus">
+          @if (data.pipeline; as pipeline) {
             <nz-badge
               nz-tooltip
-              [nzTooltipTitle]="pipeline.updated_at | date : 'medium' : timeZone : locale"
+              [nzTooltipTitle]="pipeline.updated_at | date: 'medium' : timeZone : locale"
               [nzColor]="pipeline.status | statusColor"
               [nzText]="pipeline.status"
             ></nz-badge>
-          </ng-container>
-          <ng-template #noStatus>
+          } @else {
             <nz-badge nzColor="#868E96" nzText="not_run_yet"></nz-badge>
-          </ng-template>
+          }
         </td>
         <td>
-          <ng-container *ngIf="data.pipeline as pipeline; else noAction">
+          @if (data.pipeline; as pipeline) {
             <button
               (click)="onPipelineClick($event, pipeline)"
               nzType="text"
               nz-tooltip
-              [nzTooltipTitle]="'Show pipeline (' + data.pipeline.ref + ')'"
+              [nzTooltipTitle]="'Show pipeline (' + pipeline.ref + ')'"
               nz-button
               nzShape="circle"
             >
               <span nz-icon nzType="right-circle"></span>
             </button>
-          </ng-container>
-          <ng-template #noAction>
+          } @else {
             <button nzType="text" nz-button nzShape="circle" disabled>
               <span nz-icon nzType="right-circle"></span>
             </button>
-          </ng-template>
+          }
           <button
             (click)="onScheduleClick($event, data.project)"
             nzType="text"
@@ -77,6 +75,6 @@
           </button>
         </td>
       </tr>
-    </ng-container>
+    }
   </tbody>
 </nz-table>

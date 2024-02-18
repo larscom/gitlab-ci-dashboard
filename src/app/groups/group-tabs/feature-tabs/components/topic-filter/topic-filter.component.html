@@ -1,19 +1,18 @@
-<ng-container *ngIf="loading; else loaded">
-  <nz-spin nzSimple nzSize="small"></nz-spin>
-</ng-container>
-<ng-template #loaded>
-  <ng-container *ngIf="topics().size > 0">
+@if (loading()) {
+  <nz-spin nzSimple nzSize="small" />
+} @else {
+  @if (topics().size > 0) {
     <div class="flex flex-wrap gap-050 items-center">
       <span class="font-sm font-bold">Filter by topic</span>
-      <ng-container *ngFor="let topic of topics()">
+      @for (topic of topics(); track topic) {
         <nz-tag
           nzMode="checkable"
-          [nzChecked]="selectedFilterTopics.includes(topic)"
+          [nzChecked]="selectedFilterTopics().includes(topic)"
           (nzCheckedChange)="onTopicChange($event, topic)"
         >
           {{ topic | lowercase }}
         </nz-tag>
-      </ng-container>
+      }
     </div>
-  </ng-container>
-</ng-template>
+  }
+}

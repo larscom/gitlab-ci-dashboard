@@ -19,7 +19,7 @@ type PipelineClient interface {
 
 	GetLatestPipelineBySource(projectId int, ref string, source string) (*model.Pipeline, error)
 
-	GetPipelines(projectId int) ([]model.Pipeline, error)
+	GetPipelines(projectId int, ctx context.Context) ([]model.Pipeline, error)
 }
 
 type pipelineClient struct {
@@ -62,7 +62,7 @@ func (c *pipelineClient) GetLatestPipelineBySource(projectId int, ref string, so
 	return nil, fmt.Errorf("no pipelines found for project: %d and branch: %s", projectId, ref)
 }
 
-func (c *pipelineClient) GetPipelines(projectId int) ([]model.Pipeline, error) {
+func (c *pipelineClient) GetPipelines(projectId int, ctx context.Context) ([]model.Pipeline, error) {
 	pipelines, response, err := c.gitlab.ListProjectPipelines(projectId, c.createOptions(1))
 	if err != nil {
 		return pipelines, err
@@ -73,11 +73,11 @@ func (c *pipelineClient) GetPipelines(projectId int) ([]model.Pipeline, error) {
 
 	var (
 		resultchn = make(chan []model.Pipeline, util.GetMaxChanCapacity(response.TotalPages))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[pipelinePageArgs, []model.Pipeline](c.getPipelinesByPage, resultchn, ctx)
+		run := util.CreateRunFunc[pipelinePageArgs, []model.Pipeline](c.getPipelinesByPage, resultchn, gctx)
 		g.Go(run(pipelinePageArgs{
 			projectId:  projectId,
 			pageNumber: page,

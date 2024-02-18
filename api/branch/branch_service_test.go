@@ -1,11 +1,13 @@
 package branch
 
 import (
+	"context"
 	"errors"
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"testing"
 	"time"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 
 	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +26,7 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	branchesLoader.Put(projectId, []model.Branch{{Name: ref}})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, nil), &model.Pipeline{Status: status})
 
-	result, err := service.GetBranchesWithLatestPipeline(projectId)
+	result, err := service.GetBranchesWithLatestPipeline(projectId, context.Background())
 	assert.Nil(t, err)
 
 	assert.Len(t, result, 1)
@@ -42,7 +44,7 @@ func TestGetBranchesWithLatestPipelineError(t *testing.T) {
 		service = NewService(pipelineLatestLoader, branchesLoader)
 	)
 
-	result, err := service.GetBranchesWithLatestPipeline(1)
+	result, err := service.GetBranchesWithLatestPipeline(1, context.Background())
 	assert.Equal(t, mockErr, err)
 	assert.Empty(t, result)
 }
@@ -62,7 +64,7 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-2", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-5 * time.Minute)})
 
-	result, err := service.GetBranchesWithLatestPipeline(projectId)
+	result, err := service.GetBranchesWithLatestPipeline(projectId, context.Background())
 	assert.Nil(t, err)
 
 	assert.Len(t, result, 3)
@@ -87,7 +89,7 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDateWithNil(t *testing.T) {
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-3", nil), &model.Pipeline{Status: "success", UpdatedAt: now.Add(-2 * time.Minute)})
 	pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, "branch-4", nil), nil)
 
-	result, err := service.GetBranchesWithLatestPipeline(projectId)
+	result, err := service.GetBranchesWithLatestPipeline(projectId, context.Background())
 	assert.Nil(t, err)
 
 	assert.Len(t, result, 4)

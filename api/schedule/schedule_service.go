@@ -14,7 +14,7 @@ import (
 )
 
 type ScheduleService interface {
-	GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error)
+	GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleWithProjectAndPipeline, error)
 }
 
 type scheduleService struct {
@@ -38,7 +38,7 @@ func NewService(
 	}
 }
 
-func (s *scheduleService) GetSchedules(groupId int) ([]model.ScheduleWithProjectAndPipeline, error) {
+func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleWithProjectAndPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
 		return make([]model.ScheduleWithProjectAndPipeline, 0), err
@@ -47,12 +47,12 @@ func (s *scheduleService) GetSchedules(groupId int) ([]model.ScheduleWithProject
 
 	var (
 		resultchn = make(chan []model.ScheduleWithProjectAndPipeline, util.GetMaxChanCapacity(len(projects)))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 		results   = make([]model.ScheduleWithProjectAndPipeline, 0)
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, []model.ScheduleWithProjectAndPipeline](s.getSchedules, resultchn, ctx)
+		run := util.CreateRunFunc[model.Project, []model.ScheduleWithProjectAndPipeline](s.getSchedules, resultchn, gctx)
 		g.Go(run(project))
 	}
 

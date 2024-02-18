@@ -4,7 +4,7 @@ import { Project } from '$groups/model/project'
 import { ScheduleId, ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -37,7 +37,9 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScheduleTableComponent {
-  @Input({ required: true }) schedules!: ScheduleWithProjectAndPipeline[]
+  schedules = input.required<ScheduleWithProjectAndPipeline[]>()
+
+  i18n = inject(NzI18nService)
 
   headers: Header<ScheduleWithProjectAndPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -63,8 +65,6 @@ export class ScheduleTableComponent {
       compare: (a, b) => compareString(a.pipeline?.status, b.pipeline?.status)
     }
   ]
-
-  constructor(private i18n: NzI18nService) {}
 
   get locale(): string {
     const { locale } = this.i18n.getLocale()

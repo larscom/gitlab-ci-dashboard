@@ -1,8 +1,10 @@
 package server
 
 import (
+	"context"
 	"time"
 
+	"github.com/larscom/gitlab-ci-dashboard/job"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 
@@ -19,6 +21,7 @@ type Caches struct {
 	projectsLoader       cache.Cache[int, []model.Project]
 	branchesLoader       cache.Cache[int, []model.Branch]
 	schedulesLoader      cache.Cache[int, []model.Schedule]
+	jobsLoader           cache.Cache[job.Key, []model.Job]
 }
 
 func NewCaches(config *config.GitlabConfig, clients *Clients) *Caches {
@@ -31,6 +34,7 @@ func NewCaches(config *config.GitlabConfig, clients *Clients) *Caches {
 		projectsLoader:  createProjectsLoader(config, clients),
 		branchesLoader:  createBranchesLoader(config, clients),
 		schedulesLoader: createSchedulesLoader(config, clients),
+		jobsLoader:      createJobsLoader(config, clients),
 	}
 }
 
@@ -43,7 +47,16 @@ func createSchedulesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Schedule](time.Second*time.Duration(cfg.ScheduleCacheTTLSeconds)),
 		cache.WithLoader(func(projectId int) ([]model.Schedule, error) {
-			return c.scheduleClient.GetPipelineSchedules(projectId)
+			return c.scheduleClient.GetPipelineSchedules(projectId, context.Background())
+		}))
+}
+
+func createJobsLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[job.Key, []model.Job] {
+	return cache.New(
+		cache.WithExpireAfterWrite[job.Key, []model.Job](time.Second*time.Duration(cfg.JobCacheTTLSeconds)),
+		cache.WithLoader(func(jobKey job.Key) ([]model.Job, error) {
+			projectId, pipelineId, scope := jobKey.Parse()
+			return c.jobClient.GetJobs(projectId, pipelineId, scope, context.Background())
 		}))
 }
 
@@ -51,7 +64,7 @@ func createBranchesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int,
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Branch](time.Second*time.Duration(cfg.BranchCacheTTLSeconds)),
 		cache.WithLoader(func(projectId int) ([]model.Branch, error) {
-			return c.branchClient.GetBranches(projectId)
+			return c.branchClient.GetBranches(projectId, context.Background())
 		}))
 }
 
@@ -59,7 +72,7 @@ func createProjectsLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int,
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Project](time.Second*time.Duration(cfg.ProjectCacheTTLSeconds)),
 		cache.WithLoader(func(groupId int) ([]model.Project, error) {
-			return c.projectClient.GetProjects(groupId)
+			return c.projectClient.GetProjects(groupId, context.Background())
 		}))
 }
 
@@ -79,6 +92,6 @@ func createPipelinesLoader(cfg *config.GitlabConfig, c *Clients) cache.Cache[int
 	return cache.New(
 		cache.WithExpireAfterWrite[int, []model.Pipeline](time.Second*time.Duration(cfg.PipelineCacheTTLSeconds)),
 		cache.WithLoader(func(projectId int) ([]model.Pipeline, error) {
-			return c.pipelineClient.GetPipelines(projectId)
+			return c.pipelineClient.GetPipelines(projectId, context.Background())
 		}))
 }

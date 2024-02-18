@@ -1,4 +1,5 @@
-import { PipelineId, Status } from '$groups/model/pipeline'
+import { PipelineId } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { GroupStore } from '$groups/store/group.store'
 import { filterArrayNotNull, filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'

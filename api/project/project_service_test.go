@@ -1,14 +1,16 @@
 package project
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/larscom/gitlab-ci-dashboard/config"
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larscom/gitlab-ci-dashboard/config"
+	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 
 	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
@@ -52,7 +54,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "failed"})
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
 
-		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		result, err := service.GetProjectsWithLatestPipeline(groupId, context.Background())
 		assert.Nil(t, err)
 		assert.Len(t, result, 2)
 
@@ -107,7 +109,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(444, "master", nil), nil)
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(555, "master", nil), &model.Pipeline{Id: 5050, Status: "success", UpdatedAt: now.Add(-5 * time.Minute)})
 
-		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		result, err := service.GetProjectsWithLatestPipeline(groupId, context.Background())
 		assert.NoError(t, err)
 
 		success := result["success"]
@@ -133,7 +135,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			service         = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 		)
 
-		result, err := service.GetProjectsWithLatestPipeline(1)
+		result, err := service.GetProjectsWithLatestPipeline(1, context.Background())
 		assert.Equal(t, mockErr, err)
 		assert.Empty(t, result)
 	})
@@ -157,7 +159,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		result, err := service.GetProjectsWithLatestPipeline(groupId, context.Background())
 		assert.Equal(t, mockErr, err)
 		assert.Empty(t, result)
 	})
@@ -180,7 +182,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		result, err := service.GetProjectsWithLatestPipeline(groupId, context.Background())
 		assert.Nil(t, err)
 		assert.Empty(t, result)
 	})
@@ -207,7 +209,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(222, "main", nil), &model.Pipeline{Id: 2020, Status: "success"})
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(333, "main", nil), &model.Pipeline{Id: 3030, Status: "success"})
 
-		result, err := service.GetProjectsWithLatestPipeline(groupId)
+		result, err := service.GetProjectsWithLatestPipeline(groupId, context.Background())
 		assert.Nil(t, err)
 		assert.Len(t, result, 1)
 
@@ -250,7 +252,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		})
 
-		result, err := service.GetProjectsWithPipeline(groupId)
+		result, err := service.GetProjectsWithPipeline(groupId, context.Background())
 
 		assert.NoError(t, err)
 		assert.Len(t, result, 2)
@@ -293,7 +295,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		})
 
-		result, err := service.GetProjectsWithPipeline(groupId)
+		result, err := service.GetProjectsWithPipeline(groupId, context.Background())
 		assert.NoError(t, err)
 		assert.Len(t, result, 1)
 
@@ -313,7 +315,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			service         = NewService(cfg, projectsLoader, pipelineLatestLoader, pipelinesLoader)
 		)
 
-		result, err := service.GetProjectsWithPipeline(1)
+		result, err := service.GetProjectsWithPipeline(1, context.Background())
 		assert.Equal(t, mockErr, err)
 		assert.Empty(t, result)
 	})
@@ -337,7 +339,7 @@ func TestProjectServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		result, err := service.GetProjectsWithPipeline(groupId)
+		result, err := service.GetProjectsWithPipeline(groupId, context.Background())
 		assert.Equal(t, mockErr, err)
 		assert.Empty(t, result)
 	})

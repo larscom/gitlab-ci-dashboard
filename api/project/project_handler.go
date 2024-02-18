@@ -21,7 +21,7 @@ func (h *ProjectHandler) HandleGetProjectsWithLatestPipeline(c *fiber.Ctx) error
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	result, err := h.service.GetProjectsWithLatestPipeline(groupId)
+	result, err := h.service.GetProjectsWithLatestPipeline(groupId, c.Context())
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (h *ProjectHandler) HandleGetProjectsWithPipeline(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}
 
-	result, err := h.service.GetProjectsWithPipeline(groupId)
+	result, err := h.service.GetProjectsWithPipeline(groupId, c.Context())
 	if err != nil {
 		return err
 	}

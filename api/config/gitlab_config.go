@@ -25,6 +25,8 @@ type GitlabConfig struct {
 	BranchCacheTTLSeconds int
 
 	ScheduleCacheTTLSeconds int
+
+	JobCacheTTLSeconds int
 }
 
 func NewGitlabConfig() *GitlabConfig {
@@ -46,6 +48,8 @@ func NewGitlabConfig() *GitlabConfig {
 		BranchCacheTTLSeconds: getBranchCacheTTLSeconds(),
 
 		ScheduleCacheTTLSeconds: getScheduleCacheTTLSeconds(),
+
+		JobCacheTTLSeconds: getJobCacheTTLSeconds(),
 	}
 }
 
@@ -165,4 +169,8 @@ func getBranchCacheTTLSeconds() int {
 
 func getScheduleCacheTTLSeconds() int {
 	return parseInt("GITLAB_SCHEDULE_CACHE_TTL_SECONDS", 300)
+}
+
+func getJobCacheTTLSeconds() int {
+	return parseInt("GITLAB_JOB_CACHE_TTL_SECONDS", 10)
 }

@@ -1,13 +1,17 @@
 package mock
 
-import "github.com/larscom/gitlab-ci-dashboard/model"
+import (
+	"context"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+)
 
 type GroupServiceMock struct {
 	Empty bool
 	Error error
 }
 
-func (s *GroupServiceMock) GetGroups() ([]model.Group, error) {
+func (s *GroupServiceMock) GetGroups(ctx context.Context) ([]model.Group, error) {
 	if s.Empty {
 		return make([]model.Group, 0), s.Error
 	}

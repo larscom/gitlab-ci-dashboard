@@ -11,9 +11,9 @@ import (
 )
 
 type GroupClient interface {
-	GetGroups() ([]model.Group, error)
+	GetGroups(ctx context.Context) ([]model.Group, error)
 
-	GetGroupsById(ids []int) ([]model.Group, error)
+	GetGroupsById(ids []int, ctx context.Context) ([]model.Group, error)
 }
 
 type groupClient struct {
@@ -28,15 +28,15 @@ func NewClient(gitlab GitlabClient, config *config.GitlabConfig) GroupClient {
 	}
 }
 
-func (c *groupClient) GetGroupsById(ids []int) ([]model.Group, error) {
+func (c *groupClient) GetGroupsById(ids []int, ctx context.Context) ([]model.Group, error) {
 	var (
 		resultchn = make(chan *model.Group, util.GetMaxChanCapacity(len(ids)))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 		results   = make([]model.Group, 0)
 	)
 
 	for _, groupId := range ids {
-		run := util.CreateRunFunc[int, *model.Group](c.getGroupById, resultchn, ctx)
+		run := util.CreateRunFunc[int, *model.Group](c.getGroupById, resultchn, gctx)
 		g.Go(run(groupId))
 	}
 
@@ -54,7 +54,7 @@ func (c *groupClient) GetGroupsById(ids []int) ([]model.Group, error) {
 	return results, g.Wait()
 }
 
-func (c *groupClient) GetGroups() ([]model.Group, error) {
+func (c *groupClient) GetGroups(ctx context.Context) ([]model.Group, error) {
 	groups, response, err := c.gitlab.ListGroups(c.createOptions(1))
 	if err != nil {
 		return groups, err
@@ -65,11 +65,11 @@ func (c *groupClient) GetGroups() ([]model.Group, error) {
 
 	var (
 		resultchn = make(chan []model.Group, util.GetMaxChanCapacity(response.TotalPages))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[int, []model.Group](c.getGroupsByPage, resultchn, ctx)
+		run := util.CreateRunFunc[int, []model.Group](c.getGroupsByPage, resultchn, gctx)
 		g.Go(run(page))
 	}
 
@@ -91,7 +91,7 @@ func (c *groupClient) getGroupsByPage(pageNumber int) ([]model.Group, error) {
 }
 
 func (c *groupClient) getGroupById(groupId int) (*model.Group, error) {
-	group, _, err := c.gitlab.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Bool(false)})
+	group, _, err := c.gitlab.GetGroup(groupId, &gitlab.GetGroupOptions{WithProjects: gitlab.Ptr(false)})
 	return group, err
 }
 

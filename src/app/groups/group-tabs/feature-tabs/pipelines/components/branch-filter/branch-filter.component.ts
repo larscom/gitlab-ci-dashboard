@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, effect, input } from '@angular/core'
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { FormControl, ReactiveFormsModule } from '@angular/forms'
@@ -13,41 +12,28 @@ import { debounceTime } from 'rxjs'
 @Component({
   selector: 'gcd-branch-filter',
   standalone: true,
-  imports: [
-    CommonModule,
-    NzIconModule,
-    NzInputModule,
-    NzButtonModule,
-    NzToolTipModule,
-    NzSpinModule,
-    ReactiveFormsModule
-  ],
+  imports: [NzIconModule, NzInputModule, NzButtonModule, NzToolTipModule, NzSpinModule, ReactiveFormsModule],
   templateUrl: './branch-filter.component.html',
   styleUrls: ['./branch-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BranchFilterComponent {
-  @Input({ required: true }) selectedFilterText: string = ''
-  @Input({ required: true }) branches: string[] = []
+  branches = input.required<string[]>()
+  selectedFilterText = input.required<string>()
 
   @Output() filterTextChanged = new EventEmitter<string>()
 
+  branchCount = computed(() => new Set(this.branches()).size)
   searchControl = new FormControl('')
 
   constructor() {
+    effect(() => {
+      this.searchControl.setValue(this.selectedFilterText(), { emitEvent: false })
+    })
+
     this.searchControl.valueChanges
       .pipe(takeUntilDestroyed(), debounceTime(100))
       .subscribe((value) => this.filterTextChanged.next(String(value)))
-  }
-
-  ngOnChanges({ selectedFilterText }: SimpleChanges): void {
-    if (selectedFilterText) {
-      this.searchControl.setValue(this.selectedFilterText, { emitEvent: false })
-    }
-  }
-
-  get branchCount(): number {
-    return new Set(this.branches).size
   }
 
   resetSearch(): void {

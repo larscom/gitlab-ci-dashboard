@@ -1,7 +1,7 @@
 import { GroupId } from '$groups/model/group'
 import { ProjectId } from '$groups/model/project'
 import { UIStore } from '$store/ui.store'
-import { CommonModule } from '@angular/common'
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,7 +10,8 @@ import {
   OnChanges,
   OnDestroy,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -22,7 +23,7 @@ import { Subscription } from 'rxjs'
 @Component({
   selector: 'gcd-auto-refresh',
   standalone: true,
-  imports: [CommonModule, NzSelectModule, NzToolTipModule, NzIconModule, NzButtonModule, FormsModule],
+  imports: [NzSelectModule, NzToolTipModule, NzIconModule, NzButtonModule, FormsModule],
   templateUrl: './auto-refresh.component.html',
   styleUrls: ['./auto-refresh.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -32,12 +33,11 @@ export class AutoRefreshComponent implements OnChanges, OnDestroy {
   @Input() loading = false
   @Output() refresh = new EventEmitter<void>()
 
-  intervalSeconds = ''
+  uiStore = inject(UIStore)
 
+  intervalSeconds = ''
   intervalRef?: NodeJS.Timeout
   subscription?: Subscription
-
-  constructor(private uiStore: UIStore) {}
 
   ngOnChanges({ id }: SimpleChanges): void {
     if (!id) return

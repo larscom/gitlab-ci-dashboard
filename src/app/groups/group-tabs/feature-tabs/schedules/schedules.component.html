@@ -5,33 +5,27 @@
         [projects]="(projects$ | async)!"
         [selectedFilterText]="(selectedFilterText$ | async)!"
         (filterTextChanged)="onFilterTextChanged($event)"
-      ></gcd-project-filter>
+      />
       <gcd-topic-filter
         [loading]="(loading$ | async)!"
         [projects]="(projects$ | async)!"
         [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
-      >
-      </gcd-topic-filter>
+      />
       <gcd-status-filter
         (filterStatusesChanged)="onFilterStatusesChanged($event)"
         [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
-      ></gcd-status-filter>
+      />
     </div>
-    <ng-container *ngIf="selectedGroupId$ | async as selectedGroupId">
-      <gcd-auto-refresh
-        [id]="selectedGroupId"
-        [loading]="(autoRefreshLoading$ | async)!"
-        (refresh)="fetch()"
-      ></gcd-auto-refresh>
-    </ng-container>
+    @if (selectedGroupId$ | async; as selectedGroupId) {
+      <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    }
   </div>
-  <ng-container *ngIf="loading$ | async; else loaded">
-    <nz-spin></nz-spin>
-  </ng-container>
-  <ng-template #loaded>
-    <ng-container *ngIf="schedules$ | async as schedules">
-      <gcd-schedule-table [schedules]="schedules"></gcd-schedule-table>
-    </ng-container>
-  </ng-template>
+  @if (loading$ | async) {
+    <nz-spin />
+  } @else {
+    @if (schedules$ | async; as schedules) {
+      <gcd-schedule-table [schedules]="schedules" />
+    }
+  }
 </div>

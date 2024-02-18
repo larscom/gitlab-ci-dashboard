@@ -10,6 +10,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
+	"github.com/larscom/gitlab-ci-dashboard/job"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
@@ -35,6 +36,7 @@ func main() {
 		pipeline.NewClient(pipeline.NewGitlabClient(gc), cfg),
 		branch.NewClient(branch.NewGitlabClient(gc)),
 		schedule.NewClient(schedule.NewGitlabClient(gc)),
+		job.NewClient(job.NewGitlabClient(gc)),
 	)
 	caches := server.NewCaches(cfg, clients)
 	bootstrap := server.NewBootstrap(cfg, caches, clients)

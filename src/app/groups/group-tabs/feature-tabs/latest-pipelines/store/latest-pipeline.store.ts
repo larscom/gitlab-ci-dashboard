@@ -1,6 +1,7 @@
 import { GroupId } from '$groups/model/group'
-import { BranchWithPipeline, ProjectWithPipeline, Status } from '$groups/model/pipeline'
+import { BranchWithPipeline, ProjectWithPipeline } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
+import { Status } from '$groups/model/status'
 import { recordToMap } from '$groups/util/map-record'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
@@ -151,20 +152,26 @@ export class LatestPipelineStore {
   }
 
   setProjectsWithLatestPipeline(projectsWithLatestPipeline: Record<Status, ProjectWithPipeline[]>): void {
-    store.update((state) => {
-      return {
-        ...state,
-        projectsWithLatestPipeline
-      }
-    }, updateRequestStatus('getProjectsWithLatestPipeline', 'success'))
+    store.update(
+      (state) => {
+        return {
+          ...state,
+          projectsWithLatestPipeline
+        }
+      },
+      updateRequestStatus('getProjectsWithLatestPipeline', 'success')
+    )
   }
 
   setBranchesWithLatestPipeline(branchesWithLatestPipeline: BranchWithPipeline[]): void {
-    store.update((state) => {
-      return {
-        ...state,
-        branchesWithLatestPipeline
-      }
-    }, updateRequestStatus('getBranchesWithLatestPipeline', 'success'))
+    store.update(
+      (state) => {
+        return {
+          ...state,
+          branchesWithLatestPipeline
+        }
+      },
+      updateRequestStatus('getBranchesWithLatestPipeline', 'success')
+    )
   }
 }

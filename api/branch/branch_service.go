@@ -12,7 +12,7 @@ import (
 )
 
 type BranchService interface {
-	GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error)
+	GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchWithPipeline, error)
 }
 
 type branchService struct {
@@ -30,7 +30,7 @@ func NewService(
 	}
 }
 
-func (s *branchService) GetBranchesWithLatestPipeline(projectId int) ([]model.BranchWithPipeline, error) {
+func (s *branchService) GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchWithPipeline, error) {
 	branches, err := s.branchesLoader.Get(projectId)
 	if err != nil {
 		return make([]model.BranchWithPipeline, 0), err
@@ -38,12 +38,12 @@ func (s *branchService) GetBranchesWithLatestPipeline(projectId int) ([]model.Br
 
 	var (
 		resultchn = make(chan model.BranchWithPipeline, util.GetMaxChanCapacity(len(branches)))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 		results   = make([]model.BranchWithPipeline, 0)
 	)
 
 	for _, branch := range branches {
-		run := util.CreateRunFunc[branchPipelineArgs, model.BranchWithPipeline](s.getLatestPipeline, resultchn, ctx)
+		run := util.CreateRunFunc[branchPipelineArgs, model.BranchWithPipeline](s.getLatestPipeline, resultchn, gctx)
 		g.Go(run(branchPipelineArgs{
 			projectId: projectId,
 			branch:    branch,

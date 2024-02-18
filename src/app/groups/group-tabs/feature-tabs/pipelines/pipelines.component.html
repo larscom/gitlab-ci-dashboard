@@ -6,47 +6,39 @@
           [projects]="(projects$ | async)!"
           [selectedFilterText]="(selectedFilterTextProjects$ | async)!"
           (filterTextChanged)="onFilterTextProjectsChanged($event)"
-        >
-        </gcd-project-filter>
+        />
         <gcd-branch-filter
           [branches]="(branches$ | async)!"
           [selectedFilterText]="(selectedFilterTextBranches$ | async)!"
           (filterTextChanged)="onFilterTextBranchesChanged($event)"
-        >
-        </gcd-branch-filter>
+        />
       </div>
       <gcd-topic-filter
         [loading]="(loading$ | async)!"
         [projects]="(projects$ | async)!"
         [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
-      >
-      </gcd-topic-filter>
+      />
       <gcd-status-filter
         (filterStatusesChanged)="onFilterStatusesChanged($event)"
         [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
-      ></gcd-status-filter>
+      />
     </div>
-    <ng-container *ngIf="selectedGroupId$ | async as selectedGroupId">
-      <gcd-auto-refresh
-        [id]="selectedGroupId"
-        [loading]="(autoRefreshLoading$ | async)!"
-        (refresh)="fetch()"
-      ></gcd-auto-refresh>
-    </ng-container>
+    @if (selectedGroupId$ | async; as selectedGroupId) {
+      <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    }
   </div>
-  <ng-container *ngIf="loading$ | async; else loaded">
-    <nz-spin></nz-spin>
-  </ng-container>
-  <ng-template #loaded>
-    <ng-container *ngIf="projectsWithPipeline$ | async as projects">
-      <ng-container *ngIf="pinnedPipelines$ | async as pinnedPipelines">
+  @if (loading$ | async) {
+    <nz-spin />
+  } @else {
+    @if (projectsWithPipeline$ | async; as projects) {
+      @if (pinnedPipelines$ | async; as pinnedPipelines) {
         <gcd-pipeline-table
           [projects]="projects"
           [pinnedPipelines]="pinnedPipelines"
           (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"
-        ></gcd-pipeline-table>
-      </ng-container>
-    </ng-container>
-  </ng-template>
+        />
+      }
+    }
+  }
 </div>

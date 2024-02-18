@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/larscom/gitlab-ci-dashboard/branch"
+	"github.com/larscom/gitlab-ci-dashboard/job"
 
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/group"
@@ -67,6 +68,14 @@ func (b *Bootstrap) setupSchedulesHandler(router fiber.Router) {
 
 	// path: /api/schedules?groupId={groupId}
 	router.Get("/schedules", handler.HandleGetSchedules)
+}
+
+func (b *Bootstrap) setupJobsHandler(router fiber.Router) {
+	service := job.NewService(b.caches.jobsLoader)
+	handler := job.NewHandler(service)
+
+	// path: /api/jobs?projectId={projectId}&pipelineId=${pipelineId}
+	router.Get("/jobs", handler.HandleGetJobs)
 }
 
 func (b *Bootstrap) setupGroupHandler(router fiber.Router) {

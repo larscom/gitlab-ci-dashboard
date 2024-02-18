@@ -1,6 +1,7 @@
 package group
 
 import (
+	"context"
 	"sort"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
@@ -9,7 +10,7 @@ import (
 )
 
 type GroupService interface {
-	GetGroups() ([]model.Group, error)
+	GetGroups(ctx context.Context) ([]model.Group, error)
 }
 
 type groupService struct {
@@ -24,12 +25,12 @@ func NewService(config *config.GitlabConfig, client GroupClient) GroupService {
 	}
 }
 
-func (s *groupService) GetGroups() ([]model.Group, error) {
+func (s *groupService) GetGroups(ctx context.Context) ([]model.Group, error) {
 	if len(s.config.GroupOnlyIds) > 0 {
-		groups, err := s.client.GetGroupsById(s.config.GroupOnlyIds)
+		groups, err := s.client.GetGroupsById(s.config.GroupOnlyIds, ctx)
 		return sortByName(groups), err
 	}
-	groups, err := s.client.GetGroups()
+	groups, err := s.client.GetGroups(ctx)
 	return sortByName(groups), err
 }
 

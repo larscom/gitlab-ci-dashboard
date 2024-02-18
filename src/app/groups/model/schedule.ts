@@ -1,18 +1,11 @@
 import { Pipeline } from './pipeline'
 import { Project } from './project'
+import { User } from './user'
 
 export interface ScheduleWithProjectAndPipeline {
   schedule: Schedule
   project: Project
   pipeline?: Pipeline
-}
-
-export interface Owner {
-  id: number
-  username: string
-  name: string
-  state: string
-  is_admin: boolean
 }
 
 export type ScheduleId = number
@@ -26,5 +19,5 @@ export interface Schedule {
   active: boolean
   created_at: string
   updated_at: string
-  owner: Owner
+  owner: User
 }

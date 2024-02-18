@@ -1,14 +1,16 @@
 package schedule
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"testing"
+
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	"testing"
 
 	"github.com/larscom/go-cache"
 )
@@ -50,7 +52,7 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		schedulesLoader.Put(projectId, []model.Schedule{{Id: 3, Ref: ref}, {Id: 4, Ref: "nope"}})
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectId, ref, &source), &model.Pipeline{Id: 10, Status: "success"})
 
-		result, err := service.GetSchedules(groupId)
+		result, err := service.GetSchedules(groupId, context.Background())
 		assert.Nil(t, err)
 
 		assert.Len(t, result, 2)
@@ -87,7 +89,7 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 		schedulesLoader.Put(projectIdSkipped, []model.Schedule{{Id: 5, Ref: ref}})
 		pipelineLatestLoader.Put(pipeline.NewPipelineKey(projectIdSkipped, ref, &source), &model.Pipeline{Id: 11, Status: "success"})
 
-		result, err := service.GetSchedules(groupId)
+		result, err := service.GetSchedules(groupId, context.Background())
 		assert.Nil(t, err)
 
 		assert.Len(t, result, 1)
@@ -107,7 +109,7 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 			service = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
 		)
 
-		result, err := service.GetSchedules(1)
+		result, err := service.GetSchedules(1, context.Background())
 		assert.Equal(t, mockErr, err)
 		assert.Empty(t, result)
 	})
@@ -132,7 +134,7 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 			},
 		)
 
-		result, err := service.GetSchedules(groupId)
+		result, err := service.GetSchedules(groupId, context.Background())
 		assert.Equal(t, mockErr, err)
 		assert.Empty(t, result)
 	})

@@ -1,7 +1,7 @@
 import { Pipeline, PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -35,8 +35,10 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
-  @Input({ required: true }) projects!: ProjectWithPipeline[]
-  @Input({ required: true }) pinnedPipelines!: PipelineId[]
+  projects = input.required<ProjectWithPipeline[]>()
+  pinnedPipelines = input.required<PipelineId[]>()
+
+  i18n = inject(NzI18nService)
 
   @Output() pinnedPipelinesChanged = new EventEmitter<PipelineId[]>()
 
@@ -64,8 +66,6 @@ export class PipelineTableComponent {
     }
   ]
 
-  constructor(private i18n: NzI18nService) {}
-
   get locale(): string {
     const { locale } = this.i18n.getLocale()
     return locale
@@ -85,7 +85,7 @@ export class PipelineTableComponent {
   onPinClick(e: Event, { id }: Pipeline): void {
     e.stopPropagation()
 
-    const selected = this.pinnedPipelines
+    const selected = this.pinnedPipelines()
     if (selected.includes(id)) {
       this.pinnedPipelinesChanged.next(selected.filter((i) => i !== id))
     } else {

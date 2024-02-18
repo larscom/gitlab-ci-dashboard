@@ -1,5 +1,5 @@
-<gcd-header></gcd-header>
-<ng-container *ngIf="error() as error; else groups">
+<gcd-header />
+@if (error(); as error) {
   <div class="alert">
     <nz-alert
       nzShowIcon
@@ -9,15 +9,13 @@
         'The server reported a problem, try refreshing the page or read server logs for more information.'
       "
       [nzAction]="action"
-    ></nz-alert>
+    />
     <ng-template #action>
       <button nz-button nzSize="small" nzType="default" (click)="OnClick()" nzDanger>Refresh</button>
     </ng-template>
   </div>
-</ng-container>
-
-<ng-template #groups>
+} @else {
   <main class="container">
     <router-outlet></router-outlet>
   </main>
-</ng-template>
+}

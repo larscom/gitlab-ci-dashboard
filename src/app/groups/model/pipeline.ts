@@ -1,5 +1,6 @@
 import { Branch } from './branch'
 import { Project, ProjectId } from './project'
+import { Status } from './status'
 
 export interface ProjectWithPipeline {
   project: Project
@@ -26,20 +27,6 @@ export enum Source {
   PARENT_PIPELINE = 'parent_pipeline',
   ONDEMAND_DAST_SCAN = 'ondemand_dast_scan',
   ONDEMAND_DAST_VALIDATION = 'ondemand_dast_validation'
-}
-
-export enum Status {
-  CREATED = 'created',
-  WAITING_FOR_RESOURCE = 'waiting_for_resource',
-  PREPARING = 'preparing',
-  PENDING = 'pending',
-  RUNNING = 'running',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-  CANCELED = 'canceled',
-  SKIPPED = 'skipped',
-  MANUAL = 'manual',
-  SCHEDULED = 'scheduled'
 }
 
 export type PipelineId = number

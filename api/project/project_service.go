@@ -16,9 +16,9 @@ import (
 type PipelineStatus = string
 
 type ProjectService interface {
-	GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error)
+	GetProjectsWithLatestPipeline(groupId int, ctx context.Context) (map[PipelineStatus][]model.ProjectWithPipeline, error)
 
-	GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error)
+	GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectWithPipeline, error)
 }
 
 type projectService struct {
@@ -42,7 +42,7 @@ func NewService(
 	}
 }
 
-func (s *projectService) GetProjectsWithLatestPipeline(groupId int) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
+func (s *projectService) GetProjectsWithLatestPipeline(groupId int, ctx context.Context) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
 		return make(map[PipelineStatus][]model.ProjectWithPipeline), err
@@ -51,7 +51,7 @@ func (s *projectService) GetProjectsWithLatestPipeline(groupId int) (map[Pipelin
 
 	var (
 		resultchn = make(chan map[PipelineStatus]model.ProjectWithPipeline, util.GetMaxChanCapacity(len(projects)))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 		results   = make(map[PipelineStatus][]model.ProjectWithPipeline)
 	)
 
@@ -59,7 +59,7 @@ func (s *projectService) GetProjectsWithLatestPipeline(groupId int) (map[Pipelin
 		run := util.CreateRunFunc[model.Project, map[PipelineStatus]model.ProjectWithPipeline](
 			s.getLatestPipeline,
 			resultchn,
-			ctx,
+			gctx,
 		)
 		g.Go(run(project))
 	}
@@ -87,7 +87,7 @@ func (s *projectService) GetProjectsWithLatestPipeline(groupId int) (map[Pipelin
 	return results, g.Wait()
 }
 
-func (s *projectService) GetProjectsWithPipeline(groupId int) ([]model.ProjectWithPipeline, error) {
+func (s *projectService) GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectWithPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
 		return make([]model.ProjectWithPipeline, 0), err
@@ -96,12 +96,12 @@ func (s *projectService) GetProjectsWithPipeline(groupId int) ([]model.ProjectWi
 
 	var (
 		resultchn = make(chan []model.ProjectWithPipeline, util.GetMaxChanCapacity(len(projects)))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 		results   = make([]model.ProjectWithPipeline, 0)
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, []model.ProjectWithPipeline](s.getPipelines, resultchn, ctx)
+		run := util.CreateRunFunc[model.Project, []model.ProjectWithPipeline](s.getPipelines, resultchn, gctx)
 		g.Go(run(project))
 	}
 

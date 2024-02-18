@@ -21,7 +21,7 @@ func (h *BranchHandler) HandleGetBranchesWithLatestPipeline(c *fiber.Ctx) error 
 		return fiber.NewError(fiber.StatusBadRequest, "projectId is missing or invalid")
 	}
 
-	result, err := h.service.GetBranchesWithLatestPipeline(projectId)
+	result, err := h.service.GetBranchesWithLatestPipeline(projectId, c.Context())
 	if err != nil {
 		return err
 	}

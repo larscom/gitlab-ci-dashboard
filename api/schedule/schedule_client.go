@@ -9,7 +9,7 @@ import (
 )
 
 type ScheduleClient interface {
-	GetPipelineSchedules(projectId int) ([]model.Schedule, error)
+	GetPipelineSchedules(projectId int, ctx context.Context) ([]model.Schedule, error)
 }
 
 type scheduleClient struct {
@@ -22,7 +22,7 @@ func NewClient(gitlab GitlabClient) ScheduleClient {
 	}
 }
 
-func (c *scheduleClient) GetPipelineSchedules(projectId int) ([]model.Schedule, error) {
+func (c *scheduleClient) GetPipelineSchedules(projectId int, ctx context.Context) ([]model.Schedule, error) {
 	schedules, response, err := c.gitlab.ListPipelineSchedules(projectId, createOptions(1))
 	if err != nil {
 		return schedules, err
@@ -33,11 +33,11 @@ func (c *scheduleClient) GetPipelineSchedules(projectId int) ([]model.Schedule, 
 
 	var (
 		resultchn = make(chan []model.Schedule, util.GetMaxChanCapacity(response.TotalPages))
-		g, ctx    = errgroup.WithContext(context.Background())
+		g, gctx   = errgroup.WithContext(ctx)
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[schedulePageArgs, []model.Schedule](c.getSchedulesByPage, resultchn, ctx)
+		run := util.CreateRunFunc[schedulePageArgs, []model.Schedule](c.getSchedulesByPage, resultchn, gctx)
 		g.Go(run(schedulePageArgs{
 			projectId:  projectId,
 			pageNumber: page,

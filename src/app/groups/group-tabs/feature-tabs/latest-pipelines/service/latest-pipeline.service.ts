@@ -1,16 +1,18 @@
 import { retryConfig } from '$groups/http-retry-config'
 import { GroupId } from '$groups/model/group'
-import { BranchWithPipeline, ProjectWithPipeline, Status } from '$groups/model/pipeline'
+import { BranchWithPipeline, ProjectWithPipeline } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
+import { Status } from '$groups/model/status'
 import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Observable, catchError, identity, map, retry, throwError } from 'rxjs'
 import { trackRequestsStatus } from '../store/latest-pipeline.store'
 
 @Injectable({ providedIn: 'root' })
 export class LatestPipelineService {
-  constructor(private http: HttpClient, private errorService: ErrorService) {}
+  private http = inject(HttpClient)
+  private errorService = inject(ErrorService)
 
   getProjectsWithLatestPipeline(
     groupId: GroupId,

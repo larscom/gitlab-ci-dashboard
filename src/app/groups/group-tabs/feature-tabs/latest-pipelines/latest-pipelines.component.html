@@ -5,28 +5,21 @@
         [projects]="(projects$ | async)!"
         [selectedFilterText]="(selectedFilterText$ | async)!"
         (filterTextChanged)="onFilterTextChanged($event)"
-      >
-      </gcd-project-filter>
+      />
       <gcd-topic-filter
         [loading]="(loading$ | async)!"
         [projects]="(projects$ | async)!"
         [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
-      >
-      </gcd-topic-filter>
+      />
     </div>
-    <ng-container *ngIf="selectedGroupId$ | async as selectedGroupId">
-      <gcd-auto-refresh
-        [id]="selectedGroupId"
-        [loading]="(autoRefreshLoading$ | async)!"
-        (refresh)="fetch()"
-      ></gcd-auto-refresh>
-    </ng-container>
+    @if (selectedGroupId$ | async; as selectedGroupId) {
+      <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    }
   </div>
-  <ng-container *ngIf="loading$ | async; else loaded">
-    <nz-spin></nz-spin>
-  </ng-container>
-  <ng-template #loaded>
-    <gcd-pipeline-status-tabs></gcd-pipeline-status-tabs>
-  </ng-template>
+  @if (loading$ | async) {
+    <nz-spin />
+  } @else {
+    <gcd-pipeline-status-tabs />
+  }
 </div>

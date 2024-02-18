@@ -2,11 +2,12 @@ package group
 
 import (
 	"encoding/json"
-	"github.com/larscom/gitlab-ci-dashboard/group/mock"
-	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/larscom/gitlab-ci-dashboard/group/mock"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 
 	"github.com/gofiber/fiber/v2"
 

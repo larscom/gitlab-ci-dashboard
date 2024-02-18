@@ -3,13 +3,14 @@ import { GroupId } from '$groups/model/group'
 import { ProjectWithPipeline } from '$groups/model/pipeline'
 import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Observable, catchError, identity, retry, throwError } from 'rxjs'
 import { trackRequestsStatus } from '../store/pipeline.store'
 
 @Injectable({ providedIn: 'root' })
 export class PipelineService {
-  constructor(private http: HttpClient, private errorService: ErrorService) {}
+  private http = inject(HttpClient)
+  private errorService = inject(ErrorService)
 
   getProjectsWithPipeline(groupId: GroupId, withLoader: boolean = true): Observable<ProjectWithPipeline[]> {
     const url = `${location.origin}/api/projects/pipelines`

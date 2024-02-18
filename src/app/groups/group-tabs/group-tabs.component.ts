@@ -81,6 +81,7 @@ export class GroupTabsComponent {
   }
 
   private nagivate(groupId: GroupId): void {
-    this.router.navigate([groupId, 'latest-pipelines'])
+    const featureId = this.route.snapshot.params['featureId'] ?? 'latest-pipelines'
+    this.router.navigate([groupId, featureId])
   }
 }
