@@ -19,7 +19,9 @@ export class StatusFilterComponent {
 
   @Output() filterStatusesChanged = new EventEmitter<Status[]>()
 
-  statuses = Object.values(Status).sort()
+  statuses = Object.values(Status)
+    .filter((s) => s !== Status.FAILED_WITH_WARNING)
+    .sort()
 
   onChange(checked: boolean, status: Status): void {
     const selected = this.selectedFilterStatuses()

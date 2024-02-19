@@ -9,8 +9,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   Injector,
-  OnInit,
+  OnChanges,
   Signal,
+  SimpleChanges,
   inject,
   input,
   runInInjectionContext,
@@ -48,7 +49,7 @@ const RUNNABLE_STATUSES = [
   styleUrls: ['./jobs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class JobsComponent implements OnInit {
+export class JobsComponent implements OnChanges {
   projectId = input.required<ProjectId>()
   pipelineId = input.required<PipelineId>()
   scope = input<Status[]>([])
@@ -59,7 +60,13 @@ export class JobsComponent implements OnInit {
   tags: Signal<Tag[]> = signal([])
   loading = signal(true)
 
-  ngOnInit(): void {
+  ngOnChanges({ scope }: SimpleChanges): void {
+    const current: Status[] = scope?.currentValue ?? []
+    const previous: Status[] = scope?.previousValue ?? []
+    if (this.hasSameValues(current, previous)) {
+      return
+    }
+
     runInInjectionContext(this.injector, () => {
       this.tags = this.createTags()
     })
@@ -72,6 +79,10 @@ export class JobsComponent implements OnInit {
   onActionClick(e: Event, { web_url }: Job): void {
     e.stopPropagation()
     window.open(web_url, '_blank')
+  }
+
+  private hasSameValues<T>(a: T[], b: T[]): boolean {
+    return a.length === b.length && a.every((value, index) => value === b[index])
   }
 
   private createTags(): Signal<Tag[]> {
@@ -98,6 +109,13 @@ export class JobsComponent implements OnInit {
     )
   }
 
+  getStatus(job: Job): Status {
+    if (job.status === Status.FAILED && job.allow_failure) {
+      return Status.FAILED_WITH_WARNING
+    }
+    return job.status
+  }
+
   private withRepeat(): boolean {
     return this.scope().some((scope) => RUNNABLE_STATUSES.includes(scope))
   }
@@ -105,6 +123,9 @@ export class JobsComponent implements OnInit {
   private getTagIcon(job: Job): string {
     if (job.status === Status.SUCCESS) {
       return 'check-circle'
+    }
+    if (job.status === Status.FAILED && job.allow_failure) {
+      return 'exclamation-circle'
     }
     if ([Status.FAILED, Status.CANCELED].includes(job.status)) {
       return 'close-circle'

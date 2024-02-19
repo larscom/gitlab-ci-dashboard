@@ -9,5 +9,7 @@ export enum Status {
   CANCELED = 'canceled',
   SKIPPED = 'skipped',
   MANUAL = 'manual',
-  SCHEDULED = 'scheduled'
+  SCHEDULED = 'scheduled',
+
+  FAILED_WITH_WARNING = 'failed_with_warning' // custom status
 }

@@ -2,7 +2,9 @@ import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-co
 import { Pipeline } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
 import { ScheduleId, ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
+import { statusToScope } from '$groups/util/status-scope'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
@@ -11,6 +13,7 @@ import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { JobsComponent } from '../../components/jobs/jobs.component'
 import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 
 interface Header<T> {
@@ -30,7 +33,8 @@ interface Header<T> {
     NzIconModule,
     NzBadgeModule,
     NextRunAtPipe,
-    StatusColorPipe
+    StatusColorPipe,
+    JobsComponent
   ],
   templateUrl: './schedule-table.component.html',
   styleUrls: ['./schedule-table.component.scss'],
@@ -74,6 +78,10 @@ export class ScheduleTableComponent {
   get timeZone(): string {
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
     return timeZone
+  }
+
+  getScope(status?: Status): Status[] {
+    return statusToScope(status)
   }
 
   onPipelineClick(e: Event, { web_url }: Pipeline): void {

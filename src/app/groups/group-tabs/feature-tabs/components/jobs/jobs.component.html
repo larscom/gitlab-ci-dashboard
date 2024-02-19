@@ -5,7 +5,7 @@
   <nz-tag
     class="pointer"
     (click)="onActionClick($event, tag.job)"
-    [nzColor]="tag.job.status | statusColor"
+    [nzColor]="getStatus(tag.job) | statusColor"
     nz-tooltip
     [nzTooltipTitle]="'Show job (' + tag.job.name + ')'"
   >

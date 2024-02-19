@@ -9,9 +9,6 @@ export function statusToScope(status?: Status): Status[] {
     case Status.SUCCESS: {
       return [Status.FAILED]
     }
-    case Status.FAILED: {
-      return [Status.FAILED, Status.CANCELED]
-    }
     case Status.RUNNING: {
       return [Status.RUNNING, Status.PENDING]
     }

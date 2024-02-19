@@ -1,5 +1,7 @@
 import { Pipeline, PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
+import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
+import { statusToScope } from '$groups/util/status-scope'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
@@ -9,6 +11,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { JobsComponent } from '../../components/jobs/jobs.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
 interface Header<T> {
@@ -28,7 +31,8 @@ interface Header<T> {
     NzBadgeModule,
     NzIconModule,
     NzSpinModule,
-    StatusColorPipe
+    StatusColorPipe,
+    JobsComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],
@@ -74,6 +78,10 @@ export class PipelineTableComponent {
   get timeZone(): string {
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
     return timeZone
+  }
+
+  getScope(status?: Status): Status[] {
+    return statusToScope(status)
   }
 
   onActionClick(e: Event, { web_url }: Pipeline): void {

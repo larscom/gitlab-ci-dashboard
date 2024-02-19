@@ -6,6 +6,7 @@
           {{ header.title }}
         </th>
       }
+      <th>Jobs</th>
       <th>Action</th>
     </tr>
   </thead>
@@ -48,6 +49,13 @@
         </td>
         <td>
           @if (data.pipeline; as pipeline) {
+            <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
+          } @else {
+            -
+          }
+        </td>
+        <td>
+          @if (data.pipeline; as pipeline) {
             <button
               (click)="onPipelineClick($event, pipeline)"
               nzType="text"
@@ -56,11 +64,11 @@
               nz-button
               nzShape="circle"
             >
-              <span nz-icon nzType="right-circle"></span>
+              <span nz-icon nzType="eye"></span>
             </button>
           } @else {
             <button nzType="text" nz-button nzShape="circle" disabled>
-              <span nz-icon nzType="right-circle"></span>
+              <span nz-icon nzType="eye"></span>
             </button>
           }
           <button
