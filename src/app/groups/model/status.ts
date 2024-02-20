@@ -11,5 +11,5 @@ export enum Status {
   MANUAL = 'manual',
   SCHEDULED = 'scheduled',
 
-  FAILED_WITH_WARNING = 'failed_with_warning' // custom status
+  FAILED_ALLOW_FAILURE = 'failed_allow_failure' // custom status
 }

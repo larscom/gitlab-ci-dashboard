@@ -15,7 +15,7 @@ const colorMap = new Map<Status | string, Color>([
   [Status.SKIPPED, '#FD7E14'],
   [Status.MANUAL, '#FAB005'],
   [Status.SCHEDULED, '#7950F2'],
-  [Status.FAILED_WITH_WARNING, 'warning']
+  [Status.FAILED_ALLOW_FAILURE, 'warning']
 ])
 
 export function statusToColor(status?: Status | string): Color {

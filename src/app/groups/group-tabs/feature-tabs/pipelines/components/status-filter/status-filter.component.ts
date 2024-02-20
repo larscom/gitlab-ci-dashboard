@@ -20,7 +20,7 @@ export class StatusFilterComponent {
   @Output() filterStatusesChanged = new EventEmitter<Status[]>()
 
   statuses = Object.values(Status)
-    .filter((s) => s !== Status.FAILED_WITH_WARNING)
+    .filter((s) => s !== Status.FAILED_ALLOW_FAILURE)
     .sort()
 
   onChange(checked: boolean, status: Status): void {

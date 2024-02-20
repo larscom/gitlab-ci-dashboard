@@ -10,19 +10,17 @@ import {
   Component,
   Injector,
   OnChanges,
-  Signal,
   SimpleChanges,
   inject,
   input,
   runInInjectionContext,
   signal
 } from '@angular/core'
-import { toSignal } from '@angular/core/rxjs-interop'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { identity, map, repeat, retry, tap } from 'rxjs'
+import { Subscription, identity, map, repeat, retry, tap } from 'rxjs'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
 interface Tag {
@@ -31,6 +29,7 @@ interface Tag {
   spin: boolean
 }
 
+const MAX_JOB_COUNT = 10
 const RUNNABLE_STATUSES = [
   Status.CREATED,
   Status.WAITING_FOR_RESOURCE,
@@ -57,8 +56,10 @@ export class JobsComponent implements OnChanges {
   http = inject(HttpClient)
   injector = inject(Injector)
 
-  tags: Signal<Tag[]> = signal([])
+  tags = signal<Tag[]>([])
   loading = signal(true)
+
+  subscription?: Subscription
 
   ngOnChanges({ scope }: SimpleChanges): void {
     const current: Status[] = scope?.currentValue ?? []
@@ -67,9 +68,7 @@ export class JobsComponent implements OnChanges {
       return
     }
 
-    runInInjectionContext(this.injector, () => {
-      this.tags = this.createTags()
-    })
+    runInInjectionContext(this.injector, this.subscribeToJobs.bind(this))
   }
 
   trackById(_: number, { id }: Job): JobId {
@@ -85,33 +84,34 @@ export class JobsComponent implements OnChanges {
     return a.length === b.length && a.every((value, index) => value === b[index])
   }
 
-  private createTags(): Signal<Tag[]> {
+  private subscribeToJobs(): void {
+    this.subscription?.unsubscribe()
+
     const projectId = this.projectId()
     const pipelineId = this.pipelineId()
     const scope = this.scope().join(',')
     const params = { projectId, pipelineId, scope }
-    return toSignal(
-      this.http.get<Job[]>('/api/jobs', { params }).pipe(
+
+    this.subscription = this.http
+      .get<Job[]>('/api/jobs', { params })
+      .pipe(
         retry(retryConfig),
         this.withRepeat() ? repeat({ delay: 2000 }) : identity,
         tap(() => this.loading.set(false)),
         map((jobs) => {
-          return jobs.map((job) => {
+          return jobs.slice(0, MAX_JOB_COUNT).map((job) => {
             const icon = this.getTagIcon(job)
             const spin = RUNNABLE_STATUSES.includes(job.status)
             return { job, icon, spin }
           })
         })
-      ),
-      {
-        initialValue: []
-      }
-    )
+      )
+      .subscribe((tags) => this.tags.set(tags))
   }
 
   getStatus(job: Job): Status {
     if (job.status === Status.FAILED && job.allow_failure) {
-      return Status.FAILED_WITH_WARNING
+      return Status.FAILED_ALLOW_FAILURE
     }
     return job.status
   }
