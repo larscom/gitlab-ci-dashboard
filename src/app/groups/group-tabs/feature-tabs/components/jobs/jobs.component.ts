@@ -58,6 +58,7 @@ export class JobsComponent implements OnChanges {
 
   tags = signal<Tag[]>([])
   loading = signal(true)
+  jobNameLength = 12
 
   subscription?: Subscription
 

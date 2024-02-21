@@ -1,44 +1,40 @@
 @if (loading$ | async) {
-  <div class="spinner">
-    <nz-spin />
-  </div>
-} @else {
-  @if (groups$ | async; as groups) {
-    @if (groups.length) {
-      <nz-tabset
-        nzSize="small"
-        nzType="card"
-        [nzSelectedIndex]="selectedIndex$ | async"
-        (nzSelectChange)="onChange($event)"
+<div class="spinner">
+  <nz-spin />
+</div>
+} @else { @if (groups$ | async; as groups) { @if (groups.length) {
+<nz-tabset nzSize="small" nzType="card" [nzSelectedIndex]="selectedIndex$ | async" (nzSelectChange)="onChange($event)">
+  @for (group of groups; track trackById($index, group)) {
+  <nz-tab [nzTitle]="title">
+    <ng-template #title>
+      <span
+        class="pointer"
+        [attr.data-group-id]="group.id"
+        nz-tooltip
+        [nzTooltipTitle]="group.name"
+        [nzTooltipMouseEnterDelay]="1"
+        >{{ group.name | slice : 0 : groupNameLength }}<span *ngIf="group.name.length > groupNameLength">...</span></span
       >
-        @for (group of groups; track trackById($index, group)) {
-          <nz-tab [nzTitle]="title">
-            <ng-template #title>
-              <span class="uppercase" [attr.data-group-id]="group.id">{{ group.name }}</span>
-            </ng-template>
-            <ng-template nz-tab>
-              @if (selectedGroupId$ | async; as selectedGroupId) {
-                @if (selectedGroupId == group.id) {
-                  <gcd-feature-tabs />
-                }
-              }
-            </ng-template>
-          </nz-tab>
-        }
-      </nz-tabset>
-    } @else {
-      <div class="alert">
-        <nz-alert
-          [nzAction]="action"
-          nzType="warning"
-          nzMessage="Warning"
-          nzDescription="Received 0 groups from API, maybe unauthorized?"
-          nzShowIcon
-        />
-        <ng-template #action>
-          <button nz-button nzSize="small" nzType="primary" nzGhost (click)="OnReload()">Refresh</button>
-        </ng-template>
-      </div>
-    }
+    </ng-template>
+    <ng-template nz-tab>
+      @if (selectedGroupId$ | async; as selectedGroupId) { @if (selectedGroupId == group.id) {
+      <gcd-feature-tabs />
+      } }
+    </ng-template>
+  </nz-tab>
   }
-}
+</nz-tabset>
+} @else {
+<div class="alert">
+  <nz-alert
+    [nzAction]="action"
+    nzType="warning"
+    nzMessage="Warning"
+    nzDescription="Received 0 groups from API, maybe unauthorized?"
+    nzShowIcon
+  />
+  <ng-template #action>
+    <button nz-button nzSize="small" nzType="primary" nzGhost (click)="OnReload()">Refresh</button>
+  </ng-template>
+</div>
+} } }

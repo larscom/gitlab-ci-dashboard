@@ -10,7 +10,7 @@
     [nzTooltipTitle]="'Show job (' + tag.job.name + ')'"
   >
     <span nz-icon [nzType]="tag.icon" [nzSpin]="tag.spin"></span>
-    <span>{{ tag.job.name | slice : 0 : 12 }}<span *ngIf="tag.job.name.length > 12">...</span></span>
+    <span>{{ tag.job.name | slice : 0 : jobNameLength }}<span *ngIf="tag.job.name.length > jobNameLength">...</span></span>
   </nz-tag>
   } } @else { - }
 </div>

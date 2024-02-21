@@ -31,6 +31,8 @@ import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
   styleUrls: ['./group-tabs.component.scss']
 })
 export class GroupTabsComponent {
+  groupNameLength = 25
+
   groups$ = this.groupStore.groups$
   loading$ = this.groupStore.loading$
   selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)

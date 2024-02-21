@@ -6,26 +6,21 @@
   nzType="card"
 >
   @for (tab of tabs; track tab) {
-    <nz-tab [nzTitle]="title">
-      <ng-template #title>
-        <span nz-icon [nzType]="tab.icon"></span>
-        {{ tab.title }}
-      </ng-template>
-      <ng-template nz-tab>
-        <div class="tab-content">
-          @switch (tab.id) {
-            @case ('latest-pipelines') {
-              <gcd-latest-pipelines />
-            }
-            @case ('pipelines') {
-              <gcd-pipelines />
-            }
-            @case ('schedules') {
-              <gcd-schedules />
-            }
-          }
-        </div>
-      </ng-template>
-    </nz-tab>
+  <nz-tab [nzTitle]="title">
+    <ng-template #title>
+      <span nz-icon [nzType]="tab.icon"></span><span class="pointer">{{ tab.title }}</span>
+    </ng-template>
+    <ng-template nz-tab>
+      <div class="tab-content">
+        @switch (tab.id) { @case ('latest-pipelines') {
+        <gcd-latest-pipelines />
+        } @case ('pipelines') {
+        <gcd-pipelines />
+        } @case ('schedules') {
+        <gcd-schedules />
+        } }
+      </div>
+    </ng-template>
+  </nz-tab>
   }
 </nz-tabset>
