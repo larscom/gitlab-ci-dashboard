@@ -4,17 +4,22 @@ import (
 	"time"
 )
 
-type ProjectWithPipeline struct {
+type ProjectPipelines struct {
+	Project   Project    `json:"project"`
+	Pipelines []Pipeline `json:"pipelines"`
+}
+
+type ProjectLatestPipeline struct {
 	Project  Project   `json:"project"`
 	Pipeline *Pipeline `json:"pipeline"`
 }
 
-type BranchWithPipeline struct {
+type BranchLatestPipeline struct {
 	Branch   Branch    `json:"branch"`
 	Pipeline *Pipeline `json:"pipeline"`
 }
 
-type ScheduleWithProjectAndPipeline struct {
+type ScheduleProjectLatestPipeline struct {
 	Schedule Schedule  `json:"schedule"`
 	Project  Project   `json:"project"`
 	Pipeline *Pipeline `json:"pipeline"`

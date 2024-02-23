@@ -36,11 +36,11 @@ import { PipelineStore } from './store/pipeline.store'
 })
 export class PipelinesComponent {
   selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
-
   autoRefreshLoading$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.autoRefreshLoading(groupId)))
-
   loading$ = this.pipelineStore.projectsLoading$
-  projectsWithPipeline$ = this.filterService.getProjectsWithPipeline()
+
+  projectsPipeline$ = this.filterService.getProjectsPipeline()
+
   selectedFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.topicsFilter(groupId)))
   selectedFilterTextProjects$ = this.selectedGroupId$.pipe(
     switchMap((groupId) => this.pipelineStore.projectFilter(groupId))
@@ -51,12 +51,14 @@ export class PipelinesComponent {
   selectedFilterStatuses$ = this.selectedGroupId$.pipe(
     switchMap((groupId) => this.pipelineStore.statusesFilter(groupId))
   )
+
   pinnedPipelines$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.pinnedPipelines(groupId)))
 
-  projects$ = this.pipelineStore.projectsWithPipeline$.pipe(map((data) => data.map(({ project }) => project)))
-
+  projects$ = this.pipelineStore.projectsWithPipeline$.pipe(
+    map((data) => data.filter(({ pipelines }) => pipelines.length > 0).map(({ project }) => project))
+  )
   branches$ = this.pipelineStore.projectsWithPipeline$.pipe(
-    map((data) => filterArrayNotNull(data.map(({ pipeline }) => pipeline?.ref)))
+    map((data) => filterArrayNotNull(data.flatMap(({ pipelines }) => pipelines.map(({ ref }) => ref))))
   )
 
   constructor(

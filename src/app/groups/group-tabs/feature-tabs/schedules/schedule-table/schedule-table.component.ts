@@ -1,7 +1,7 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { Pipeline } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
-import { ScheduleId, ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { ScheduleId, ScheduleProjectLatestPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
@@ -41,11 +41,11 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScheduleTableComponent {
-  schedules = input.required<ScheduleWithProjectAndPipeline[]>()
+  schedules = input.required<ScheduleProjectLatestPipeline[]>()
 
   i18n = inject(NzI18nService)
 
-  headers: Header<ScheduleWithProjectAndPipeline>[] = [
+  headers: Header<ScheduleProjectLatestPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
     {
       title: 'Description',
@@ -94,7 +94,7 @@ export class ScheduleTableComponent {
     window.open(`${web_url}/-/pipeline_schedules`, '_blank')
   }
 
-  trackByScheduleId(_: number, { schedule: { id } }: ScheduleWithProjectAndPipeline): ScheduleId {
+  trackByScheduleId(_: number, { schedule: { id } }: ScheduleProjectLatestPipeline): ScheduleId {
     return id
   }
 }

@@ -1,5 +1,5 @@
 import { GroupId } from '$groups/model/group'
-import { PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
+import { PipelineId, ProjectPipelines } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
@@ -13,7 +13,7 @@ import {
 import { distinctUntilChanged, map } from 'rxjs'
 
 interface State {
-  projectsWithPipeline: ProjectWithPipeline[]
+  projectPipelines: ProjectPipelines[]
 
   filters: {
     [groupId: GroupId]: {
@@ -28,7 +28,7 @@ interface State {
 
 const { state, config } = createState(
   withProps<State>({
-    projectsWithPipeline: [],
+    projectPipelines: [],
     filters: Object()
   }),
   withRequestsStatus()
@@ -40,7 +40,7 @@ const store = new Store({ state, name: storeName, config })
 persistState(store, {
   key: storeName,
   storage: localStorageStrategy,
-  source: () => store.pipe(excludeKeys(['projectsWithPipeline', 'requestsStatus']))
+  source: () => store.pipe(excludeKeys(['projectPipelines', 'requestsStatus']))
 })
 
 export const trackRequestsStatus = createRequestsStatusOperator(store)
@@ -49,7 +49,7 @@ export const { initialState } = store
 @Injectable({ providedIn: 'root' })
 export class PipelineStore {
   readonly projectsWithPipeline$ = store.pipe(
-    map(({ projectsWithPipeline }) => projectsWithPipeline),
+    map(({ projectPipelines }) => projectPipelines),
     distinctUntilChanged()
   )
   readonly projectsLoading$ = store.pipe(selectIsRequestPending('getProjectsWithPipeline'), distinctUntilChanged())
@@ -159,15 +159,12 @@ export class PipelineStore {
     })
   }
 
-  setProjectsWithPipeline(projectsWithPipeline: ProjectWithPipeline[]): void {
-    store.update(
-      (state) => {
-        return {
-          ...state,
-          projectsWithPipeline
-        }
-      },
-      updateRequestStatus('getProjectsWithPipeline', 'success')
-    )
+  setProjectsWithPipeline(projectPipelines: ProjectPipelines[]): void {
+    store.update((state) => {
+      return {
+        ...state,
+        projectPipelines
+      }
+    }, updateRequestStatus('getProjectsWithPipeline', 'success'))
   }
 }

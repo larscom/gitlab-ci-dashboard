@@ -1,7 +1,7 @@
 import { AutoRefreshComponent } from '$groups/group-tabs/feature-tabs/components/auto-refresh/auto-refresh.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { BranchWithPipeline, Pipeline } from '$groups/model/pipeline'
+import { BranchLatestPipeline, Pipeline } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { filterNotNull } from '$groups/util/filter'
@@ -47,14 +47,14 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableBranchComponent {
-  branches = input.required<BranchWithPipeline[]>()
+  branches = input.required<BranchLatestPipeline[]>()
 
   i18n = inject(NzI18nService)
   latestPipelineStore = inject(LatestPipelineStore)
   uiStore = inject(UIStore)
   actions = inject(Actions)
 
-  headers: Header<BranchWithPipeline>[] = [
+  headers: Header<BranchLatestPipeline>[] = [
     { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
     {
       title: 'Status',
@@ -98,7 +98,7 @@ export class PipelineTableBranchComponent {
     window.open(web_url, '_blank')
   }
 
-  trackByBranchName(_: number, { branch: { name } }: BranchWithPipeline): string {
+  trackByBranchName(_: number, { branch: { name } }: BranchLatestPipeline): string {
     return name
   }
 

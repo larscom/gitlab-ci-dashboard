@@ -1,6 +1,6 @@
 import { retryConfig } from '$groups/http-retry-config'
 import { GroupId } from '$groups/model/group'
-import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { ScheduleProjectLatestPipeline } from '$groups/model/schedule'
 import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
@@ -12,11 +12,11 @@ export class ScheduleService {
   private http = inject(HttpClient)
   private errorService = inject(ErrorService)
 
-  getSchedules(groupId: GroupId, withLoader: boolean = true): Observable<ScheduleWithProjectAndPipeline[]> {
+  getSchedules(groupId: GroupId, withLoader: boolean = true): Observable<ScheduleProjectLatestPipeline[]> {
     const url = `${location.origin}/api/schedules`
 
     const params = { groupId }
-    return this.http.get<ScheduleWithProjectAndPipeline[]>(url, { params }).pipe(
+    return this.http.get<ScheduleProjectLatestPipeline[]>(url, { params }).pipe(
       withLoader ? trackRequestsStatus('getSchedules') : identity,
       retry(retryConfig),
       catchError((err) => {

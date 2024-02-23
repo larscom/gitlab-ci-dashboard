@@ -1,4 +1,4 @@
-import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { ScheduleProjectLatestPipeline } from '$groups/model/schedule'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull, filterPipeline, filterProject } from '$groups/util/filter'
 import { Injectable, inject } from '@angular/core'
@@ -11,7 +11,7 @@ export class ScheduleFilterService {
   private groupStore = inject(GroupStore)
   private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
-  getSchedules(): Observable<ScheduleWithProjectAndPipeline[]> {
+  getSchedules(): Observable<ScheduleProjectLatestPipeline[]> {
     return combineLatest([
       this.scheduleStore.schedules$,
       this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.projectFilter(groupId))),

@@ -1,6 +1,6 @@
 import { retryConfig } from '$groups/http-retry-config'
 import { GroupId } from '$groups/model/group'
-import { ProjectWithPipeline } from '$groups/model/pipeline'
+import { ProjectPipelines } from '$groups/model/pipeline'
 import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
@@ -12,11 +12,11 @@ export class PipelineService {
   private http = inject(HttpClient)
   private errorService = inject(ErrorService)
 
-  getProjectsWithPipeline(groupId: GroupId, withLoader: boolean = true): Observable<ProjectWithPipeline[]> {
+  getProjectsWithPipeline(groupId: GroupId, withLoader: boolean = true): Observable<ProjectPipelines[]> {
     const url = `${location.origin}/api/projects/pipelines`
 
     const params = { groupId }
-    return this.http.get<ProjectWithPipeline[]>(url, { params }).pipe(
+    return this.http.get<ProjectPipelines[]>(url, { params }).pipe(
       withLoader ? trackRequestsStatus('getProjectsWithPipeline') : identity,
       retry(retryConfig),
       catchError((err) => {

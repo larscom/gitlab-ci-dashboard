@@ -1,5 +1,5 @@
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
-import { Pipeline, ProjectWithPipeline } from '$groups/model/pipeline'
+import { Pipeline, ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
 import { Project, ProjectId } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { GroupStore } from '$groups/store/group.store'
@@ -45,7 +45,7 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
-  projects = input.required<ProjectWithPipeline[]>()
+  projects = input.required<ProjectPipeline[]>()
   status = input<Status>()
 
   i18n = inject(NzI18nService)
@@ -54,7 +54,7 @@ export class PipelineTableComponent {
   branchFilterService = inject(LatestBranchFilterService)
   actions = inject(Actions)
 
-  headers: Header<ProjectWithPipeline>[] = [
+  headers: Header<ProjectPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
     {
       title: 'Branch',
@@ -112,7 +112,7 @@ export class PipelineTableComponent {
     }
   }
 
-  trackByProjectId(_: number, { project: { id } }: ProjectWithPipeline): ProjectId {
+  trackByProjectId(_: number, { project: { id } }: ProjectLatestPipeline): ProjectId {
     return id
   }
 }

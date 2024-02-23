@@ -10,6 +10,7 @@ import {
   Component,
   Injector,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   inject,
   input,
@@ -21,6 +22,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { Subscription, identity, map, repeat, retry, tap } from 'rxjs'
+import { MaxLengthPipe } from '../../pipes/max-length.pipe'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
 interface Tag {
@@ -43,12 +45,12 @@ const RUNNABLE_STATUSES = [
 @Component({
   selector: 'gcd-jobs',
   standalone: true,
-  imports: [CommonModule, NzTagModule, NzIconModule, NzSpinModule, NzToolTipModule, StatusColorPipe],
+  imports: [CommonModule, NzTagModule, NzIconModule, NzSpinModule, NzToolTipModule, StatusColorPipe, MaxLengthPipe],
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class JobsComponent implements OnChanges {
+export class JobsComponent implements OnChanges, OnDestroy {
   projectId = input.required<ProjectId>()
   pipelineId = input.required<PipelineId>()
   scope = input<Status[]>([])
@@ -58,18 +60,20 @@ export class JobsComponent implements OnChanges {
 
   tags = signal<Tag[]>([])
   loading = signal(true)
-  jobNameLength = 12
 
   subscription?: Subscription
 
   ngOnChanges({ scope }: SimpleChanges): void {
     const current: Status[] = scope?.currentValue ?? []
     const previous: Status[] = scope?.previousValue ?? []
-    if (this.hasSameValues(current, previous)) {
+    if (this.isSameArray(current, previous)) {
       return
     }
+    runInInjectionContext(this.injector, () => this.subscribeToJobs())
+  }
 
-    runInInjectionContext(this.injector, this.subscribeToJobs.bind(this))
+  ngOnDestroy(): void {
+    this.subscription?.unsubscribe()
   }
 
   trackById(_: number, { id }: Job): JobId {
@@ -81,7 +85,7 @@ export class JobsComponent implements OnChanges {
     window.open(web_url, '_blank')
   }
 
-  private hasSameValues<T>(a: T[], b: T[]): boolean {
+  private isSameArray<T>(a: T[], b: T[]): boolean {
     return a.length === b.length && a.every((value, index) => value === b[index])
   }
 

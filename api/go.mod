@@ -1,6 +1,6 @@
 module github.com/larscom/gitlab-ci-dashboard
 
-go 1.21.3
+go 1.22.0
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.1

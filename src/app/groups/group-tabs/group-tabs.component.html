@@ -13,7 +13,7 @@
         nz-tooltip
         [nzTooltipTitle]="group.name"
         [nzTooltipMouseEnterDelay]="1"
-        >{{ group.name | slice : 0 : groupNameLength }}<span *ngIf="group.name.length > groupNameLength">...</span></span
+        >{{ group.name | maxLength : 25 }}</span
       >
     </ng-template>
     <ng-template nz-tab>

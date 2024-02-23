@@ -12,7 +12,7 @@ import (
 )
 
 type BranchService interface {
-	GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchWithPipeline, error)
+	GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchLatestPipeline, error)
 }
 
 type branchService struct {
@@ -30,20 +30,20 @@ func NewService(
 	}
 }
 
-func (s *branchService) GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchWithPipeline, error) {
+func (s *branchService) GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchLatestPipeline, error) {
 	branches, err := s.branchesLoader.Get(projectId)
 	if err != nil {
-		return make([]model.BranchWithPipeline, 0), err
+		return make([]model.BranchLatestPipeline, 0), err
 	}
 
 	var (
-		resultchn = make(chan model.BranchWithPipeline, util.GetMaxChanCapacity(len(branches)))
+		resultchn = make(chan model.BranchLatestPipeline, util.GetMaxChanCapacity(len(branches)))
 		g, gctx   = errgroup.WithContext(ctx)
-		results   = make([]model.BranchWithPipeline, 0)
+		results   = make([]model.BranchLatestPipeline, 0)
 	)
 
 	for _, branch := range branches {
-		run := util.CreateRunFunc[branchPipelineArgs, model.BranchWithPipeline](s.getLatestPipeline, resultchn, gctx)
+		run := util.CreateRunFunc[branchPipelineArgs, model.BranchLatestPipeline](s.getLatestPipeline, resultchn, gctx)
 		g.Go(run(branchPipelineArgs{
 			projectId: projectId,
 			branch:    branch,
@@ -67,15 +67,15 @@ type branchPipelineArgs struct {
 	branch    model.Branch
 }
 
-func (s *branchService) getLatestPipeline(args branchPipelineArgs) (model.BranchWithPipeline, error) {
+func (s *branchService) getLatestPipeline(args branchPipelineArgs) (model.BranchLatestPipeline, error) {
 	pipeline, err := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(args.projectId, args.branch.Name, nil))
-	return model.BranchWithPipeline{
+	return model.BranchLatestPipeline{
 		Branch:   args.branch,
 		Pipeline: pipeline,
 	}, err
 }
 
-func sortByUpdatedDate(branches []model.BranchWithPipeline) []model.BranchWithPipeline {
+func sortByUpdatedDate(branches []model.BranchLatestPipeline) []model.BranchLatestPipeline {
 	sort.SliceStable(branches[:], func(i, j int) bool {
 		pipelineA := branches[i].Pipeline
 		pipelineB := branches[j].Pipeline

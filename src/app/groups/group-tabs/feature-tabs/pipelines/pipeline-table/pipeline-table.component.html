@@ -2,9 +2,9 @@
   <thead>
     <tr>
       @for (header of headers; track header) {
-        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-          {{ header.title }}
-        </th>
+      <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+        {{ header.title }}
+      </th>
       }
       <th>Jobs</th>
       <th>Action</th>
@@ -12,53 +12,49 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackBy($index, data)) {
-      <tr [attr.data-project-id]="data.project.id">
-        <td>{{ data.project.name }}</td>
-        <td>{{ data.pipeline?.ref }}</td>
-        <td>{{ data.pipeline?.source || '-' }}</td>
-        <td>{{ (data.pipeline?.updated_at | date: 'medium' : timeZone : locale) || '-' }}</td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
-          }
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
-          } @else {
-            -
-          }
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <button
-              (click)="onActionClick($event, pipeline)"
-              nzType="text"
-              nz-tooltip
-              [nzTooltipTitle]="'Show pipeline (' + pipeline.ref + ')'"
-              nz-button
-              nzShape="circle"
-            >
-              <span nz-icon nzType="eye"></span>
-            </button>
-            <button
-              [class.pin-active]="pinnedPipelines().includes(pipeline.id)"
-              [nzType]="pinnedPipelines().includes(pipeline.id) ? 'default' : 'text'"
-              nz-tooltip
-              [nzTooltipTitle]="
-                pinnedPipelines().includes(pipeline.id)
-                  ? 'Unpin pipeline (' + data.project.name + ')'
-                  : 'Pin pipeline (' + data.project.name + ')'
-              "
-              nz-button
-              nzShape="circle"
-              (click)="onPinClick($event, pipeline)"
-            >
-              <span nz-icon nzType="pushpin"></span>
-            </button>
-          }
-        </td>
-      </tr>
+    <tr [attr.data-project-id]="data.project.id">
+      <td>{{ data.project.name }}</td>
+      <td>{{ data.pipeline.ref }}</td>
+      <td>{{ data.pipeline.source }}</td>
+      <td>{{ data.pipeline.updated_at | date : 'medium' : timeZone : locale }}</td>
+      <td>
+        <nz-badge [nzColor]="data.pipeline.status | statusColor" [nzText]="data.pipeline.status"></nz-badge>
+      </td>
+      <td>
+        <gcd-jobs
+          [projectId]="data.project.id"
+          [pipelineId]="data.pipeline.id"
+          [scope]="getScope(data.pipeline.status)"
+        />
+      </td>
+      <td>
+        <button
+          (click)="onActionClick($event, data.pipeline)"
+          nzType="text"
+          nz-tooltip
+          [nzTooltipTitle]="'Show pipeline (' + data.pipeline.ref + ')'"
+          nz-button
+          nzShape="circle"
+        >
+          <span nz-icon nzType="eye"></span>
+        </button>
+        <button
+          [class.pin-active]="pinnedPipelines().includes(data.pipeline.id)"
+          [nzType]="pinnedPipelines().includes(data.pipeline.id) ? 'default' : 'text'"
+          nz-tooltip
+          [nzTooltipTitle]="
+            pinnedPipelines().includes(data.pipeline.id)
+              ? 'Unpin pipeline (' + data.project.name + ')'
+              : 'Pin pipeline (' + data.project.name + ')'
+          "
+          nz-button
+          nzShape="circle"
+          (click)="onPinClick($event, data.pipeline)"
+        >
+          <span nz-icon nzType="pushpin"></span>
+        </button>
+      </td>
+    </tr>
     }
   </tbody>
 </nz-table>

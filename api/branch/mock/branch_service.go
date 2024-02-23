@@ -10,13 +10,13 @@ type BranchServiceMock struct {
 	Error error
 }
 
-func (s *BranchServiceMock) GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchWithPipeline, error) {
+func (s *BranchServiceMock) GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchLatestPipeline, error) {
 	if projectId == 1 {
-		return []model.BranchWithPipeline{
+		return []model.BranchLatestPipeline{
 			{
 				Branch: model.Branch{Name: "branch-1"},
 			},
 		}, s.Error
 	}
-	return make([]model.BranchWithPipeline, 0), s.Error
+	return make([]model.BranchLatestPipeline, 0), s.Error
 }

@@ -31,7 +31,6 @@ func (h *ProjectHandler) HandleGetProjectsWithLatestPipeline(c *fiber.Ctx) error
 
 func (h *ProjectHandler) HandleGetProjectsWithPipeline(c *fiber.Ctx) error {
 	groupId := c.QueryInt("groupId")
-
 	if groupId == 0 {
 		return fiber.NewError(fiber.StatusBadRequest, "groupId is missing or invalid")
 	}

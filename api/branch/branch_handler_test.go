@@ -1,11 +1,12 @@
 package branch
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/branch/mock"
-	"github.com/larscom/gitlab-ci-dashboard/model"
 	"io"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/larscom/gitlab-ci-dashboard/branch/mock"
+	"github.com/larscom/gitlab-ci-dashboard/model"
 
 	"github.com/goccy/go-json"
 
@@ -25,7 +26,7 @@ func TestHandleGetBranchesWithLatestPipeline(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.BranchWithPipeline, 0)
+	result := make([]model.BranchLatestPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -47,7 +48,7 @@ func TestHandleGetBranchesWithLatestPipelineNoMatch(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/branches?projectId=123", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.BranchWithPipeline, 0)
+	result := make([]model.BranchLatestPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

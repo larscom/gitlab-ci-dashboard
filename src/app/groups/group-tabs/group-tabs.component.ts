@@ -14,6 +14,7 @@ import { combineLatestWith, firstValueFrom, map, switchMap, tap } from 'rxjs'
 import { fetchGroups } from '../store/group.actions'
 import { GroupStore } from '../store/group.store'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
+import { MaxLengthPipe } from './feature-tabs/pipes/max-length.pipe'
 
 @Component({
   selector: 'gcd-group-tabs',
@@ -25,14 +26,13 @@ import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
     NzTabsModule,
     NzSpinModule,
     NzToolTipModule,
-    FeatureTabsComponent
+    FeatureTabsComponent,
+    MaxLengthPipe
   ],
   templateUrl: './group-tabs.component.html',
   styleUrls: ['./group-tabs.component.scss']
 })
 export class GroupTabsComponent {
-  groupNameLength = 25
-
   groups$ = this.groupStore.groups$
   loading$ = this.groupStore.loading$
   selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)

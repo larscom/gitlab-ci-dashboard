@@ -2,14 +2,24 @@ import { Branch } from './branch'
 import { Project, ProjectId } from './project'
 import { Status } from './status'
 
-export interface ProjectWithPipeline {
+export interface ProjectLatestPipeline {
   project: Project
   pipeline?: Pipeline
 }
 
-export interface BranchWithPipeline {
+export interface BranchLatestPipeline {
   branch: Branch
   pipeline?: Pipeline
+}
+
+export interface ProjectPipelines {
+  project: Project
+  pipelines: Pipeline[]
+}
+
+export interface ProjectPipeline {
+  project: Project
+  pipeline: Pipeline
 }
 
 export enum Source {

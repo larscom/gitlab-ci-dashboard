@@ -1,5 +1,4 @@
-import { ProjectWithPipeline } from '$groups/model/pipeline'
-import { Status } from '$groups/model/status'
+import { ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
 import { filterNotNull, filterPipeline, filterProject } from '$groups/util/filter'
 import { Injectable, inject } from '@angular/core'
@@ -15,22 +14,19 @@ export class ProjectFilterService {
 
   private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
 
-  getProjectsWithLatestPipeline(): Observable<Map<Status, ProjectWithPipeline[]>> {
+  getProjectsLatestPipeline(): Observable<ProjectLatestPipeline[]> {
     return combineLatest([
       this.latestPipelineStore.projectsWithLatestPipeline$,
       this.selectedGroupId$.pipe(switchMap((groupId) => this.latestPipelineStore.projectFilter(groupId))),
       this.selectedGroupId$.pipe(switchMap((groupId) => this.latestPipelineStore.topicsFilter(groupId)))
     ]).pipe(
       map(([data, filterText, filterTopics]) => {
-        return Array.from(data).reduce((current, [status, projects]) => {
-          const filtered = projects.filter(({ project }) => filterProject(project, filterText, filterTopics))
-          return filtered.length ? current.set(status, filtered) : current
-        }, new Map<Status, ProjectWithPipeline[]>())
+        return data.filter(({ project }) => filterProject(project, filterText, filterTopics))
       })
     )
   }
 
-  getProjectsWithPipeline(): Observable<ProjectWithPipeline[]> {
+  getProjectsPipeline(): Observable<ProjectPipeline[]> {
     return combineLatest([
       this.pipelineStore.projectsWithPipeline$,
       this.selectedGroupId$.pipe(switchMap((groupId) => this.pipelineStore.projectFilter(groupId))),
@@ -41,27 +37,33 @@ export class ProjectFilterService {
     ]).pipe(
       map(([data, projectText, branchText, filterTopics, filterStatuses, pinnedPipelines]) =>
         data
+          .flatMap(({ project, pipelines }) => pipelines.map((pipeline) => ({ project, pipeline })))
           .filter(({ pipeline, project }) => {
-            const filter = filterProject(project, projectText, filterTopics)
-            if (pipeline) {
-              return filter && filterPipeline(pipeline, branchText, filterStatuses)
-            }
-            return filter
+            return (
+              filterProject(project, projectText, filterTopics) && filterPipeline(pipeline, branchText, filterStatuses)
+            )
           })
-          .sort((a, b) => {
-            const aPinned = pinnedPipelines.includes(Number(a.pipeline?.id))
-            const bPinned = pinnedPipelines.includes(Number(b.pipeline?.id))
-
-            if (aPinned && !bPinned) {
-              return -1
-            }
-            if (!aPinned && bPinned) {
-              return 1
-            }
-
-            return 0
-          })
+          .sort((a, b) => this.sortByUpdatedAt(a, b))
+          .sort((a, b) => this.sortPinned(a, b, pinnedPipelines))
       )
     )
+  }
+
+  private sortByUpdatedAt(a: ProjectPipeline, b: ProjectPipeline): number {
+    return new Date(b.pipeline.updated_at).getTime() - new Date(a.pipeline.updated_at).getTime()
+  }
+
+  private sortPinned(a: ProjectPipeline, b: ProjectPipeline, pinnedPipelines: number[]): number {
+    const aPinned = pinnedPipelines.includes(Number(a.pipeline?.id))
+    const bPinned = pinnedPipelines.includes(Number(b.pipeline?.id))
+
+    if (aPinned && !bPinned) {
+      return -1
+    }
+    if (!aPinned && bPinned) {
+      return 1
+    }
+
+    return 0
   }
 }

@@ -2,9 +2,9 @@
   <thead>
     <tr>
       @for (header of headers; track header) {
-        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-          {{ header.title }}
-        </th>
+      <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+        {{ header.title }}
+      </th>
       }
       <th>Jobs</th>
       <th>Action</th>
@@ -12,45 +12,38 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackByProjectId($index, data)) {
-      <tr class="pointer" [attr.data-project-id]="data.project.id" (click)="onRowClick(data.project)">
-        <td>{{ data.project.name }}</td>
-        <td>{{ data.project.default_branch }}</td>
-        <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
-        <td>{{ data.pipeline?.source || '-' }}</td>
-        <td>{{ (data.pipeline?.updated_at | date: 'medium' : timeZone : locale) || '-' }}</td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="scope" />
-          } @else {
-            -
-          }
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <button
-              (click)="onActionClick($event, pipeline)"
-              nzType="text"
-              nz-tooltip
-              [nzTooltipTitle]="'Show pipeline (' + data.project.default_branch + ')'"
-              nz-button
-              nzShape="circle"
-            >
-              <span nz-icon nzType="eye"></span>
-            </button>
-          } @else {
-            -
-          }
-        </td>
-      </tr>
-      <tr [nzExpand]="data.project.id === (selectedProjectId$ | async)">
-        @if (selectedProjectId$ | async; as selectedProjectId) {
-          @if (data.project.id === selectedProjectId) {
-            @if (branches$ | async; as branches) {
-              <gcd-pipeline-table-branch [branches]="branches" />
-            }
-          }
-        }
-      </tr>
+    <tr class="pointer" [attr.data-project-id]="data.project.id" (click)="onRowClick(data.project)">
+      <td>{{ data.project.name }}</td>
+      <td>{{ data.project.default_branch }}</td>
+      <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
+      <td>{{ data.pipeline.source }}</td>
+      <td>{{ data.pipeline.updated_at | date : 'medium' : timeZone : locale }}</td>
+      <td>
+        @if (data.pipeline; as pipeline) {
+        <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="scope" />
+        } @else { - }
+      </td>
+      <td>
+        @if (data.pipeline; as pipeline) {
+        <button
+          (click)="onActionClick($event, pipeline)"
+          nzType="text"
+          nz-tooltip
+          [nzTooltipTitle]="'Show pipeline (' + data.project.default_branch + ')'"
+          nz-button
+          nzShape="circle"
+        >
+          <span nz-icon nzType="eye"></span>
+        </button>
+        } @else { - }
+      </td>
+    </tr>
+    <tr [nzExpand]="data.project.id === (selectedProjectId$ | async)">
+      @if (selectedProjectId$ | async; as selectedProjectId) { @if (data.project.id === selectedProjectId) { @if
+      (branches$ | async; as branches) {
+      <gcd-pipeline-table-branch [branches]="branches" />
+      } } }
+    </tr>
     }
   </tbody>
 </nz-table>

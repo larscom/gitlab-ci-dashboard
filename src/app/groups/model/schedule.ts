@@ -2,7 +2,7 @@ import { Pipeline } from './pipeline'
 import { Project } from './project'
 import { User } from './user'
 
-export interface ScheduleWithProjectAndPipeline {
+export interface ScheduleProjectLatestPipeline {
   schedule: Schedule
   project: Project
   pipeline?: Pipeline

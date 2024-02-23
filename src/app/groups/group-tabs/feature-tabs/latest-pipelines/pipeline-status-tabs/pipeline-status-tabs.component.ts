@@ -1,5 +1,5 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { ProjectWithPipeline } from '$groups/model/pipeline'
+import { ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { CommonModule } from '@angular/common'
 import { Component, inject } from '@angular/core'
@@ -12,7 +12,7 @@ import { PipelineTableComponent } from './pipeline-table/pipeline-table.componen
 
 interface Tab {
   status: Status
-  projects: ProjectWithPipeline[]
+  projects: ProjectPipeline[]
 }
 
 @Component({
@@ -25,12 +25,21 @@ interface Tab {
 export class PipelineStatusTabsComponent {
   filterService = inject(ProjectFilterService)
 
-  tabs$: Observable<Tab[]> = this.filterService.getProjectsWithLatestPipeline().pipe(
-    map((map) =>
-      Array.from(map)
+  tabs$: Observable<Tab[]> = this.filterService.getProjectsLatestPipeline().pipe(
+    map((data) => {
+      return Array.from(
+        data
+          .filter(({ pipeline }) => pipeline != null)
+          .reduce((current, { pipeline, project }) => {
+            const { status } = pipeline!
+            const projects = current.get(status)
+            const next: ProjectPipeline = { project, pipeline: pipeline! }
+            return projects ? current.set(status, [...projects, next]) : current.set(status, [next])
+          }, new Map<Status, ProjectPipeline[]>())
+      )
         .map(([status, projects]) => ({ status, projects }))
         .sort((a, b) => a.status.localeCompare(b.status))
-    )
+    })
   )
 
   trackByStatus(_: number, { status }: Tab): Status {

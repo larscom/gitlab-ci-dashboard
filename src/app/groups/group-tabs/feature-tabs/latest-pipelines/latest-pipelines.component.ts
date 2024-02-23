@@ -40,11 +40,7 @@ export class LatestPipelinesComponent {
 
   loading$ = this.latestPipelineStore.projectsLoading$
   projects$ = this.latestPipelineStore.projectsWithLatestPipeline$.pipe(
-    map((map) =>
-      Array.from(map.values())
-        .flat()
-        .map(({ project }) => project)
-    )
+    map((projects) => projects.filter(({ pipeline }) => pipeline != null).map(({ project }) => project))
   )
 
   constructor(

@@ -1,11 +1,12 @@
 package schedule
 
 import (
-	"github.com/larscom/gitlab-ci-dashboard/model"
-	"github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 	"io"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/larscom/gitlab-ci-dashboard/model"
+	"github.com/larscom/gitlab-ci-dashboard/schedule/mock"
 
 	"github.com/goccy/go-json"
 
@@ -25,7 +26,7 @@ func TestHandleGetSchedules(t *testing.T) {
 	resp, _ := app.Test(httptest.NewRequest("GET", "/schedules?groupId=1", nil), -1)
 	body, _ := io.ReadAll(resp.Body)
 
-	result := make([]model.ScheduleWithProjectAndPipeline, 0)
+	result := make([]model.ScheduleProjectLatestPipeline, 0)
 	err := json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fatal(err.Error())

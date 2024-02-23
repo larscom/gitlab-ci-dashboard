@@ -1,8 +1,6 @@
 import { GroupId } from '$groups/model/group'
-import { BranchWithPipeline, ProjectWithPipeline } from '$groups/model/pipeline'
+import { BranchLatestPipeline, ProjectLatestPipeline } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
-import { Status } from '$groups/model/status'
-import { recordToMap } from '$groups/util/map-record'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
 import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
@@ -16,8 +14,8 @@ import { distinctUntilChanged, map } from 'rxjs'
 
 interface State {
   selectedProjectId?: ProjectId
-  projectsWithLatestPipeline: Record<Status, ProjectWithPipeline[]>
-  branchesWithLatestPipeline: BranchWithPipeline[]
+  projectsLatestPipelines: ProjectLatestPipeline[]
+  branchesLatestPipelines: BranchLatestPipeline[]
 
   filters: {
     [groupId: GroupId]: {
@@ -30,8 +28,8 @@ interface State {
 
 const { state, config } = createState(
   withProps<State>({
-    projectsWithLatestPipeline: Object(),
-    branchesWithLatestPipeline: [],
+    projectsLatestPipelines: [],
+    branchesLatestPipelines: [],
     filters: Object()
   }),
   withRequestsStatus()
@@ -45,7 +43,7 @@ persistState(store, {
   storage: localStorageStrategy,
   source: () =>
     store.pipe(
-      excludeKeys(['branchesWithLatestPipeline', 'projectsWithLatestPipeline', 'requestsStatus', 'selectedProjectId'])
+      excludeKeys(['branchesLatestPipelines', 'projectsLatestPipelines', 'requestsStatus', 'selectedProjectId'])
     )
 })
 
@@ -60,7 +58,7 @@ export class LatestPipelineStore {
   )
 
   readonly projectsWithLatestPipeline$ = store.pipe(
-    map(({ projectsWithLatestPipeline }) => recordToMap(projectsWithLatestPipeline)),
+    map(({ projectsLatestPipelines }) => projectsLatestPipelines),
     distinctUntilChanged()
   )
   readonly projectsLoading$ = store.pipe(
@@ -69,7 +67,7 @@ export class LatestPipelineStore {
   )
 
   readonly branchesWithLatestPipeline$ = store.pipe(
-    map(({ branchesWithLatestPipeline }) => branchesWithLatestPipeline),
+    map(({ branchesLatestPipelines }) => branchesLatestPipelines),
     distinctUntilChanged()
   )
   readonly branchesLoading$ = store.pipe(
@@ -151,27 +149,21 @@ export class LatestPipelineStore {
     })
   }
 
-  setProjectsWithLatestPipeline(projectsWithLatestPipeline: Record<Status, ProjectWithPipeline[]>): void {
-    store.update(
-      (state) => {
-        return {
-          ...state,
-          projectsWithLatestPipeline
-        }
-      },
-      updateRequestStatus('getProjectsWithLatestPipeline', 'success')
-    )
+  setProjectsWithLatestPipeline(projectsLatestPipelines: ProjectLatestPipeline[]): void {
+    store.update((state) => {
+      return {
+        ...state,
+        projectsLatestPipelines
+      }
+    }, updateRequestStatus('getProjectsWithLatestPipeline', 'success'))
   }
 
-  setBranchesWithLatestPipeline(branchesWithLatestPipeline: BranchWithPipeline[]): void {
-    store.update(
-      (state) => {
-        return {
-          ...state,
-          branchesWithLatestPipeline
-        }
-      },
-      updateRequestStatus('getBranchesWithLatestPipeline', 'success')
-    )
+  setBranchesWithLatestPipeline(branchesLatestPipelines: BranchLatestPipeline[]): void {
+    store.update((state) => {
+      return {
+        ...state,
+        branchesLatestPipelines
+      }
+    }, updateRequestStatus('getBranchesWithLatestPipeline', 'success'))
   }
 }

@@ -1,4 +1,4 @@
-import { Pipeline, PipelineId, ProjectWithPipeline } from '$groups/model/pipeline'
+import { Pipeline, PipelineId, ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
@@ -39,14 +39,14 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
-  projects = input.required<ProjectWithPipeline[]>()
+  projects = input.required<ProjectPipeline[]>()
   pinnedPipelines = input.required<PipelineId[]>()
 
   i18n = inject(NzI18nService)
 
   @Output() pinnedPipelinesChanged = new EventEmitter<PipelineId[]>()
 
-  headers: Header<ProjectWithPipeline>[] = [
+  headers: Header<ProjectPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
     {
       title: 'Branch',
@@ -56,17 +56,17 @@ export class PipelineTableComponent {
     {
       title: 'Trigger',
       sortable: true,
-      compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
+      compare: (a, b) => compareString(a.pipeline.source, b.pipeline.source)
     },
     {
       title: 'Last Run',
       sortable: true,
-      compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
+      compare: (a, b) => compareStringDate(a.pipeline.updated_at, b.pipeline.updated_at)
     },
     {
       title: 'Status',
       sortable: true,
-      compare: (a, b) => compareString(a.pipeline?.status, b.pipeline?.status)
+      compare: (a, b) => compareString(a.pipeline.status, b.pipeline.status)
     }
   ]
 
@@ -101,7 +101,7 @@ export class PipelineTableComponent {
     }
   }
 
-  trackBy(index: number, { pipeline }: ProjectWithPipeline): PipelineId | number {
+  trackBy(index: number, { pipeline }: ProjectLatestPipeline): PipelineId | number {
     return pipeline?.id || index
   }
 }

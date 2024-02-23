@@ -25,20 +25,16 @@
       />
     </div>
     @if (selectedGroupId$ | async; as selectedGroupId) {
-      <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
     }
   </div>
   @if (loading$ | async) {
-    <nz-spin />
-  } @else {
-    @if (projectsWithPipeline$ | async; as projects) {
-      @if (pinnedPipelines$ | async; as pinnedPipelines) {
-        <gcd-pipeline-table
-          [projects]="projects"
-          [pinnedPipelines]="pinnedPipelines"
-          (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"
-        />
-      }
-    }
-  }
+  <nz-spin />
+  } @else { @if (projectsPipeline$ | async; as projects) { @if (pinnedPipelines$ | async; as pinnedPipelines) {
+  <gcd-pipeline-table
+    [projects]="projects"
+    [pinnedPipelines]="pinnedPipelines"
+    (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"
+  />
+  } } }
 </div>

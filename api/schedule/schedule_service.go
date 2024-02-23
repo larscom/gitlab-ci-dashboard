@@ -14,7 +14,7 @@ import (
 )
 
 type ScheduleService interface {
-	GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleWithProjectAndPipeline, error)
+	GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleProjectLatestPipeline, error)
 }
 
 type scheduleService struct {
@@ -38,21 +38,21 @@ func NewService(
 	}
 }
 
-func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleWithProjectAndPipeline, error) {
+func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleProjectLatestPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
-		return make([]model.ScheduleWithProjectAndPipeline, 0), err
+		return make([]model.ScheduleProjectLatestPipeline, 0), err
 	}
 	projects = s.filterProjects(projects)
 
 	var (
-		resultchn = make(chan []model.ScheduleWithProjectAndPipeline, util.GetMaxChanCapacity(len(projects)))
+		resultchn = make(chan []model.ScheduleProjectLatestPipeline, util.GetMaxChanCapacity(len(projects)))
 		g, gctx   = errgroup.WithContext(ctx)
-		results   = make([]model.ScheduleWithProjectAndPipeline, 0)
+		results   = make([]model.ScheduleProjectLatestPipeline, 0)
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, []model.ScheduleWithProjectAndPipeline](s.getSchedules, resultchn, gctx)
+		run := util.CreateRunFunc[model.Project, []model.ScheduleProjectLatestPipeline](s.getSchedules, resultchn, gctx)
 		g.Go(run(project))
 	}
 
@@ -68,17 +68,17 @@ func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]mode
 	return sortById(results), g.Wait()
 }
 
-func (s *scheduleService) getSchedules(project model.Project) ([]model.ScheduleWithProjectAndPipeline, error) {
+func (s *scheduleService) getSchedules(project model.Project) ([]model.ScheduleProjectLatestPipeline, error) {
 	schedules, err := s.schedulesLoader.Get(project.Id)
 	if err != nil {
-		return make([]model.ScheduleWithProjectAndPipeline, 0), err
+		return make([]model.ScheduleProjectLatestPipeline, 0), err
 	}
 
-	result := make([]model.ScheduleWithProjectAndPipeline, 0, len(schedules))
+	result := make([]model.ScheduleProjectLatestPipeline, 0, len(schedules))
 	for _, schedule := range schedules {
 		source := "schedule"
 		pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
-		result = append(result, model.ScheduleWithProjectAndPipeline{
+		result = append(result, model.ScheduleProjectLatestPipeline{
 			Schedule: schedule,
 			Project:  project,
 			Pipeline: pipeline,
@@ -97,7 +97,7 @@ func (s *scheduleService) filterProjects(projects []model.Project) []model.Proje
 	return projects
 }
 
-func sortById(schedules []model.ScheduleWithProjectAndPipeline) []model.ScheduleWithProjectAndPipeline {
+func sortById(schedules []model.ScheduleProjectLatestPipeline) []model.ScheduleProjectLatestPipeline {
 	sort.SliceStable(schedules[:], func(i, j int) bool {
 		return schedules[i].Schedule.Id < schedules[j].Schedule.Id
 	})

@@ -1,5 +1,5 @@
 import { GroupId } from '$groups/model/group'
-import { ScheduleWithProjectAndPipeline } from '$groups/model/schedule'
+import { ScheduleProjectLatestPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
 import { Injectable } from '@angular/core'
 import { Store, createState, withProps } from '@ngneat/elf'
@@ -13,7 +13,7 @@ import {
 import { distinctUntilChanged, map } from 'rxjs'
 
 interface State {
-  schedules: ScheduleWithProjectAndPipeline[]
+  schedules: ScheduleProjectLatestPipeline[]
 
   filters: {
     [groupId: GroupId]: {
@@ -66,7 +66,7 @@ export class ScheduleStore {
       distinctUntilChanged()
     )
 
-  setSchedules(schedules: ScheduleWithProjectAndPipeline[]): void {
+  setSchedules(schedules: ScheduleProjectLatestPipeline[]): void {
     store.update(
       (state) => {
         return {

@@ -65,42 +65,39 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/latest-pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make(map[string][]model.ProjectWithPipeline)
-
+		result := make([]model.ProjectLatestPipeline, 0)
 		err := json.Unmarshal(body, &result)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		success := result["success"]
-
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
-		assert.Len(t, success, 1)
-		assert.Equal(t, "project-1", success[0].Project.Name)
-		assert.Equal(t, "success", success[0].Pipeline.Status)
+		assert.Len(t, result, 1)
+		assert.Equal(t, "project-1", result[0].Project.Name)
+		assert.Equal(t, "success", result[0].Pipeline.Status)
 	})
 
 	t.Run("TestProjectsPipelinesEndpoint", func(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/projects/pipelines?groupId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]model.ProjectWithPipeline, 0)
+		result := make([]model.ProjectPipelines, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		assert.Len(t, result, 2)
-		assert.Equal(t, "success", result[0].Pipeline.Status)
-		assert.Equal(t, "failed", result[1].Pipeline.Status)
+		assert.Len(t, result, 1)
+		assert.Equal(t, "success", result[0].Pipelines[0].Status)
+		assert.Equal(t, "failed", result[0].Pipelines[1].Status)
 	})
 
 	t.Run("TestBranchesLatestPipelinesEndpoint", func(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/branches/latest-pipelines?projectId=123", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]model.BranchWithPipeline, 0)
+		result := make([]model.BranchLatestPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {
@@ -117,7 +114,7 @@ func TestServerWithConfig(t *testing.T) {
 		resp, _ := server.Test(httptest.NewRequest("GET", "/api/schedules?groupId=333", nil), -1)
 		body, _ := io.ReadAll(resp.Body)
 
-		result := make([]model.ScheduleWithProjectAndPipeline, 0)
+		result := make([]model.ScheduleProjectLatestPipeline, 0)
 
 		err := json.Unmarshal(body, &result)
 		if err != nil {

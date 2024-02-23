@@ -1,6 +1,6 @@
 import { retryConfig } from '$groups/http-retry-config'
 import { GroupId } from '$groups/model/group'
-import { BranchWithPipeline, ProjectWithPipeline } from '$groups/model/pipeline'
+import { BranchLatestPipeline, ProjectLatestPipeline } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { ErrorService } from '$service/error.service'
@@ -17,11 +17,11 @@ export class LatestPipelineService {
   getProjectsWithLatestPipeline(
     groupId: GroupId,
     withLoader: boolean = true
-  ): Observable<Record<Status, ProjectWithPipeline[]>> {
+  ): Observable<ProjectLatestPipeline[]> {
     const url = `${location.origin}/api/projects/latest-pipelines`
 
     const params = { groupId }
-    return this.http.get<Record<Status, ProjectWithPipeline[]>>(url, { params }).pipe(
+    return this.http.get<ProjectLatestPipeline[]>(url, { params }).pipe(
       withLoader ? trackRequestsStatus('getProjectsWithLatestPipeline') : identity,
       retry(retryConfig),
       catchError((err) => {
@@ -31,11 +31,11 @@ export class LatestPipelineService {
     )
   }
 
-  getBranchesWithLatestPipeline(projectId: ProjectId, withLoader: boolean = true): Observable<BranchWithPipeline[]> {
+  getBranchesWithLatestPipeline(projectId: ProjectId, withLoader: boolean = true): Observable<BranchLatestPipeline[]> {
     const url = `${location.origin}/api/branches/latest-pipelines`
 
     const params = { projectId }
-    return this.http.get<BranchWithPipeline[]>(url, { params }).pipe(
+    return this.http.get<BranchLatestPipeline[]>(url, { params }).pipe(
       map((branches) => branches.filter(({ branch }) => !branch.default)),
       withLoader ? trackRequestsStatus('getBranchesWithLatestPipeline') : identity,
       retry(retryConfig),

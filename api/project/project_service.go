@@ -13,12 +13,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type PipelineStatus = string
-
 type ProjectService interface {
-	GetProjectsWithLatestPipeline(groupId int, ctx context.Context) (map[PipelineStatus][]model.ProjectWithPipeline, error)
+	GetProjectsWithLatestPipeline(groupId int, ctx context.Context) ([]model.ProjectLatestPipeline, error)
 
-	GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectWithPipeline, error)
+	GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectPipelines, error)
 }
 
 type projectService struct {
@@ -42,21 +40,21 @@ func NewService(
 	}
 }
 
-func (s *projectService) GetProjectsWithLatestPipeline(groupId int, ctx context.Context) (map[PipelineStatus][]model.ProjectWithPipeline, error) {
+func (s *projectService) GetProjectsWithLatestPipeline(groupId int, ctx context.Context) ([]model.ProjectLatestPipeline, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
-		return make(map[PipelineStatus][]model.ProjectWithPipeline), err
+		return make([]model.ProjectLatestPipeline, 0), err
 	}
 	projects = s.filterProjects(projects)
 
 	var (
-		resultchn = make(chan map[PipelineStatus]model.ProjectWithPipeline, util.GetMaxChanCapacity(len(projects)))
+		resultchn = make(chan model.ProjectLatestPipeline, util.GetMaxChanCapacity(len(projects)))
 		g, gctx   = errgroup.WithContext(ctx)
-		results   = make(map[PipelineStatus][]model.ProjectWithPipeline)
+		results   = make([]model.ProjectLatestPipeline, 0)
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, map[PipelineStatus]model.ProjectWithPipeline](
+		run := util.CreateRunFunc[model.Project, model.ProjectLatestPipeline](
 			s.getLatestPipeline,
 			resultchn,
 			gctx,
@@ -70,38 +68,27 @@ func (s *projectService) GetProjectsWithLatestPipeline(groupId int, ctx context.
 	}()
 
 	for value := range resultchn {
-		for status, v := range value {
-			current, hasStatus := results[status]
-			if hasStatus {
-				results[status] = append(current, v)
-			} else {
-				results[status] = []model.ProjectWithPipeline{v}
-			}
-		}
+		results = append(results, value)
 	}
 
-	for status, value := range results {
-		results[status] = sortByUpdatedDate(value)
-	}
-
-	return results, g.Wait()
+	return sortByUpdatedDate(results), g.Wait()
 }
 
-func (s *projectService) GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectWithPipeline, error) {
+func (s *projectService) GetProjectsWithPipeline(groupId int, ctx context.Context) ([]model.ProjectPipelines, error) {
 	projects, err := s.projectsLoader.Get(groupId)
 	if err != nil {
-		return make([]model.ProjectWithPipeline, 0), err
+		return make([]model.ProjectPipelines, 0), err
 	}
 	projects = s.filterProjects(projects)
 
 	var (
-		resultchn = make(chan []model.ProjectWithPipeline, util.GetMaxChanCapacity(len(projects)))
+		resultchn = make(chan model.ProjectPipelines, util.GetMaxChanCapacity(len(projects)))
 		g, gctx   = errgroup.WithContext(ctx)
-		results   = make([]model.ProjectWithPipeline, 0)
+		results   = make([]model.ProjectPipelines, 0)
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, []model.ProjectWithPipeline](s.getPipelines, resultchn, gctx)
+		run := util.CreateRunFunc[model.Project, model.ProjectPipelines](s.getPipelines, resultchn, gctx)
 		g.Go(run(project))
 	}
 
@@ -111,30 +98,21 @@ func (s *projectService) GetProjectsWithPipeline(groupId int, ctx context.Contex
 	}()
 
 	for value := range resultchn {
-		results = append(results, value...)
+		results = append(results, value)
 	}
 
-	return sortByUpdatedDate(results), g.Wait()
+	return results, g.Wait()
 }
 
-func (s *projectService) getPipelines(project model.Project) ([]model.ProjectWithPipeline, error) {
+func (s *projectService) getPipelines(project model.Project) (model.ProjectPipelines, error) {
 	pipelines, err := s.pipelinesLoader.Get(project.Id)
-	if err != nil {
-		return make([]model.ProjectWithPipeline, 0), err
-	}
-
-	result := make([]model.ProjectWithPipeline, len(pipelines))
-	for i := 0; i < len(pipelines); i++ {
-		result[i] = model.ProjectWithPipeline{
-			Project:  project,
-			Pipeline: &pipelines[i],
-		}
-	}
-
-	return result, nil
+	return model.ProjectPipelines{
+		Project:   project,
+		Pipelines: pipelines,
+	}, err
 }
 
-func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWithPipeline {
+func sortByUpdatedDate(projects []model.ProjectLatestPipeline) []model.ProjectLatestPipeline {
 	sort.SliceStable(projects[:], func(i, j int) bool {
 		pipelineA := projects[i].Pipeline
 		pipelineB := projects[j].Pipeline
@@ -151,24 +129,13 @@ func sortByUpdatedDate(projects []model.ProjectWithPipeline) []model.ProjectWith
 	return projects
 }
 
-func (s *projectService) getLatestPipeline(project model.Project) (map[PipelineStatus]model.ProjectWithPipeline, error) {
+func (s *projectService) getLatestPipeline(project model.Project) (model.ProjectLatestPipeline, error) {
 	key := pipeline.NewPipelineKey(project.Id, project.DefaultBranch, nil)
 	pipeline, err := s.pipelineLatestLoader.Get(key)
-
-	if err != nil {
-		return make(map[PipelineStatus]model.ProjectWithPipeline), err
-	}
-
-	if pipeline != nil {
-		return map[PipelineStatus]model.ProjectWithPipeline{
-			pipeline.Status: {
-				Project:  project,
-				Pipeline: pipeline,
-			},
-		}, nil
-	}
-
-	return make(map[PipelineStatus]model.ProjectWithPipeline), nil
+	return model.ProjectLatestPipeline{
+		Project:  project,
+		Pipeline: pipeline,
+	}, err
 }
 
 func (s *projectService) filterProjects(projects []model.Project) []model.Project {
