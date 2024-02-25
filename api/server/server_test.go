@@ -10,6 +10,7 @@ import (
 	branch "github.com/larscom/gitlab-ci-dashboard/branch/mock"
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	group "github.com/larscom/gitlab-ci-dashboard/group/mock"
+	job "github.com/larscom/gitlab-ci-dashboard/job/mock"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	pipeline "github.com/larscom/gitlab-ci-dashboard/pipeline/mock"
 	project "github.com/larscom/gitlab-ci-dashboard/project/mock"
@@ -32,6 +33,7 @@ func TestServerWithConfig(t *testing.T) {
 			pipelineClient: &pipeline.ClientMock{},
 			branchClient:   &branch.ClientMock{},
 			scheduleClient: &schedule.ClientMock{},
+			jobClient:      &job.ClientMock{},
 		}
 		cfg    = createConfig(t)
 		caches = NewCaches(cfg, clients)
@@ -124,6 +126,22 @@ func TestServerWithConfig(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.Len(t, result, 1)
 		assert.Equal(t, 777, result[0].Schedule.Id)
+	})
+
+	t.Run("TestJobsEndpoint", func(t *testing.T) {
+		resp, _ := server.Test(httptest.NewRequest("GET", "/api/jobs?projectId=1&pipelineId=2", nil), -1)
+		body, _ := io.ReadAll(resp.Body)
+
+		result := make([]model.Job, 0)
+
+		err := json.Unmarshal(body, &result)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
+		assert.Len(t, result, 1)
+		assert.Equal(t, "job-1", result[0].Name)
 	})
 
 	t.Run("TestMetricsEndpoint", func(t *testing.T) {
