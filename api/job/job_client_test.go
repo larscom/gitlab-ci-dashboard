@@ -16,7 +16,7 @@ func TestGetJobsWith1Page(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	jobs, _ := client.GetJobs(1, 2, []string{}, context.Background())
+	jobs, _ := client.GetJobs(1, 2, []string{"success", "failed"}, context.Background())
 
 	assert.Len(t, jobs, 2)
 	assert.Equal(t, "job-1", jobs[0].Name)
@@ -29,7 +29,7 @@ func TestGetJobsWith2Pages(t *testing.T) {
 		client     = NewClient(mock.NewGitlabClientMock(totalPages, nil))
 	)
 
-	jobs, _ := client.GetJobs(1, 2, []string{}, context.Background())
+	jobs, _ := client.GetJobs(1, 2, []string{"success", "failed"}, context.Background())
 
 	assert.Len(t, jobs, 4)
 	assert.Equal(t, "job-1", jobs[0].Name)
