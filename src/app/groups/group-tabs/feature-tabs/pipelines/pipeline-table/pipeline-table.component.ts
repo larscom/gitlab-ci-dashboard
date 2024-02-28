@@ -42,7 +42,7 @@ export class PipelineTableComponent {
   projects = input.required<ProjectPipeline[]>()
   pinnedPipelines = input.required<PipelineId[]>()
 
-  i18n = inject(NzI18nService)
+  private i18n = inject(NzI18nService)
 
   @Output() pinnedPipelinesChanged = new EventEmitter<PipelineId[]>()
 

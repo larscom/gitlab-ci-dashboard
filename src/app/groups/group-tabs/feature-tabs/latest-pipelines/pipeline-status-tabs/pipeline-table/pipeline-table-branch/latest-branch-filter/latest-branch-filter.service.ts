@@ -1,21 +1,23 @@
 import { LatestPipelineStore } from '$groups/group-tabs/feature-tabs/latest-pipelines/store/latest-pipeline.store'
+import { GroupId } from '$groups/model/group'
 import { BranchLatestPipeline } from '$groups/model/pipeline'
 import { GroupStore } from '$groups/store/group.store'
-import { filterNotNull, filterString } from '$groups/util/filter'
-import { Injectable, inject } from '@angular/core'
-import { Observable, combineLatest, map, switchMap } from 'rxjs'
+import { filterString } from '$groups/util/filter'
+import { Injectable, Signal, computed, inject } from '@angular/core'
 
 @Injectable({ providedIn: 'root' })
 export class LatestBranchFilterService {
   private latestPipelineStore = inject(LatestPipelineStore)
   private groupStore = inject(GroupStore)
 
-  private selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
+  branchesLatestPipeline: Signal<BranchLatestPipeline[]> = computed(() => {
+    const groupId = this.groupStore.selectedGroupId()
+    return groupId ? this.filter(groupId) : []
+  })
 
-  getBranchesWithLatestPipeline(): Observable<BranchLatestPipeline[]> {
-    return combineLatest([
-      this.latestPipelineStore.branchesWithLatestPipeline$,
-      this.selectedGroupId$.pipe(switchMap((groupId) => this.latestPipelineStore.branchFilter(groupId)))
-    ]).pipe(map(([data, filterText]) => data.filter(({ branch: { name } }) => filterString(name, filterText))))
+  private filter(groupId: GroupId): BranchLatestPipeline[] {
+    const branches = this.latestPipelineStore.branchesLatestPipelines()
+    const filterText = this.latestPipelineStore.getBranchFilter(groupId)()
+    return branches.filter(({ branch: { name } }) => filterString(name, filterText))
   }
 }

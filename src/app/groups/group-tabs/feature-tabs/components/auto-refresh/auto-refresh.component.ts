@@ -6,13 +6,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
+  Injector,
   OnChanges,
   OnDestroy,
   Output,
   SimpleChanges,
-  inject
+  inject,
+  input,
+  runInInjectionContext
 } from '@angular/core'
+import { toObservable } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -29,23 +32,28 @@ import { Subscription } from 'rxjs'
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AutoRefreshComponent implements OnChanges, OnDestroy {
-  @Input({ required: true }) id!: GroupId | ProjectId
-  @Input() loading = false
+  private intervalRef?: NodeJS.Timeout
+  private subscription?: Subscription
+
+  private uiStore = inject(UIStore)
+  private injector = inject(Injector)
+
+  id = input.required<GroupId | ProjectId>()
+  loading = input.required<boolean>()
+
   @Output() refresh = new EventEmitter<void>()
 
-  uiStore = inject(UIStore)
-
   intervalSeconds = ''
-  intervalRef?: NodeJS.Timeout
-  subscription?: Subscription
 
   ngOnChanges({ id }: SimpleChanges): void {
     if (!id) return
 
-    this.subscription?.unsubscribe()
-    this.subscription = this.uiStore.autoRefreshInterval(this.id).subscribe((interval) => {
-      this.intervalSeconds = interval
-      this.setupInterval()
+    runInInjectionContext(this.injector, () => {
+      this.subscription?.unsubscribe()
+      this.subscription = toObservable(this.uiStore.getAutoRefreshInterval(this.id())).subscribe((interval) => {
+        this.intervalSeconds = interval
+        this.setupInterval()
+      })
     })
   }
 
@@ -61,13 +69,13 @@ export class AutoRefreshComponent implements OnChanges, OnDestroy {
 
   onChange(): void {
     this.refresh.next()
-    this.uiStore.setAutoRefreshInterval(this.id, this.intervalSeconds)
+    this.uiStore.setAutoRefreshInterval(this.id(), this.intervalSeconds)
   }
 
   private setupInterval(): void {
     clearInterval(this.intervalRef)
     if (this.intervalSeconds) {
-      this.intervalRef = setInterval(() => !this.loading && this.refresh.next(), Number(this.intervalSeconds) * 1000)
+      this.intervalRef = setInterval(() => !this.loading() && this.refresh.next(), Number(this.intervalSeconds) * 1000)
     }
   }
 }

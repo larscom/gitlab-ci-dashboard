@@ -1,19 +1,16 @@
+import { GroupId } from '$groups/model/group'
 import { Status } from '$groups/model/status'
 import { GroupStore } from '$groups/store/group.store'
-import { filterNotNull } from '$groups/util/filter'
 import { UIStore } from '$store/ui.store'
 import { CommonModule } from '@angular/common'
-import { Component } from '@angular/core'
-import { Actions } from '@ngneat/effects-ng'
+import { Component, OnInit, computed, inject } from '@angular/core'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { firstValueFrom, map, switchMap, take } from 'rxjs'
 import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { StatusFilterComponent } from '../pipelines/components/status-filter/status-filter.component'
 import { ScheduleTableComponent } from './schedule-table/schedule-table.component'
 import { ScheduleFilterService } from './service/schedule-filter.service'
-import { fetchSchedules } from './store/schedule.actions'
 import { ScheduleStore } from './store/schedule.store'
 
 @Component({
@@ -31,48 +28,71 @@ import { ScheduleStore } from './store/schedule.store'
   templateUrl: './schedules.component.html',
   styleUrls: ['./schedules.component.scss']
 })
-export class SchedulesComponent {
-  selectedGroupId$ = this.groupStore.selectedGroupId$.pipe(filterNotNull)
+export class SchedulesComponent implements OnInit {
+  private groupStore = inject(GroupStore)
+  private scheduleStore = inject(ScheduleStore)
+  private uiStore = inject(UIStore)
+  private scheduleFilterService = inject(ScheduleFilterService)
 
-  autoRefreshLoading$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.uiStore.autoRefreshLoading(groupId)))
+  schedulesLoading = this.scheduleStore.loading
 
-  loading$ = this.scheduleStore.loading$
-  schedules$ = this.scheduleFilterService.getSchedules()
-  projects$ = this.scheduleStore.schedules$.pipe(map((schedules) => schedules.map(({ project }) => project)))
+  selectedGroupId = this.groupStore.selectedGroupId
+  autoRefreshLoading = computed(() => {
+    const groupId = this.groupStore.selectedGroupId()
+    return groupId ? this.uiStore.getAutoRefreshLoading(groupId)() : false
+  })
 
-  selectedFilterTopics$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.topicsFilter(groupId)))
-  selectedFilterText$ = this.selectedGroupId$.pipe(switchMap((groupId) => this.scheduleStore.projectFilter(groupId)))
-  selectedFilterStatuses$ = this.selectedGroupId$.pipe(
-    switchMap((groupId) => this.scheduleStore.statusesFilter(groupId))
-  )
+  schedules = this.scheduleFilterService.schedules
 
-  constructor(
-    private actions: Actions,
-    private scheduleStore: ScheduleStore,
-    private groupStore: GroupStore,
-    private uiStore: UIStore,
-    private scheduleFilterService: ScheduleFilterService
-  ) {
-    this.selectedGroupId$.pipe(take(1)).subscribe((groupId) => this.actions.dispatch(fetchSchedules({ groupId })))
+  projects = computed(() => {
+    const schedules = this.scheduleStore.schedules()
+    return schedules.map(({ project }) => project)
+  })
+
+  selectedFilterTopics = computed(() => {
+    const groupId = this.groupStore.selectedGroupId()
+    return groupId ? this.scheduleStore.getTopicsFilter(groupId)() : []
+  })
+
+  selectedFilterText = computed(() => {
+    const groupId = this.groupStore.selectedGroupId()
+    return groupId ? this.scheduleStore.getProjectFilter(groupId)() : ''
+  })
+
+  selectedFilterStatuses = computed(() => {
+    const groupId = this.groupStore.selectedGroupId()
+    return groupId ? this.scheduleStore.getStatusesFilter(groupId)() : []
+  })
+
+  ngOnInit(): void {
+    const groupId = this.groupStore.selectedGroupId()
+    if (groupId) {
+      this.scheduleStore.fetch(groupId)
+    }
   }
 
-  async fetch(): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
-    this.actions.dispatch(fetchSchedules({ groupId, withLoader: false }))
+  fetch(groupId: GroupId): void {
+    this.scheduleStore.fetch(groupId, false)
   }
 
   async onFilterTopicsChanged(topics: string[]): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
-    this.scheduleStore.setTopicsFilter(groupId, topics)
+    const groupId = this.groupStore.selectedGroupId()
+    if (groupId) {
+      this.scheduleStore.setTopicsFilter(groupId, topics)
+    }
   }
 
   async onFilterTextChanged(filterText: string): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
-    this.scheduleStore.setProjectFilter(groupId, filterText)
+    const groupId = this.groupStore.selectedGroupId()
+    if (groupId) {
+      this.scheduleStore.setProjectFilter(groupId, filterText)
+    }
   }
 
   async onFilterStatusesChanged(statuses: Status[]): Promise<void> {
-    const groupId = await firstValueFrom(this.selectedGroupId$)
-    this.scheduleStore.setStatusesFilter(groupId, statuses)
+    const groupId = this.groupStore.selectedGroupId()
+    if (groupId) {
+      this.scheduleStore.setStatusesFilter(groupId, statuses)
+    }
   }
 }

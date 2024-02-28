@@ -1,10 +1,10 @@
-@if (loading$ | async) {
+@if (groupsLoading()) {
 <div class="spinner">
   <nz-spin />
 </div>
-} @else { @if (groups$ | async; as groups) { @if (groups.length) {
-<nz-tabset nzSize="small" nzType="card" [nzSelectedIndex]="selectedIndex$ | async" (nzSelectChange)="onChange($event)">
-  @for (group of groups; track trackById($index, group)) {
+} @else { @if (groups().length > 0) {
+<nz-tabset nzSize="small" nzType="card" [nzSelectedIndex]="selectedIndex()" (nzSelectChange)="onChange($event)">
+  @for (group of groups(); track trackById($index, group)) {
   <nz-tab [nzTitle]="title">
     <ng-template #title>
       <span
@@ -16,15 +16,11 @@
         >{{ group.name | maxLength : 25 }}</span
       >
     </ng-template>
-    <ng-template nz-tab>
-      @if (selectedGroupId$ | async; as selectedGroupId) { @if (selectedGroupId == group.id) {
-      <gcd-feature-tabs />
-      } }
-    </ng-template>
+    <ng-template nz-tab> @if (selectedGroupId() == group.id) { <gcd-feature-tabs /> } </ng-template>
   </nz-tab>
   }
 </nz-tabset>
-} @else {
+}@else {
 <div class="alert">
   <nz-alert
     [nzAction]="action"
@@ -37,4 +33,4 @@
     <button nz-button nzSize="small" nzType="primary" nzGhost (click)="OnReload()">Refresh</button>
   </ng-template>
 </div>
-} } }
+} }

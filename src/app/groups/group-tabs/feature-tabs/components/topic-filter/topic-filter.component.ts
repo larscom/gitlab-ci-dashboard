@@ -1,6 +1,6 @@
 import { Project } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, Signal, computed, input } from '@angular/core'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 
@@ -19,7 +19,7 @@ export class TopicFilterComponent {
 
   @Output() filterTopicsChanged = new EventEmitter<string[]>()
 
-  topics = computed(
+  topics: Signal<Set<string>> = computed(
     () =>
       new Set(
         this.projects()

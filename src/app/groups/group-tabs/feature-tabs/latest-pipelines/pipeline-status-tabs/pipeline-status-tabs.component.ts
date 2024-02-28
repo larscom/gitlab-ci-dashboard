@@ -1,13 +1,12 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
+import { ProjectPipeline } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { CommonModule } from '@angular/common'
-import { Component, inject } from '@angular/core'
+import { Component, Signal, computed, inject } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzEmptyModule } from 'ng-zorro-antd/empty'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
-import { Observable, map } from 'rxjs'
-import { ProjectFilterService } from '../../service/project-filter.service'
+import { LatestProjectFilterService } from '../service/latest-project-filter.service'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
 
 interface Tab {
@@ -23,24 +22,23 @@ interface Tab {
   styleUrls: ['./pipeline-status-tabs.component.scss']
 })
 export class PipelineStatusTabsComponent {
-  filterService = inject(ProjectFilterService)
+  private filterService = inject(LatestProjectFilterService)
 
-  tabs$: Observable<Tab[]> = this.filterService.getProjectsLatestPipeline().pipe(
-    map((data) => {
-      return Array.from(
-        data
-          .filter(({ pipeline }) => pipeline != null)
-          .reduce((current, { pipeline, project }) => {
-            const { status } = pipeline!
-            const projects = current.get(status)
-            const next: ProjectPipeline = { project, pipeline: pipeline! }
-            return projects ? current.set(status, [...projects, next]) : current.set(status, [next])
-          }, new Map<Status, ProjectPipeline[]>())
-      )
-        .map(([status, projects]) => ({ status, projects }))
-        .sort((a, b) => a.status.localeCompare(b.status))
-    })
-  )
+  tabs: Signal<Tab[]> = computed(() => {
+    const projects = this.filterService.projectsLatestPipeline()
+    return Array.from(
+      projects
+        .filter(({ pipeline }) => pipeline != null)
+        .reduce((current, { pipeline, project }) => {
+          const { status } = pipeline!
+          const projects = current.get(status)
+          const next: ProjectPipeline = { project, pipeline: pipeline! }
+          return projects ? current.set(status, [...projects, next]) : current.set(status, [next])
+        }, new Map<Status, ProjectPipeline[]>())
+    )
+      .map(([status, projects]) => ({ status, projects }))
+      .sort((a, b) => a.status.localeCompare(b.status))
+  })
 
   trackByStatus(_: number, { status }: Tab): Status {
     return status

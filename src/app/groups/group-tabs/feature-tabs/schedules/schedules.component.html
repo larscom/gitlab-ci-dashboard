@@ -2,30 +2,28 @@
   <div class="flex justify-between">
     <div class="flex flex-col gap-050">
       <gcd-project-filter
-        [projects]="(projects$ | async)!"
-        [selectedFilterText]="(selectedFilterText$ | async)!"
+        [projects]="projects()"
+        [selectedFilterText]="selectedFilterText()"
         (filterTextChanged)="onFilterTextChanged($event)"
       />
       <gcd-topic-filter
-        [loading]="(loading$ | async)!"
-        [projects]="(projects$ | async)!"
-        [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
+        [loading]="schedulesLoading()"
+        [projects]="projects()"
+        [selectedFilterTopics]="selectedFilterTopics()"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
       />
       <gcd-status-filter
         (filterStatusesChanged)="onFilterStatusesChanged($event)"
-        [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
+        [selectedFilterStatuses]="selectedFilterStatuses()"
       />
     </div>
-    @if (selectedGroupId$ | async; as selectedGroupId) {
-      <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    @if (selectedGroupId(); as selectedGroupId) {
+    <gcd-auto-refresh [id]="selectedGroupId" [loading]="autoRefreshLoading()" (refresh)="fetch(selectedGroupId)" />
     }
   </div>
-  @if (loading$ | async) {
-    <nz-spin />
+  @if (schedulesLoading()) {
+  <nz-spin />
   } @else {
-    @if (schedules$ | async; as schedules) {
-      <gcd-schedule-table [schedules]="schedules" />
-    }
+  <gcd-schedule-table [schedules]="schedules()" />
   }
 </div>

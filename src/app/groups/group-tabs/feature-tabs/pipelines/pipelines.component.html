@@ -3,38 +3,36 @@
     <div class="flex flex-col gap-050">
       <div class="flex gap-050">
         <gcd-project-filter
-          [projects]="(projects$ | async)!"
-          [selectedFilterText]="(selectedFilterTextProjects$ | async)!"
+          [projects]="projects()"
+          [selectedFilterText]="selectedFilterTextProjects()"
           (filterTextChanged)="onFilterTextProjectsChanged($event)"
         />
         <gcd-branch-filter
-          [branches]="(branches$ | async)!"
-          [selectedFilterText]="(selectedFilterTextBranches$ | async)!"
+          [branches]="branches()"
+          [selectedFilterText]="selectedFilterTextBranches()"
           (filterTextChanged)="onFilterTextBranchesChanged($event)"
         />
       </div>
       <gcd-topic-filter
-        [loading]="(loading$ | async)!"
-        [projects]="(projects$ | async)!"
-        [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
+        [loading]="pipelinesLoading()"
+        [projects]="projects()"
+        [selectedFilterTopics]="selectedFilterTopics()"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
       />
       <gcd-status-filter
         (filterStatusesChanged)="onFilterStatusesChanged($event)"
-        [selectedFilterStatuses]="(selectedFilterStatuses$ | async)!"
+        [selectedFilterStatuses]="selectedFilterStatuses()"
       />
     </div>
-    @if (selectedGroupId$ | async; as selectedGroupId) {
-    <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    @if (selectedGroupId() ; as selectedGroupId) {
+    <gcd-auto-refresh [id]="selectedGroupId" [loading]="autoRefreshLoading()" (refresh)="fetch(selectedGroupId)" />
     }
   </div>
-  @if (loading$ | async) {
-  <nz-spin />
-  } @else { @if (projectsPipeline$ | async; as projects) { @if (pinnedPipelines$ | async; as pinnedPipelines) {
+  @if (pipelinesLoading()) { <nz-spin /> } @else {
   <gcd-pipeline-table
-    [projects]="projects"
-    [pinnedPipelines]="pinnedPipelines"
+    [projects]="projectPipelines()"
+    [pinnedPipelines]="pinnedPipelines()"
     (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"
   />
-  } } }
+  }
 </div>

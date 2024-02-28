@@ -40,7 +40,6 @@ export class ProjectFilterComponent {
     effect(() => {
       this.searchControl.setValue(this.selectedFilterText(), { emitEvent: false })
     })
-
     this.searchControl.valueChanges
       .pipe(takeUntilDestroyed(), debounceTime(100))
       .subscribe((value) => this.filterTextChanged.next(String(value)))

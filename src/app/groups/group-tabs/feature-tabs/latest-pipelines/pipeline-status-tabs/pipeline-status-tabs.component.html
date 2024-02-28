@@ -1,26 +1,22 @@
-@if (tabs$ | async; as tabs) {
-  @if (tabs.length > 0) {
-    <nz-tabset nzType="card">
-      @for (tab of tabs; track trackByStatus($index, tab)) {
-        <nz-tab [nzTitle]="title">
-          <ng-template #title>
-            <div class="flex gap-025">
-              <span class="status">{{ tab.status }}</span>
-              <nz-badge
-                nzStandalone
-                nzSize="small"
-                [nzCount]="tab.projects.length"
-                [nzStyle]="{ backgroundColor: tab.status | statusColor }"
-              ></nz-badge>
-            </div>
-          </ng-template>
-          <ng-template nz-tab>
-            <gcd-pipeline-table [projects]="tab.projects" [status]="tab.status" />
-          </ng-template>
-        </nz-tab>
-      }
-    </nz-tabset>
-  } @else {
-    <gcd-pipeline-table [projects]="[]" />
+<nz-tabset nzType="card">
+  @for (tab of tabs(); track trackByStatus($index, tab)) {
+  <nz-tab [nzTitle]="title">
+    <ng-template #title>
+      <div class="flex gap-025">
+        <span class="status">{{ tab.status }}</span>
+        <nz-badge
+          nzStandalone
+          nzSize="small"
+          [nzCount]="tab.projects.length"
+          [nzStyle]="{ backgroundColor: tab.status | statusColor }"
+        ></nz-badge>
+      </div>
+    </ng-template>
+    <ng-template nz-tab>
+      <gcd-pipeline-table [projects]="tab.projects" [status]="tab.status" />
+    </ng-template>
+  </nz-tab>
+  }@empty {
+  <gcd-pipeline-table [projects]="[]" />
   }
-}
+</nz-tabset>

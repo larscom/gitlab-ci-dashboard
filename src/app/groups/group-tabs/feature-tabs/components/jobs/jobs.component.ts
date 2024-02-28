@@ -51,17 +51,16 @@ const RUNNABLE_STATUSES = [
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JobsComponent implements OnChanges, OnDestroy {
+  private http = inject(HttpClient)
+  private injector = inject(Injector)
+  private subscription?: Subscription
+
   projectId = input.required<ProjectId>()
   pipelineId = input.required<PipelineId>()
   scope = input<Status[]>([])
 
-  http = inject(HttpClient)
-  injector = inject(Injector)
-
   tags = signal<Tag[]>([])
   loading = signal(true)
-
-  subscription?: Subscription
 
   ngOnChanges({ scope }: SimpleChanges): void {
     const current: Status[] = scope?.currentValue ?? []

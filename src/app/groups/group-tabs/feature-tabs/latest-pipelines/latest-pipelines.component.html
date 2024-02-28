@@ -2,24 +2,24 @@
   <div class="flex justify-between">
     <div class="flex flex-col gap-050">
       <gcd-project-filter
-        [projects]="(projects$ | async)!"
-        [selectedFilterText]="(selectedFilterText$ | async)!"
+        [projects]="projects()"
+        [selectedFilterText]="selectedFilterText()"
         (filterTextChanged)="onFilterTextChanged($event)"
       />
       <gcd-topic-filter
-        [loading]="(loading$ | async)!"
-        [projects]="(projects$ | async)!"
-        [selectedFilterTopics]="(selectedFilterTopics$ | async)!"
+        [loading]="projectsLoading()"
+        [projects]="projects()"
+        [selectedFilterTopics]="selectedFilterTopics()"
         (filterTopicsChanged)="onFilterTopicsChanged($event)"
       />
     </div>
-    @if (selectedGroupId$ | async; as selectedGroupId) {
-      <gcd-auto-refresh [id]="selectedGroupId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    @if (selectedGroupId(); as selectedGroupId) {
+    <gcd-auto-refresh [id]="selectedGroupId" [loading]="autoRefreshLoading()" (refresh)="fetch(selectedGroupId)" />
     }
   </div>
-  @if (loading$ | async) {
-    <nz-spin />
+  @if (projectsLoading()) {
+  <nz-spin />
   } @else {
-    <gcd-pipeline-status-tabs />
+  <gcd-pipeline-status-tabs />
   }
 </div>

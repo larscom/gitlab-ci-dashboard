@@ -1,21 +1,18 @@
 import { GroupId } from '$groups/model/group'
 import { BranchLatestPipeline, ProjectLatestPipeline } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
-import { Injectable } from '@angular/core'
-import { Store, createState, withProps } from '@ngneat/elf'
-import { excludeKeys, localStorageStrategy, persistState } from '@ngneat/elf-persist-state'
-import {
-  createRequestsStatusOperator,
-  selectIsRequestPending,
-  updateRequestStatus,
-  withRequestsStatus
-} from '@ngneat/elf-requests'
-import { distinctUntilChanged, map } from 'rxjs'
+import { UIStore } from '$store/ui.store'
+import { computed, inject } from '@angular/core'
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals'
+import { lastValueFrom } from 'rxjs'
+import { LatestPipelineService } from '../service/latest-pipeline.service'
 
 interface State {
-  selectedProjectId?: ProjectId
+  selectedProjectId: ProjectId | undefined
   projectsLatestPipelines: ProjectLatestPipeline[]
+  projectsLoading: boolean
   branchesLatestPipelines: BranchLatestPipeline[]
+  branchesLoading: boolean
 
   filters: {
     [groupId: GroupId]: {
@@ -26,144 +23,94 @@ interface State {
   }
 }
 
-const { state, config } = createState(
-  withProps<State>({
+export const LatestPipelineStore = signalStore(
+  { providedIn: 'root' },
+  withState<State>({
+    selectedProjectId: undefined,
     projectsLatestPipelines: [],
+    projectsLoading: false,
     branchesLatestPipelines: [],
+    branchesLoading: false,
     filters: Object()
   }),
-  withRequestsStatus()
+  withMethods((store, service = inject(LatestPipelineService), uiStore = inject(UIStore)) => ({
+    getProjectFilter(groupId: GroupId) {
+      return computed(() => {
+        const filters = store.filters()
+        return filters[groupId]?.project || ''
+      })
+    },
+    getBranchFilter(groupId: GroupId) {
+      return computed(() => {
+        const filters = store.filters()
+        return filters[groupId]?.branch || ''
+      })
+    },
+    getTopicsFilter(groupId: GroupId) {
+      return computed(() => {
+        const filters = store.filters()
+        return filters[groupId]?.topics || []
+      })
+    },
+    async fetchProjects(groupId: GroupId, withLoading: boolean = true) {
+      uiStore.setAutoRefreshLoading(groupId, !withLoading)
+      patchState(store, { projectsLoading: withLoading })
+
+      const projectsLatestPipelines = await lastValueFrom(service.getProjectsWithLatestPipeline(groupId))
+      patchState(store, { projectsLatestPipelines, projectsLoading: false })
+
+      uiStore.setAutoRefreshLoading(groupId, false)
+    },
+    async fetchBranches(projectId: ProjectId, withLoading: boolean = true) {
+      uiStore.setAutoRefreshLoading(projectId, !withLoading)
+      patchState(store, { branchesLoading: withLoading })
+
+      const branchesLatestPipelines = await lastValueFrom(service.getBranchesWithLatestPipeline(projectId))
+
+      patchState(store, { branchesLatestPipelines, branchesLoading: false })
+      uiStore.setAutoRefreshLoading(projectId, false)
+    },
+    selectProjectId(projectId: ProjectId | undefined) {
+      patchState(store, { selectedProjectId: projectId })
+    },
+    setProjectFilter(groupId: GroupId, project: string) {
+      patchState(store, (state) => {
+        return {
+          filters: {
+            ...state.filters,
+            [groupId]: {
+              ...state.filters[groupId],
+              project
+            }
+          }
+        }
+      })
+    },
+    setBranchFilter(groupId: GroupId, branch: string) {
+      patchState(store, (state) => {
+        return {
+          filters: {
+            ...state.filters,
+            [groupId]: {
+              ...state.filters[groupId],
+              branch
+            }
+          }
+        }
+      })
+    },
+    setTopicsFilter(groupId: GroupId, topics: string[]) {
+      patchState(store, (state) => {
+        return {
+          filters: {
+            ...state.filters,
+            [groupId]: {
+              ...state.filters[groupId],
+              topics
+            }
+          }
+        }
+      })
+    }
+  }))
 )
-
-export const storeName = 'latest_pipeline'
-const store = new Store({ state, name: storeName, config })
-
-persistState(store, {
-  key: storeName,
-  storage: localStorageStrategy,
-  source: () =>
-    store.pipe(
-      excludeKeys(['branchesLatestPipelines', 'projectsLatestPipelines', 'requestsStatus', 'selectedProjectId'])
-    )
-})
-
-export const trackRequestsStatus = createRequestsStatusOperator(store)
-export const { initialState } = store
-
-@Injectable({ providedIn: 'root' })
-export class LatestPipelineStore {
-  readonly selectedProjectId$ = store.pipe(
-    map(({ selectedProjectId }) => selectedProjectId),
-    distinctUntilChanged()
-  )
-
-  readonly projectsWithLatestPipeline$ = store.pipe(
-    map(({ projectsLatestPipelines }) => projectsLatestPipelines),
-    distinctUntilChanged()
-  )
-  readonly projectsLoading$ = store.pipe(
-    selectIsRequestPending('getProjectsWithLatestPipeline'),
-    distinctUntilChanged()
-  )
-
-  readonly branchesWithLatestPipeline$ = store.pipe(
-    map(({ branchesLatestPipelines }) => branchesLatestPipelines),
-    distinctUntilChanged()
-  )
-  readonly branchesLoading$ = store.pipe(
-    selectIsRequestPending('getBranchesWithLatestPipeline'),
-    distinctUntilChanged()
-  )
-
-  private readonly filters$ = store.pipe(
-    map(({ filters }) => filters),
-    distinctUntilChanged()
-  )
-  readonly topicsFilter = (groupId: GroupId) =>
-    this.filters$.pipe(
-      map((filters) => filters[groupId]?.topics || []),
-      distinctUntilChanged()
-    )
-  readonly projectFilter = (groupId: GroupId) =>
-    this.filters$.pipe(
-      map((filters) => filters[groupId]?.project || ''),
-      distinctUntilChanged()
-    )
-  readonly branchFilter = (groupId: GroupId) =>
-    this.filters$.pipe(
-      map((filters) => filters[groupId]?.branch || ''),
-      distinctUntilChanged()
-    )
-
-  selectProjectId(projectId?: ProjectId): void {
-    store.update((state) => {
-      return {
-        ...state,
-        selectedProjectId: projectId
-      }
-    })
-  }
-
-  setProjectFilter(groupId: GroupId, project: string): void {
-    store.update((state) => {
-      return {
-        ...state,
-        filters: {
-          ...state.filters,
-          [groupId]: {
-            ...state.filters[groupId],
-            project
-          }
-        }
-      }
-    })
-  }
-
-  setTopicsFilter(groupId: GroupId, topics: string[]): void {
-    store.update((state) => {
-      return {
-        ...state,
-        filters: {
-          ...state.filters,
-          [groupId]: {
-            ...state.filters[groupId],
-            topics
-          }
-        }
-      }
-    })
-  }
-
-  setBranchFilter(groupId: GroupId, branch: string): void {
-    store.update((state) => {
-      return {
-        ...state,
-        filters: {
-          ...state.filters,
-          [groupId]: {
-            ...state.filters[groupId],
-            branch
-          }
-        }
-      }
-    })
-  }
-
-  setProjectsWithLatestPipeline(projectsLatestPipelines: ProjectLatestPipeline[]): void {
-    store.update((state) => {
-      return {
-        ...state,
-        projectsLatestPipelines
-      }
-    }, updateRequestStatus('getProjectsWithLatestPipeline', 'success'))
-  }
-
-  setBranchesWithLatestPipeline(branchesLatestPipelines: BranchLatestPipeline[]): void {
-    store.update((state) => {
-      return {
-        ...state,
-        branchesLatestPipelines
-      }
-    }, updateRequestStatus('getBranchesWithLatestPipeline', 'success'))
-  }
-}

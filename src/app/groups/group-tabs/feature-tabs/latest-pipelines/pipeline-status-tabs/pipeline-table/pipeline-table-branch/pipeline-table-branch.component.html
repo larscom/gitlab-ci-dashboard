@@ -1,8 +1,8 @@
 <div class="flex flex-col gap-050">
   <div class="flex justify-between">
     <gcd-latest-branch-filter />
-    @if (selectedProjectId$ | async; as selectedProjectId) {
-    <gcd-auto-refresh [id]="selectedProjectId" [loading]="(autoRefreshLoading$ | async)!" (refresh)="fetch()" />
+    @if (selectedProjectId(); as selectedProjectId) {
+    <gcd-auto-refresh [id]="selectedProjectId" [loading]="autoRefreshLoading()" (refresh)="fetch(selectedProjectId)" />
     }
   </div>
   <nz-table
@@ -10,7 +10,7 @@
     [nzScroll]="{ y: '210px' }"
     nzSize="small"
     [nzData]="branches()"
-    [nzLoading]="loading$ | async"
+    [nzLoading]="branchesLoading()"
     [nzPageSize]="10"
   >
     <thead>
