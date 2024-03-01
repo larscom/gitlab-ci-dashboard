@@ -2,12 +2,12 @@
   <span class="font-sm font-bold">Filter by status</span>
   @for (status of statuses; track status) {
     <nz-tag
-      [nzColor]="selectedFilterStatuses().includes(status) ? (status | statusColor) : undefined"
+      [nzColor]="filterStatuses().includes(status) ? (status | statusColor) : undefined"
       nzMode="checkable"
-      [nzChecked]="selectedFilterStatuses().includes(status)"
+      [nzChecked]="filterStatuses().includes(status)"
       (nzCheckedChange)="onChange($event, status)"
     >
-      <span [style.color]="selectedFilterStatuses().includes(status) ? 'inherit' : (status | statusColor)">{{
+      <span [style.color]="filterStatuses().includes(status) ? 'inherit' : (status | statusColor)">{{
         status
       }}</span>
     </nz-tag>

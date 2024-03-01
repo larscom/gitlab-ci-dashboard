@@ -13,7 +13,8 @@ import {
   SimpleChanges,
   inject,
   input,
-  runInInjectionContext
+  runInInjectionContext,
+  signal
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
@@ -43,7 +44,7 @@ export class AutoRefreshComponent implements OnChanges, OnDestroy {
 
   @Output() refresh = new EventEmitter<void>()
 
-  intervalSeconds = ''
+  intervalSeconds = signal('')
 
   ngOnChanges({ id }: SimpleChanges): void {
     if (!id) return
@@ -51,7 +52,7 @@ export class AutoRefreshComponent implements OnChanges, OnDestroy {
     runInInjectionContext(this.injector, () => {
       this.subscription?.unsubscribe()
       this.subscription = toObservable(this.uiStore.getAutoRefreshInterval(this.id())).subscribe((interval) => {
-        this.intervalSeconds = interval
+        this.intervalSeconds.set(interval)
         this.setupInterval()
       })
     })
@@ -69,13 +70,16 @@ export class AutoRefreshComponent implements OnChanges, OnDestroy {
 
   onChange(): void {
     this.refresh.next()
-    this.uiStore.setAutoRefreshInterval(this.id(), this.intervalSeconds)
+    this.uiStore.setAutoRefreshInterval(this.id(), this.intervalSeconds())
   }
 
   private setupInterval(): void {
     clearInterval(this.intervalRef)
-    if (this.intervalSeconds) {
-      this.intervalRef = setInterval(() => !this.loading() && this.refresh.next(), Number(this.intervalSeconds) * 1000)
+    if (this.intervalSeconds()) {
+      this.intervalRef = setInterval(
+        () => !this.loading() && this.refresh.next(),
+        Number(this.intervalSeconds()) * 1000
+      )
     }
   }
 }

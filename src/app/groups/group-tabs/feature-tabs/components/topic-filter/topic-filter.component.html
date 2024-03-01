@@ -7,7 +7,7 @@
       @for (topic of topics(); track topic) {
         <nz-tag
           nzMode="checkable"
-          [nzChecked]="selectedFilterTopics().includes(topic)"
+          [nzChecked]="filterTopics().includes(topic)"
           (nzCheckedChange)="onTopicChange($event, topic)"
         >
           {{ topic | lowercase }}

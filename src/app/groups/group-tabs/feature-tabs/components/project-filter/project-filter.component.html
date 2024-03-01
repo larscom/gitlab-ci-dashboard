@@ -3,7 +3,7 @@
     <nz-input-group [nzSuffix]="suffixIcon">
       <input
         type="text"
-        [formControl]="searchControl"
+        [(ngModel)]="filterText"
         nz-input
         [placeholder]="projectCount() > 0 ? 'Search ' + projectCount() + ' projects...' : 'Search projects...'"
       />
@@ -16,7 +16,7 @@
         nz-tooltip
         [nzTooltipMouseEnterDelay]="1"
         nzTooltipTitle="Clear field"
-        (click)="resetSearch()"
+        (click)="filterText.set('')"
       ></span>
     </ng-template>
   </div>

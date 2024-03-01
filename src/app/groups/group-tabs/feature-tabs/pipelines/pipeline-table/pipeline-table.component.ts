@@ -3,7 +3,7 @@ import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input, model } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -39,12 +39,10 @@ interface Header<T> {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
-  projects = input.required<ProjectPipeline[]>()
-  pinnedPipelines = input.required<PipelineId[]>()
-
   private i18n = inject(NzI18nService)
 
-  @Output() pinnedPipelinesChanged = new EventEmitter<PipelineId[]>()
+  projects = input.required<ProjectPipeline[]>()
+  pinnedPipelines = model.required<PipelineId[]>()
 
   headers: Header<ProjectPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -95,9 +93,9 @@ export class PipelineTableComponent {
 
     const selected = this.pinnedPipelines()
     if (selected.includes(id)) {
-      this.pinnedPipelinesChanged.next(selected.filter((i) => i !== id))
+      this.pinnedPipelines.set(selected.filter((i) => i !== id))
     } else {
-      setTimeout(() => this.pinnedPipelinesChanged.next([...selected, id]), 125)
+      setTimeout(() => this.pinnedPipelines.set([...selected, id]), 125)
     }
   }
 

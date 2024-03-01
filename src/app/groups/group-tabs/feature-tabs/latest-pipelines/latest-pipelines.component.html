@@ -3,14 +3,14 @@
     <div class="flex flex-col gap-050">
       <gcd-project-filter
         [projects]="projects()"
-        [selectedFilterText]="selectedFilterText()"
-        (filterTextChanged)="onFilterTextChanged($event)"
+        [filterText]="selectedFilterText()"
+        (filterTextChange)="onFilterTextChanged($event)"
       />
       <gcd-topic-filter
         [loading]="projectsLoading()"
         [projects]="projects()"
-        [selectedFilterTopics]="selectedFilterTopics()"
-        (filterTopicsChanged)="onFilterTopicsChanged($event)"
+        [filterTopics]="selectedFilterTopics()"
+        (filterTopicsChange)="onFilterTopicsChanged($event)"
       />
     </div>
     @if (selectedGroupId(); as selectedGroupId) {

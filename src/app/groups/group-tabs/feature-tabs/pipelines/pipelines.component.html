@@ -4,24 +4,24 @@
       <div class="flex gap-050">
         <gcd-project-filter
           [projects]="projects()"
-          [selectedFilterText]="selectedFilterTextProjects()"
-          (filterTextChanged)="onFilterTextProjectsChanged($event)"
+          [filterText]="selectedFilterTextProjects()"
+          (filterTextChange)="onFilterTextProjectsChanged($event)"
         />
         <gcd-branch-filter
           [branches]="branches()"
-          [selectedFilterText]="selectedFilterTextBranches()"
-          (filterTextChanged)="onFilterTextBranchesChanged($event)"
+          [filterText]="selectedFilterTextBranches()"
+          (filterTextChange)="onFilterTextBranchesChanged($event)"
         />
       </div>
       <gcd-topic-filter
         [loading]="pipelinesLoading()"
         [projects]="projects()"
-        [selectedFilterTopics]="selectedFilterTopics()"
-        (filterTopicsChanged)="onFilterTopicsChanged($event)"
+        [filterTopics]="selectedFilterTopics()"
+        (filterTopicsChange)="onFilterTopicsChanged($event)"
       />
       <gcd-status-filter
-        (filterStatusesChanged)="onFilterStatusesChanged($event)"
-        [selectedFilterStatuses]="selectedFilterStatuses()"
+        [filterStatuses]="selectedFilterStatuses()"
+        (filterStatusesChange)="onFilterStatusesChanged($event)"
       />
     </div>
     @if (selectedGroupId() ; as selectedGroupId) {
@@ -32,7 +32,7 @@
   <gcd-pipeline-table
     [projects]="projectPipelines()"
     [pinnedPipelines]="pinnedPipelines()"
-    (pinnedPipelinesChanged)="onPinnedPipelinesChanged($event)"
+    (pinnedPipelinesChange)="onPinnedPipelinesChanged($event)"
   />
   }
 </div>

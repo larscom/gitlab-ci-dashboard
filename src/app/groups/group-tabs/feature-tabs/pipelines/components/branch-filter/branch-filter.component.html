@@ -4,7 +4,7 @@
       <nz-input-group [nzSuffix]="suffixIcon">
         <input
           type="text"
-          [formControl]="searchControl"
+          [(ngModel)]="filterText"
           nz-input
           [placeholder]="branchCount() > 0 ? 'Search ' + branchCount() + ' branches...' : 'Search branches...'"
         />
@@ -17,7 +17,7 @@
           nz-tooltip
           [nzTooltipMouseEnterDelay]="1"
           nzTooltipTitle="Clear field"
-          (click)="resetSearch()"
+          (click)="filterText.set('')"
         ></span>
       </ng-template>
     </div>

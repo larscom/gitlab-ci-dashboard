@@ -1,6 +1,6 @@
 import { Project } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, Signal, computed, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, Signal, computed, input, model } from '@angular/core'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 
@@ -14,10 +14,9 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 })
 export class TopicFilterComponent {
   projects = input.required<Project[]>()
-  selectedFilterTopics = input.required<string[]>()
   loading = input(false)
 
-  @Output() filterTopicsChanged = new EventEmitter<string[]>()
+  filterTopics = model.required<string[]>()
 
   topics: Signal<Set<string>> = computed(
     () =>
@@ -29,11 +28,11 @@ export class TopicFilterComponent {
   )
 
   onTopicChange(checked: boolean, topic: string): void {
-    const selected = this.selectedFilterTopics()
+    const selected = this.filterTopics()
     if (checked) {
-      this.filterTopicsChanged.next([...selected, topic])
+      this.filterTopics.set([...selected, topic])
     } else {
-      this.filterTopicsChanged.next(selected.filter((t) => t !== topic))
+      this.filterTopics.set(selected.filter((t) => t !== topic))
     }
   }
 }
