@@ -8,17 +8,17 @@ import (
 
 	"github.com/larscom/gitlab-ci-dashboard/group/mock"
 	"github.com/larscom/gitlab-ci-dashboard/model"
+	ldgc "github.com/larscom/go-loading-cache"
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = cache.New[string, []model.Group]()
+		groupCache = ldgc.NewCache[string, []model.Group]()
 		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
@@ -47,7 +47,7 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 func TestHandleGetGroupsFromCache(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = cache.New[string, []model.Group]()
+		groupCache = ldgc.NewCache[string, []model.Group]()
 		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
@@ -72,7 +72,7 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = cache.New[string, []model.Group]()
+		groupCache = ldgc.NewCache[string, []model.Group]()
 		handler    = NewHandler(&mock.GroupServiceMock{Empty: true}, groupCache)
 	)
 
@@ -100,7 +100,7 @@ func TestHandleGetGroupsError(t *testing.T) {
 		app     = fiber.New()
 		handler = NewHandler(&mock.GroupServiceMock{
 			Error: err,
-		}, cache.New[string, []model.Group]())
+		}, ldgc.NewCache[string, []model.Group]())
 	)
 
 	app.Get("/groups", handler.HandleGetGroups)

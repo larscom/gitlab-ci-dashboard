@@ -6,7 +6,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/util"
-	"github.com/larscom/go-cache"
+	ldgc "github.com/larscom/go-loading-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -16,13 +16,13 @@ type BranchService interface {
 }
 
 type branchService struct {
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
-	branchesLoader       cache.Cache[int, []model.Branch]
+	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline]
+	branchesLoader       ldgc.LoadingCache[int, []model.Branch]
 }
 
 func NewService(
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
-	branchesLoader cache.Cache[int, []model.Branch],
+	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline],
+	branchesLoader ldgc.LoadingCache[int, []model.Branch],
 ) BranchService {
 	return &branchService{
 		pipelineLatestLoader: pipelineLatestLoader,
@@ -31,7 +31,7 @@ func NewService(
 }
 
 func (s *branchService) GetBranchesWithLatestPipeline(projectId int, ctx context.Context) ([]model.BranchLatestPipeline, error) {
-	branches, err := s.branchesLoader.Get(projectId)
+	branches, err := s.branchesLoader.Load(projectId)
 	if err != nil {
 		return make([]model.BranchLatestPipeline, 0), err
 	}
@@ -68,7 +68,7 @@ type branchPipelineArgs struct {
 }
 
 func (s *branchService) getLatestPipeline(args branchPipelineArgs) (model.BranchLatestPipeline, error) {
-	pipeline, err := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(args.projectId, args.branch.Name, nil))
+	pipeline, err := s.pipelineLatestLoader.Load(pipeline.NewPipelineKey(args.projectId, args.branch.Name, nil))
 	return model.BranchLatestPipeline{
 		Branch:   args.branch,
 		Pipeline: pipeline,

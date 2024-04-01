@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
+	ldgc "github.com/larscom/go-loading-cache"
 
-	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetJobs(t *testing.T) {
 	var (
-		jobsLoader = cache.New[Key, []model.Job]()
+		jobsLoader = ldgc.NewLoadingCache[Key, []model.Job](ldgc.NoopLoaderFunc)
 
 		service    = NewService(jobsLoader)
 		projectId  = 1
@@ -43,7 +43,7 @@ func TestGetJobs(t *testing.T) {
 
 func TestGetJobsSortedByCreatedDate(t *testing.T) {
 	var (
-		jobsLoader = cache.New[Key, []model.Job]()
+		jobsLoader = ldgc.NewLoadingCache[Key, []model.Job](ldgc.NoopLoaderFunc)
 
 		service    = NewService(jobsLoader)
 		projectId  = 1
@@ -73,9 +73,9 @@ func TestGetJobsSortedByCreatedDate(t *testing.T) {
 func TestGetJobsError(t *testing.T) {
 	var (
 		mockErr    = errors.New("ERROR!")
-		jobsLoader = cache.New[Key, []model.Job](cache.WithLoader[Key, []model.Job](func(i Key) ([]model.Job, error) {
+		jobsLoader = ldgc.NewLoadingCache[Key, []model.Job](func(i Key) ([]model.Job, error) {
 			return make([]model.Job, 0), mockErr
-		}))
+		})
 
 		service    = NewService(jobsLoader)
 		projectId  = 1

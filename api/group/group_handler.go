@@ -4,15 +4,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 
-	"github.com/larscom/go-cache"
+	ldgc "github.com/larscom/go-loading-cache"
 )
 
 type GroupHandler struct {
 	service GroupService
-	cache   cache.Cache[string, []model.Group]
+	cache   ldgc.Cache[string, []model.Group]
 }
 
-func NewHandler(service GroupService, cache cache.Cache[string, []model.Group]) *GroupHandler {
+func NewHandler(service GroupService, cache ldgc.Cache[string, []model.Group]) *GroupHandler {
 	return &GroupHandler{
 		service: service,
 		cache:   cache,

@@ -8,15 +8,15 @@ import (
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	ldgc "github.com/larscom/go-loading-cache"
 
-	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetBranchesWithLatestPipeline(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch]()
+		pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
+		branchesLoader       = ldgc.NewLoadingCache[int, []model.Branch](ldgc.NoopLoaderFunc)
 		service              = NewService(pipelineLatestLoader, branchesLoader)
 		projectId            = 1
 		ref                  = "branch-1"
@@ -37,10 +37,10 @@ func TestGetBranchesWithLatestPipeline(t *testing.T) {
 func TestGetBranchesWithLatestPipelineError(t *testing.T) {
 	var (
 		mockErr              = errors.New("ERROR!")
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch](cache.WithLoader[int, []model.Branch](func(i int) ([]model.Branch, error) {
+		pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
+		branchesLoader       = ldgc.NewLoadingCache[int, []model.Branch](func(i int) ([]model.Branch, error) {
 			return make([]model.Branch, 0), mockErr
-		}))
+		})
 		service = NewService(pipelineLatestLoader, branchesLoader)
 	)
 
@@ -51,8 +51,8 @@ func TestGetBranchesWithLatestPipelineError(t *testing.T) {
 
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch]()
+		pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
+		branchesLoader       = ldgc.NewLoadingCache[int, []model.Branch](ldgc.NoopLoaderFunc)
 		service              = NewService(pipelineLatestLoader, branchesLoader)
 		projectId            = 1
 		now                  = time.Now()
@@ -75,8 +75,8 @@ func TestGetBranchesWithLatestPipelineSortedByUpdatedDate(t *testing.T) {
 
 func TestGetBranchesWithLatestPipelineSortedByUpdatedDateWithNil(t *testing.T) {
 	var (
-		pipelineLatestLoader = cache.New[pipeline.Key, *model.Pipeline]()
-		branchesLoader       = cache.New[int, []model.Branch]()
+		pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
+		branchesLoader       = ldgc.NewLoadingCache[int, []model.Branch](ldgc.NoopLoaderFunc)
 		service              = NewService(pipelineLatestLoader, branchesLoader)
 		projectId            = 1
 		now                  = time.Now()

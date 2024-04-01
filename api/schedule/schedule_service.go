@@ -8,7 +8,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/util"
-	"github.com/larscom/go-cache"
+	ldgc "github.com/larscom/go-loading-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,16 +19,16 @@ type ScheduleService interface {
 
 type scheduleService struct {
 	config               *config.GitlabConfig
-	projectsLoader       cache.Cache[int, []model.Project]
-	schedulesLoader      cache.Cache[int, []model.Schedule]
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline]
+	projectsLoader       ldgc.LoadingCache[int, []model.Project]
+	schedulesLoader      ldgc.LoadingCache[int, []model.Schedule]
+	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader cache.Cache[int, []model.Project],
-	schedulesLoader cache.Cache[int, []model.Schedule],
-	pipelineLatestLoader cache.Cache[pipeline.Key, *model.Pipeline],
+	projectsLoader ldgc.LoadingCache[int, []model.Project],
+	schedulesLoader ldgc.LoadingCache[int, []model.Schedule],
+	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline],
 ) ScheduleService {
 	return &scheduleService{
 		config:               config,
@@ -39,7 +39,7 @@ func NewService(
 }
 
 func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]model.ScheduleProjectLatestPipeline, error) {
-	projects, err := s.projectsLoader.Get(groupId)
+	projects, err := s.projectsLoader.Load(groupId)
 	if err != nil {
 		return make([]model.ScheduleProjectLatestPipeline, 0), err
 	}
@@ -69,7 +69,7 @@ func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]mode
 }
 
 func (s *scheduleService) getSchedules(project model.Project) ([]model.ScheduleProjectLatestPipeline, error) {
-	schedules, err := s.schedulesLoader.Get(project.Id)
+	schedules, err := s.schedulesLoader.Load(project.Id)
 	if err != nil {
 		return make([]model.ScheduleProjectLatestPipeline, 0), err
 	}
@@ -77,7 +77,7 @@ func (s *scheduleService) getSchedules(project model.Project) ([]model.ScheduleP
 	result := make([]model.ScheduleProjectLatestPipeline, 0, len(schedules))
 	for _, schedule := range schedules {
 		source := "schedule"
-		pipeline, _ := s.pipelineLatestLoader.Get(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
+		pipeline, _ := s.pipelineLatestLoader.Load(pipeline.NewPipelineKey(project.Id, schedule.Ref, &source))
 		result = append(result, model.ScheduleProjectLatestPipeline{
 			Schedule: schedule,
 			Project:  project,
