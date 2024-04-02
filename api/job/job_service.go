@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	ldgc "github.com/larscom/go-loading-cache"
+	"github.com/larscom/go-cache"
 )
 
 type JobService interface {
@@ -12,11 +12,11 @@ type JobService interface {
 }
 
 type jobService struct {
-	jobsLoader ldgc.LoadingCache[Key, []model.Job]
+	jobsLoader cache.LoadingCache[Key, []model.Job]
 }
 
 func NewService(
-	jobsLoader ldgc.LoadingCache[Key, []model.Job],
+	jobsLoader cache.LoadingCache[Key, []model.Job],
 ) JobService {
 	return &jobService{
 		jobsLoader: jobsLoader,

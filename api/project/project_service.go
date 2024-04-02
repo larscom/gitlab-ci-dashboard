@@ -8,7 +8,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/util"
-	ldgc "github.com/larscom/go-loading-cache"
+	"github.com/larscom/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -21,16 +21,16 @@ type ProjectService interface {
 
 type projectService struct {
 	config               *config.GitlabConfig
-	projectsLoader       ldgc.LoadingCache[int, []model.Project]
-	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline]
-	pipelinesLoader      ldgc.LoadingCache[int, []model.Pipeline]
+	projectsLoader       cache.LoadingCache[int, []model.Project]
+	pipelineLatestLoader cache.LoadingCache[pipeline.Key, *model.Pipeline]
+	pipelinesLoader      cache.LoadingCache[int, []model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader ldgc.LoadingCache[int, []model.Project],
-	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline],
-	pipelinesLoader ldgc.LoadingCache[int, []model.Pipeline],
+	projectsLoader cache.LoadingCache[int, []model.Project],
+	pipelineLatestLoader cache.LoadingCache[pipeline.Key, *model.Pipeline],
+	pipelinesLoader cache.LoadingCache[int, []model.Pipeline],
 ) ProjectService {
 	return &projectService{
 		config:               config,

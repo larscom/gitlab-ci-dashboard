@@ -8,7 +8,7 @@ require (
 	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/joho/godotenv v1.5.1
-	github.com/larscom/go-loading-cache v1.0.1
+	github.com/larscom/go-cache v1.5.1
 	github.com/stretchr/testify v1.9.0
 	github.com/xanzy/go-gitlab v0.101.0
 	golang.org/x/net v0.22.0

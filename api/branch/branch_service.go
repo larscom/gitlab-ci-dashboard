@@ -6,7 +6,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/util"
-	ldgc "github.com/larscom/go-loading-cache"
+	"github.com/larscom/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -16,13 +16,13 @@ type BranchService interface {
 }
 
 type branchService struct {
-	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline]
-	branchesLoader       ldgc.LoadingCache[int, []model.Branch]
+	pipelineLatestLoader cache.LoadingCache[pipeline.Key, *model.Pipeline]
+	branchesLoader       cache.LoadingCache[int, []model.Branch]
 }
 
 func NewService(
-	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline],
-	branchesLoader ldgc.LoadingCache[int, []model.Branch],
+	pipelineLatestLoader cache.LoadingCache[pipeline.Key, *model.Pipeline],
+	branchesLoader cache.LoadingCache[int, []model.Branch],
 ) BranchService {
 	return &branchService{
 		pipelineLatestLoader: pipelineLatestLoader,

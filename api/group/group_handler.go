@@ -3,16 +3,15 @@ package group
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/larscom/gitlab-ci-dashboard/model"
-
-	ldgc "github.com/larscom/go-loading-cache"
+	"github.com/larscom/go-cache"
 )
 
 type GroupHandler struct {
 	service GroupService
-	cache   ldgc.Cache[string, []model.Group]
+	cache   cache.Cache[string, []model.Group]
 }
 
-func NewHandler(service GroupService, cache ldgc.Cache[string, []model.Group]) *GroupHandler {
+func NewHandler(service GroupService, cache cache.Cache[string, []model.Group]) *GroupHandler {
 	return &GroupHandler{
 		service: service,
 		cache:   cache,
@@ -20,7 +19,7 @@ func NewHandler(service GroupService, cache ldgc.Cache[string, []model.Group]) *
 }
 
 func (h *GroupHandler) HandleGetGroups(c *fiber.Ctx) error {
-	if groups, ok := h.cache.GetIfPresent(c.OriginalURL()); ok {
+	if groups, ok := h.cache.Get(c.OriginalURL()); ok {
 		return c.JSON(groups)
 	}
 

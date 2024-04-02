@@ -8,7 +8,7 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
 	"github.com/larscom/gitlab-ci-dashboard/util"
-	ldgc "github.com/larscom/go-loading-cache"
+	"github.com/larscom/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,16 +19,16 @@ type ScheduleService interface {
 
 type scheduleService struct {
 	config               *config.GitlabConfig
-	projectsLoader       ldgc.LoadingCache[int, []model.Project]
-	schedulesLoader      ldgc.LoadingCache[int, []model.Schedule]
-	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline]
+	projectsLoader       cache.LoadingCache[int, []model.Project]
+	schedulesLoader      cache.LoadingCache[int, []model.Schedule]
+	pipelineLatestLoader cache.LoadingCache[pipeline.Key, *model.Pipeline]
 }
 
 func NewService(
 	config *config.GitlabConfig,
-	projectsLoader ldgc.LoadingCache[int, []model.Project],
-	schedulesLoader ldgc.LoadingCache[int, []model.Schedule],
-	pipelineLatestLoader ldgc.LoadingCache[pipeline.Key, *model.Pipeline],
+	projectsLoader cache.LoadingCache[int, []model.Project],
+	schedulesLoader cache.LoadingCache[int, []model.Schedule],
+	pipelineLatestLoader cache.LoadingCache[pipeline.Key, *model.Pipeline],
 ) ScheduleService {
 	return &scheduleService{
 		config:               config,

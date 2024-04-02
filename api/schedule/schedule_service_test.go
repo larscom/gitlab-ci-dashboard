@@ -10,9 +10,8 @@ import (
 	"github.com/larscom/gitlab-ci-dashboard/config"
 	"github.com/larscom/gitlab-ci-dashboard/model"
 	"github.com/larscom/gitlab-ci-dashboard/pipeline"
+	"github.com/larscom/go-cache"
 	"github.com/stretchr/testify/assert"
-
-	ldgc "github.com/larscom/go-loading-cache"
 )
 
 func TestScheduleServiceWithConfig(t *testing.T) {
@@ -33,9 +32,9 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 
 	t.Run("GetSchedules", func(t *testing.T) {
 		var (
-			pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
-			schedulesLoader      = ldgc.NewLoadingCache[int, []model.Schedule](ldgc.NoopLoaderFunc)
-			projectsLoader       = ldgc.NewLoadingCache[int, []model.Project](ldgc.NoopLoaderFunc)
+			pipelineLatestLoader = cache.NewLoadingCache[pipeline.Key, *model.Pipeline](cache.NoopLoaderFunc)
+			schedulesLoader      = cache.NewLoadingCache[int, []model.Schedule](cache.NoopLoaderFunc)
+			projectsLoader       = cache.NewLoadingCache[int, []model.Project](cache.NoopLoaderFunc)
 			cfg                  = createConfig(t, make([]int, 0))
 			service              = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
 			groupId              = 1
@@ -65,9 +64,9 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 
 	t.Run("GetSchedulesWithProjectFilter", func(t *testing.T) {
 		var (
-			pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
-			schedulesLoader      = ldgc.NewLoadingCache[int, []model.Schedule](ldgc.NoopLoaderFunc)
-			projectsLoader       = ldgc.NewLoadingCache[int, []model.Project](ldgc.NoopLoaderFunc)
+			pipelineLatestLoader = cache.NewLoadingCache[pipeline.Key, *model.Pipeline](cache.NoopLoaderFunc)
+			schedulesLoader      = cache.NewLoadingCache[int, []model.Schedule](cache.NoopLoaderFunc)
+			projectsLoader       = cache.NewLoadingCache[int, []model.Project](cache.NoopLoaderFunc)
 			projectIdSkipped     = 33
 			cfg                  = createConfig(t, []int{projectIdSkipped})
 			service              = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
@@ -100,9 +99,9 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 	t.Run("GetSchedulesProjectsError", func(t *testing.T) {
 		var (
 			mockErr              = errors.New("ERROR!")
-			pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
-			schedulesLoader      = ldgc.NewLoadingCache[int, []model.Schedule](ldgc.NoopLoaderFunc)
-			projectsLoader       = ldgc.NewLoadingCache[int, []model.Project](func(i int) ([]model.Project, error) {
+			pipelineLatestLoader = cache.NewLoadingCache[pipeline.Key, *model.Pipeline](cache.NoopLoaderFunc)
+			schedulesLoader      = cache.NewLoadingCache[int, []model.Schedule](cache.NoopLoaderFunc)
+			projectsLoader       = cache.NewLoadingCache[int, []model.Project](func(i int) ([]model.Project, error) {
 				return make([]model.Project, 0), mockErr
 			})
 			cfg     = createConfig(t, make([]int, 0))
@@ -117,11 +116,11 @@ func TestScheduleServiceWithConfig(t *testing.T) {
 	t.Run("GetSchedulesError", func(t *testing.T) {
 		var (
 			mockErr              = errors.New("ERROR!")
-			pipelineLatestLoader = ldgc.NewLoadingCache[pipeline.Key, *model.Pipeline](ldgc.NoopLoaderFunc)
-			schedulesLoader      = ldgc.NewLoadingCache[int, []model.Schedule](func(i int) ([]model.Schedule, error) {
+			pipelineLatestLoader = cache.NewLoadingCache[pipeline.Key, *model.Pipeline](cache.NoopLoaderFunc)
+			schedulesLoader      = cache.NewLoadingCache[int, []model.Schedule](func(i int) ([]model.Schedule, error) {
 				return make([]model.Schedule, 0), mockErr
 			})
-			projectsLoader = ldgc.NewLoadingCache[int, []model.Project](ldgc.NoopLoaderFunc)
+			projectsLoader = cache.NewLoadingCache[int, []model.Project](cache.NoopLoaderFunc)
 			cfg            = createConfig(t, make([]int, 0))
 			service        = NewService(cfg, projectsLoader, schedulesLoader, pipelineLatestLoader)
 			groupId        = 1

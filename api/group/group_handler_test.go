@@ -8,7 +8,7 @@ import (
 
 	"github.com/larscom/gitlab-ci-dashboard/group/mock"
 	"github.com/larscom/gitlab-ci-dashboard/model"
-	ldgc "github.com/larscom/go-loading-cache"
+	"github.com/larscom/go-cache"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -18,7 +18,7 @@ import (
 func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = ldgc.NewCache[string, []model.Group]()
+		groupCache = cache.NewCache[string, []model.Group]()
 		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
@@ -39,7 +39,7 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 	assert.Len(t, result, 1)
 	assert.Equal(t, result[0].Name, "group-1")
 
-	cachedValue, found := groupCache.GetIfPresent("/groups")
+	cachedValue, found := groupCache.Get("/groups")
 	assert.True(t, found)
 	assert.Equal(t, cachedValue[0].Name, "group-1")
 }
@@ -47,7 +47,7 @@ func TestHandleGetGroupsFromServiceSaveInCache(t *testing.T) {
 func TestHandleGetGroupsFromCache(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = ldgc.NewCache[string, []model.Group]()
+		groupCache = cache.NewCache[string, []model.Group]()
 		handler    = NewHandler(&mock.GroupServiceMock{}, groupCache)
 	)
 
@@ -72,7 +72,7 @@ func TestHandleGetGroupsFromCache(t *testing.T) {
 func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	var (
 		app        = fiber.New()
-		groupCache = ldgc.NewCache[string, []model.Group]()
+		groupCache = cache.NewCache[string, []model.Group]()
 		handler    = NewHandler(&mock.GroupServiceMock{Empty: true}, groupCache)
 	)
 
@@ -90,7 +90,7 @@ func TestHandleGetGroupsSaveCacheOnlyIfNotEmpty(t *testing.T) {
 	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.Empty(t, result)
 
-	_, found := groupCache.GetIfPresent("/groups")
+	_, found := groupCache.Get("/groups")
 	assert.False(t, found)
 }
 
@@ -100,7 +100,7 @@ func TestHandleGetGroupsError(t *testing.T) {
 		app     = fiber.New()
 		handler = NewHandler(&mock.GroupServiceMock{
 			Error: err,
-		}, ldgc.NewCache[string, []model.Group]())
+		}, cache.NewCache[string, []model.Group]())
 	)
 
 	app.Get("/groups", handler.HandleGetGroups)
