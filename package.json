@@ -9,14 +9,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^17.3.2",
-    "@angular/common": "^17.3.2",
-    "@angular/compiler": "^17.3.2",
-    "@angular/core": "^17.3.2",
-    "@angular/forms": "^17.3.2",
-    "@angular/platform-browser": "^17.3.2",
-    "@angular/platform-browser-dynamic": "^17.3.2",
-    "@angular/router": "^17.3.2",
+    "@angular/animations": "^17.3.3",
+    "@angular/common": "^17.3.3",
+    "@angular/compiler": "^17.3.3",
+    "@angular/core": "^17.3.3",
+    "@angular/forms": "^17.3.3",
+    "@angular/platform-browser": "^17.3.3",
+    "@angular/platform-browser-dynamic": "^17.3.3",
+    "@angular/router": "^17.3.3",
     "@fontsource/roboto": "^5.0.12",
     "@larscom/ngrx-signals-storage": "^1.2.1",
     "@ngrx/signals": "^17.1.1",
@@ -27,14 +27,14 @@
     "zone.js": "~0.14.4"
   },
   "devDependencies": {
-    "@angular-builders/jest": "^17.0.2",
-    "@angular-devkit/build-angular": "^17.3.2",
-    "@angular/cli": "~17.3.2",
-    "@angular/compiler-cli": "^17.3.2",
+    "@angular-builders/jest": "^17.0.3",
+    "@angular-devkit/build-angular": "^17.3.3",
+    "@angular/cli": "~17.3.3",
+    "@angular/compiler-cli": "^17.3.3",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "jest-preset-angular": "^14.0.3",
     "ng-mocks": "^14.12.1",
-    "typescript": "~5.4.3"
+    "typescript": "~5.4.4"
   }
 }
