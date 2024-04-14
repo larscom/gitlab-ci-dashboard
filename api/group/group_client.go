@@ -36,7 +36,7 @@ func (c *groupClient) GetGroupsById(ids []int, ctx context.Context) ([]model.Gro
 	)
 
 	for _, groupId := range ids {
-		run := util.CreateRunFunc[int, *model.Group](c.getGroupById, resultchn, gctx)
+		run := util.CreateRunFunc(c.getGroupById, resultchn, gctx)
 		g.Go(run(groupId))
 	}
 
@@ -69,7 +69,7 @@ func (c *groupClient) GetGroups(ctx context.Context) ([]model.Group, error) {
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[int, []model.Group](c.getGroupsByPage, resultchn, gctx)
+		run := util.CreateRunFunc(c.getGroupsByPage, resultchn, gctx)
 		g.Go(run(page))
 	}
 

@@ -37,7 +37,7 @@ func (c *jobClient) GetJobs(projectId int, pipelineId int, scope []string, ctx c
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[jobPageArgs, []model.Job](c.getJobsByPage, resultchn, gctx)
+		run := util.CreateRunFunc(c.getJobsByPage, resultchn, gctx)
 		g.Go(run(jobPageArgs{
 			projectId:  projectId,
 			pipelineId: pipelineId,

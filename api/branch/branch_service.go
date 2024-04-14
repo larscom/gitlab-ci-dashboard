@@ -43,7 +43,7 @@ func (s *branchService) GetBranchesWithLatestPipeline(projectId int, ctx context
 	)
 
 	for _, branch := range branches {
-		run := util.CreateRunFunc[branchPipelineArgs, model.BranchLatestPipeline](s.getLatestPipeline, resultchn, gctx)
+		run := util.CreateRunFunc(s.getLatestPipeline, resultchn, gctx)
 		g.Go(run(branchPipelineArgs{
 			projectId: projectId,
 			branch:    branch,

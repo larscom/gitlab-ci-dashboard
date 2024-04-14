@@ -37,7 +37,7 @@ func (c *scheduleClient) GetPipelineSchedules(projectId int, ctx context.Context
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[schedulePageArgs, []model.Schedule](c.getSchedulesByPage, resultchn, gctx)
+		run := util.CreateRunFunc(c.getSchedulesByPage, resultchn, gctx)
 		g.Go(run(schedulePageArgs{
 			projectId:  projectId,
 			pageNumber: page,

@@ -52,7 +52,7 @@ func (s *scheduleService) GetSchedules(groupId int, ctx context.Context) ([]mode
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, []model.ScheduleProjectLatestPipeline](s.getSchedules, resultchn, gctx)
+		run := util.CreateRunFunc(s.getSchedules, resultchn, gctx)
 		g.Go(run(project))
 	}
 

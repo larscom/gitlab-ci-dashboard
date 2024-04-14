@@ -54,11 +54,7 @@ func (s *projectService) GetProjectsWithLatestPipeline(groupId int, ctx context.
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, model.ProjectLatestPipeline](
-			s.getLatestPipeline,
-			resultchn,
-			gctx,
-		)
+		run := util.CreateRunFunc(s.getLatestPipeline, resultchn, gctx)
 		g.Go(run(project))
 	}
 
@@ -88,7 +84,7 @@ func (s *projectService) GetProjectsWithPipeline(groupId int, ctx context.Contex
 	)
 
 	for _, project := range projects {
-		run := util.CreateRunFunc[model.Project, model.ProjectPipelines](s.getPipelines, resultchn, gctx)
+		run := util.CreateRunFunc(s.getPipelines, resultchn, gctx)
 		g.Go(run(project))
 	}
 

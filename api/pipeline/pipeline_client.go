@@ -77,7 +77,7 @@ func (c *pipelineClient) GetPipelines(projectId int, ctx context.Context) ([]mod
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[pipelinePageArgs, []model.Pipeline](c.getPipelinesByPage, resultchn, gctx)
+		run := util.CreateRunFunc(c.getPipelinesByPage, resultchn, gctx)
 		g.Go(run(pipelinePageArgs{
 			projectId:  projectId,
 			pageNumber: page,

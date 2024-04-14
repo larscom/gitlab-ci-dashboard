@@ -37,7 +37,7 @@ func (c *branchClient) GetBranches(projectId int, ctx context.Context) ([]model.
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[branchPageArgs, []model.Branch](c.getBranchesByPage, resultchn, gctx)
+		run := util.CreateRunFunc(c.getBranchesByPage, resultchn, gctx)
 		g.Go(run(branchPageArgs{
 			projectId:  projectId,
 			pageNumber: page,

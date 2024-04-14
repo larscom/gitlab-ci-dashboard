@@ -37,7 +37,7 @@ func (c *projectClient) GetProjects(groupId int, ctx context.Context) ([]model.P
 	)
 
 	for page := response.NextPage; page <= response.TotalPages; page++ {
-		run := util.CreateRunFunc[projectPageArgs, []model.Project](c.getProjectsByPage, resultchn, gctx)
+		run := util.CreateRunFunc(c.getProjectsByPage, resultchn, gctx)
 		g.Go(run(projectPageArgs{
 			groupId:    groupId,
 			pageNumber: page,
