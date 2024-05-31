@@ -14,7 +14,7 @@ export class PipelineService {
   getProjectsWithPipeline(groupId: GroupId): Observable<ProjectPipelines[]> {
     const url = `${location.origin}/api/projects/pipelines`
 
-    const params = { groupId }
+    const params = { group_id: groupId }
     return this.http.get<ProjectPipelines[]>(url, { params }).pipe(
       retry(retryConfig),
       catchError((err) => {

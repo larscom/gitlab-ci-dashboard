@@ -22,9 +22,7 @@ pub fn setup_jobs(cfg: &mut web::ServiceConfig) {
 
 #[derive(Deserialize)]
 struct QueryParams {
-    #[serde(rename = "projectId")]
     project_id: u64,
-    #[serde(rename = "pipelineId")]
     pipeline_id: u64,
     scope: Vec<String>,
 }

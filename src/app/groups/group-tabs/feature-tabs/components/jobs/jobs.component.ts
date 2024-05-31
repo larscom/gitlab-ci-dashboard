@@ -91,10 +91,10 @@ export class JobsComponent implements OnChanges, OnDestroy {
   private subscribeToJobs(): void {
     this.subscription?.unsubscribe()
 
-    const projectId = this.projectId()
-    const pipelineId = this.pipelineId()
+    const project_id = this.projectId()
+    const pipeline_id = this.pipelineId()
     const scope = this.scope().join(',')
-    const params = { projectId, pipelineId, scope }
+    const params = { project_id, pipeline_id, scope }
 
     this.subscription = this.http
       .get<Job[]>('/api/jobs', { params })

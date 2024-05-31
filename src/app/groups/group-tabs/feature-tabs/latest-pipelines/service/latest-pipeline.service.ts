@@ -15,7 +15,7 @@ export class LatestPipelineService {
   getProjectsWithLatestPipeline(groupId: GroupId): Observable<ProjectLatestPipeline[]> {
     const url = `${location.origin}/api/projects/latest-pipelines`
 
-    const params = { groupId }
+    const params = { group_id: groupId }
     return this.http.get<ProjectLatestPipeline[]>(url, { params }).pipe(
       retry(retryConfig),
       catchError((err) => {
@@ -28,7 +28,7 @@ export class LatestPipelineService {
   getBranchesWithLatestPipeline(projectId: ProjectId): Observable<BranchLatestPipeline[]> {
     const url = `${location.origin}/api/branches/latest-pipelines`
 
-    const params = { projectId }
+    const params = { project_id: projectId }
     return this.http.get<BranchLatestPipeline[]>(url, { params }).pipe(
       map((branches) => branches.filter(({ branch }) => !branch.default)),
       retry(retryConfig),

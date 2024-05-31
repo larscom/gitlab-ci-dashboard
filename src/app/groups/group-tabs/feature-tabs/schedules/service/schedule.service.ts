@@ -14,7 +14,7 @@ export class ScheduleService {
   getSchedules(groupId: GroupId): Observable<ScheduleProjectLatestPipeline[]> {
     const url = `${location.origin}/api/schedules`
 
-    const params = { groupId }
+    const params = { group_id: groupId }
     return this.http.get<ScheduleProjectLatestPipeline[]>(url, { params }).pipe(
       retry(retryConfig),
       catchError((err) => {

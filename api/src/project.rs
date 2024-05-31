@@ -38,7 +38,6 @@ pub fn setup_projects(cfg: &mut web::ServiceConfig) {
 
 #[derive(Deserialize)]
 struct QueryParams {
-    #[serde(rename = "groupId")]
     group_id: u64,
 }
 
