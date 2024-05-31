@@ -1,15 +1,13 @@
-version: '3.9'
-
 services:
   gitlab-ci-dashboard:
     image: larscom/gitlab-ci-dashboard
     build:
       context: .
       args:
-        VERSION_ARG: 1
+        VERSION_ARG: docker
     env_file:
       - ./api/.env
     environment:
-      - "TZ=Europe/Amsterdam"
+      - 'TZ=Europe/Amsterdam'
     ports:
       - '8080:8080'

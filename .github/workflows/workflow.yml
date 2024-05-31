@@ -11,45 +11,36 @@ on:
       - master
 
 jobs:
-  test-frontend:
+  build-ng:
     runs-on: ubuntu-latest
     env:
       TZ: Europe/Amsterdam
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: npm run test
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     files: ./coverage/coverage-final.json
 
-  test-backend:
+  build-rs:
     runs-on: ubuntu-latest
     env:
       TZ: Europe/Amsterdam
+    defaults:
+      run:
+        working-directory: ./api
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
-        with:
-          go-version-file: './api/go.mod'
-          cache-dependency-path: './api/go.sum'
-      - run: |
-          cd api
-          go test -v ./.../ --race
-          go test -v -coverprofile=cover.out -covermode=atomic ./.../
-          go tool cover -html=cover.out -o cover.html
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./api/cover.out
+      - uses: actions/checkout@v4
+      - run: cargo install cargo-audit
+      - run: cargo build --verbose
+      - run: cargo test --verbose
+      - run: cargo clippy --verbose -- -D warnings
+      - run: cargo audit
 
   build-docker:
     if: github.event_name != 'pull_request'
-    needs: [test-frontend, test-backend]
+    needs: [ build-rs, build-ng ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

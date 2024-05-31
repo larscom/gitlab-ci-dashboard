@@ -1,8 +1,11 @@
-build:
-	cd api && go mod download && go build -v ./...
+dev:
+	make -j 2 run_api run_fe
+.PHONY: dev
 
-test:
-	cd api && go test ./.../ --race
+run_api:
+	cd ./api && cargo watch -q -c -w ./src -x 'run -q'
+.PHONY: run_api
 
-coverage:
-	cd api &&	go test -coverprofile=cover.out -covermode=atomic ./.../ && go tool cover -html=cover.out -o cover.html
+run_fe:
+	npm start
+.PHONY: run_fe
