@@ -9,3 +9,7 @@ run_api:
 run_fe:
 	npm start
 .PHONY: run_fe
+
+test:
+	cd ./api && cargo test --verbose
+.PHONY: test
