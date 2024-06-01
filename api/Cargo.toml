@@ -19,3 +19,6 @@ async-trait = "0.1.80"
 futures = "0.3.30"
 serde-querystring-actix = "0.2.0"
 actix-web-prom = { version = "0.8.0", features = ["process"] }
+
+[dev-dependencies]
+serial_test = "3.1.1"

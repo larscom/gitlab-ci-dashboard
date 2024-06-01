@@ -102,3 +102,121 @@ impl Config {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use serial_test::serial;
+    use std::collections::HashMap;
+    use std::env;
+
+    use super::*;
+
+    #[test]
+    #[serial]
+    fn config_new() {
+        clear_env_vars();
+        set_env_vars();
+
+        let config = Config::new();
+
+        assert_eq!(config.gitlab_url, "https://example.com");
+        assert_eq!(config.gitlab_token, "token123");
+        assert_eq!(config.server_ip, "127.0.0.1");
+        assert_eq!(config.server_port, 9090);
+        assert_eq!(config.server_workers, 4);
+        assert_eq!(config.ttl_group_cache, Duration::from_secs(600));
+        assert_eq!(config.ttl_project_cache, Duration::from_secs(600));
+        assert_eq!(config.ttl_branch_cache, Duration::from_secs(120));
+        assert_eq!(config.ttl_job_cache, Duration::from_secs(20));
+        assert_eq!(config.ttl_latest_pipeline_cache, Duration::from_secs(20));
+        assert_eq!(config.ttl_schedule_cache, Duration::from_secs(600));
+        assert_eq!(config.pipeline_history_days, 10);
+        assert_eq!(config.project_skip_ids, vec![1, 2, 3]);
+        assert_eq!(config.group_only_ids, vec![4, 5, 6]);
+        assert_eq!(config.group_skip_ids, vec![7, 8, 9]);
+        assert!(config.group_only_top_level);
+    }
+
+    #[test]
+    #[serial]
+    fn config_new_with_defaults() {
+        clear_env_vars();
+
+        env::set_var("GITLAB_BASE_URL", "https://example.com");
+        env::set_var("GITLAB_API_TOKEN", "token123");
+
+        let config = Config::new();
+
+        assert_eq!(config.gitlab_url, "https://example.com");
+        assert_eq!(config.gitlab_token, "token123");
+        assert_eq!(config.server_ip, "0.0.0.0");
+        assert_eq!(config.server_port, 8080);
+        assert!(config.server_workers > 0);
+        assert_eq!(config.ttl_group_cache, Duration::from_secs(300));
+        assert_eq!(config.ttl_project_cache, Duration::from_secs(300));
+        assert_eq!(config.ttl_branch_cache, Duration::from_secs(60));
+        assert_eq!(config.ttl_job_cache, Duration::from_secs(10));
+        assert_eq!(config.ttl_latest_pipeline_cache, Duration::from_secs(10));
+        assert_eq!(config.ttl_schedule_cache, Duration::from_secs(300));
+        assert_eq!(config.pipeline_history_days, 5);
+        assert!(config.project_skip_ids.is_empty());
+        assert!(config.group_only_ids.is_empty());
+        assert!(config.group_skip_ids.is_empty());
+        assert!(!config.group_only_top_level);
+    }
+
+    #[test]
+    #[serial]
+    #[should_panic(expected = "GITLAB_BASE_URL must be set!")]
+    fn must_from_env_missing() {
+        clear_env_vars();
+        must_from_env("GITLAB_BASE_URL");
+    }
+
+    #[test]
+    #[serial]
+    fn test_from_env_or_default() {
+        clear_env_vars();
+
+        env::set_var("TEST_VAR", "42");
+        assert_eq!(from_env_or_default("TEST_VAR", 0), 42);
+        env::remove_var("TEST_VAR");
+        assert_eq!(from_env_or_default("TEST_VAR", 0), 0);
+    }
+
+    #[test]
+    fn test_split_into() {
+        let input = "1,2,3".to_string();
+        let result: Vec<u64> = split_into(input);
+        assert_eq!(result, vec![1, 2, 3]);
+    }
+
+    fn clear_env_vars() {
+        let vars = env::vars().collect::<HashMap<String, String>>();
+
+        for key in vars.keys() {
+            env::remove_var(key);
+        }
+
+        assert!(env::vars().next().is_none())
+    }
+
+    fn set_env_vars() {
+        env::set_var("GITLAB_BASE_URL", "https://example.com");
+        env::set_var("GITLAB_API_TOKEN", "token123");
+        env::set_var("SERVER_LISTEN_IP", "127.0.0.1");
+        env::set_var("SERVER_LISTEN_PORT", "9090");
+        env::set_var("SERVER_WORKER_COUNT", "4");
+        env::set_var("GITLAB_GROUP_CACHE_TTL_SECONDS", "600");
+        env::set_var("GITLAB_PROJECT_CACHE_TTL_SECONDS", "600");
+        env::set_var("GITLAB_BRANCH_CACHE_TTL_SECONDS", "120");
+        env::set_var("GITLAB_JOB_CACHE_TTL_SECONDS", "20");
+        env::set_var("GITLAB_PIPELINE_CACHE_TTL_SECONDS", "20");
+        env::set_var("GITLAB_SCHEDULE_CACHE_TTL_SECONDS", "600");
+        env::set_var("GITLAB_PIPELINE_HISTORY_DAYS", "10");
+        env::set_var("GITLAB_PROJECT_SKIP_IDS", "1,2,3");
+        env::set_var("GITLAB_GROUP_ONLY_IDS", "4,5,6");
+        env::set_var("GITLAB_GROUP_SKIP_IDS", "7,8,9");
+        env::set_var("GITLAB_GROUP_ONLY_TOP_LEVEL", "true");
+    }
+}
