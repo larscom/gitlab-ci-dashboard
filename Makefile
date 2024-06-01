@@ -1,5 +1,5 @@
 dev:
-	make -j 2 run_api run_fe
+	make -j 2 run_fe run_api
 .PHONY: dev
 
 run_api:
