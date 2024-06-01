@@ -17,9 +17,9 @@ pub mod user;
 
 #[cfg(test)]
 mod test {
-    use crate::model::{Branch, Group, Job, Pipeline};
     use crate::model::commit::Commit;
     use crate::model::user::User;
+    use crate::model::{Branch, Group, Job, Pipeline, Project, Schedule};
 
     pub fn new_commit() -> Commit {
         Commit {
@@ -89,6 +89,31 @@ mod test {
             name: "name".to_string(),
             state: "state".to_string(),
             is_admin: false,
+        }
+    }
+
+    pub fn new_project() -> Project {
+        Project {
+            id: 456,
+            name: "name".to_string(),
+            web_url: "web_url".to_string(),
+            default_branch: "default_branch".to_string(),
+            topics: vec!["topic".to_string()],
+        }
+    }
+
+    pub fn new_schedule() -> Schedule {
+        Schedule {
+            id: 789,
+            description: "description".to_string(),
+            branch: "branch".to_string(),
+            cron: "cron".to_string(),
+            cron_timezone: "cron_timezone".to_string(),
+            next_run_at: Default::default(),
+            active: false,
+            created_at: Default::default(),
+            updated_at: Default::default(),
+            owner: new_user(),
         }
     }
 }

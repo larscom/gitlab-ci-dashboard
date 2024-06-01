@@ -29,7 +29,7 @@ mod tests {
 
     #[test]
     fn job_deserialize() {
-        let job = json!({
+        let value = json!({
             "id": 6995103065_i64,
             "status": "canceled",
             "stage": "deploy",
@@ -158,7 +158,7 @@ mod tests {
             "tag_list": []
         });
 
-        let deserialized = serde_json::from_value::<Job>(job).unwrap();
+        let deserialized = serde_json::from_value::<Job>(value).unwrap();
         assert_eq!(deserialized.id, 6995103065);
     }
 
