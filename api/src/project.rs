@@ -171,10 +171,10 @@ pub mod pipeline {
             group_id: u64,
         ) -> Result<Vec<ProjectPipelines>, ApiError> {
             let projects = self.project_service.get_projects(group_id).await?;
-            self.get_pipelines(projects).await
+            self.with_pipelines(projects).await
         }
 
-        async fn get_pipelines(
+        async fn with_pipelines(
             &self,
             projects: Vec<Project>,
         ) -> Result<Vec<ProjectPipelines>, ApiError> {

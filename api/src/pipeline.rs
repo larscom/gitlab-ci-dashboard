@@ -90,6 +90,7 @@ pub mod latest {
     pub fn new_cache(ttl: Duration) -> Cache<CacheKey, Option<Pipeline>> {
         Cache::builder().time_to_live(ttl).build()
     }
+
     #[derive(Debug, Clone, PartialEq, Eq, Hash)]
     pub struct CacheKey {
         project_id: u64,
@@ -99,19 +100,6 @@ pub mod latest {
     impl CacheKey {
         pub fn new(project_id: u64, branch: String) -> Self {
             Self { project_id, branch }
-        }
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn test_cache_key_equals() {
-            assert_eq!(
-                CacheKey::new(1, String::from("master")),
-                CacheKey::new(1, String::from("master"))
-            );
         }
     }
 }

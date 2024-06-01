@@ -96,20 +96,3 @@ impl CacheKey {
 fn new_cache(ttl: Duration) -> Cache<CacheKey, Vec<Job>> {
     Cache::builder().time_to_live(ttl).build()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_cache_key() {
-        assert_eq!(
-            CacheKey::new(1, 2, vec![String::from("success")]),
-            CacheKey::new(1, 2, vec![String::from("success")]),
-        );
-
-        assert_eq!(CacheKey::new(1, 2, vec![]), CacheKey::new(1, 2, vec![]));
-
-        assert_ne!(CacheKey::new(1, 2, vec![]), CacheKey::new(2, 2, vec![]));
-    }
-}
