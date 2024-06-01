@@ -25,7 +25,7 @@ pub struct BranchPipeline {
 mod tests {
     use serde_json::json;
 
-    use super::*;
+    use crate::model::{test, Branch, BranchPipeline};
 
     #[test]
     fn branch_deserialize() {
@@ -59,70 +59,40 @@ mod tests {
             "web_url": "web_url"
         });
 
-        let branch = serde_json::from_value::<Branch>(value).unwrap();
-        assert_eq!(branch.name, "branch-1");
+        let deserialized = serde_json::from_value::<Branch>(value).unwrap();
+        assert_eq!(deserialized.name, "branch-1");
     }
 
     #[test]
     fn branch_serialize() {
-        let branch = create_test_branch();
+        let value = test::new_branch();
 
-        let json = serde_json::to_string(&branch).unwrap();
-        let expected = "{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"1\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}}";
+        let json = serde_json::to_string(&value).unwrap();
+        let expected = "{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}}";
         assert_eq!(expected, json);
     }
 
     #[test]
     fn branch_pipeline_serialize_none_pipeline() {
-        let branch_pipeline = BranchPipeline {
-            branch: create_test_branch(),
+        let value = BranchPipeline {
+            branch: test::new_branch(),
             pipeline: None,
         };
 
-        let json = serde_json::to_string(&branch_pipeline).unwrap();
-        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"1\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}}}";
+        let json = serde_json::to_string(&value).unwrap();
+        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}}}";
         assert_eq!(expected, json);
     }
 
     #[test]
     fn branch_pipeline_serialize_some_pipeline() {
-        let branch_pipeline = BranchPipeline {
-            branch: create_test_branch(),
-            pipeline: Some(Pipeline {
-                id: 1,
-                iid: 2,
-                project_id: 3,
-                sha: "sha".to_string(),
-                branch: "branch".to_string(),
-                status: "status".to_string(),
-                source: "source".to_string(),
-                created_at: Default::default(),
-                updated_at: Default::default(),
-                web_url: "web_url".to_string(),
-            }),
+        let value = BranchPipeline {
+            branch: test::new_branch(),
+            pipeline: Some(test::new_pipeline()),
         };
 
-        let json = serde_json::to_string(&branch_pipeline).unwrap();
-        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"1\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"status\",\"source\":\"source\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let json = serde_json::to_string(&value).unwrap();
+        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"status\",\"source\":\"source\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
         assert_eq!(expected, json);
-    }
-
-    fn create_test_branch() -> Branch {
-        Branch {
-            name: "branch-1".to_string(),
-            merged: false,
-            protected: false,
-            default: false,
-            can_push: false,
-            web_url: "web_url".to_string(),
-            commit: Commit {
-                id: "1".to_string(),
-                author_name: "author_name".to_string(),
-                committer_name: "committer_name".to_string(),
-                committed_date: Default::default(),
-                title: "title".to_string(),
-                message: "message".to_string(),
-            },
-        }
     }
 }
