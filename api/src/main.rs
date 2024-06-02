@@ -1,8 +1,8 @@
 #![forbid(unsafe_code)]
 
+use actix_web::{App, HttpResponse, HttpServer, middleware::Logger, Responder, web};
 use actix_web::dev::HttpServiceFactory;
-use actix_web::web::Data;
-use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::web::{Data, ServiceConfig};
 use actix_web_lab::web::spa;
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
 use dotenv::dotenv;
@@ -10,6 +10,9 @@ use serde_querystring_actix::{ParseMode, QueryStringConfig};
 use web::scope;
 
 use config::Config;
+
+use crate::group::GroupService;
+use crate::job::JobService;
 
 mod branch;
 mod config;
@@ -39,7 +42,7 @@ async fn main() -> std::io::Result<()> {
 
     let gcd_config = Config::new();
     let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
-    let prometheus = setup_prometheus();
+    let p_metrics = setup_prometheus();
 
     let gitlab_client = gitlab::new_client(&gcd_config);
 
@@ -63,7 +66,32 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
-            .wrap(prometheus.clone())
+            .wrap(p_metrics.clone())
+            .configure(configure_app(
+                &qs_config,
+                &group_service,
+                &project_aggr,
+                &branch_aggr,
+                &schedule_aggr,
+                &job_service,
+            ))
+    })
+    .bind((gcd_config.server_ip, gcd_config.server_port))?
+    .workers(gcd_config.server_workers)
+    .run()
+    .await
+}
+
+fn configure_app<'a>(
+    qs_config: &'a QueryStringConfig,
+    group_service: &'a Data<GroupService>,
+    project_aggr: &'a Data<project::pipeline::Aggregator>,
+    branch_aggr: &'a Data<branch::pipeline::Aggregator>,
+    schedule_aggr: &'a Data<schedule::pipeline::Aggregator>,
+    job_service: &'a Data<JobService>,
+) -> impl Fn(&mut ServiceConfig) + 'a {
+    move |config| {
+        config
             .app_data(qs_config.clone())
             .app_data(group_service.clone())
             .app_data(project_aggr.clone())
@@ -80,12 +108,8 @@ async fn main() -> std::io::Result<()> {
                     .configure(schedule::setup_schedules)
                     .configure(job::setup_jobs),
             )
-            .service(setup_spa())
-    })
-    .bind((gcd_config.server_ip, gcd_config.server_port))?
-    .workers(gcd_config.server_workers)
-    .run()
-    .await
+            .service(setup_spa());
+    }
 }
 
 fn setup_prometheus() -> PrometheusMetrics {
