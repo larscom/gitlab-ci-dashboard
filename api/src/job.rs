@@ -9,10 +9,13 @@ use web::{Data, Json};
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::gitlab::{GitlabApi, GitlabClient};
+use crate::gitlab::GitlabApi;
 use crate::model::Job;
 
-pub fn new_service(gitlab_client: &Arc<GitlabClient>, config: &Config) -> JobService {
+pub fn new_service(
+    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
+    config: &Config,
+) -> JobService {
     JobService::new(gitlab_client.clone(), new_cache(config.ttl_job_cache))
 }
 

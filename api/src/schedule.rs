@@ -8,14 +8,14 @@ use web::{Data, Json, Query};
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::gitlab::{GitlabApi, GitlabClient};
+use crate::gitlab::GitlabApi;
 use crate::model::{Schedule, ScheduleProjectPipeline};
 use crate::pipeline::PipelineService;
 use crate::project::ProjectService;
 use crate::schedule::pipeline::Aggregator;
 
 pub fn new_aggregator(
-    gitlab_client: &Arc<GitlabClient>,
+    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
     project_service: &ProjectService,
     pipeline_service: &PipelineService,
     config: &Config,

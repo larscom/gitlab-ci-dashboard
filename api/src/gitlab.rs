@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
 use serde::de::DeserializeOwned;
+use std::sync::Arc;
 use tokio::sync::mpsc;
 
 use crate::config::Config;
@@ -12,8 +13,11 @@ use crate::model::Project;
 use crate::model::Schedule;
 use crate::model::{Branch, Group, Job};
 
-pub fn new_client(config: &Config) -> GitlabClient {
-    GitlabClient::new(config.gitlab_url.clone(), config.gitlab_token.clone())
+pub fn new_client(config: &Config) -> Arc<dyn GitlabApi + Send + Sync> {
+    Arc::new(GitlabClient::new(
+        config.gitlab_url.clone(),
+        config.gitlab_token.clone(),
+    ))
 }
 
 #[async_trait]

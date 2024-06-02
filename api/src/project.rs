@@ -8,7 +8,7 @@ use web::{Data, Json, Query};
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::gitlab::{GitlabApi, GitlabClient};
+use crate::gitlab::GitlabApi;
 use crate::model::{Project, ProjectPipeline, ProjectPipelines};
 use crate::pipeline::PipelineService;
 use crate::project::pipeline::Aggregator;
@@ -20,7 +20,10 @@ pub fn new_aggregator(
     Aggregator::new(project_service.clone(), pipeline_service.clone())
 }
 
-pub fn new_service(gitlab_client: &Arc<GitlabClient>, config: &Config) -> ProjectService {
+pub fn new_service(
+    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
+    config: &Config,
+) -> ProjectService {
     ProjectService::new(
         gitlab_client.clone(),
         new_cache(config.ttl_project_cache),

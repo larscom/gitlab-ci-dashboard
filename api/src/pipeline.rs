@@ -6,11 +6,14 @@ use moka::future::Cache;
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::gitlab::{GitlabApi, GitlabClient};
+use crate::gitlab::GitlabApi;
 use crate::model::Pipeline;
 use crate::pipeline::latest::CacheKey;
 
-pub fn new_service(gitlab_client: &Arc<GitlabClient>, config: &Config) -> PipelineService {
+pub fn new_service(
+    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
+    config: &Config,
+) -> PipelineService {
     PipelineService::new(
         gitlab_client.clone(),
         latest::new_cache(config.ttl_latest_pipeline_cache),

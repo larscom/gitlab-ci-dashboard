@@ -1,16 +1,19 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use actix_web::{web, HttpRequest};
+use actix_web::{HttpRequest, web};
 use moka::future::Cache;
 use web::{Data, Json};
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::gitlab::{GitlabApi, GitlabClient};
+use crate::gitlab::GitlabApi;
 use crate::model::Group;
 
-pub fn new_service(gitlab_client: &Arc<GitlabClient>, config: &Config) -> GroupService {
+pub fn new_service(
+    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
+    config: &Config,
+) -> GroupService {
     GroupService::new(
         gitlab_client.clone(),
         new_cache(config.ttl_group_cache),

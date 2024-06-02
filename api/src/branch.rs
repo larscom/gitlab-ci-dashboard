@@ -9,12 +9,12 @@ use web::{Data, Json, Query};
 use crate::branch::pipeline::Aggregator;
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::gitlab::{GitlabApi, GitlabClient};
+use crate::gitlab::GitlabApi;
 use crate::model::{Branch, BranchPipeline};
 use crate::pipeline::PipelineService;
 
 pub fn new_aggregator(
-    gitlab_client: &Arc<GitlabClient>,
+    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
     pipeline_service: &PipelineService,
     config: &Config,
 ) -> Aggregator {

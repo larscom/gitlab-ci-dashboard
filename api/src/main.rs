@@ -1,7 +1,5 @@
 #![forbid(unsafe_code)]
 
-use std::sync::Arc;
-
 use actix_web::dev::HttpServiceFactory;
 use actix_web::web::Data;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
@@ -43,7 +41,8 @@ async fn main() -> std::io::Result<()> {
     let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
     let prometheus = setup_prometheus();
 
-    let gitlab_client = Arc::new(gitlab::new_client(&gcd_config));
+    let gitlab_client = gitlab::new_client(&gcd_config);
+
     let group_service = Data::new(group::new_service(&gitlab_client, &gcd_config));
     let pipeline_service = Data::new(pipeline::new_service(&gitlab_client, &gcd_config));
     let project_service = Data::new(project::new_service(&gitlab_client, &gcd_config));
