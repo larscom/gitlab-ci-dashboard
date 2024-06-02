@@ -1,8 +1,8 @@
 #![forbid(unsafe_code)]
 
-use actix_web::{App, HttpResponse, HttpServer, middleware::Logger, Responder, web};
 use actix_web::dev::HttpServiceFactory;
 use actix_web::web::{Data, ServiceConfig};
+use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use actix_web_lab::web::spa;
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
 use dotenv::dotenv;
@@ -128,5 +128,84 @@ fn setup_spa() -> impl HttpServiceFactory {
             .static_resources_mount("/")
             .static_resources_location("./spa")
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::env;
+
+    use actix_web::body::to_bytes;
+    use actix_web::test;
+    use actix_web::web::Bytes;
+
+    use super::*;
+
+    #[macro_export]
+    macro_rules! setup_app {
+        () => {{
+            use super::*;
+            use actix_web::{test, App};
+
+            env::set_var("GITLAB_BASE_URL", "https://example.com");
+            env::set_var("GITLAB_API_TOKEN", "token123");
+
+            let gcd_config = Config::new();
+            let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
+
+            let gitlab_client = gitlab::new_client(&gcd_config);
+
+            let group_service = Data::new(group::new_service(&gitlab_client, &gcd_config));
+            let pipeline_service = Data::new(pipeline::new_service(&gitlab_client, &gcd_config));
+            let project_service = Data::new(project::new_service(&gitlab_client, &gcd_config));
+            let job_service = Data::new(job::new_service(&gitlab_client, &gcd_config));
+            let project_aggr =
+                Data::new(project::new_aggregator(&project_service, &pipeline_service));
+            let branch_aggr = Data::new(branch::new_aggregator(
+                &gitlab_client,
+                &pipeline_service,
+                &gcd_config,
+            ));
+            let schedule_aggr = Data::new(schedule::new_aggregator(
+                &gitlab_client,
+                &project_service,
+                &pipeline_service,
+                &gcd_config,
+            ));
+
+            let app = test::init_service(App::new().configure(configure_app(
+                &qs_config,
+                &group_service,
+                &project_aggr,
+                &branch_aggr,
+                &schedule_aggr,
+                &job_service,
+            )))
+            .await;
+            app
+        }};
+    }
+
+    trait BodyTest {
+        fn as_str(&self) -> &str;
+    }
+
+    impl BodyTest for Bytes {
+        fn as_str(&self) -> &str {
+            std::str::from_utf8(self).expect("failed to read bytes")
+        }
+    }
+
+    #[actix_web::test]
+    async fn test_version() {
+        let app = setup_app!();
+        let req = test::TestRequest::get().uri("/api/version").to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        let body = to_bytes(resp.into_body()).await.unwrap();
+
+        assert!(body.as_str() == "dev");
+        assert!(status.is_success());
     }
 }
