@@ -1,8 +1,8 @@
 #![forbid(unsafe_code)]
 
+use actix_web::{App, HttpResponse, HttpServer, middleware::Logger, Responder, web};
 use actix_web::dev::HttpServiceFactory;
 use actix_web::web::{Data, ServiceConfig};
-use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use actix_web_lab::web::spa;
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
 use dotenv::dotenv;
@@ -134,10 +134,19 @@ fn setup_spa() -> impl HttpServiceFactory {
 #[cfg(test)]
 mod tests {
     use std::env;
+    use std::sync::Arc;
 
     use actix_web::body::to_bytes;
     use actix_web::test;
-    use actix_web::web::Bytes;
+    use async_trait::async_trait;
+    use chrono::{DateTime, Utc};
+
+    use crate::error::ApiError;
+    use crate::gitlab::GitlabApi;
+    use crate::model::{
+        Branch, BranchPipeline, Group, Job, Pipeline, Project, ProjectPipeline, ProjectPipelines,
+        Schedule, ScheduleProjectPipeline,
+    };
 
     use super::*;
 
@@ -147,13 +156,13 @@ mod tests {
             use super::*;
             use actix_web::{test, App};
 
-            env::set_var("GITLAB_BASE_URL", "https://example.com");
+            env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
             env::set_var("GITLAB_API_TOKEN", "token123");
 
             let gcd_config = Config::new();
             let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
 
-            let gitlab_client = gitlab::new_client(&gcd_config);
+            let gitlab_client = new_test_client();
 
             let group_service = Data::new(group::new_service(&gitlab_client, &gcd_config));
             let pipeline_service = Data::new(pipeline::new_service(&gitlab_client, &gcd_config));
@@ -173,7 +182,7 @@ mod tests {
                 &gcd_config,
             ));
 
-            let app = test::init_service(App::new().configure(configure_app(
+            test::init_service(App::new().configure(configure_app(
                 &qs_config,
                 &group_service,
                 &project_aggr,
@@ -181,31 +190,223 @@ mod tests {
                 &schedule_aggr,
                 &job_service,
             )))
-            .await;
-            app
+            .await
         }};
     }
 
-    trait BodyTest {
-        fn as_str(&self) -> &str;
-    }
+    struct GitlabClientTest {}
 
-    impl BodyTest for Bytes {
-        fn as_str(&self) -> &str {
-            std::str::from_utf8(self).expect("failed to read bytes")
+    #[async_trait]
+    impl GitlabApi for GitlabClientTest {
+        async fn groups(
+            &self,
+            _skip_groups: &[u64],
+            _top_level: bool,
+        ) -> Result<Vec<Group>, ApiError> {
+            Ok(vec![model::test::new_group()])
+        }
+
+        async fn projects(&self, _group_id: u64) -> Result<Vec<Project>, ApiError> {
+            Ok(vec![model::test::new_project()])
+        }
+
+        async fn latest_pipeline(
+            &self,
+            _project_id: u64,
+            _branch: String,
+        ) -> Result<Option<Pipeline>, ApiError> {
+            Ok(Some(model::test::new_pipeline()))
+        }
+
+        async fn pipelines(
+            &self,
+            _project_id: u64,
+            _updated_after: Option<DateTime<Utc>>,
+        ) -> Result<Vec<Pipeline>, ApiError> {
+            Ok(vec![model::test::new_pipeline()])
+        }
+
+        async fn branches(&self, _project_id: u64) -> Result<Vec<Branch>, ApiError> {
+            Ok(vec![model::test::new_branch()])
+        }
+
+        async fn schedules(&self, _project_id: u64) -> Result<Vec<Schedule>, ApiError> {
+            Ok(vec![model::test::new_schedule()])
+        }
+
+        async fn jobs(
+            &self,
+            _project_id: u64,
+            _pipeline_id: u64,
+            _scope: &[String],
+        ) -> Result<Vec<Job>, ApiError> {
+            Ok(vec![model::test::new_job()])
         }
     }
 
+    fn new_test_client() -> Arc<dyn GitlabApi + Send + Sync> {
+        Arc::new(GitlabClientTest {})
+    }
+
+    fn to_str(value: &[u8]) -> &str {
+        std::str::from_utf8(value).expect("failed to read bytes")
+    }
+
     #[actix_web::test]
-    async fn test_version() {
+    async fn test_version_endpoint() {
+        env::set_var("VERSION", "1.0.0");
+
         let app = setup_app!();
         let req = test::TestRequest::get().uri("/api/version").to_request();
         let resp = test::call_service(&app, req).await;
 
         let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        assert_eq!(to_str(&body), "1.0.0");
+    }
+
+    #[actix_web::test]
+    async fn test_health_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get().uri("/health").to_request();
+        let resp = test::call_service(&app, req).await;
+
+        assert!(resp.status().is_success());
+    }
+
+    #[actix_web::test]
+    async fn test_groups_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get().uri("/api/groups").to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let groups = serde_json::from_str::<Vec<Group>>(to_str(&body)).unwrap();
+        assert_eq!(groups.len(), 1);
+
+        assert_eq!(groups[0].id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_projects_with_latest_pipelines_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/projects/latest-pipelines?group_id=1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
         let body = to_bytes(resp.into_body()).await.unwrap();
 
-        assert!(body.as_str() == "dev");
+        let result = serde_json::from_str::<Vec<ProjectPipeline>>(to_str(&body)).unwrap();
+        assert_eq!(result.len(), 1);
+
+        let first_entry = &result[0];
+        let project = first_entry.clone().project;
+        let pipeline = first_entry.clone().pipeline.unwrap();
+
+        assert_eq!(project.id, 456);
+        assert_eq!(pipeline.id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_projects_with_pipelines_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/projects/pipelines?group_id=1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
         assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+
+        let result = serde_json::from_str::<Vec<ProjectPipelines>>(to_str(&body)).unwrap();
+        assert_eq!(result.len(), 1);
+
+        let first_entry = &result[0];
+        let project = first_entry.clone().project;
+        assert_eq!(project.id, 456);
+
+        let pipelines = first_entry.clone().pipelines;
+        assert_eq!(pipelines.len(), 1);
+
+        assert_eq!(pipelines[0].id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_branches_with_latest_pipelines_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/branches/latest-pipelines?project_id=456")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+
+        let result = serde_json::from_str::<Vec<BranchPipeline>>(to_str(&body)).unwrap();
+        assert_eq!(result.len(), 1);
+
+        let first_entry = &result[0];
+        let branch = first_entry.clone().branch;
+        let pipeline = first_entry.clone().pipeline.unwrap();
+
+        assert_eq!(branch.name, "branch-1");
+        assert_eq!(pipeline.id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_schedules_with_latest_pipelines_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/schedules/latest-pipelines?group_id=1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+
+        let result = serde_json::from_str::<Vec<ScheduleProjectPipeline>>(to_str(&body)).unwrap();
+        assert_eq!(result.len(), 1);
+
+        let first_entry = &result[0];
+        let schedule = first_entry.clone().schedule;
+        let project = first_entry.clone().project;
+        let pipeline = first_entry.clone().pipeline.unwrap();
+
+        assert_eq!(schedule.id, 789);
+        assert_eq!(project.id, 456);
+        assert_eq!(pipeline.id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_jobs_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/jobs?project_id=456&pipeline_id=1&scope=running")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let jobs = serde_json::from_str::<Vec<Job>>(to_str(&body)).unwrap();
+        assert_eq!(jobs.len(), 1);
+
+        assert_eq!(jobs[0].id, 1);
     }
 }

@@ -16,7 +16,7 @@ pub mod schedule;
 pub mod user;
 
 #[cfg(test)]
-mod test {
+pub mod test {
     use crate::model::commit::Commit;
     use crate::model::user::User;
     use crate::model::{Branch, Group, Job, Pipeline, Project, Schedule};

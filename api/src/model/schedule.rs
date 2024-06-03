@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{Pipeline, Project};
 use crate::model::user::User;
+use crate::model::{Pipeline, Project};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Schedule {
@@ -19,7 +19,7 @@ pub struct Schedule {
     pub owner: User,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ScheduleProjectPipeline {
     pub schedule: Schedule,
     pub project: Project,
@@ -31,7 +31,7 @@ pub struct ScheduleProjectPipeline {
 mod tests {
     use serde_json::json;
 
-    use crate::model::{Schedule, ScheduleProjectPipeline, test};
+    use crate::model::{test, Schedule, ScheduleProjectPipeline};
 
     #[test]
     fn schedule_deserialize() {

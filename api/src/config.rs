@@ -105,9 +105,10 @@ impl Config {
 
 #[cfg(test)]
 mod tests {
-    use serial_test::serial;
     use std::collections::HashMap;
     use std::env;
+
+    use serial_test::serial;
 
     use super::*;
 
@@ -119,7 +120,7 @@ mod tests {
 
         let config = Config::new();
 
-        assert_eq!(config.gitlab_url, "https://example.com");
+        assert_eq!(config.gitlab_url, "https://gitlab.url");
         assert_eq!(config.gitlab_token, "token123");
         assert_eq!(config.server_ip, "127.0.0.1");
         assert_eq!(config.server_port, 9090);
@@ -142,12 +143,12 @@ mod tests {
     fn config_new_with_defaults() {
         clear_env_vars();
 
-        env::set_var("GITLAB_BASE_URL", "https://example.com");
+        env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
         env::set_var("GITLAB_API_TOKEN", "token123");
 
         let config = Config::new();
 
-        assert_eq!(config.gitlab_url, "https://example.com");
+        assert_eq!(config.gitlab_url, "https://gitlab.url");
         assert_eq!(config.gitlab_token, "token123");
         assert_eq!(config.server_ip, "0.0.0.0");
         assert_eq!(config.server_port, 8080);
@@ -202,7 +203,7 @@ mod tests {
     }
 
     fn set_env_vars() {
-        env::set_var("GITLAB_BASE_URL", "https://example.com");
+        env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
         env::set_var("GITLAB_API_TOKEN", "token123");
         env::set_var("SERVER_LISTEN_IP", "127.0.0.1");
         env::set_var("SERVER_LISTEN_PORT", "9090");

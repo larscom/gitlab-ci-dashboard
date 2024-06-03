@@ -11,14 +11,14 @@ pub struct Project {
     pub topics: Vec<String>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectPipeline {
     pub project: Project,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectPipelines {
     pub project: Project,
     pub pipelines: Vec<Pipeline>,

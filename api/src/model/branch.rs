@@ -14,7 +14,7 @@ pub struct Branch {
     pub commit: Commit,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BranchPipeline {
     pub branch: Branch,
     #[serde(skip_serializing_if = "Option::is_none")]
