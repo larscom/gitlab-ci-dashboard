@@ -31,8 +31,11 @@ pub fn new_cache(ttl: Duration) -> Cache<u64, Vec<Schedule>> {
     Cache::builder().time_to_live(ttl).build()
 }
 
-pub fn setup_schedules(cfg: &mut web::ServiceConfig) {
-    cfg.route("/schedules/latest-pipelines", web::get().to(get_with_latest_pipeline));
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
+    cfg.route(
+        "/schedules/latest-pipelines",
+        web::get().to(get_with_latest_pipeline),
+    );
 }
 
 #[derive(Deserialize)]

@@ -19,7 +19,7 @@ pub fn new_service(
     JobService::new(gitlab_client.clone(), new_cache(config.ttl_job_cache))
 }
 
-pub fn setup_jobs(cfg: &mut web::ServiceConfig) {
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
     cfg.route("/jobs", web::get().to(get_jobs));
 }
 

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use actix_web::{HttpRequest, web};
+use actix_web::{web, HttpRequest};
 use moka::future::Cache;
 use web::{Data, Json};
 
@@ -21,7 +21,7 @@ pub fn new_service(
     )
 }
 
-pub fn setup_groups(cfg: &mut web::ServiceConfig) {
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
     cfg.route("/groups", web::get().to(get_groups));
 }
 

@@ -102,11 +102,11 @@ fn configure_app<'a>(
             .service(
                 scope("/api")
                     .route("/version", web::get().to(version))
-                    .configure(group::setup_groups)
-                    .configure(project::setup_projects)
-                    .configure(branch::setup_branches)
-                    .configure(schedule::setup_schedules)
-                    .configure(job::setup_jobs),
+                    .configure(group::setup_handlers)
+                    .configure(project::setup_handlers)
+                    .configure(branch::setup_handlers)
+                    .configure(schedule::setup_handlers)
+                    .configure(job::setup_handlers),
             )
             .service(setup_spa());
     }

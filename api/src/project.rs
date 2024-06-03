@@ -31,7 +31,7 @@ pub fn new_service(
     )
 }
 
-pub fn setup_projects(cfg: &mut web::ServiceConfig) {
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/projects/latest-pipelines",
         web::get().to(get_with_latest_pipeline),

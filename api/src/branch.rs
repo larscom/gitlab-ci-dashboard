@@ -24,7 +24,7 @@ pub fn new_aggregator(
     )
 }
 
-pub fn setup_branches(cfg: &mut web::ServiceConfig) {
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/branches/latest-pipelines",
         web::get().to(get_with_latest_pipeline),
