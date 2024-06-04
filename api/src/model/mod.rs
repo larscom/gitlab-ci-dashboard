@@ -19,7 +19,9 @@ pub mod user;
 pub mod test {
     use crate::model::commit::Commit;
     use crate::model::user::User;
-    use crate::model::{Branch, Group, Job, Pipeline, Project, Schedule};
+    use crate::model::{
+        Branch, Group, Job, JobStatus, Pipeline, PipelineSource, PipelineStatus, Project, Schedule,
+    };
 
     pub fn new_commit() -> Commit {
         Commit {
@@ -51,8 +53,8 @@ pub mod test {
             project_id: 3,
             sha: "sha".to_string(),
             branch: "branch".to_string(),
-            status: "status".to_string(),
-            source: "source".to_string(),
+            status: PipelineStatus::Running,
+            source: PipelineSource::Web,
             created_at: Default::default(),
             updated_at: Default::default(),
             web_url: "web_url".to_string(),
@@ -74,7 +76,7 @@ pub mod test {
             name: "name".to_string(),
             branch: "branch".to_string(),
             stage: "stage".to_string(),
-            status: "status".to_string(),
+            status: JobStatus::Success,
             web_url: "web_url".to_string(),
             pipeline: new_pipeline(),
             commit: new_commit(),

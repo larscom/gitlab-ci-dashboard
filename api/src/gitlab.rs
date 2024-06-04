@@ -1,17 +1,18 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
+use reqwest::header::{HeaderMap, HeaderValue};
 use serde::de::DeserializeOwned;
-use std::sync::Arc;
 use tokio::sync::mpsc;
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::model::Pipeline;
+use crate::model::{Branch, Group, Job};
+use crate::model::{JobStatus, Pipeline};
 use crate::model::Project;
 use crate::model::Schedule;
-use crate::model::{Branch, Group, Job};
 
 pub fn new_client(config: &Config) -> Arc<dyn GitlabApi + Send + Sync> {
     Arc::new(GitlabClient::new(
@@ -46,7 +47,7 @@ pub trait GitlabApi {
         &self,
         project_id: u64,
         pipeline_id: u64,
-        scope: &[String],
+        scope: &[JobStatus],
     ) -> Result<Vec<Job>, ApiError>;
 }
 
@@ -251,11 +252,11 @@ impl GitlabApi for GitlabClient {
         &self,
         project_id: u64,
         pipeline_id: u64,
-        scope: &[String],
+        scope: &[JobStatus],
     ) -> Result<Vec<Job>, ApiError> {
         let mut params = vec![];
         for scope in scope {
-            params.push(("scope[]".to_string(), scope.to_string()))
+            params.push(("scope[]".to_string(), scope.as_string()))
         }
 
         let path = format!("/projects/{}/pipelines/{}/jobs", project_id, pipeline_id);

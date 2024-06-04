@@ -25,7 +25,7 @@ pub struct BranchPipeline {
 mod tests {
     use serde_json::json;
 
-    use crate::model::{test, Branch, BranchPipeline};
+    use crate::model::{Branch, BranchPipeline, test};
 
     #[test]
     fn branch_deserialize() {
@@ -92,7 +92,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"status\",\"source\":\"source\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
         assert_eq!(expected, json);
     }
 }

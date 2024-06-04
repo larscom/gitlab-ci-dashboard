@@ -143,10 +143,7 @@ mod tests {
 
     use crate::error::ApiError;
     use crate::gitlab::GitlabApi;
-    use crate::model::{
-        Branch, BranchPipeline, Group, Job, Pipeline, Project, ProjectPipeline, ProjectPipelines,
-        Schedule, ScheduleProjectPipeline,
-    };
+    use crate::model::{Branch, BranchPipeline, Group, Job, JobStatus, Pipeline, Project, ProjectPipeline, ProjectPipelines, Schedule, ScheduleProjectPipeline};
 
     use super::*;
 
@@ -238,7 +235,7 @@ mod tests {
             &self,
             _project_id: u64,
             _pipeline_id: u64,
-            _scope: &[String],
+            _scope: &[JobStatus],
         ) -> Result<Vec<Job>, ApiError> {
             Ok(vec![model::test::new_job()])
         }

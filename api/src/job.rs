@@ -10,7 +10,7 @@ use web::{Data, Json};
 use crate::config::Config;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
-use crate::model::Job;
+use crate::model::{Job, JobStatus};
 
 pub fn new_service(
     gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
@@ -27,7 +27,7 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 struct QueryParams {
     project_id: u64,
     pipeline_id: u64,
-    scope: Vec<String>,
+    scope: Vec<JobStatus>,
 }
 
 #[allow(private_interfaces)]
@@ -59,7 +59,7 @@ impl JobService {
         &self,
         project_id: u64,
         pipeline_id: u64,
-        scope: &[String],
+        scope: &[JobStatus],
     ) -> Result<Vec<Job>, ApiError> {
         self.cache
             .try_get_with(
@@ -83,11 +83,11 @@ impl JobService {
 pub struct CacheKey {
     project_id: u64,
     pipeline_id: u64,
-    scope: Vec<String>,
+    scope: Vec<JobStatus>,
 }
 
 impl CacheKey {
-    pub fn new(project_id: u64, pipeline_id: u64, scope: Vec<String>) -> Self {
+    pub fn new(project_id: u64, pipeline_id: u64, scope: Vec<JobStatus>) -> Self {
         Self {
             project_id,
             pipeline_id,

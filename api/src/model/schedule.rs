@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::model::user::User;
 use crate::model::{Pipeline, Project};
+use crate::model::user::User;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Schedule {
@@ -31,7 +31,7 @@ pub struct ScheduleProjectPipeline {
 mod tests {
     use serde_json::json;
 
-    use crate::model::{test, Schedule, ScheduleProjectPipeline};
+    use crate::model::{Schedule, ScheduleProjectPipeline, test};
 
     #[test]
     fn schedule_deserialize() {
@@ -91,7 +91,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"status\",\"source\":\"source\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
         assert_eq!(expected, json);
     }
 }
