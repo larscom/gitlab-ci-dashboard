@@ -43,26 +43,26 @@ jobs:
     needs: [ build-rs, build-ng ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-      - uses: docker/login-action@v2
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v5
         if: startsWith(github.ref, 'refs/tags/')
         with:
           push: true
           tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ github.ref_name }}
           build-args: VERSION_ARG=v${{ github.ref_name }}
-      - uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v5
         if: startsWith(github.ref, 'refs/heads/')
         with:
           push: true
           tags: ${{ github.repository }}:${{ github.ref_name }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ github.ref_name }}
-      - uses: peter-evans/dockerhub-description@v3
+      - uses: peter-evans/dockerhub-description@v4
         if: github.ref == 'refs/heads/master'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
