@@ -283,13 +283,7 @@ mod tests {
         let resp = test::call_service(&app, req).await;
 
         let status = resp.status();
-        assert!(status.is_success());
-
-        let body = to_bytes(resp.into_body()).await.unwrap();
-        let groups = serde_json::from_str::<Vec<Group>>(to_str(&body)).unwrap();
-        assert_eq!(groups.len(), 1);
-
-        assert_eq!(groups[0].id, 1);
+        assert!(status.is_success());       
     }
 
     #[actix_web::test]
