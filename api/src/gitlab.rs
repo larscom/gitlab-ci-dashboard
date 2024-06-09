@@ -14,7 +14,7 @@ use crate::model::{JobStatus, Pipeline};
 use crate::model::Project;
 use crate::model::Schedule;
 
-pub fn new_client(config: &Config) -> Arc<dyn GitlabApi + Send + Sync> {
+pub fn new_client(config: &Config) -> Arc<dyn GitlabApi> {
     Arc::new(GitlabClient::new(
         config.gitlab_url.clone(),
         config.gitlab_token.clone(),
@@ -22,7 +22,7 @@ pub fn new_client(config: &Config) -> Arc<dyn GitlabApi + Send + Sync> {
 }
 
 #[async_trait]
-pub trait GitlabApi {
+pub trait GitlabApi: Send + Sync {
     async fn groups(&self, skip_groups: &[u64], top_level: bool) -> Result<Vec<Group>, ApiError>;
 
     async fn projects(&self, group_id: u64) -> Result<Vec<Project>, ApiError>;

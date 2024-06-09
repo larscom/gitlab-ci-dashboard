@@ -20,10 +20,7 @@ pub fn new_aggregator(
     Aggregator::new(project_service.clone(), pipeline_service.clone())
 }
 
-pub fn new_service(
-    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
-    config: &Config,
-) -> ProjectService {
+pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> ProjectService {
     ProjectService::new(
         gitlab_client.clone(),
         new_cache(config.ttl_project_cache),
@@ -67,13 +64,13 @@ pub async fn get_with_pipelines(
 #[derive(Clone)]
 pub struct ProjectService {
     cache: Cache<u64, Vec<Project>>,
-    client: Arc<dyn GitlabApi + Send + Sync>,
+    client: Arc<dyn GitlabApi>,
     config: Config,
 }
 
 impl ProjectService {
     pub fn new(
-        client: Arc<dyn GitlabApi + Send + Sync>,
+        client: Arc<dyn GitlabApi>,
         cache: Cache<u64, Vec<Project>>,
         config: Config,
     ) -> Self {

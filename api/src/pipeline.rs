@@ -10,10 +10,7 @@ use crate::gitlab::GitlabApi;
 use crate::model::Pipeline;
 use crate::pipeline::latest::CacheKey;
 
-pub fn new_service(
-    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
-    config: &Config,
-) -> PipelineService {
+pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> PipelineService {
     PipelineService::new(
         gitlab_client.clone(),
         latest::new_cache(config.ttl_latest_pipeline_cache),
@@ -26,13 +23,13 @@ pub fn new_service(
 pub struct PipelineService {
     cache_latest: Cache<CacheKey, Option<Pipeline>>,
     cache_all: Cache<u64, Vec<Pipeline>>,
-    client: Arc<dyn GitlabApi + Send + Sync>,
+    client: Arc<dyn GitlabApi>,
     config: Config,
 }
 
 impl PipelineService {
     pub fn new(
-        client: Arc<dyn GitlabApi + Send + Sync>,
+        client: Arc<dyn GitlabApi>,
         cache_latest: Cache<CacheKey, Option<Pipeline>>,
         cache_all: Cache<u64, Vec<Pipeline>>,
         config: Config,

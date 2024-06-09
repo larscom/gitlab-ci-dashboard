@@ -14,7 +14,7 @@ use crate::model::{Branch, BranchPipeline};
 use crate::pipeline::PipelineService;
 
 pub fn new_aggregator(
-    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
+    gitlab_client: &Arc<dyn GitlabApi>,
     pipeline_service: &PipelineService,
     config: &Config,
 ) -> Aggregator {
@@ -49,11 +49,11 @@ pub async fn get_with_latest_pipeline(
 
 pub struct BranchService {
     cache: Cache<u64, Vec<Branch>>,
-    client: Arc<dyn GitlabApi + Send + Sync>,
+    client: Arc<dyn GitlabApi>,
 }
 
 impl BranchService {
-    pub fn new(client: Arc<dyn GitlabApi + Send + Sync>, cache: Cache<u64, Vec<Branch>>) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, cache: Cache<u64, Vec<Branch>>) -> Self {
         Self { cache, client }
     }
 

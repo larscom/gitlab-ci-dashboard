@@ -15,7 +15,7 @@ use crate::project::ProjectService;
 use crate::schedule::pipeline::Aggregator;
 
 pub fn new_aggregator(
-    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
+    gitlab_client: &Arc<dyn GitlabApi>,
     project_service: &ProjectService,
     pipeline_service: &PipelineService,
     config: &Config,
@@ -56,11 +56,11 @@ pub async fn get_with_latest_pipeline(
 
 pub struct ScheduleService {
     cache: Cache<u64, Vec<Schedule>>,
-    client: Arc<dyn GitlabApi + Send + Sync>,
+    client: Arc<dyn GitlabApi>,
 }
 
 impl ScheduleService {
-    pub fn new(client: Arc<dyn GitlabApi + Send + Sync>, cache: Cache<u64, Vec<Schedule>>) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, cache: Cache<u64, Vec<Schedule>>) -> Self {
         Self { cache, client }
     }
 

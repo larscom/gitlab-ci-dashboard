@@ -12,10 +12,7 @@ use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::{Job, JobStatus};
 
-pub fn new_service(
-    gitlab_client: &Arc<dyn GitlabApi + Send + Sync>,
-    config: &Config,
-) -> JobService {
+pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> JobService {
     JobService::new(gitlab_client.clone(), new_cache(config.ttl_job_cache))
 }
 
@@ -47,11 +44,11 @@ pub async fn get_jobs(
 
 pub struct JobService {
     cache: Cache<CacheKey, Vec<Job>>,
-    client: Arc<dyn GitlabApi + Send + Sync>,
+    client: Arc<dyn GitlabApi>,
 }
 
 impl JobService {
-    pub fn new(client: Arc<dyn GitlabApi + Send + Sync>, cache: Cache<CacheKey, Vec<Job>>) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, cache: Cache<CacheKey, Vec<Job>>) -> Self {
         Self { cache, client }
     }
 

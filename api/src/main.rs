@@ -143,7 +143,10 @@ mod tests {
 
     use crate::error::ApiError;
     use crate::gitlab::GitlabApi;
-    use crate::model::{Branch, BranchPipeline, Group, Job, JobStatus, Pipeline, Project, ProjectPipeline, ProjectPipelines, Schedule, ScheduleProjectPipeline};
+    use crate::model::{
+        Branch, BranchPipeline, Group, Job, JobStatus, Pipeline, Project, ProjectPipeline,
+        ProjectPipelines, Schedule, ScheduleProjectPipeline,
+    };
 
     use super::*;
 
@@ -241,7 +244,7 @@ mod tests {
         }
     }
 
-    fn new_test_client() -> Arc<dyn GitlabApi + Send + Sync> {
+    fn new_test_client() -> Arc<dyn GitlabApi> {
         Arc::new(GitlabClientTest {})
     }
 
