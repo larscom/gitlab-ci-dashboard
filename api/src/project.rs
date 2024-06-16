@@ -4,7 +4,8 @@ use std::time::Duration;
 use actix_web::web;
 use moka::future::Cache;
 use serde::Deserialize;
-use web::{Data, Json, Query};
+use serde_querystring_actix::QueryString;
+use web::{Data, Json};
 
 use crate::config::Config;
 use crate::error::ApiError;
@@ -37,27 +38,36 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 }
 
 #[derive(Deserialize)]
-struct QueryParams {
+struct Q {
     group_id: u64,
+    project_ids: Option<Vec<u64>>,
 }
 
 #[allow(private_interfaces)]
 pub async fn get_with_latest_pipeline(
-    Query(QueryParams { group_id }): Query<QueryParams>,
+    QueryString(Q {
+        group_id,
+        project_ids,
+    }): QueryString<Q>,
     aggregator: Data<Aggregator>,
 ) -> Result<Json<Vec<ProjectPipeline>>, ApiError> {
     let result = aggregator
-        .get_projects_with_latest_pipeline(group_id)
+        .get_projects_with_latest_pipeline(group_id, project_ids)
         .await?;
     Ok(Json(result))
 }
 
 #[allow(private_interfaces)]
 pub async fn get_with_pipelines(
-    Query(QueryParams { group_id }): Query<QueryParams>,
+    QueryString(Q {
+        group_id,
+        project_ids,
+    }): QueryString<Q>,
     aggregator: Data<Aggregator>,
 ) -> Result<Json<Vec<ProjectPipelines>>, ApiError> {
-    let result = aggregator.get_projects_with_pipelines(group_id).await?;
+    let result = aggregator
+        .get_projects_with_pipelines(group_id, project_ids)
+        .await?;
     Ok(Json(result))
 }
 
@@ -81,10 +91,15 @@ impl ProjectService {
         }
     }
 
-    pub async fn get_projects(&self, group_id: u64) -> Result<Vec<Project>, ApiError> {
-        let skip_projects = &self.config.project_skip_ids;
-        self.cache
+    pub async fn get_projects(
+        &self,
+        group_id: u64,
+        project_ids: Option<Vec<u64>>,
+    ) -> Result<Vec<Project>, ApiError> {
+        let cached_projects = self
+            .cache
             .try_get_with(group_id, async {
+                let skip_projects = &self.config.project_skip_ids;
                 let projects = self
                     .client
                     .projects(group_id)
@@ -97,7 +112,17 @@ impl ProjectService {
                 Ok::<Vec<Project>, ApiError>(projects)
             })
             .await
-            .map_err(|error| error.as_ref().to_owned())
+            .map_err(|error| error.as_ref().to_owned())?;
+
+        let projects = match project_ids {
+            None => cached_projects,
+            Some(project_ids) => cached_projects
+                .into_iter()
+                .filter(|project| project_ids.contains(&project.id))
+                .collect::<Vec<_>>(),
+        };
+
+        Ok(projects)
     }
 }
 
@@ -132,9 +157,14 @@ pub mod pipeline {
         pub async fn get_projects_with_latest_pipeline(
             &self,
             group_id: u64,
+            project_ids: Option<Vec<u64>>,
         ) -> Result<Vec<ProjectPipeline>, ApiError> {
-            let projects = self.project_service.get_projects(group_id).await?;
-            let mut result = self.with_latest_pipeline(projects).await?;
+            let projects = self
+                .project_service
+                .get_projects(group_id, project_ids)
+                .await?;
+
+            let mut result = self.with_latest_pipeline(group_id, projects).await?;
 
             result.sort_unstable_by(|a, b| {
                 sort_by_updated_date(a.pipeline.as_ref(), b.pipeline.as_ref())
@@ -145,6 +175,7 @@ pub mod pipeline {
 
         async fn with_latest_pipeline(
             &self,
+            group_id: u64,
             projects: Vec<Project>,
         ) -> Result<Vec<ProjectPipeline>, ApiError> {
             if projects.is_empty() {
@@ -159,7 +190,11 @@ pub mod pipeline {
                         .get_latest_pipeline(project.id, project.default_branch.clone())
                         .await?;
                     let project = project.clone();
-                    Ok(ProjectPipeline { project, pipeline })
+                    Ok(ProjectPipeline {
+                        group_id,
+                        project,
+                        pipeline,
+                    })
                 })
                 .buffered(buffer)
                 .try_collect()
@@ -169,13 +204,18 @@ pub mod pipeline {
         pub async fn get_projects_with_pipelines(
             &self,
             group_id: u64,
+            project_ids: Option<Vec<u64>>,
         ) -> Result<Vec<ProjectPipelines>, ApiError> {
-            let projects = self.project_service.get_projects(group_id).await?;
-            self.with_pipelines(projects).await
+            let projects = self
+                .project_service
+                .get_projects(group_id, project_ids)
+                .await?;
+            self.with_pipelines(group_id, projects).await
         }
 
         async fn with_pipelines(
             &self,
+            group_id: u64,
             projects: Vec<Project>,
         ) -> Result<Vec<ProjectPipelines>, ApiError> {
             if projects.is_empty() {
@@ -187,7 +227,11 @@ pub mod pipeline {
                 .map(|project| async {
                     let pipelines = self.pipeline_service.get_pipelines(project.id).await?;
                     let project = project.clone();
-                    Ok(ProjectPipelines { project, pipelines })
+                    Ok(ProjectPipelines {
+                        group_id,
+                        project,
+                        pipelines,
+                    })
                 })
                 .buffered(buffer)
                 .try_collect()

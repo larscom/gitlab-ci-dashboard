@@ -13,6 +13,7 @@ pub struct Project {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectPipeline {
+    pub group_id: u64,
     pub project: Project,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
@@ -20,6 +21,7 @@ pub struct ProjectPipeline {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectPipelines {
+    pub group_id: u64,
     pub project: Project,
     pub pipelines: Vec<Pipeline>,
 }
@@ -182,36 +184,39 @@ mod tests {
     #[test]
     fn project_pipeline_serialize_none_pipeline() {
         let value = ProjectPipeline {
+            group_id: 1,
             project: test::new_project(),
             pipeline: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}}";
         assert_eq!(expected, json);
     }
 
     #[test]
     fn project_pipeline_serialize_some_pipeline() {
         let value = ProjectPipeline {
+            group_id: 1,
             project: test::new_project(),
             pipeline: Some(test::new_pipeline()),
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
         assert_eq!(expected, json);
     }
 
     #[test]
     fn project_pipelines_serialize() {
         let value = ProjectPipelines {
+            group_id: 1,
             project: test::new_project(),
             pipelines: vec![test::new_pipeline()],
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
         assert_eq!(expected, json);
     }
 }

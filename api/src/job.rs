@@ -21,7 +21,7 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 }
 
 #[derive(Deserialize)]
-struct QueryParams {
+struct Q {
     project_id: u64,
     pipeline_id: u64,
     scope: Vec<JobStatus>,
@@ -29,11 +29,11 @@ struct QueryParams {
 
 #[allow(private_interfaces)]
 pub async fn get_jobs(
-    QueryString(QueryParams {
+    QueryString(Q {
         project_id,
         pipeline_id,
         scope,
-    }): QueryString<QueryParams>,
+    }): QueryString<Q>,
     job_service: Data<JobService>,
 ) -> Result<Json<Vec<Job>>, ApiError> {
     let result = job_service

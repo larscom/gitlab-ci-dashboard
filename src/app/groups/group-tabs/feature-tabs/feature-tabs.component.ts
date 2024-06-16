@@ -1,6 +1,6 @@
 import { filterNotNull } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
-import { Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -9,6 +9,8 @@ import { map } from 'rxjs'
 import { LatestPipelinesComponent } from './latest-pipelines/latest-pipelines.component'
 import { PipelinesComponent } from './pipelines/pipelines.component'
 import { SchedulesComponent } from './schedules/schedules.component'
+import { GroupId } from '$groups/model/group'
+import { ProjectId } from '$groups/model/project'
 
 interface Tab {
   id: 'latest-pipelines' | 'pipelines' | 'schedules'
@@ -16,31 +18,37 @@ interface Tab {
   icon: string
 }
 
+const tabs: Tab[] = [
+  {
+    id: 'latest-pipelines',
+    title: 'Pipelines (latest)',
+    icon: 'swap-right'
+  },
+  {
+    id: 'pipelines',
+    title: 'Pipelines',
+    icon: 'retweet'
+  },
+  {
+    id: 'schedules',
+    title: 'Schedules',
+    icon: 'schedule'
+  }
+]
+
 @Component({
   selector: 'gcd-feature-tabs',
   standalone: true,
   imports: [CommonModule, NzTabsModule, NzIconModule, LatestPipelinesComponent, PipelinesComponent, SchedulesComponent],
   templateUrl: './feature-tabs.component.html',
-  styleUrls: ['./feature-tabs.component.scss']
+  styleUrls: ['./feature-tabs.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeatureTabsComponent {
-  tabs: Tab[] = [
-    {
-      id: 'latest-pipelines',
-      title: 'Pipelines (latest)',
-      icon: 'swap-right'
-    },
-    {
-      id: 'pipelines',
-      title: 'Pipelines',
-      icon: 'retweet'
-    },
-    {
-      id: 'schedules',
-      title: 'Schedules',
-      icon: 'schedule'
-    }
-  ]
+  groupMap = input.required<Map<GroupId, Set<ProjectId>>>()
+  disableRouting = input(false)
+
+  tabs: Tab[] = tabs
 
   selectedIndex$ = this.route.paramMap.pipe(
     map((map) => map.get('featureId')),
@@ -48,10 +56,7 @@ export class FeatureTabsComponent {
     map((featureId) => this.tabs.findIndex(({ id }) => id === featureId))
   )
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {
+  constructor(private route: ActivatedRoute, private router: Router) {
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(),
@@ -65,6 +70,8 @@ export class FeatureTabsComponent {
   }
 
   onChange({ index }: NzTabChangeEvent): void {
+    if (this.disableRouting()) return
+
     const { id } = this.tabs[index!]
     const currentSegments = this.route.snapshot.url.map(({ path }) => path)
     this.router.navigate([...currentSegments.slice(0, -1), id])

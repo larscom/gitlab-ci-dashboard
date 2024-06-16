@@ -13,11 +13,11 @@
     <ng-template nz-tab>
       <div class="tab-content">
         @switch (tab.id) { @case ('latest-pipelines') {
-        <gcd-latest-pipelines />
+        <gcd-latest-pipelines [groupMap]="groupMap()" />
         } @case ('pipelines') {
-        <gcd-pipelines />
+        <gcd-pipelines [groupMap]="groupMap()" />
         } @case ('schedules') {
-        <gcd-schedules />
+        <gcd-schedules [groupMap]="groupMap()" />
         } }
       </div>
     </ng-template>

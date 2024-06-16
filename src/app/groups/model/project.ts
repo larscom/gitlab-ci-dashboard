@@ -1,3 +1,18 @@
+import { GroupId } from './group'
+import { Pipeline } from './pipeline'
+
+export interface ProjectPipeline {
+  group_id: GroupId
+  project: Project
+  pipeline?: Pipeline
+}
+
+export interface ProjectPipelines {
+  group_id: GroupId
+  project: Project
+  pipelines: Pipeline[]
+}
+
 export interface Namespace {
   id: number
   name: string

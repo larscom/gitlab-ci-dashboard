@@ -1,80 +1,73 @@
+import { FETCH_REFRESH_INTERVAL } from '$groups/http'
 import { GroupId } from '$groups/model/group'
-import { GroupStore } from '$groups/store/group.store'
-import { UIStore } from '$store/ui.store'
+import { ProjectId, ProjectPipeline } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import { Component, OnInit, computed, inject } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
+import { forkJoin, interval, map, switchMap } from 'rxjs'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs/pipeline-status-tabs.component'
-import { LatestPipelineStore } from './store/latest-pipeline.store'
+import { LatestPipelineService } from './service/latest-pipeline.service'
 
 @Component({
   selector: 'gcd-latest-pipelines',
   standalone: true,
-  imports: [
-    CommonModule,
-    NzSpinModule,
-    PipelineStatusTabsComponent,
-    ProjectFilterComponent,
-    TopicFilterComponent,
-    AutoRefreshComponent
-  ],
+  imports: [CommonModule, NzSpinModule, PipelineStatusTabsComponent, ProjectFilterComponent, TopicFilterComponent],
   templateUrl: './latest-pipelines.component.html',
-  styleUrls: ['./latest-pipelines.component.scss']
+  styleUrls: ['./latest-pipelines.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LatestPipelinesComponent implements OnInit {
-  private groupStore = inject(GroupStore)
-  private latestPipelineStore = inject(LatestPipelineStore)
-  private uiStore = inject(UIStore)
+  private latestPipelineService = inject(LatestPipelineService)
+  private destroyRef = inject(DestroyRef)
 
-  selectedGroupId = this.groupStore.selectedGroupId
+  groupMap = input.required<Map<GroupId, Set<ProjectId>>>()
 
-  autoRefreshLoading = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.uiStore.getAutoRefreshLoading(groupId)() : false
-  })
-
-  selectedFilterTopics = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.latestPipelineStore.getTopicsFilter(groupId)() : []
-  })
-
-  selectedFilterText = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.latestPipelineStore.getProjectFilter(groupId)() : ''
-  })
-
-  projectsLoading = this.latestPipelineStore.projectsLoading
+  filterText = signal('')
+  filterTopics = signal<string[]>([])
+  projectPipelines = signal<ProjectPipeline[]>([])
+  loading = signal(false)
 
   projects = computed(() => {
-    const projects = this.latestPipelineStore.projectsLatestPipelines()
-    return projects.filter(({ pipeline }) => pipeline != null).map(({ project }) => project)
+    return this.projectPipelines()
+      .filter(({ pipeline }) => pipeline != null)
+      .map(({ project }) => project)
   })
 
   ngOnInit(): void {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.latestPipelineStore.fetchProjects(groupId)
-    }
-  }
+    this.loading.set(true)
+    forkJoin(
+      Array.from(this.groupMap().entries()).map(([groupId, projectIds]) => {
+        return this.latestPipelineService.getProjectsWithLatestPipeline(groupId, projectIds)
+      })
+    )
+      .pipe(map((all) => all.flat()))
+      .subscribe((projectPipelines) => {
+        this.loading.set(false)
+        this.projectPipelines.set(projectPipelines)
+      })
 
-  fetch(groupId: GroupId): void {
-    this.latestPipelineStore.fetchProjects(groupId, false)
+    interval(FETCH_REFRESH_INTERVAL)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() =>
+          forkJoin(
+            Array.from(this.groupMap().entries()).map(([groupId, projectIds]) => {
+              return this.latestPipelineService.getProjectsWithLatestPipeline(groupId, projectIds)
+            })
+          ).pipe(map((all) => all.flat()))
+        )
+      )
+      .subscribe((projectPipelines) => this.projectPipelines.set(projectPipelines))
   }
 
   onFilterTopicsChanged(topics: string[]): void {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.latestPipelineStore.setTopicsFilter(groupId, topics)
-    }
+    this.filterTopics.set(topics)
   }
 
   onFilterTextChanged(filterText: string): void {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.latestPipelineStore.setProjectFilter(groupId, filterText)
-    }
+    this.filterText.set(filterText)
   }
 }

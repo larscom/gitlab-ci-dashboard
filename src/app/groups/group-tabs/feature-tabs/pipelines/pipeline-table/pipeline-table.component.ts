@@ -1,4 +1,7 @@
-import { Pipeline, PipelineId, ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
+import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
+import { GroupId } from '$groups/model/group'
+import { Pipeline, PipelineId } from '$groups/model/pipeline'
+import { ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
@@ -20,6 +23,30 @@ interface Header<T> {
   compare: ((a: T, b: T) => number) | null
 }
 
+const headers: Header<ProjectPipeline>[] = [
+  { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
+  {
+    title: 'Branch',
+    sortable: true,
+    compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)
+  },
+  {
+    title: 'Trigger',
+    sortable: true,
+    compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
+  },
+  {
+    title: 'Last Run',
+    sortable: true,
+    compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
+  },
+  {
+    title: 'Status',
+    sortable: true,
+    compare: (a, b) => compareString(a.pipeline?.status, b.pipeline?.status)
+  }
+]
+
 @Component({
   selector: 'gcd-pipeline-table',
   standalone: true,
@@ -32,7 +59,8 @@ interface Header<T> {
     NzIconModule,
     NzSpinModule,
     StatusColorPipe,
-    JobsComponent
+    JobsComponent,
+    FavoritesIconComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],
@@ -41,32 +69,10 @@ interface Header<T> {
 export class PipelineTableComponent {
   private i18n = inject(NzI18nService)
 
-  projects = input.required<ProjectPipeline[]>()
+  projectPipelines = input.required<ProjectPipeline[]>()
   pinnedPipelines = model.required<PipelineId[]>()
 
-  headers: Header<ProjectPipeline>[] = [
-    { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
-    {
-      title: 'Branch',
-      sortable: true,
-      compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)
-    },
-    {
-      title: 'Trigger',
-      sortable: true,
-      compare: (a, b) => compareString(a.pipeline.source, b.pipeline.source)
-    },
-    {
-      title: 'Last Run',
-      sortable: true,
-      compare: (a, b) => compareStringDate(a.pipeline.updated_at, b.pipeline.updated_at)
-    },
-    {
-      title: 'Status',
-      sortable: true,
-      compare: (a, b) => compareString(a.pipeline.status, b.pipeline.status)
-    }
-  ]
+  headers: Header<ProjectPipeline>[] = headers
 
   get locale(): string {
     const { locale } = this.i18n.getLocale()
@@ -95,11 +101,11 @@ export class PipelineTableComponent {
     if (selected.includes(id)) {
       this.pinnedPipelines.set(selected.filter((i) => i !== id))
     } else {
-      setTimeout(() => this.pinnedPipelines.set([...selected, id]), 125)
+      this.pinnedPipelines.set([...selected, id])
     }
   }
 
-  trackBy(index: number, { pipeline }: ProjectLatestPipeline): PipelineId | number {
+  trackBy(index: number, { pipeline }: ProjectPipeline): PipelineId | number {
     return pipeline?.id || index
   }
 }

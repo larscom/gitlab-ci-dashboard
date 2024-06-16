@@ -3,23 +3,24 @@
     <div class="flex flex-col gap-050">
       <gcd-project-filter
         [projects]="projects()"
-        [filterText]="selectedFilterText()"
+        [filterText]="filterText()"
         (filterTextChange)="onFilterTextChanged($event)"
       />
       <gcd-topic-filter
-        [loading]="projectsLoading()"
+        [loading]="loading()"
         [projects]="projects()"
-        [filterTopics]="selectedFilterTopics()"
+        [filterTopics]="filterTopics()"
         (filterTopicsChange)="onFilterTopicsChanged($event)"
       />
     </div>
-    @if (selectedGroupId(); as selectedGroupId) {
-    <gcd-auto-refresh [id]="selectedGroupId" [loading]="autoRefreshLoading()" (refresh)="fetch(selectedGroupId)" />
-    }
   </div>
-  @if (projectsLoading()) {
+  @if (loading()) {
   <nz-spin />
   } @else {
-  <gcd-pipeline-status-tabs />
+  <gcd-pipeline-status-tabs
+    [projectPipelines]="projectPipelines()"
+    [filterText]="filterText()"
+    [filterTopics]="filterTopics()"
+  />
   }
 </div>

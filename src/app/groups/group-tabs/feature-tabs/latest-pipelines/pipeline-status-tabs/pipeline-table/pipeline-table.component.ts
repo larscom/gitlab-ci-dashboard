@@ -1,20 +1,23 @@
+import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
-import { Pipeline, ProjectLatestPipeline, ProjectPipeline } from '$groups/model/pipeline'
-import { Project, ProjectId } from '$groups/model/project'
+import { FETCH_REFRESH_INTERVAL } from '$groups/http'
+import { BranchPipeline } from '$groups/model/branch'
+import { Pipeline } from '$groups/model/pipeline'
+import { Project, ProjectId, ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
-import { GroupStore } from '$groups/store/group.store'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { LatestPipelineStore } from '../../store/latest-pipeline.store'
-import { LatestBranchFilterService } from './pipeline-table-branch/latest-branch-filter/latest-branch-filter.service'
+import { Subscription, interval, switchMap } from 'rxjs'
+import { LatestPipelineService } from '../../service/latest-pipeline.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
 
 interface Header<T> {
@@ -22,6 +25,30 @@ interface Header<T> {
   sortable: boolean
   compare: ((a: T, b: T) => number) | null
 }
+
+const headers: Header<ProjectPipeline>[] = [
+  { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
+  {
+    title: 'Branch',
+    sortable: true,
+    compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)
+  },
+  {
+    title: 'Topics',
+    sortable: true,
+    compare: (a, b) => compareString(a.project.topics.join(','), b.project.topics.join(','))
+  },
+  {
+    title: 'Trigger',
+    sortable: true,
+    compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
+  },
+  {
+    title: 'Last Run',
+    sortable: true,
+    compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
+  }
+]
 
 @Component({
   selector: 'gcd-pipeline-table',
@@ -34,47 +61,28 @@ interface Header<T> {
     NzIconModule,
     NzSpinModule,
     PipelineTableBranchComponent,
-    JobsComponent
+    JobsComponent,
+    FavoritesIconComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelineTableComponent {
+  private i18n = inject(NzI18nService)
+  private latestPipelineService = inject(LatestPipelineService)
+  private destroyRef = inject(DestroyRef)
+
+  private refreshSubscription?: Subscription
+
   projects = input.required<ProjectPipeline[]>()
   status = input<Status>()
 
-  private i18n = inject(NzI18nService)
-  private latestPipelineStore = inject(LatestPipelineStore)
-  private groupStore = inject(GroupStore)
-  private branchFilterService = inject(LatestBranchFilterService)
+  selectedProjectId = signal<number | undefined>(undefined)
 
-  headers: Header<ProjectPipeline>[] = [
-    { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
-    {
-      title: 'Branch',
-      sortable: true,
-      compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)
-    },
-    {
-      title: 'Topics',
-      sortable: true,
-      compare: (a, b) => compareString(a.project.topics.join(','), b.project.topics.join(','))
-    },
-    {
-      title: 'Trigger',
-      sortable: true,
-      compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
-    },
-    {
-      title: 'Last Run',
-      sortable: true,
-      compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
-    }
-  ]
-
-  branches = this.branchFilterService.branchesLatestPipeline
-  selectedProjectId = this.latestPipelineStore.selectedProjectId
+  headers: Header<ProjectPipeline>[] = headers
+  branchPipelines = signal<BranchPipeline[]>([])
+  branchesLoading = signal(false)
 
   get locale(): string {
     const { locale } = this.i18n.getLocale()
@@ -95,19 +103,31 @@ export class PipelineTableComponent {
     window.open(web_url, '_blank')
   }
 
-  async onRowClick({ id: projectId }: Project): Promise<void> {
+  onRowClick({ id: projectId }: Project) {
+    this.refreshSubscription?.unsubscribe()
+
     const selectedId = this.selectedProjectId()
     if (projectId === selectedId) {
-      this.latestPipelineStore.selectProjectId(undefined)
+      this.selectedProjectId.set(undefined)
     } else {
-      const groupId = this.groupStore.selectedGroupId()!
-      this.latestPipelineStore.selectProjectId(projectId)
-      this.latestPipelineStore.fetchBranches(projectId)
-      this.latestPipelineStore.setBranchFilter(groupId, '')
+      this.selectedProjectId.set(projectId)
+
+      this.branchesLoading.set(true)
+      this.latestPipelineService.getBranchesWithLatestPipeline(projectId).subscribe((branchPipelines) => {
+        this.branchesLoading.set(false)
+        this.branchPipelines.set(branchPipelines)
+      })
+
+      this.refreshSubscription = interval(FETCH_REFRESH_INTERVAL)
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap(() => this.latestPipelineService.getBranchesWithLatestPipeline(projectId))
+        )
+        .subscribe((branchPipelines) => this.branchPipelines.set(branchPipelines))
     }
   }
 
-  trackByProjectId(_: number, { project: { id } }: ProjectLatestPipeline): ProjectId {
+  trackByProjectId(_: number, { project: { id } }: ProjectPipeline): ProjectId {
     return id
   }
 }

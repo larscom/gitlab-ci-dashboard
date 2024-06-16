@@ -17,7 +17,7 @@ import { HeaderComponent } from './header/header.component'
 export class AppComponent {
   error = inject(ErrorService).error
 
-  OnClick(): void {
+  onClick(): void {
     window.location.reload()
   }
 }

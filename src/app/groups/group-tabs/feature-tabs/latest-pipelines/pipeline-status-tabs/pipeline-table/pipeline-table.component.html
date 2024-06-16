@@ -16,8 +16,12 @@
       <td>{{ data.project.name }}</td>
       <td>{{ data.project.default_branch }}</td>
       <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
-      <td>{{ data.pipeline.source }}</td>
-      <td>{{ data.pipeline.updated_at | date : 'medium' : timeZone : locale }}</td>
+      <td>{{ data.pipeline?.source || '-' }}</td>
+      <td>
+        @if (data.pipeline; as pipeline) {
+        {{ pipeline.updated_at | date : 'medium' : timeZone : locale }}
+        }@else { - }
+      </td>
       <td>
         @if (data.pipeline; as pipeline) {
         <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="scope" />
@@ -35,12 +39,15 @@
         >
           <span nz-icon nzType="eye"></span>
         </button>
+
+        <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+
         } @else { - }
       </td>
     </tr>
     <tr [nzExpand]="data.project.id === selectedProjectId()">
       @if (data.project.id === selectedProjectId()) {
-      <gcd-pipeline-table-branch [branches]="branches()" />
+      <gcd-pipeline-table-branch [loading]="branchesLoading()" [branchPipelines]="branchPipelines()" />
       }
     </tr>
     }

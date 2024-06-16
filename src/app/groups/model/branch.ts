@@ -1,5 +1,10 @@
 import { Pipeline } from './pipeline'
 
+export interface BranchPipeline {
+  branch: Branch
+  pipeline?: Pipeline
+}
+
 export interface Branch {
   name: string
   merged: boolean

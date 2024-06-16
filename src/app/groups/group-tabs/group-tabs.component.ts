@@ -1,18 +1,21 @@
 import { Group, GroupId } from '$groups/model/group'
-import { GroupStore } from '$groups/store/group.store'
+import { GroupService } from '$groups/service/group.service'
 import { filterNotNull } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
-import { Component, DestroyRef, computed, effect, inject } from '@angular/core'
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core'
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { map } from 'rxjs'
+import { FavoritesComponent } from './favorites/favorites.component'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
 import { MaxLengthPipe } from './feature-tabs/pipes/max-length.pipe'
+import { ProjectId } from '$groups/model/project'
 
 @Component({
   selector: 'gcd-group-tabs',
@@ -24,34 +27,36 @@ import { MaxLengthPipe } from './feature-tabs/pipes/max-length.pipe'
     NzTabsModule,
     NzSpinModule,
     NzToolTipModule,
+    NzIconModule,
     FeatureTabsComponent,
-    MaxLengthPipe
+    MaxLengthPipe,
+    FavoritesComponent
   ],
   templateUrl: './group-tabs.component.html',
   styleUrls: ['./group-tabs.component.scss']
 })
 export class GroupTabsComponent {
-  private groupStore = inject(GroupStore)
+  private groupService = inject(GroupService)
   private destroyRef = inject(DestroyRef)
 
-  groupsLoading = this.groupStore.loading
+  groups = signal<Group[]>([])
+  loading = signal(false)
 
-  groups = this.groupStore.groups
-  selectedGroupId = this.groupStore.selectedGroupId
-
+  showFavorites = signal(false)
+  selectedGroupId = signal<number | undefined>(undefined)
   selectedIndex = computed(() => {
-    const selectedGroupId = this.groupStore.selectedGroupId()
+    const selectedGroupId = this.selectedGroupId()
     const groups = this.groups()
     return groups.findIndex(({ id }) => id === selectedGroupId)
   })
 
   constructor(private route: ActivatedRoute, private router: Router) {
-    effect(() => {
-      if (this.selectedIndex() === -1) {
-        this.onChange({ index: 0, tab: null })
-      }
+    this.loading.set(true)
+    this.groupService.getGroups().subscribe((groups) => {
+      this.loading.set(false)
+      this.groups.set(groups)
     })
-    const id = toSignal(
+    const groupId = toSignal(
       this.route.paramMap.pipe(
         takeUntilDestroyed(this.destroyRef),
         map((map) => map.get('groupId')),
@@ -59,25 +64,34 @@ export class GroupTabsComponent {
         map(Number)
       )
     )
+
+    effect(() => {
+      if (this.selectedIndex() === -1) {
+        this.onChange({ index: 0, tab: null })
+      }
+    })
+
     effect(
       () => {
-        const groupId = id()
         const groups = this.groups()
-        if (groupId) {
-          if (groups.length > 0 && !groups.map(({ id }) => id).includes(groupId)) {
+        const gid = groupId()
+        if (gid) {
+          if (groups.length > 0 && !groups.map(({ id }) => id).includes(gid)) {
             this.nagivate(groups[0].id)
           } else {
-            this.groupStore.selectGroupId(groupId)
+            this.selectedGroupId.set(gid)
           }
         }
       },
       { allowSignalWrites: true }
     )
-
-    this.groupStore.fetch()
   }
 
-  OnReload(): void {
+  toggleFavorites(): void {
+    this.showFavorites.set(!this.showFavorites())
+  }
+
+  onReload(): void {
     window.location.reload()
   }
 
@@ -91,6 +105,10 @@ export class GroupTabsComponent {
 
   trackById(_: number, { id }: Group): GroupId {
     return id
+  }
+
+  getGroupMap({ id }: Group): Map<GroupId, Set<ProjectId>> {
+    return new Map([[id, new Set()]])
   }
 
   private nagivate(groupId: GroupId): void {

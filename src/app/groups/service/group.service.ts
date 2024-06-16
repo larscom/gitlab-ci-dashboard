@@ -1,4 +1,4 @@
-import { retryConfig } from '$groups/http-retry-config'
+import { retryConfig } from '$groups/http'
 import { Group } from '$groups/model/group'
 import { ErrorService } from '$service/error.service'
 import { HttpClient } from '@angular/common/http'

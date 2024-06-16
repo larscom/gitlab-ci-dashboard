@@ -1,10 +1,10 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedules()" [nzPageSize]="12">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedulePipelines()" [nzPageSize]="12">
   <thead>
     <tr>
       @for (header of headers; track header) {
-        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-          {{ header.title }}
-        </th>
+      <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+        {{ header.title }}
+      </th>
       }
       <th>Jobs</th>
       <th>Action</th>
@@ -12,77 +12,76 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackByScheduleId($index, data)) {
-      <tr
-        nz-tooltip
-        [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not active'"
-        [ngStyle]="{ opacity: data.schedule.active ? '1' : '0.3' }"
-        [attr.data-project-id]="data.project.id"
-      >
-        <td>{{ data.project.name }}</td>
-        <td class="lowercase">{{ data.schedule.description }}</td>
-        <td>
-          <span
-            nz-tooltip
-            [nzTooltipTitle]="data.schedule.ref === data.project.default_branch ? 'default: yes' : 'default: no'"
-            >{{ data.schedule.ref }}</span
-          >
-        </td>
-        <td>
-          <span nz-tooltip [nzTooltipTitle]="data.schedule.next_run_at | date: 'medium' : timeZone : locale">{{
-            data.schedule.next_run_at | nextRunAt
-          }}</span>
-        </td>
-        <td>
-          <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <nz-badge
-              nz-tooltip
-              [nzTooltipTitle]="pipeline.updated_at | date: 'medium' : timeZone : locale"
-              [nzColor]="pipeline.status | statusColor"
-              [nzText]="pipeline.status"
-            ></nz-badge>
-          } @else {
-            <nz-badge nzColor="#868E96" nzText="not_run_yet"></nz-badge>
-          }
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
-          } @else {
-            -
-          }
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-            <button
-              (click)="onPipelineClick($event, pipeline)"
-              nzType="text"
-              nz-tooltip
-              [nzTooltipTitle]="'Show pipeline (' + pipeline.ref + ')'"
-              nz-button
-              nzShape="circle"
-            >
-              <span nz-icon nzType="eye"></span>
-            </button>
-          } @else {
-            <button nzType="text" nz-button nzShape="circle" disabled>
-              <span nz-icon nzType="eye"></span>
-            </button>
-          }
-          <button
-            (click)="onScheduleClick($event, data.project)"
-            nzType="text"
-            nz-tooltip
-            [nzTooltipTitle]="'Show schedules (' + data.project.name + ')'"
-            nz-button
-            nzShape="circle"
-          >
-            <span nz-icon nzType="schedule"></span>
-          </button>
-        </td>
-      </tr>
+    <tr
+      nz-tooltip
+      [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not active'"
+      [ngStyle]="{ opacity: data.schedule.active ? '1' : '0.3' }"
+      [attr.data-project-id]="data.project.id"
+    >
+      <td>{{ data.project.name }}</td>
+      <td class="lowercase">{{ data.schedule.description }}</td>
+      <td>
+        <span
+          nz-tooltip
+          [nzTooltipTitle]="data.schedule.ref === data.project.default_branch ? 'default: yes' : 'default: no'"
+          >{{ data.schedule.ref }}</span
+        >
+      </td>
+      <td>
+        <span nz-tooltip [nzTooltipTitle]="data.schedule.next_run_at | date : 'medium' : timeZone : locale">{{
+          data.schedule.next_run_at | nextRunAt
+        }}</span>
+      </td>
+      <td>
+        <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
+      </td>
+      <td>
+        @if (data.pipeline; as pipeline) {
+        <nz-badge
+          nz-tooltip
+          [nzTooltipTitle]="pipeline.updated_at | date : 'medium' : timeZone : locale"
+          [nzColor]="pipeline.status | statusColor"
+          [nzText]="pipeline.status"
+        ></nz-badge>
+        } @else {
+        <nz-badge nzColor="#868E96" nzText="not_run_yet"></nz-badge>
+        }
+      </td>
+      <td>
+        @if (data.pipeline; as pipeline) {
+        <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
+        } @else { - }
+      </td>
+      <td>
+        @if (data.pipeline; as pipeline) {
+        <button
+          (click)="onPipelineClick($event, pipeline)"
+          nzType="text"
+          nz-tooltip
+          [nzTooltipTitle]="'Show pipeline (' + pipeline.ref + ')'"
+          nz-button
+          nzShape="circle"
+        >
+          <span nz-icon nzType="eye"></span>
+        </button>
+        } @else {
+        <button nzType="text" nz-button nzShape="circle" disabled>
+          <span nz-icon nzType="eye"></span>
+        </button>
+        }
+        <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+        <button
+          (click)="onScheduleClick($event, data.project)"
+          nzType="text"
+          nz-tooltip
+          [nzTooltipTitle]="'Show schedules (' + data.project.name + ')'"
+          nz-button
+          nzShape="circle"
+        >
+          <span nz-icon nzType="schedule"></span>
+        </button>
+      </td>
+    </tr>
     }
   </tbody>
 </nz-table>

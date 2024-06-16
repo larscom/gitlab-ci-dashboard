@@ -4,7 +4,8 @@ use std::time::Duration;
 use actix_web::web;
 use moka::future::Cache;
 use serde::Deserialize;
-use web::{Data, Json, Query};
+use serde_querystring_actix::QueryString;
+use web::{Data, Json};
 
 use crate::branch::pipeline::Aggregator;
 use crate::config::Config;
@@ -32,13 +33,13 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 }
 
 #[derive(Deserialize)]
-struct QueryParams {
+struct Q {
     project_id: u64,
 }
 
 #[allow(private_interfaces)]
 pub async fn get_with_latest_pipeline(
-    Query(QueryParams { project_id }): Query<QueryParams>,
+    QueryString(Q { project_id }): QueryString<Q>,
     aggregator: Data<Aggregator>,
 ) -> Result<Json<Vec<BranchPipeline>>, ApiError> {
     let result = aggregator

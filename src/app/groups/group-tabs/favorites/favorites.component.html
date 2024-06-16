@@ -1,0 +1,12 @@
+<nz-drawer
+  [nzClosable]="false"
+  [nzVisible]="true"
+  nzHeight="55%"
+  nzPlacement="bottom"
+  nzTitle="Favorites"
+  (nzOnClose)="close.emit()"
+>
+  <ng-container *nzDrawerContent>
+    <gcd-feature-tabs [disableRouting]="true" [groupMap]="favorites()"></gcd-feature-tabs>
+  </ng-container>
+</nz-drawer>

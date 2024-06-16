@@ -21,6 +21,7 @@ pub struct Schedule {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ScheduleProjectPipeline {
+    pub group_id: u64,
     pub schedule: Schedule,
     pub project: Project,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,26 +73,28 @@ mod tests {
     #[test]
     fn schedule_project_pipeline_serialize_none_pipeline() {
         let value = ScheduleProjectPipeline {
+            group_id: 1,
             schedule: test::new_schedule(),
             project: test::new_project(),
             pipeline: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}}";
+        let expected = "{\"group_id\":1,\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}}";
         assert_eq!(expected, json);
     }
 
     #[test]
     fn schedule_project_pipeline_serialize_some_pipeline() {
         let value = ScheduleProjectPipeline {
+            group_id: 1,
             schedule: test::new_schedule(),
             project: test::new_project(),
             pipeline: Some(test::new_pipeline()),
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"group_id\":1,\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
         assert_eq!(expected, json);
     }
 }

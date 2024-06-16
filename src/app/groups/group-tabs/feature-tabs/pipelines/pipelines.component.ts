@@ -1,20 +1,20 @@
+import { FETCH_REFRESH_INTERVAL } from '$groups/http'
 import { GroupId } from '$groups/model/group'
 import { PipelineId } from '$groups/model/pipeline'
+import { ProjectId, ProjectPipeline, ProjectPipelines } from '$groups/model/project'
 import { Status } from '$groups/model/status'
-import { GroupStore } from '$groups/store/group.store'
-import { filterArrayNotNull } from '$groups/util/filter'
-import { UIStore } from '$store/ui.store'
+import { filterArrayNotNull, filterPipeline, filterProject } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
-import { Component, OnInit, computed, inject } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { AutoRefreshComponent } from '../components/auto-refresh/auto-refresh.component'
+import { forkJoin, interval, map, switchMap } from 'rxjs'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { BranchFilterComponent } from './components/branch-filter/branch-filter.component'
 import { StatusFilterComponent } from './components/status-filter/status-filter.component'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
-import { ProjectFilterService } from './service/project-filter.service'
-import { PipelineStore } from './store/pipeline.store'
+import { PipelinesService } from './service/pipelines.service'
 
 @Component({
   selector: 'gcd-pipelines',
@@ -26,106 +26,132 @@ import { PipelineStore } from './store/pipeline.store'
     TopicFilterComponent,
     BranchFilterComponent,
     StatusFilterComponent,
-    PipelineTableComponent,
-    AutoRefreshComponent
+    PipelineTableComponent
   ],
   templateUrl: './pipelines.component.html',
-  styleUrls: ['./pipelines.component.scss']
+  styleUrls: ['./pipelines.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PipelinesComponent implements OnInit {
-  private groupStore = inject(GroupStore)
-  private pipelineStore = inject(PipelineStore)
-  private uiStore = inject(UIStore)
-  private filterService = inject(ProjectFilterService)
+  private pipelinesService = inject(PipelinesService)
+  private destroyRef = inject(DestroyRef)
 
-  projectPipelines = this.filterService.projectPipelines
-  pipelinesLoading = this.pipelineStore.loading
-  selectedGroupId = this.groupStore.selectedGroupId
+  groupMap = input.required<Map<GroupId, Set<ProjectId>>>()
 
-  autoRefreshLoading = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.uiStore.getAutoRefreshLoading(groupId)() : false
-  })
+  filterTextProject = signal('')
+  filterTextBranch = signal('')
+  filterTopics = signal<string[]>([])
+  filterStatuses = signal<Status[]>([])
+  pinnedPipelines = signal<PipelineId[]>(this.getPinnedPipelines())
 
-  selectedFilterTopics = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.pipelineStore.getTopicsFilter(groupId)() : []
-  })
+  projectPipelines = signal<ProjectPipelines[]>([])
+  loading = signal(false)
 
-  selectedFilterTextProjects = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.pipelineStore.getProjectFilter(groupId)() : ''
-  })
-  selectedFilterTextBranches = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.pipelineStore.getBranchFilter(groupId)() : ''
-  })
-
-  selectedFilterStatuses = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.pipelineStore.getStatusesFilter(groupId)() : []
-  })
-
-  pinnedPipelines = computed(() => {
-    const groupId = this.groupStore.selectedGroupId()
-    return groupId ? this.pipelineStore.getPinnedPipelines(groupId)() : []
+  filteredProjectPipelines = computed(() => {
+    return this.projectPipelines()
+      .flatMap(({ project, pipelines, group_id }) => pipelines.map((pipeline) => ({ project, pipeline, group_id })))
+      .filter(({ pipeline, project }) => {
+        return (
+          filterProject(project, this.filterTextProject(), this.filterTopics()) &&
+          filterPipeline(pipeline, this.filterTextBranch(), this.filterStatuses())
+        )
+      })
+      .sort((a, b) => this.sortByUpdatedAt(a, b))
+      .sort((a, b) => this.sortPinned(a, b, this.pinnedPipelines()))
   })
 
   projects = computed(() => {
-    return this.pipelineStore
-      .projectPipelines()
+    return this.projectPipelines()
       .filter(({ pipelines }) => pipelines.length > 0)
       .map(({ project }) => project)
   })
   branches = computed(() => {
-    return filterArrayNotNull(
-      this.pipelineStore.projectPipelines().flatMap(({ pipelines }) => pipelines.map(({ ref }) => ref))
-    )
+    return filterArrayNotNull(this.projectPipelines().flatMap(({ pipelines }) => pipelines.map(({ ref }) => ref)))
   })
 
   ngOnInit(): void {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.pipelineStore.fetch(groupId)
-    }
+    this.loading.set(true)
+    forkJoin(
+      Array.from(this.groupMap().entries()).map(([groupId, projectIds]) => {
+        return this.pipelinesService.getProjectsWithPipelines(groupId, projectIds)
+      })
+    )
+      .pipe(map((all) => all.flat()))
+      .subscribe((projectPipelines) => {
+        this.loading.set(false)
+        this.projectPipelines.set(projectPipelines)
+      })
+
+    interval(FETCH_REFRESH_INTERVAL)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() =>
+          forkJoin(
+            Array.from(this.groupMap().entries()).map(([groupId, projectIds]) => {
+              return this.pipelinesService.getProjectsWithPipelines(groupId, projectIds)
+            })
+          ).pipe(map((all) => all.flat()))
+        )
+      )
+      .subscribe((projectPipelines) => this.projectPipelines.set(projectPipelines))
   }
 
-  fetch(groupId: GroupId): void {
-    this.pipelineStore.fetch(groupId, false)
+  onFilterTopicsChanged(topics: string[]) {
+    this.filterTopics.set(topics)
   }
 
-  async onFilterTopicsChanged(topics: string[]): Promise<void> {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.pipelineStore.setTopicsFilter(groupId, topics)
-    }
+  onFilterTextProjectsChanged(filterText: string) {
+    this.filterTextProject.set(filterText)
   }
 
-  async onFilterTextProjectsChanged(filterText: string): Promise<void> {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.pipelineStore.setProjectFilter(groupId, filterText)
-    }
+  onFilterTextBranchesChanged(filterText: string) {
+    this.filterTextBranch.set(filterText)
   }
 
-  async onFilterTextBranchesChanged(filterText: string): Promise<void> {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.pipelineStore.setBranchFilter(groupId, filterText)
-    }
+  onFilterStatusesChanged(statuses: Status[]) {
+    this.filterStatuses.set(statuses)
   }
 
-  async onFilterStatusesChanged(statuses: Status[]): Promise<void> {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.pipelineStore.setStatusesFilter(groupId, statuses)
-    }
+  onPinnedPipelinesChanged(pinnedPipelines: PipelineId[]) {
+    this.pinnedPipelines.set(pinnedPipelines)
+    this.savePinnedPipelines(pinnedPipelines)
   }
 
-  async onPinnedPipelinesChanged(pinnedPipelines: PipelineId[]): Promise<void> {
-    const groupId = this.groupStore.selectedGroupId()
-    if (groupId) {
-      this.pipelineStore.setPinnedPipelines(groupId, pinnedPipelines)
+  private savePinnedPipelines(pinnedPipelines: PipelineId[]) {
+    try {
+      sessionStorage.setItem('pinned_pipelines', JSON.stringify(pinnedPipelines))
+    } catch (_) {}
+  }
+
+  private getPinnedPipelines(): PipelineId[] {
+    try {
+      const item = sessionStorage.getItem('pinned_pipelines')
+      if (item) {
+        return JSON.parse(item)
+      }
+    } catch (_) {}
+
+    return []
+  }
+
+  private sortByUpdatedAt(a: ProjectPipeline, b: ProjectPipeline): number {
+    if (a.pipeline == null || b.pipeline == null) {
+      return 0
     }
+    return new Date(b.pipeline.updated_at).getTime() - new Date(a.pipeline.updated_at).getTime()
+  }
+
+  private sortPinned(a: ProjectPipeline, b: ProjectPipeline, pinnedPipelines: number[]): number {
+    const aPinned = pinnedPipelines.includes(Number(a.pipeline?.id))
+    const bPinned = pinnedPipelines.includes(Number(b.pipeline?.id))
+
+    if (aPinned && !bPinned) {
+      return -1
+    }
+    if (!aPinned && bPinned) {
+      return 1
+    }
+
+    return 0
   }
 }

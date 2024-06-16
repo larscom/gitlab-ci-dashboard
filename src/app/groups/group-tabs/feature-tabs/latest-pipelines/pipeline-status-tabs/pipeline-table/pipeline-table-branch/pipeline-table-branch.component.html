@@ -1,16 +1,17 @@
 <div class="flex flex-col gap-050">
   <div class="flex justify-between">
-    <gcd-latest-branch-filter />
-    @if (selectedProjectId(); as selectedProjectId) {
-    <gcd-auto-refresh [id]="selectedProjectId" [loading]="autoRefreshLoading()" (refresh)="fetch(selectedProjectId)" />
-    }
+    <gcd-latest-branch-filter
+      [branchCount]="branchCount()"
+      [filterText]="filterText()"
+      (filterTextChange)="onFilterTextChanged($event)"
+    />
   </div>
   <nz-table
     #nzTable
     [nzScroll]="{ y: '210px' }"
     nzSize="small"
-    [nzData]="branches()"
-    [nzLoading]="branchesLoading()"
+    [nzData]="filteredBranches()"
+    [nzLoading]="loading()"
     [nzPageSize]="10"
   >
     <thead>
@@ -34,7 +35,11 @@
           } @else { - }
         </td>
         <td>{{ data.pipeline?.source || '-' }}</td>
-        <td>{{ (data.pipeline?.updated_at | date : 'medium' : timeZone : locale) || '-' }}</td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+          {{ pipeline.updated_at | date : 'medium' : timeZone : locale }}
+          }@else {-}
+        </td>
         <td>
           @if (data.pipeline; as pipeline) {
           <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />

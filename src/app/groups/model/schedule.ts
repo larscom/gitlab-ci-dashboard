@@ -1,8 +1,10 @@
+import { GroupId } from './group'
 import { Pipeline } from './pipeline'
 import { Project } from './project'
 import { User } from './user'
 
-export interface ScheduleProjectLatestPipeline {
+export interface ScheduleProjectPipeline {
+  group_id: GroupId
   schedule: Schedule
   project: Project
   pipeline?: Pipeline

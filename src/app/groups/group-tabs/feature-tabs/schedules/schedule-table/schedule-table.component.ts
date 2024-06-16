@@ -1,7 +1,9 @@
+import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
+import { GroupId } from '$groups/model/group'
 import { Pipeline } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
-import { ScheduleId, ScheduleProjectLatestPipeline } from '$groups/model/schedule'
+import { ScheduleId, ScheduleProjectPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
@@ -34,18 +36,19 @@ interface Header<T> {
     NzBadgeModule,
     NextRunAtPipe,
     StatusColorPipe,
-    JobsComponent
+    JobsComponent,
+    FavoritesIconComponent
   ],
   templateUrl: './schedule-table.component.html',
   styleUrls: ['./schedule-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScheduleTableComponent {
-  schedules = input.required<ScheduleProjectLatestPipeline[]>()
+  private i18n = inject(NzI18nService)
 
-  i18n = inject(NzI18nService)
+  schedulePipelines = input.required<ScheduleProjectPipeline[]>()
 
-  headers: Header<ScheduleProjectLatestPipeline>[] = [
+  headers: Header<ScheduleProjectPipeline>[] = [
     { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
     {
       title: 'Description',
@@ -94,7 +97,7 @@ export class ScheduleTableComponent {
     window.open(`${web_url}/-/pipeline_schedules`, '_blank')
   }
 
-  trackByScheduleId(_: number, { schedule: { id } }: ScheduleProjectLatestPipeline): ScheduleId {
+  trackByScheduleId(_: number, { schedule: { id } }: ScheduleProjectPipeline): ScheduleId {
     return id
   }
 }

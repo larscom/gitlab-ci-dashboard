@@ -1,4 +1,4 @@
-import { retryConfig } from '$groups/http-retry-config'
+import { FETCH_REFRESH_INTERVAL, retryConfig } from '$groups/http'
 import { Job, JobId } from '$groups/model/job'
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
@@ -100,7 +100,7 @@ export class JobsComponent implements OnChanges, OnDestroy {
       .get<Job[]>('/api/jobs', { params })
       .pipe(
         retry(retryConfig),
-        this.withRepeat() ? repeat({ delay: 2000 }) : identity,
+        this.withRepeat() ? repeat({ delay: FETCH_REFRESH_INTERVAL }) : identity,
         tap(() => this.loading.set(false)),
         map((jobs) => {
           return jobs.slice(0, MAX_JOB_COUNT).map((job) => {
