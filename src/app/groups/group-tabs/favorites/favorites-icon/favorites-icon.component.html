@@ -2,10 +2,10 @@
   nzType="text"
   nz-tooltip
   [nzTooltipMouseEnterDelay]="0.5"
-  [nzTooltipTitle]="hasFavorite() ? 'Remove project from favorites' : 'Add project to favorites'"
+  [nzTooltipTitle]="hasFavorite() ? 'Remove from favorites' : 'Add to favorites'"
   nz-button
   nzShape="circle"
-  (click)="hasFavorite() ? removeFromFavorites($event) : addToFavorites($event)"
+  (click)="hasFavorite() ? remove($event) : add($event)"
 >
   @if(hasFavorite()) {
   <span nz-icon nzType="star" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#FFD700"></span>

@@ -20,13 +20,13 @@ export class FavoritesIconComponent {
   groupId = input.required<GroupId>()
   projectId = input.required<ProjectId>()
 
-  removeFromFavorites(e: Event) {
+  remove(e: Event) {
     e.stopPropagation()
 
     this.favoriteService.remove(this.groupId(), this.projectId())
   }
 
-  addToFavorites(e: Event) {
+  add(e: Event) {
     e.stopPropagation()
 
     this.favoriteService.add(this.groupId(), this.projectId())
