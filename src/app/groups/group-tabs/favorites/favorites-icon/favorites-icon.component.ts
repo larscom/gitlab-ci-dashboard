@@ -23,16 +23,16 @@ export class FavoritesIconComponent {
   remove(e: Event) {
     e.stopPropagation()
 
-    this.favoriteService.remove(this.groupId(), this.projectId())
+    this.favoriteService.removeProject(this.groupId(), this.projectId())
   }
 
   add(e: Event) {
     e.stopPropagation()
 
-    this.favoriteService.add(this.groupId(), this.projectId())
+    this.favoriteService.addProject(this.groupId(), this.projectId())
   }
 
   get hasFavorite() {
-    return this.favoriteService.any(this.groupId(), this.projectId())
+    return this.favoriteService.anyProject(this.groupId(), this.projectId())
   }
 }

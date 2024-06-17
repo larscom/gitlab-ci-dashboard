@@ -17,6 +17,8 @@ import { StatusFilterComponent } from './components/status-filter/status-filter.
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
 import { PipelinesService } from './service/pipelines.service'
 
+const STORAGE_KEY = 'pinned_pipelines'
+
 @Component({
   selector: 'gcd-pipelines',
   standalone: true,
@@ -114,13 +116,13 @@ export class PipelinesComponent implements OnInit {
 
   private savePinnedPipelines(pinnedPipelines: PipelineId[]) {
     try {
-      sessionStorage.setItem('pinned_pipelines', JSON.stringify(pinnedPipelines))
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(pinnedPipelines))
     } catch (_) {}
   }
 
   private getPinnedPipelines(): PipelineId[] {
     try {
-      const item = sessionStorage.getItem('pinned_pipelines')
+      const item = sessionStorage.getItem(STORAGE_KEY)
       if (item) {
         return JSON.parse(item)
       }

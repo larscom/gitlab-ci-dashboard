@@ -1,10 +1,11 @@
 import { RetryConfig } from 'rxjs'
-import { ProjectId } from './model/project'
 import { GroupId } from './model/group'
+import { ProjectId } from './model/project'
 
 export const retryConfig: RetryConfig = {
   count: 5,
-  delay: 500
+  delay: 500,
+  resetOnSuccess: true
 }
 
 export const FETCH_REFRESH_INTERVAL = 2000

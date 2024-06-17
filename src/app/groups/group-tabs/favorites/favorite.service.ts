@@ -1,16 +1,31 @@
 import { GroupId } from '$groups/model/group'
 import { ProjectId } from '$groups/model/project'
-import { Injectable, Signal, computed, signal } from '@angular/core'
+import { ErrorContext, ErrorService } from '$service/error.service'
+import { HttpStatusCode } from '@angular/common/http'
+import { Injectable, Signal, computed, effect, inject, signal } from '@angular/core'
 
 const STORAGE_KEY = 'favorite_projects'
 
 @Injectable({ providedIn: 'root' })
 export class FavoriteService {
   private _favorites = signal<Map<GroupId, Set<ProjectId>>>(this.getFromStorage())
+  private errorService = inject(ErrorService)
 
-  favorites = this._favorites.asReadonly()
+  readonly favorites = this._favorites.asReadonly()
 
-  any(groupId: GroupId, projectId: ProjectId): Signal<boolean> {
+  constructor() {
+    effect(
+      () => {
+        const error = this.errorService.error()
+        if (error) {
+          this.removeGroupWhen404(error)
+        }
+      },
+      { allowSignalWrites: true }
+    )
+  }
+
+  anyProject(groupId: GroupId, projectId: ProjectId): Signal<boolean> {
     return computed(() => {
       const map = this._favorites()
       if (map.has(groupId)) {
@@ -21,7 +36,7 @@ export class FavoriteService {
     })
   }
 
-  add(groupId: GroupId, projectId: ProjectId) {
+  addProject(groupId: GroupId, projectId: ProjectId) {
     const map = new Map(this._favorites())
 
     if (map.has(groupId)) {
@@ -36,7 +51,7 @@ export class FavoriteService {
     this.saveToStorage(map)
   }
 
-  remove(groupId: GroupId, projectId: ProjectId) {
+  removeProject(groupId: GroupId, projectId: ProjectId) {
     const map = new Map(this._favorites())
 
     if (!map.has(groupId)) return
@@ -50,10 +65,28 @@ export class FavoriteService {
     this.saveToStorage(map)
   }
 
+  removeGroup(groupId: GroupId) {
+    const map = new Map(this._favorites())
+
+    if (!map.has(groupId)) return
+
+    map.delete(groupId)
+
+    this._favorites.set(map)
+
+    this.saveToStorage(map)
+  }
+
   removeAll() {
     const map = new Map()
     this._favorites.set(map)
     this.saveToStorage(map)
+  }
+
+  private removeGroupWhen404({ statusCode, groupId }: ErrorContext) {
+    if (statusCode === HttpStatusCode.NotFound && groupId) {
+      this.removeGroup(groupId)
+    }
   }
 
   private saveToStorage(favorites: Map<GroupId, Set<ProjectId>>) {

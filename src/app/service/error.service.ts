@@ -1,12 +1,20 @@
+import { GroupId } from '$groups/model/group'
 import { Injectable, signal } from '@angular/core'
+
+export interface ErrorContext {
+  message: string
+  statusCode: number
+  statusText: string
+  groupId?: GroupId
+}
 
 @Injectable({ providedIn: 'root' })
 export class ErrorService {
-  private e = signal<string | null>(null)
+  private _error = signal<ErrorContext | null>(null)
 
-  readonly error = this.e.asReadonly()
+  readonly error = this._error.asReadonly()
 
-  setError(message: string): void {
-    this.e.set(message)
+  setError(context: ErrorContext): void {
+    this._error.set(context)
   }
 }

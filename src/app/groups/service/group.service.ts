@@ -1,7 +1,7 @@
 import { retryConfig } from '$groups/http'
 import { Group } from '$groups/model/group'
 import { ErrorService } from '$service/error.service'
-import { HttpClient } from '@angular/common/http'
+import { HttpClient, HttpErrorResponse } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
 import { Observable, catchError, of, retry } from 'rxjs'
 
@@ -13,8 +13,12 @@ export class GroupService {
   getGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${location.origin}/api/groups`).pipe(
       retry(retryConfig),
-      catchError((err) => {
-        this.errorService.setError(err.status)
+      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+        this.errorService.setError({
+          statusCode: status,
+          statusText: statusText,
+          message: error.message
+        })
         return of([])
       })
     )

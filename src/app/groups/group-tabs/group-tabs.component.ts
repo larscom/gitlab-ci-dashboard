@@ -56,6 +56,13 @@ export class GroupTabsComponent {
       this.loading.set(false)
       this.groups.set(groups)
     })
+
+    effect(() => {
+      if (this.selectedIndex() === -1) {
+        this.onChange({ index: 0, tab: null })
+      }
+    })
+
     const groupId = toSignal(
       this.route.paramMap.pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -64,12 +71,6 @@ export class GroupTabsComponent {
         map(Number)
       )
     )
-
-    effect(() => {
-      if (this.selectedIndex() === -1) {
-        this.onChange({ index: 0, tab: null })
-      }
-    })
 
     effect(
       () => {
