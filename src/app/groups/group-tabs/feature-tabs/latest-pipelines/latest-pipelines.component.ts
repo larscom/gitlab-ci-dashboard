@@ -1,11 +1,12 @@
 import { FETCH_REFRESH_INTERVAL } from '$groups/http'
 import { GroupId } from '$groups/model/group'
 import { ProjectId, ProjectPipeline } from '$groups/model/project'
+import { forkJoinFlatten } from '$groups/util/fork'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { forkJoin, interval, map, switchMap } from 'rxjs'
+import { interval, switchMap } from 'rxjs'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs/pipeline-status-tabs.component'
@@ -38,26 +39,23 @@ export class LatestPipelinesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading.set(true)
-    forkJoin(
-      Array.from(this.groupMap().entries()).map(([groupId, projectIds]) => {
-        return this.latestPipelineService.getProjectsWithLatestPipeline(groupId, projectIds)
-      })
-    )
-      .pipe(map((all) => all.flat()))
-      .subscribe((projectPipelines) => {
-        this.loading.set(false)
-        this.projectPipelines.set(projectPipelines)
-      })
+
+    forkJoinFlatten(
+      this.groupMap(),
+      this.latestPipelineService.getProjectsWithLatestPipeline.bind(this.latestPipelineService)
+    ).subscribe((projectPipelines) => {
+      this.loading.set(false)
+      this.projectPipelines.set(projectPipelines)
+    })
 
     interval(FETCH_REFRESH_INTERVAL)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() =>
-          forkJoin(
-            Array.from(this.groupMap().entries()).map(([groupId, projectIds]) => {
-              return this.latestPipelineService.getProjectsWithLatestPipeline(groupId, projectIds)
-            })
-          ).pipe(map((all) => all.flat()))
+          forkJoinFlatten(
+            this.groupMap(),
+            this.latestPipelineService.getProjectsWithLatestPipeline.bind(this.latestPipelineService)
+          )
         )
       )
       .subscribe((projectPipelines) => this.projectPipelines.set(projectPipelines))
