@@ -1,7 +1,7 @@
 <ng-template #title>
-  <div class="flex justify-between">
-    <h3><span nz-icon nzType="star" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#FFD700"></span> Favorites</h3>
-    @if(hasFavorites() ){<button
+  @if(hasFavorites()){
+  <div class="flex justify-end">
+    <button
       nz-button
       nzType="default"
       nzDanger
@@ -11,15 +11,16 @@
       nzPopconfirmPlacement="left"
       nz-button
     >
-      Remove all</button
-    >}
+      Remove all
+    </button>
   </div>
+  }
 </ng-template>
 
 <nz-drawer
-  [nzClosable]="false"
+  [nzClosable]="true"
   [nzVisible]="true"
-  [nzHeight]="hasFavorites() ? '75%' : '30%'"
+  [nzHeight]="hasFavorites() ? '90vh' : '30vh'"
   nzPlacement="bottom"
   [nzTitle]="title"
   (nzOnClose)="close.emit()"
@@ -28,10 +29,7 @@
     @if(hasFavorites()) {
     <gcd-feature-tabs [disableRouting]="true" [groupMap]="favorites()"></gcd-feature-tabs>
     }@else {
-    <nz-empty
-      [nzNotFoundContent]="content"
-      [nzNotFoundFooter]="footer"
-    >
+    <nz-empty [nzNotFoundContent]="content" [nzNotFoundFooter]="footer">
       <ng-template #content>
         <div>
           No favorites yet, start adding favorites by clicking on the
