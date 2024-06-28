@@ -2,8 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::model::commit::Commit;
-use crate::model::user::User;
 use crate::model::Pipeline;
+use crate::model::user::User;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Job {
@@ -36,6 +36,8 @@ pub enum JobStatus {
     Success,
     /// Canceled jobs.
     Canceled,
+    /// Canceling jobs.
+    Canceling,
     /// Skipped jobs.
     Skipped,
     #[serde(rename = "waiting_for_resource")]
@@ -54,6 +56,7 @@ impl JobStatus {
             JobStatus::Failed => String::from("failed"),
             JobStatus::Success => String::from("success"),
             JobStatus::Canceled => String::from("canceled"),
+            JobStatus::Canceling => String::from("canceling"),
             JobStatus::Skipped => String::from("skipped"),
             JobStatus::WaitingForResource => String::from("waiting_for_resource"),
             JobStatus::Manual => String::from("manual"),
@@ -65,7 +68,7 @@ impl JobStatus {
 mod tests {
     use serde_json::json;
 
-    use crate::model::{test, Job, JobStatus};
+    use crate::model::{Job, JobStatus, test};
 
     #[test]
     fn job_deserialize() {
@@ -220,13 +223,14 @@ mod tests {
             "failed",
             "success",
             "canceled",
+            "canceling",
             "skipped",
             "waiting_for_resource",
             "manual"
         ]);
 
         let deserialized = serde_json::from_value::<Vec<JobStatus>>(value.clone()).unwrap();
-        assert_eq!(deserialized.len(), 9);
+        assert_eq!(deserialized.len(), 10);
 
         let serialized = serde_json::to_string(&deserialized).unwrap();
         assert_eq!(value.to_string(), serialized);

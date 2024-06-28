@@ -29,6 +29,8 @@ pub enum PipelineStatus {
     Failed,
     /// Canceled.
     Canceled,
+    /// Canceling.
+    Canceling,
     /// Skipped.
     Skipped,
     /// Created, but blocked on available runners or triggers.
@@ -158,6 +160,7 @@ mod tests {
             "success",
             "failed",
             "canceled",
+            "canceling",
             "skipped",
             "created",
             "manual",
@@ -167,7 +170,7 @@ mod tests {
         ]);
 
         let deserialized = serde_json::from_value::<Vec<PipelineStatus>>(value.clone()).unwrap();
-        assert_eq!(deserialized.len(), 11);
+        assert_eq!(deserialized.len(), 12);
 
         let serialized = serde_json::to_string(&deserialized).unwrap();
         assert_eq!(value.to_string(), serialized);
