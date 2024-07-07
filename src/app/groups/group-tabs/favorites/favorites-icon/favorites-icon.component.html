@@ -2,7 +2,7 @@
   nzType="text"
   nz-tooltip
   [nzTooltipMouseEnterDelay]="0.5"
-  [nzTooltipTitle]="hasFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+  [nzTooltipTitle]="tooltipTitle()"
   nz-button
   nzShape="circle"
   (click)="hasFavorite() ? remove($event) : add($event)"

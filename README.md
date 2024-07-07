@@ -26,24 +26,38 @@ projects to manage, potentially resulting in undetected failed pipelines.
 - You won't get rate limited by the Gitlab API, due to server-side caching
 - Communication to the Gitlab API happens only server side
 - Only 1 `read only` token is needed to serve a whole team
+    - Optionally use a `read/write` token to perform actions like restarting a failed pipeline
 
 ## 📒 Checklist
 
 - [x] Overview of all latest pipeline statuses within a group
+    - [x] Navigate to Gitlab
+    - [x] Add to favorites
+    - [x] Restart failed pipelines from within the dashboard
+    - [ ] Start a new pipeline
 - [x] Overview of all pipeline statuses within a group
+    - [x] Navigate to Gitlab
+    - [x] Add to favorites
+    - [x] Restart failed pipelines from within the dashboard
+    - [ ] Start a new pipeline
 - [x] Overview of all schedules within a group
+    - [x] Navigate to Gitlab
+    - [x] Add to favorites
+    - [x] Restart failed pipelines from within the dashboard
+    - [ ] Start a new pipeline
 - [ ] Overview of all artifacts within a group
 - [ ] ...
 
 ## ⚡️ Requirements
 
 - Gitlab server (v4 API)
-- Readonly API token
+- API token (read only or read/write)
 - Docker
 
 ## 💡 Getting started
 
-1. Generate a `read_api` access token in Gitlab (e.g: https://gitlab.com/-/profile/personal_access_tokens)
+1. Generate a `read_api` or `api` access token in Gitlab, depending on your requirements (
+   e.g: https://gitlab.com/-/profile/personal_access_tokens)
 
 ![Access Token](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/access_token.png)
 

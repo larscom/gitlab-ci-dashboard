@@ -1,5 +1,4 @@
 import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
-import { GroupId } from '$groups/model/group'
 import { Pipeline, PipelineId } from '$groups/model/pipeline'
 import { ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
@@ -15,6 +14,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { JobsComponent } from '../../components/jobs/jobs.component'
+import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
 interface Header<T> {
@@ -60,6 +60,7 @@ const headers: Header<ProjectPipeline>[] = [
     NzSpinModule,
     StatusColorPipe,
     JobsComponent,
+    RetryPipelineIconComponent,
     FavoritesIconComponent
   ],
   templateUrl: './pipeline-table.component.html',

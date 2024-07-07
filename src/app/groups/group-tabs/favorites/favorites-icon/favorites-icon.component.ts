@@ -1,7 +1,7 @@
 import { GroupId } from '$groups/model/group'
 import { ProjectId } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import { Component, inject, input } from '@angular/core'
+import { Component, computed, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
@@ -19,6 +19,10 @@ export class FavoritesIconComponent {
 
   groupId = input.required<GroupId>()
   projectId = input.required<ProjectId>()
+
+  tooltipTitle = computed(() => {
+    return this.hasFavorite() ? 'Remove from favorites' : 'Add to favorites'
+  })
 
   remove(e: Event) {
     e.stopPropagation()

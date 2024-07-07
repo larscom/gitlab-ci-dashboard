@@ -1,6 +1,5 @@
 import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
-import { GroupId } from '$groups/model/group'
 import { Pipeline } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
 import { ScheduleId, ScheduleProjectPipeline } from '$groups/model/schedule'
@@ -16,6 +15,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { JobsComponent } from '../../components/jobs/jobs.component'
+import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 
 interface Header<T> {
@@ -37,6 +37,7 @@ interface Header<T> {
     NextRunAtPipe,
     StatusColorPipe,
     JobsComponent,
+    RetryPipelineIconComponent,
     FavoritesIconComponent
   ],
   templateUrl: './schedule-table.component.html',

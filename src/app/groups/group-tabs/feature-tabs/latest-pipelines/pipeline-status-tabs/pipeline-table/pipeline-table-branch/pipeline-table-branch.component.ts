@@ -1,4 +1,5 @@
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
+import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { BranchPipeline } from '$groups/model/branch'
 import { Pipeline } from '$groups/model/pipeline'
@@ -53,7 +54,8 @@ const headers: Header<BranchPipeline>[] = [
     NzToolTipModule,
     NzButtonModule,
     NzIconModule,
-    NzBadgeModule
+    NzBadgeModule,
+    RetryPipelineIconComponent
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],

@@ -2,7 +2,7 @@
 
 use actix_web::{App, HttpResponse, HttpServer, middleware::Logger, Responder, web};
 use actix_web::dev::HttpServiceFactory;
-use actix_web::web::{Data, ServiceConfig};
+use actix_web::web::{Data, Json, ServiceConfig};
 use actix_web_lab::web::spa;
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
 use dotenv::dotenv;
@@ -11,8 +11,10 @@ use web::scope;
 
 use config::Config;
 
+use crate::config::ApiConfig;
 use crate::group::GroupService;
 use crate::job::JobService;
+use crate::pipeline::PipelineService;
 
 mod branch;
 mod config;
@@ -25,11 +27,12 @@ mod pipeline;
 mod project;
 mod schedule;
 
-async fn version() -> String {
-    std::env::var("VERSION").unwrap_or(String::from("dev"))
+async fn api_config_handler(api_config: Data<ApiConfig>) -> Json<ApiConfig> {
+    let config = api_config.as_ref();
+    Json(config.clone())
 }
 
-async fn health() -> impl Responder {
+async fn health_handler() -> impl Responder {
     HttpResponse::Ok().finish()
 }
 
@@ -38,9 +41,14 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    log::info!("Gitlab CI Dashboard :: {} ::", version().await);
-
     let gcd_config = Config::new();
+    let api_config = ApiConfig::new();
+    log::info!(
+        "Gitlab CI Dashboard :: {} ::",
+        api_config.api_version.clone()
+    );
+
+    let api_config = Data::new(api_config);
     let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
     let p_metrics = setup_prometheus();
 
@@ -68,12 +76,14 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(p_metrics.clone())
             .configure(configure_app(
+                &api_config,
                 &qs_config,
                 &group_service,
                 &project_aggr,
                 &branch_aggr,
                 &schedule_aggr,
                 &job_service,
+                &pipeline_service,
             ))
     })
     .bind((gcd_config.server_ip, gcd_config.server_port))?
@@ -82,28 +92,34 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
+#[allow(clippy::too_many_arguments)]
 fn configure_app<'a>(
+    api_config: &'a Data<ApiConfig>,
     qs_config: &'a QueryStringConfig,
     group_service: &'a Data<GroupService>,
     project_aggr: &'a Data<project::pipeline::Aggregator>,
     branch_aggr: &'a Data<branch::pipeline::Aggregator>,
     schedule_aggr: &'a Data<schedule::pipeline::Aggregator>,
     job_service: &'a Data<JobService>,
+    pipeline_service: &'a Data<PipelineService>,
 ) -> impl Fn(&mut ServiceConfig) + 'a {
     move |config| {
         config
+            .app_data(api_config.clone())
             .app_data(qs_config.clone())
             .app_data(group_service.clone())
             .app_data(project_aggr.clone())
             .app_data(branch_aggr.clone())
             .app_data(schedule_aggr.clone())
             .app_data(job_service.clone())
-            .route("/health", web::get().to(health))
+            .app_data(pipeline_service.clone())
+            .route("/health", web::get().to(health_handler))
             .service(
                 scope("/api")
-                    .route("/version", web::get().to(version))
+                    .route("/config", web::get().to(api_config_handler))
                     .configure(group::setup_handlers)
                     .configure(project::setup_handlers)
+                    .configure(pipeline::setup_handlers)
                     .configure(branch::setup_handlers)
                     .configure(schedule::setup_handlers)
                     .configure(job::setup_handlers),
@@ -164,6 +180,7 @@ mod tests {
 
             let gitlab_client = new_test_client();
 
+            let api_config = Data::new(ApiConfig::new());
             let group_service = Data::new(group::new_service(&gitlab_client, &gcd_config));
             let pipeline_service = Data::new(pipeline::new_service(&gitlab_client, &gcd_config));
             let project_service = Data::new(project::new_service(&gitlab_client, &gcd_config));
@@ -183,12 +200,14 @@ mod tests {
             ));
 
             test::init_service(App::new().configure(configure_app(
+                &api_config,
                 &qs_config,
                 &group_service,
                 &project_aggr,
                 &branch_aggr,
                 &schedule_aggr,
                 &job_service,
+                &pipeline_service,
             )))
             .await
         }};
@@ -226,6 +245,14 @@ mod tests {
             Ok(vec![model::test::new_pipeline()])
         }
 
+        async fn retry_pipeline(
+            &self,
+            _project_id: u64,
+            _pipeline_id: u64,
+        ) -> Result<Pipeline, ApiError> {
+            Ok(model::test::new_pipeline())
+        }
+
         async fn branches(&self, _project_id: u64) -> Result<Vec<Branch>, ApiError> {
             Ok(vec![model::test::new_branch()])
         }
@@ -253,18 +280,20 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_version_endpoint() {
+    async fn test_config_endpoint() {
         env::set_var("VERSION", "1.0.0");
 
         let app = setup_app!();
-        let req = test::TestRequest::get().uri("/api/version").to_request();
+        let req = test::TestRequest::get().uri("/api/config").to_request();
         let resp = test::call_service(&app, req).await;
 
         let status = resp.status();
         assert!(status.is_success());
 
         let body = to_bytes(resp.into_body()).await.unwrap();
-        assert_eq!(to_str(&body), "1.0.0");
+        let result = serde_json::from_str::<ApiConfig>(to_str(&body)).unwrap();
+
+        assert_eq!(result.api_version, "1.0.0");
     }
 
     #[actix_web::test]
@@ -283,7 +312,7 @@ mod tests {
         let resp = test::call_service(&app, req).await;
 
         let status = resp.status();
-        assert!(status.is_success());       
+        assert!(status.is_success());
     }
 
     #[actix_web::test]

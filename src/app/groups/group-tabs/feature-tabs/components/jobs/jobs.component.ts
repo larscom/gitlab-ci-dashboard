@@ -31,7 +31,7 @@ interface Tag {
   spin: boolean
 }
 
-const MAX_JOB_COUNT = 10
+const MAX_JOB_COUNT = 6
 const RUNNABLE_STATUSES = [
   Status.CREATED,
   Status.WAITING_FOR_RESOURCE,

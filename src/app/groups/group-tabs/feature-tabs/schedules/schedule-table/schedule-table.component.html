@@ -17,6 +17,7 @@
       [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not active'"
       [ngStyle]="{ opacity: data.schedule.active ? '1' : '0.3' }"
       [attr.data-project-id]="data.project.id"
+      [attr.data-pipeline-id]="data.pipeline?.id"
     >
       <td>{{ data.project.name }}</td>
       <td class="lowercase">{{ data.schedule.description }}</td>
@@ -64,11 +65,15 @@
         >
           <span nz-icon nzType="eye"></span>
         </button>
+
+        <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id"></gcd-retry-pipeline-icon>
+
         } @else {
         <button nzType="text" nz-button nzShape="circle" disabled>
           <span nz-icon nzType="eye"></span>
         </button>
         }
+
         <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
         <button
           (click)="onScheduleClick($event, data.project)"

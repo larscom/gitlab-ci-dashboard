@@ -2,17 +2,17 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use reqwest::{Client, Url};
 use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::{Client, Url};
 use serde::de::DeserializeOwned;
 use tokio::sync::mpsc;
 
 use crate::config::Config;
 use crate::error::ApiError;
-use crate::model::{Branch, Group, Job};
-use crate::model::{JobStatus, Pipeline};
 use crate::model::Project;
 use crate::model::Schedule;
+use crate::model::{Branch, Group, Job};
+use crate::model::{JobStatus, Pipeline};
 
 pub fn new_client(config: &Config) -> Arc<dyn GitlabApi> {
     Arc::new(GitlabClient::new(
@@ -38,6 +38,9 @@ pub trait GitlabApi: Send + Sync {
         project_id: u64,
         updated_after: Option<DateTime<Utc>>,
     ) -> Result<Vec<Pipeline>, ApiError>;
+
+    async fn retry_pipeline(&self, project_id: u64, pipeline_id: u64)
+        -> Result<Pipeline, ApiError>;
 
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError>;
 
@@ -74,6 +77,19 @@ impl GitlabClient {
             base_url: format!("{}/api/v4", gitlab_url),
             http_client,
         }
+    }
+
+    async fn do_post(&self, path: String) -> Result<reqwest::Response, reqwest::Error> {
+        let url = Url::parse(format!("{}{}", self.base_url, path).as_str())
+            .expect("failed to parse url with params");
+
+        log::debug!("HTTP (post) {}", url);
+
+        self.http_client.post(url).send().await?.error_for_status()
+    }
+
+    async fn do_post_parsed<T: DeserializeOwned>(&self, path: String) -> Result<T, reqwest::Error> {
+        self.do_post(path).await?.json().await
     }
 
     async fn do_get(
@@ -234,6 +250,15 @@ impl GitlabApi for GitlabClient {
 
         let path = format!("/projects/{}/pipelines", project_id);
         self.get_all_pages(path.to_string(), params.to_vec()).await
+    }
+
+    async fn retry_pipeline(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+    ) -> Result<Pipeline, ApiError> {
+        let path = format!("/projects/{}/pipelines/{}/retry", project_id, pipeline_id);
+        self.do_post_parsed(path).await.map_err(|e| e.into())
     }
 
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError> {

@@ -1,28 +1,18 @@
 use std::{fmt::Display, num::NonZeroUsize, str::FromStr, thread, time::Duration};
 
-fn must_from_env(key: &str) -> String {
-    let value = std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key));
-    log::debug!("{key}={value}");
-    value
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiConfig {
+    pub api_version: String,
 }
 
-fn from_env_or_default<T>(key: &str, default: T) -> T
-where
-    T: FromStr + Display,
-{
-    let value = std::env::var(key)
-        .ok()
-        .and_then(|value| value.parse().ok())
-        .unwrap_or(default);
-    log::debug!("{key}={value}");
-    value
-}
-
-fn split_into<T: FromStr>(value: String) -> Vec<T> {
-    value
-        .split(',')
-        .filter_map(|v| v.parse::<T>().ok())
-        .collect()
+impl ApiConfig {
+    pub fn new() -> Self {
+        Self {
+            api_version: from_env_or_default("VERSION", "dev".into()),
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -101,6 +91,31 @@ impl Config {
             group_only_top_level: from_env_or_default("GITLAB_GROUP_ONLY_TOP_LEVEL", false),
         }
     }
+}
+
+fn must_from_env(key: &str) -> String {
+    let value = std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key));
+    log::debug!("{key}={value}");
+    value
+}
+
+fn from_env_or_default<T>(key: &str, default: T) -> T
+where
+    T: FromStr + Display,
+{
+    let value = std::env::var(key)
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(default);
+    log::debug!("{key}={value}");
+    value
+}
+
+fn split_into<T: FromStr>(value: String) -> Vec<T> {
+    value
+        .split(',')
+        .filter_map(|v| v.parse::<T>().ok())
+        .collect()
 }
 
 #[cfg(test)]
@@ -205,6 +220,7 @@ mod tests {
     fn set_env_vars() {
         env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
         env::set_var("GITLAB_API_TOKEN", "token123");
+        env::set_var("GITLAB_READONLY_MODE", "false");
         env::set_var("SERVER_LISTEN_IP", "127.0.0.1");
         env::set_var("SERVER_LISTEN_PORT", "9090");
         env::set_var("SERVER_WORKER_COUNT", "4");

@@ -12,7 +12,7 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackBy($index, data)) {
-    <tr [attr.data-project-id]="data.project.id">
+    <tr [attr.data-project-id]="data.project.id" [attr.data-pipeline-id]="data.pipeline?.id">
       <td>{{ data.project.name }}</td>
       <td>{{ data.pipeline?.ref || '' }}</td>
       <td>{{ data.pipeline?.source || '' }}</td>
@@ -43,6 +43,8 @@
         >
           <span nz-icon nzType="eye"></span>
         </button>
+
+        <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id"></gcd-retry-pipeline-icon>
 
         <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
 

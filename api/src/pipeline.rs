@@ -1,8 +1,12 @@
 use std::cmp::Ordering;
 use std::sync::Arc;
 
+use actix_web::web;
+use actix_web::web::{Data, Json};
 use chrono::{Duration, Utc};
 use moka::future::Cache;
+use serde::Deserialize;
+use serde_querystring_actix::QueryString;
 
 use crate::config::Config;
 use crate::error::ApiError;
@@ -17,6 +21,30 @@ pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> Pipel
         new_cache(config.ttl_latest_pipeline_cache),
         config.clone(),
     )
+}
+
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
+    cfg.route("/pipelines/retry", web::post().to(retry_pipeline));
+}
+
+#[derive(Deserialize)]
+struct Q {
+    project_id: u64,
+    pipeline_id: u64,
+}
+
+#[allow(private_interfaces)]
+pub async fn retry_pipeline(
+    QueryString(Q {
+        project_id,
+        pipeline_id,
+    }): QueryString<Q>,
+    pipeline_service: Data<PipelineService>,
+) -> Result<Json<Pipeline>, ApiError> {
+    let pipeline = pipeline_service
+        .retry_pipeline(project_id, pipeline_id)
+        .await?;
+    Ok(Json(pipeline))
 }
 
 #[derive(Clone)]
@@ -40,6 +68,14 @@ impl PipelineService {
             client,
             config,
         }
+    }
+
+    pub async fn retry_pipeline(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+    ) -> Result<Pipeline, ApiError> {
+        self.client.retry_pipeline(project_id, pipeline_id).await
     }
 
     pub async fn get_latest_pipeline(

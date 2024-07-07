@@ -1,5 +1,6 @@
 import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
+import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { FETCH_REFRESH_INTERVAL } from '$groups/http'
 import { BranchPipeline } from '$groups/model/branch'
 import { Pipeline } from '$groups/model/pipeline'
@@ -62,7 +63,8 @@ const headers: Header<ProjectPipeline>[] = [
     NzSpinModule,
     PipelineTableBranchComponent,
     JobsComponent,
-    FavoritesIconComponent
+    FavoritesIconComponent,
+    RetryPipelineIconComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],

@@ -12,7 +12,12 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackByProjectId($index, data)) {
-    <tr class="pointer" [attr.data-project-id]="data.project.id" (click)="onRowClick(data.project)">
+    <tr
+      class="pointer"
+      [attr.data-project-id]="data.project.id"
+      [attr.data-pipeline-id]="data.pipeline?.id"
+      (click)="onRowClick(data.project)"
+    >
       <td>{{ data.project.name }}</td>
       <td>{{ data.project.default_branch }}</td>
       <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
@@ -39,6 +44,8 @@
         >
           <span nz-icon nzType="eye"></span>
         </button>
+
+        <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id"></gcd-retry-pipeline-icon>
 
         <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
 
