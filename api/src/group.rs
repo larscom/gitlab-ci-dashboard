@@ -10,9 +10,9 @@ use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::Group;
 
-pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> GroupService {
+pub fn new_service(gitlab_client: Arc<dyn GitlabApi>, config: &Config) -> GroupService {
     GroupService::new(
-        gitlab_client.clone(),
+        gitlab_client,
         new_cache(config.ttl_group_cache),
         config.clone(),
     )

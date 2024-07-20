@@ -15,12 +15,12 @@ use crate::model::{Branch, BranchPipeline};
 use crate::pipeline::PipelineService;
 
 pub fn new_aggregator(
-    gitlab_client: &Arc<dyn GitlabApi>,
+    gitlab_client: Arc<dyn GitlabApi>,
     pipeline_service: &PipelineService,
     config: &Config,
 ) -> Aggregator {
     Aggregator::new(
-        BranchService::new(gitlab_client.clone(), new_cache(config.ttl_branch_cache)),
+        BranchService::new(gitlab_client, new_cache(config.ttl_branch_cache)),
         pipeline_service.clone(),
     )
 }

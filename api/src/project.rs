@@ -21,9 +21,9 @@ pub fn new_aggregator(
     Aggregator::new(project_service.clone(), pipeline_service.clone())
 }
 
-pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> ProjectService {
+pub fn new_service(gitlab_client: Arc<dyn GitlabApi>, config: &Config) -> ProjectService {
     ProjectService::new(
-        gitlab_client.clone(),
+        gitlab_client,
         new_cache(config.ttl_project_cache),
         config.clone(),
     )

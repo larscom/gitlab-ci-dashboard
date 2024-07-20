@@ -12,8 +12,8 @@ use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::{Job, JobStatus};
 
-pub fn new_service(gitlab_client: &Arc<dyn GitlabApi>, config: &Config) -> JobService {
-    JobService::new(gitlab_client.clone(), new_cache(config.ttl_job_cache))
+pub fn new_service(gitlab_client: Arc<dyn GitlabApi>, config: &Config) -> JobService {
+    JobService::new(gitlab_client, new_cache(config.ttl_job_cache))
 }
 
 pub fn setup_handlers(cfg: &mut web::ServiceConfig) {

@@ -54,18 +54,18 @@ async fn main() -> std::io::Result<()> {
 
     let gitlab_client = gitlab::new_client(&gcd_config);
 
-    let group_service = Data::new(group::new_service(&gitlab_client, &gcd_config));
-    let pipeline_service = Data::new(pipeline::new_service(&gitlab_client, &gcd_config));
-    let project_service = Data::new(project::new_service(&gitlab_client, &gcd_config));
-    let job_service = Data::new(job::new_service(&gitlab_client, &gcd_config));
+    let group_service = Data::new(group::new_service(gitlab_client.clone(), &gcd_config));
+    let pipeline_service = Data::new(pipeline::new_service(gitlab_client.clone(), &gcd_config));
+    let project_service = Data::new(project::new_service(gitlab_client.clone(), &gcd_config));
+    let job_service = Data::new(job::new_service(gitlab_client.clone(), &gcd_config));
     let project_aggr = Data::new(project::new_aggregator(&project_service, &pipeline_service));
     let branch_aggr = Data::new(branch::new_aggregator(
-        &gitlab_client,
+        gitlab_client.clone(),
         &pipeline_service,
         &gcd_config,
     ));
     let schedule_aggr = Data::new(schedule::new_aggregator(
-        &gitlab_client,
+        gitlab_client.clone(),
         &project_service,
         &pipeline_service,
         &gcd_config,
@@ -181,19 +181,19 @@ mod tests {
             let gitlab_client = new_test_client();
 
             let api_config = Data::new(ApiConfig::new());
-            let group_service = Data::new(group::new_service(&gitlab_client, &gcd_config));
-            let pipeline_service = Data::new(pipeline::new_service(&gitlab_client, &gcd_config));
-            let project_service = Data::new(project::new_service(&gitlab_client, &gcd_config));
-            let job_service = Data::new(job::new_service(&gitlab_client, &gcd_config));
+            let group_service = Data::new(group::new_service(gitlab_client.clone(), &gcd_config));
+            let pipeline_service = Data::new(pipeline::new_service(gitlab_client.clone(), &gcd_config));
+            let project_service = Data::new(project::new_service(gitlab_client.clone(), &gcd_config));
+            let job_service = Data::new(job::new_service(gitlab_client.clone(), &gcd_config));
             let project_aggr =
                 Data::new(project::new_aggregator(&project_service, &pipeline_service));
             let branch_aggr = Data::new(branch::new_aggregator(
-                &gitlab_client,
+                gitlab_client.clone(),
                 &pipeline_service,
                 &gcd_config,
             ));
             let schedule_aggr = Data::new(schedule::new_aggregator(
-                &gitlab_client,
+                gitlab_client.clone(),
                 &project_service,
                 &pipeline_service,
                 &gcd_config,

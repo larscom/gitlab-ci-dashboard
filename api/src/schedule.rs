@@ -16,13 +16,13 @@ use crate::project::ProjectService;
 use crate::schedule::pipeline::Aggregator;
 
 pub fn new_aggregator(
-    gitlab_client: &Arc<dyn GitlabApi>,
+    gitlab_client: Arc<dyn GitlabApi>,
     project_service: &ProjectService,
     pipeline_service: &PipelineService,
     config: &Config,
 ) -> Aggregator {
     Aggregator::new(
-        ScheduleService::new(gitlab_client.clone(), new_cache(config.ttl_schedule_cache)),
+        ScheduleService::new(gitlab_client, new_cache(config.ttl_schedule_cache)),
         project_service.clone(),
         pipeline_service.clone(),
     )
