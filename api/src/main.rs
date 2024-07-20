@@ -76,14 +76,14 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(p_metrics.clone())
             .configure(configure_app(
-                &api_config,
-                &qs_config,
-                &group_service,
-                &project_aggr,
-                &branch_aggr,
-                &schedule_aggr,
-                &job_service,
-                &pipeline_service,
+                api_config.clone(),
+                qs_config.clone(),
+                group_service.clone(),
+                project_aggr.clone(),
+                branch_aggr.clone(),
+                schedule_aggr.clone(),
+                job_service.clone(),
+                pipeline_service.clone(),
             ))
     })
     .bind((gcd_config.server_ip, gcd_config.server_port))?
@@ -93,26 +93,26 @@ async fn main() -> std::io::Result<()> {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn configure_app<'a>(
-    api_config: &'a Data<ApiConfig>,
-    qs_config: &'a QueryStringConfig,
-    group_service: &'a Data<GroupService>,
-    project_aggr: &'a Data<project::pipeline::Aggregator>,
-    branch_aggr: &'a Data<branch::pipeline::Aggregator>,
-    schedule_aggr: &'a Data<schedule::pipeline::Aggregator>,
-    job_service: &'a Data<JobService>,
-    pipeline_service: &'a Data<PipelineService>,
-) -> impl Fn(&mut ServiceConfig) + 'a {
+fn configure_app(
+    api_config: Data<ApiConfig>,
+    qs_config: QueryStringConfig,
+    group_service: Data<GroupService>,
+    project_aggr: Data<project::pipeline::Aggregator>,
+    branch_aggr: Data<branch::pipeline::Aggregator>,
+    schedule_aggr: Data<schedule::pipeline::Aggregator>,
+    job_service: Data<JobService>,
+    pipeline_service: Data<PipelineService>,
+) -> impl FnOnce(&mut ServiceConfig) {
     move |config| {
         config
-            .app_data(api_config.clone())
-            .app_data(qs_config.clone())
-            .app_data(group_service.clone())
-            .app_data(project_aggr.clone())
-            .app_data(branch_aggr.clone())
-            .app_data(schedule_aggr.clone())
-            .app_data(job_service.clone())
-            .app_data(pipeline_service.clone())
+            .app_data(api_config)
+            .app_data(qs_config)
+            .app_data(group_service)
+            .app_data(project_aggr)
+            .app_data(branch_aggr)
+            .app_data(schedule_aggr)
+            .app_data(job_service)
+            .app_data(pipeline_service)
             .route("/health", web::get().to(health_handler))
             .service(
                 scope("/api")
@@ -182,8 +182,10 @@ mod tests {
 
             let api_config = Data::new(ApiConfig::new());
             let group_service = Data::new(group::new_service(gitlab_client.clone(), &gcd_config));
-            let pipeline_service = Data::new(pipeline::new_service(gitlab_client.clone(), &gcd_config));
-            let project_service = Data::new(project::new_service(gitlab_client.clone(), &gcd_config));
+            let pipeline_service =
+                Data::new(pipeline::new_service(gitlab_client.clone(), &gcd_config));
+            let project_service =
+                Data::new(project::new_service(gitlab_client.clone(), &gcd_config));
             let job_service = Data::new(job::new_service(gitlab_client.clone(), &gcd_config));
             let project_aggr =
                 Data::new(project::new_aggregator(&project_service, &pipeline_service));
@@ -200,14 +202,14 @@ mod tests {
             ));
 
             test::init_service(App::new().configure(configure_app(
-                &api_config,
-                &qs_config,
-                &group_service,
-                &project_aggr,
-                &branch_aggr,
-                &schedule_aggr,
-                &job_service,
-                &pipeline_service,
+                api_config,
+                qs_config,
+                group_service,
+                project_aggr,
+                branch_aggr,
+                schedule_aggr,
+                job_service,
+                pipeline_service,
             )))
             .await
         }};
