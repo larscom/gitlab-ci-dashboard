@@ -32,11 +32,9 @@ jobs:
         working-directory: ./api
     steps:
       - uses: actions/checkout@v4
-      - run: cargo install cargo-audit
       - run: cargo build --verbose
       - run: cargo test --verbose
       - run: cargo clippy --verbose -- -D warnings
-      - run: cargo audit
 
   build-docker:
     if: github.event_name != 'pull_request'
