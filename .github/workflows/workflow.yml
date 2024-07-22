@@ -42,6 +42,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        run: |
+          REF_NAME="${{ github.ref_name }}"          
+          REF_NAME_LOWER=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]')          
+          REF_NAME_CLEAN=$(echo "$REF_NAME_LOWER" | tr -cd '[:alnum:]._-')          
+          REF_NAME_CLEAN=$(echo "$REF_NAME_CLEAN" | sed 's/^[^a-z0-9]*//;s/[^a-z0-9]*$//')          
+          if [[ ! "$REF_NAME_CLEAN" =~ ^[a-z0-9] ]]; then
+            REF_NAME_CLEAN="0$REF_NAME_CLEAN"
+          fi          
+          echo "CLEANED_REF_NAME=$REF_NAME_CLEAN" >> $GITHUB_ENV
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
@@ -56,19 +65,10 @@ jobs:
           build-args: VERSION_ARG=v${{ github.ref_name }}
       - uses: docker/build-push-action@v5
         if: startsWith(github.ref, 'refs/heads/')
-        run: |
-          REF_NAME="${{ github.ref_name }}"          
-          REF_NAME_LOWER=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]')          
-          REF_NAME_CLEAN=$(echo "$REF_NAME_LOWER" | tr -cd '[:alnum:]._-')          
-          REF_NAME_CLEAN=$(echo "$REF_NAME_CLEAN" | sed 's/^[^a-z0-9]*//;s/[^a-z0-9]*$//')          
-          if [[ ! "$REF_NAME_CLEAN" =~ ^[a-z0-9] ]]; then
-            REF_NAME_CLEAN="0$REF_NAME_CLEAN"
-          fi          
-          echo "DOCKER_TAG=$REF_NAME_CLEAN" >> $GITHUB_ENV
         with:
           push: true
-          tags: ${{ github.repository }}:${{ env.DOCKER_TAG }}
-          build-args: VERSION_ARG=${{ github.sha }}@${{ env.DOCKER_TAG }}
+          tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
+          build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
       - uses: peter-evans/dockerhub-description@v4
         if: github.ref == 'refs/heads/master'
         with:
