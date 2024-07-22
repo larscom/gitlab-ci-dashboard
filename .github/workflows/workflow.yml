@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        run: |
+      - run: |
           REF_NAME="${{ github.ref_name }}"          
           REF_NAME_LOWER=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]')          
           REF_NAME_CLEAN=$(echo "$REF_NAME_LOWER" | tr -cd '[:alnum:]._-')          
