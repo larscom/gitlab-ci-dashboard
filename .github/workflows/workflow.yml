@@ -56,10 +56,19 @@ jobs:
           build-args: VERSION_ARG=v${{ github.ref_name }}
       - uses: docker/build-push-action@v5
         if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          REF_NAME="${{ github.ref_name }}"          
+          REF_NAME_LOWER=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]')          
+          REF_NAME_CLEAN=$(echo "$REF_NAME_LOWER" | tr -cd '[:alnum:]._-')          
+          REF_NAME_CLEAN=$(echo "$REF_NAME_CLEAN" | sed 's/^[^a-z0-9]*//;s/[^a-z0-9]*$//')          
+          if [[ ! "$REF_NAME_CLEAN" =~ ^[a-z0-9] ]]; then
+            REF_NAME_CLEAN="0$REF_NAME_CLEAN"
+          fi          
+          echo "DOCKER_TAG=$REF_NAME_CLEAN" >> $GITHUB_ENV
         with:
           push: true
-          tags: ${{ github.repository }}:${{ github.ref_name }}
-          build-args: VERSION_ARG=${{ github.sha }}@${{ github.ref_name }}
+          tags: ${{ github.repository }}:${{ env.DOCKER_TAG }}
+          build-args: VERSION_ARG=${{ github.sha }}@${{ env.DOCKER_TAG }}
       - uses: peter-evans/dockerhub-description@v4
         if: github.ref == 'refs/heads/master'
         with:
