@@ -8,7 +8,7 @@ on:
       - '**'
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build-ng:
@@ -70,7 +70,7 @@ jobs:
           tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
       - uses: peter-evans/dockerhub-description@v4
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}

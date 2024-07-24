@@ -10,14 +10,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^18.0.6",
-    "@angular/common": "^18.0.6",
-    "@angular/compiler": "^18.0.6",
-    "@angular/core": "^18.0.6",
-    "@angular/forms": "^18.0.6",
-    "@angular/platform-browser": "^18.0.6",
-    "@angular/platform-browser-dynamic": "^18.0.6",
-    "@angular/router": "^18.0.6",
+    "@angular/animations": "^18.1.1",
+    "@angular/common": "^18.1.1",
+    "@angular/compiler": "^18.1.1",
+    "@angular/core": "^18.1.1",
+    "@angular/forms": "^18.1.1",
+    "@angular/platform-browser": "^18.1.1",
+    "@angular/platform-browser-dynamic": "^18.1.1",
+    "@angular/router": "^18.1.1",
     "@fontsource/roboto": "^5.0.13",
     "ng-zorro-antd": "^16.2.2",
     "normalize.css": "^8.0.1",
@@ -29,11 +29,11 @@
     "@angular-builders/jest": "^18.0.0",
     "@angular/build": "^18.1.1",
     "@angular/cli": "~18.1.1",
-    "@angular/compiler-cli": "^18.0.6",
+    "@angular/compiler-cli": "^18.1.1",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
-    "jest-preset-angular": "^14.1.1",
+    "jest-preset-angular": "^14.2.0",
     "ng-mocks": "^14.13.0",
-    "typescript": "5.4.5"
+    "typescript": "5.5.4"
   }
 }

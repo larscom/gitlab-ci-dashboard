@@ -8,13 +8,13 @@ actix-web = "4.8.0"
 actix-web-lab = { version = "0.20.2", features = ["spa"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 dotenv = "0.15.0"
-env_logger = "0.11.3"
+env_logger = "0.11.4"
 log = "0.4.22"
 moka = { version = "0.12.8", features = ["future"] }
 reqwest = { version = "0.12.5", features = ["json"] }
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = "1.0.120"
-tokio = { version = "1.38.1", features = ["sync"] }
+tokio = { version = "1.39.1", features = ["sync"] }
 async-trait = "0.1.81"
 futures = "0.3.30"
 serde-querystring-actix = "0.2.0"

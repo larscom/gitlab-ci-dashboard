@@ -4,7 +4,7 @@
 [![workflow](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml/badge.svg)](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/preview.png)
+![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/main/.github/img/preview.png)
 
 <br />
 
@@ -13,7 +13,7 @@ single group.
 The default functionality of Gitlab is limited at the project level. This can become problematic when you have a lot of
 projects to manage, potentially resulting in undetected failed pipelines.
 
-## 👉 [Demo (master)](https://gitlab-ci-dashboard.larscom.nl)
+## 👉 [Demo (main)](https://gitlab-ci-dashboard.larscom.nl)
 
 > Demo may contain functionality that has not been released yet.
 
@@ -59,7 +59,7 @@ projects to manage, potentially resulting in undetected failed pipelines.
 1. Generate a `read_api` or `api` access token in Gitlab, depending on your requirements (
    e.g: https://gitlab.com/-/profile/personal_access_tokens)
 
-![Access Token](https://github.com/larscom/gitlab-ci-dashboard/blob/master/.github/img/access_token.png)
+![Access Token](https://github.com/larscom/gitlab-ci-dashboard/blob/main/.github/img/access_token.png)
 
 2. Run docker with the required environment variables (GITLAB_BASE_URL, GITLAB_API_TOKEN)
 
