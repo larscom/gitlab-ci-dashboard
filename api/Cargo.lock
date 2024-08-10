@@ -31,7 +31,7 @@ dependencies = [
  "actix-web",
  "bitflags 2.5.0",
  "bytes",
- "derive_more",
+ "derive_more 0.99.17",
  "futures-core",
  "http-range",
  "log",
@@ -58,7 +58,7 @@ dependencies = [
  "brotli",
  "bytes",
  "bytestring",
- "derive_more",
+ "derive_more 0.99.17",
  "encoding_rs",
  "flate2",
  "futures-core",
@@ -174,7 +174,7 @@ dependencies = [
  "bytestring",
  "cfg-if",
  "cookie",
- "derive_more",
+ "derive_more 0.99.17",
  "encoding_rs",
  "futures-core",
  "futures-util",
@@ -209,9 +209,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web-lab"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "993cb5477d926300f11d7daede86368dbf797ccae3564aadfb41cb5b3aee2d23"
+checksum = "2a965e3e826aa4737af33666aa09ed949aa1837706fda2adee07039347be50d6"
 dependencies = [
  "actix-files",
  "actix-http",
@@ -225,7 +225,8 @@ dependencies = [
  "bytes",
  "bytestring",
  "csv",
- "derive_more",
+ "derive_more 1.0.0",
+ "form_urlencoded",
  "futures-core",
  "futures-util",
  "http 0.2.12",
@@ -240,6 +241,7 @@ dependencies = [
  "serde",
  "serde_html_form",
  "serde_json",
+ "serde_path_to_error",
  "tokio",
  "tokio-stream",
  "tracing",
@@ -247,9 +249,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web-lab-derive"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5aa1bc8506ff10e35419d82d2502e182b94bafa1a68f5651e8e1e6c6717fe1d3"
+checksum = "008f98f5a68eeacf5e6d44ed74ce03c1b906baa53eabfb41faf0f5f40bd685f8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -678,6 +680,27 @@ dependencies = [
  "quote",
  "rustc_version",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "derive_more"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a9b99b9cbbe49445b21764dc0625032a89b145a2642e67603e1c936f5458d05"
+dependencies = [
+ "derive_more-impl",
+]
+
+[[package]]
+name = "derive_more-impl"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb7330aeadfbe296029522e6c40f315320aba36fc43a5b3632f3795348f3bd22"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.60",
+ "unicode-xid",
 ]
 
 [[package]]
@@ -2028,7 +2051,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ceaf283dfbfce12ca27a75e1906a66dbed37186f80e6f723a3eeca5da7699505"
 dependencies = [
  "actix-web",
- "derive_more",
+ "derive_more 0.99.17",
  "log",
  "serde",
  "serde-querystring",
@@ -2067,6 +2090,16 @@ dependencies = [
  "itoa",
  "memchr",
  "ryu",
+ "serde",
+]
+
+[[package]]
+name = "serde_path_to_error"
+version = "0.1.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af99884400da37c88f5e9146b7f1fd0fbcae8f6eec4e9da38b67d05486f814a6"
+dependencies = [
+ "itoa",
  "serde",
 ]
 
@@ -2490,6 +2523,12 @@ checksum = "a56d1686db2308d901306f92a263857ef59ea39678a5458e7cb17f01415101f5"
 dependencies = [
  "tinyvec",
 ]
+
+[[package]]
+name = "unicode-xid"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 
 [[package]]
 name = "untrusted"
