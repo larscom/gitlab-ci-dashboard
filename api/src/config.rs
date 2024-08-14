@@ -15,12 +15,14 @@ async fn get_config(api_config: Data<ApiConfig>) -> Json<ApiConfig> {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiConfig {
     pub api_version: String,
+    pub read_only: bool,
 }
 
 impl ApiConfig {
     pub fn new() -> Self {
         Self {
             api_version: from_env_or_default("VERSION", "dev".into()),
+            read_only: from_env_or_default("API_READ_ONLY", true),
         }
     }
 }

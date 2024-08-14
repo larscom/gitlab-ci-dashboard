@@ -26,6 +26,13 @@ impl ApiError {
             message,
         }
     }
+
+    pub fn bad_request(message: String) -> Self {
+        Self {
+            status_code: StatusCode::BAD_REQUEST.as_u16(),
+            message,
+        }
+    }
 }
 
 impl Default for ApiError {

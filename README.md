@@ -92,6 +92,7 @@ Prometheus metrics are exposed on the following endpoint
 | GITLAB_BRANCH_CACHE_TTL_SECONDS   | int    | Expire after write time in seconds for branches (cache)                                                | no       | 60           |
 | GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for schedules (cache)                                               | no       | 300          |
 | GITLAB_JOB_CACHE_TTL_SECONDS      | int    | Expire after write time in seconds for jobs (cache)                                                    | no       | 10           |
+| API_READ_ONLY                     | bool   | If true, you are not able to perform 'write' operations like retrying a pipeline                       | no       | true         |
 | SERVER_LISTEN_IP                  | string | The IP address where the web server should listen on                                                   | no       | 0.0.0.0      |
 | SERVER_LISTEN_PORT                | int    | The port where the web server should listen on                                                         | no       | 8080         |
 | SERVER_WORKER_COUNT               | int    | The amount of worker threads the web server should have                                                | no       | CPU specific |

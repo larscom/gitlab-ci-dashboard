@@ -1,9 +1,9 @@
 <button
   (click)="retry($event)"
   [nzLoading]="loading()"
-  [disabled]="loading()"
+  [disabled]="read_only() || loading()"
   nz-tooltip
-  [nzTooltipTitle]="loading() ? '' : 'Retry failed/canceled jobs'"
+  [nzTooltipTitle]="tooltipTitle()"
   nzType="text"
   nz-button
   nzShape="circle"

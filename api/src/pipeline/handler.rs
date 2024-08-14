@@ -1,3 +1,4 @@
+use crate::config::ApiConfig;
 use crate::error::ApiError;
 use crate::model::Pipeline;
 use crate::pipeline::PipelineService;
@@ -22,9 +23,17 @@ async fn retry_pipeline(
         pipeline_id,
     }): QueryString<Q>,
     pipeline_service: Data<PipelineService>,
+    api_config: Data<ApiConfig>,
 ) -> Result<Json<Pipeline>, ApiError> {
+    if api_config.read_only {
+        return Err(ApiError::bad_request(
+            "can't retry pipeline when in 'read only' mode".to_string(),
+        ));
+    }
+
     let pipeline = pipeline_service
         .retry_pipeline(project_id, pipeline_id)
         .await?;
+
     Ok(Json(pipeline))
 }
