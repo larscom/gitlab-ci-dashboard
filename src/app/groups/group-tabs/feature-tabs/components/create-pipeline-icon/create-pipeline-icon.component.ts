@@ -59,7 +59,7 @@ export class CreatePipelineIconComponent {
         })
       )
       .subscribe({
-        complete: () => this.notification.success('Success', 'Created new pipeline.'),
+        complete: () => this.notification.success('Success', 'Started new pipeline.'),
         error: ({ status, statusText, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error(

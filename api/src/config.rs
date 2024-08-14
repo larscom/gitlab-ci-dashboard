@@ -77,11 +77,11 @@ impl Config {
             )),
             ttl_job_cache: Duration::from_secs(from_env_or_default(
                 "GITLAB_JOB_CACHE_TTL_SECONDS",
-                10,
+                5,
             )),
             ttl_pipeline_cache: Duration::from_secs(from_env_or_default(
                 "GITLAB_PIPELINE_CACHE_TTL_SECONDS",
-                10,
+                5,
             )),
             ttl_schedule_cache: Duration::from_secs(from_env_or_default(
                 "GITLAB_SCHEDULE_CACHE_TTL_SECONDS",
@@ -183,8 +183,8 @@ mod tests {
         assert_eq!(config.ttl_group_cache, Duration::from_secs(300));
         assert_eq!(config.ttl_project_cache, Duration::from_secs(300));
         assert_eq!(config.ttl_branch_cache, Duration::from_secs(60));
-        assert_eq!(config.ttl_job_cache, Duration::from_secs(10));
-        assert_eq!(config.ttl_pipeline_cache, Duration::from_secs(10));
+        assert_eq!(config.ttl_job_cache, Duration::from_secs(5));
+        assert_eq!(config.ttl_pipeline_cache, Duration::from_secs(5));
         assert_eq!(config.ttl_schedule_cache, Duration::from_secs(300));
         assert_eq!(config.pipeline_history_days, 5);
         assert!(config.project_skip_ids.is_empty());

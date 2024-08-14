@@ -53,18 +53,18 @@ async fn create_pipeline(
         branch,
         env_vars,
     }): Json<B>,
-    _pipeline_service: Data<PipelineService>,
+    pipeline_service: Data<PipelineService>,
     api_config: Data<ApiConfig>,
-) -> Result<Json<B>, ApiError> {
+) -> Result<Json<Pipeline>, ApiError> {
     if api_config.read_only {
         return Err(ApiError::bad_request(
             "can't create pipeline when in 'read only' mode".into(),
         ));
     }
 
-    Ok(Json(B {
-        project_id,
-        branch,
-        env_vars,
-    }))
+    let pipeline = pipeline_service
+        .create_pipeline(project_id, branch, env_vars)
+        .await?;
+
+    Ok(Json(pipeline))
 }

@@ -87,11 +87,11 @@ Prometheus metrics are exposed on the following endpoint
 | GITLAB_GROUP_CACHE_TTL_SECONDS    | int    | Expire after write time in seconds for groups (cache)                                                  | no       | 300          |
 | GITLAB_PROJECT_SKIP_IDS           | string | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)               | no       |              |
 | GITLAB_PROJECT_CACHE_TTL_SECONDS  | int    | Expire after write time in seconds for projects (cache)                                                | no       | 300          |
-| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for pipelines (cache)                                               | no       | 10           |
+| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for pipelines (cache)                                               | no       | 5            |
 | GITLAB_PIPELINE_HISTORY_DAYS      | int    | How far back in time (days), it should fetch pipelines from gitlab (pipelines tab only)                | no       | 5            |
 | GITLAB_BRANCH_CACHE_TTL_SECONDS   | int    | Expire after write time in seconds for branches (cache)                                                | no       | 60           |
 | GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for schedules (cache)                                               | no       | 300          |
-| GITLAB_JOB_CACHE_TTL_SECONDS      | int    | Expire after write time in seconds for jobs (cache)                                                    | no       | 10           |
+| GITLAB_JOB_CACHE_TTL_SECONDS      | int    | Expire after write time in seconds for jobs (cache)                                                    | no       | 5            |
 | API_READ_ONLY                     | bool   | If true, you are not able to perform 'write' operations like retrying a pipeline                       | no       | true         |
 | SERVER_LISTEN_IP                  | string | The IP address where the web server should listen on                                                   | no       | 0.0.0.0      |
 | SERVER_LISTEN_PORT                | int    | The port where the web server should listen on                                                         | no       | 8080         |

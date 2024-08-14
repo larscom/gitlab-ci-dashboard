@@ -4,6 +4,7 @@ use crate::gitlab::GitlabApi;
 use crate::model::Pipeline;
 use chrono::{Duration, Utc};
 use moka::future::Cache;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -51,6 +52,17 @@ impl PipelineService {
         pipeline_id: u64,
     ) -> Result<Pipeline, ApiError> {
         self.client.retry_pipeline(project_id, pipeline_id).await
+    }
+
+    pub async fn create_pipeline(
+        &self,
+        project_id: u64,
+        branch: String,
+        env_vars: Option<HashMap<String, String>>,
+    ) -> Result<Pipeline, ApiError> {
+        self.client
+            .create_pipeline(project_id, branch, env_vars)
+            .await
     }
 
     pub async fn get_latest_pipeline(

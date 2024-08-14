@@ -157,6 +157,7 @@ fn setup_spa() -> impl HttpServiceFactory {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use std::env;
 
     use actix_web::body::to_bytes;
@@ -268,6 +269,15 @@ mod tests {
             &self,
             _project_id: u64,
             _pipeline_id: u64,
+        ) -> Result<Pipeline, ApiError> {
+            Ok(model::test::new_pipeline())
+        }
+
+        async fn create_pipeline(
+            &self,
+            _project_id: u64,
+            _branch: String,
+            _env_vars: Option<HashMap<String, String>>,
         ) -> Result<Pipeline, ApiError> {
             Ok(model::test::new_pipeline())
         }

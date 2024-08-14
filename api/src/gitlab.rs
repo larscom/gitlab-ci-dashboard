@@ -8,6 +8,8 @@ use chrono::{DateTime, Utc};
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
 use serde::de::DeserializeOwned;
+use serde_json::Value;
+use std::collections::HashMap;
 use tokio::sync::mpsc;
 
 #[async_trait]
@@ -30,6 +32,13 @@ pub trait GitlabApi: Send + Sync {
 
     async fn retry_pipeline(&self, project_id: u64, pipeline_id: u64)
         -> Result<Pipeline, ApiError>;
+
+    async fn create_pipeline(
+        &self,
+        project_id: u64,
+        branch: String,
+        env_vars: Option<HashMap<String, String>>,
+    ) -> Result<Pipeline, ApiError>;
 
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError>;
 
@@ -70,17 +79,31 @@ impl GitlabClient {
 }
 
 impl GitlabClient {
-    async fn do_post(&self, path: String) -> Result<reqwest::Response, reqwest::Error> {
-        let url = Url::parse(format!("{}{}", self.base_url, path).as_str())
+    async fn do_post(
+        &self,
+        path: String,
+        params: Vec<(String, String)>,
+        body_json: Option<Value>,
+    ) -> Result<reqwest::Response, reqwest::Error> {
+        let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
             .expect("failed to parse url with params");
 
-        log::debug!("HTTP (post) {}", url);
+        log::debug!("HTTP (post) {} body: {:?}", url, body_json);
+        let builder = self.http_client.post(url);
 
-        self.http_client.post(url).send().await?.error_for_status()
+        match body_json {
+            Some(body) => builder.json(&body).send().await?.error_for_status(),
+            None => builder.send().await?.error_for_status(),
+        }
     }
 
-    async fn do_post_parsed<T: DeserializeOwned>(&self, path: String) -> Result<T, reqwest::Error> {
-        self.do_post(path).await?.json().await
+    async fn do_post_parsed<T: DeserializeOwned>(
+        &self,
+        path: String,
+        params: Vec<(String, String)>,
+        body_json: Option<Value>,
+    ) -> Result<T, reqwest::Error> {
+        self.do_post(path, params, body_json).await?.json().await
     }
 
     async fn do_get(
@@ -201,7 +224,7 @@ impl GitlabApi for GitlabClient {
     async fn projects(&self, group_id: u64) -> Result<Vec<Project>, ApiError> {
         let params = [("archived".to_string(), "false".to_string())];
         let path = format!("/groups/{}/projects", group_id);
-        self.get_all_pages(path.to_string(), params.to_vec()).await
+        self.get_all_pages(path, params.to_vec()).await
     }
 
     async fn latest_pipeline(
@@ -240,7 +263,7 @@ impl GitlabApi for GitlabClient {
             .unwrap_or_default();
 
         let path = format!("/projects/{}/pipelines", project_id);
-        self.get_all_pages(path.to_string(), params.to_vec()).await
+        self.get_all_pages(path, params.to_vec()).await
     }
 
     async fn retry_pipeline(
@@ -248,20 +271,53 @@ impl GitlabApi for GitlabClient {
         project_id: u64,
         pipeline_id: u64,
     ) -> Result<Pipeline, ApiError> {
+        let params = [];
         let path = format!("/projects/{}/pipelines/{}/retry", project_id, pipeline_id);
-        self.do_post_parsed(path).await.map_err(|e| e.into())
+
+        self.do_post_parsed(path, params.to_vec(), None)
+            .await
+            .map_err(|e| e.into())
+    }
+
+    async fn create_pipeline(
+        &self,
+        project_id: u64,
+        branch: String,
+        env_vars: Option<HashMap<String, String>>,
+    ) -> Result<Pipeline, ApiError> {
+        let params = [("ref".to_string(), branch)];
+        let path = format!("/projects/{}/pipeline", project_id);
+
+        let body_json = env_vars.map(|vars| {
+            let mut env_vars = Vec::new();
+            for (key, value) in vars {
+                let mut o = serde_json::Map::new();
+                o.insert("key".to_string(), Value::String(key));
+                o.insert("value".to_string(), Value::String(value));
+                env_vars.push(Value::Object(o));
+            }
+
+            let mut o = serde_json::Map::new();
+            o.insert("variables".to_string(), Value::Array(env_vars));
+
+            Value::Object(o)
+        });
+
+        self.do_post_parsed(path, params.to_vec(), body_json)
+            .await
+            .map_err(|e| e.into())
     }
 
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError> {
         let params = [];
         let path = format!("/projects/{}/repository/branches", project_id);
-        self.get_all_pages(path.to_string(), params.to_vec()).await
+        self.get_all_pages(path, params.to_vec()).await
     }
 
     async fn schedules(&self, project_id: u64) -> Result<Vec<Schedule>, ApiError> {
         let params = [];
         let path = format!("/projects/{}/pipeline_schedules", project_id);
-        self.get_all_pages(path.to_string(), params.to_vec()).await
+        self.get_all_pages(path, params.to_vec()).await
     }
 
     async fn jobs(
@@ -276,7 +332,7 @@ impl GitlabApi for GitlabClient {
         }
 
         let path = format!("/projects/{}/pipelines/{}/jobs", project_id, pipeline_id);
-        self.get_all_pages(path.to_string(), params).await
+        self.get_all_pages(path, params).await
     }
 }
 
