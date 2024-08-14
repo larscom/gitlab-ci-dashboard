@@ -13,6 +13,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { CreatePipelineIconComponent } from '../../components/create-pipeline-icon/create-pipeline-icon.component'
 import { JobsComponent } from '../../components/jobs/jobs.component'
 import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
@@ -61,6 +62,7 @@ const headers: Header<ProjectPipeline>[] = [
     StatusColorPipe,
     JobsComponent,
     RetryPipelineIconComponent,
+    CreatePipelineIconComponent,
     FavoritesIconComponent
   ],
   templateUrl: './pipeline-table.component.html',

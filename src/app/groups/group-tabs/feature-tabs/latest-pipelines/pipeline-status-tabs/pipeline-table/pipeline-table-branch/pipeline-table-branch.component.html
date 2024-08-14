@@ -58,7 +58,9 @@
             <span nz-icon nzType="eye"></span>
           </button>
 
-          <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id"></gcd-retry-pipeline-icon>
+          <gcd-create-pipeline-icon [projectId]="pipeline.project_id" [branch]="data.branch.name" />
+
+          <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
           } @else { - }
         </td>
       </tr>

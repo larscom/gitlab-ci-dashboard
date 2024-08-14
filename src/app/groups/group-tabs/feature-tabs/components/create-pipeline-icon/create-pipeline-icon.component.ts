@@ -1,5 +1,4 @@
 import { retryConfig } from '$groups/http'
-import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
@@ -12,22 +11,24 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, retry } from 'rxjs'
 
 @Component({
-  selector: 'gcd-retry-pipeline-icon',
+  selector: 'gcd-create-pipeline-icon',
   standalone: true,
   imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule],
-  templateUrl: './retry-pipeline-icon.component.html',
-  styleUrls: ['./retry-pipeline-icon.component.scss'],
+  templateUrl: './create-pipeline-icon.component.html',
+  styleUrls: ['./create-pipeline-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RetryPipelineIconComponent {
+export class CreatePipelineIconComponent {
   private http = inject(HttpClient)
   private config = inject(ConfigService)
   private notification = inject(NzNotificationService)
 
   projectId = input.required<ProjectId>()
-  pipelineId = input.required<PipelineId>()
+  branch = input.required<string>()
 
   loading = signal(false)
+  vars = signal<Record<string, string>>({})
+
   read_only = this.config.read_only
 
   tooltipTitle = computed(() => {
@@ -39,18 +40,18 @@ export class RetryPipelineIconComponent {
       return ''
     }
 
-    return 'Retry pipeline'
+    return 'Create a new pipeline'
   })
 
-  retry(e: Event): void {
+  create(e: Event): void {
     e.stopPropagation()
 
-    const params = { project_id: this.projectId(), pipeline_id: this.pipelineId() }
+    const body = { project_id: this.projectId(), branch: this.branch(), env_vars: this.vars() }
 
     this.loading.set(true)
 
     this.http
-      .post('/api/pipelines/retry', null, { params })
+      .post('/api/pipelines/create', body)
       .pipe(
         retry(retryConfig),
         finalize(() => {
@@ -58,14 +59,17 @@ export class RetryPipelineIconComponent {
         })
       )
       .subscribe({
-        complete: () => this.notification.success('Success', 'Restarted jobs for pipeline.'),
+        complete: () => this.notification.success('Success', 'Created new pipeline.'),
         error: ({ status, statusText, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
-            this.notification.error('Forbidden', 'Failed to retry pipeline, a read/write access token is required.')
+            this.notification.error(
+              'Forbidden',
+              'Failed to create a new pipeline, a read/write access token is required.'
+            )
           } else {
             this.notification.error(
               `Error ${status}: ${statusText}`,
-              error ? error.message : 'Failed to retry pipeline'
+              error ? error.message : 'Failed to create a new pipeline'
             )
           }
         }

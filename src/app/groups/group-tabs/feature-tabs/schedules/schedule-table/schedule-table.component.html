@@ -44,9 +44,7 @@
           [nzColor]="pipeline.status | statusColor"
           [nzText]="pipeline.status"
         ></nz-badge>
-        } @else {
-        <nz-badge nzColor="#868E96" nzText="not_run_yet"></nz-badge>
-        }
+        } @else { - }
       </td>
       <td>
         @if (data.pipeline; as pipeline) {
@@ -66,6 +64,8 @@
           <span nz-icon nzType="eye"></span>
         </button>
 
+        <gcd-create-pipeline-icon [projectId]="data.project.id" [branch]="data.project.default_branch" />
+        
         <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id"></gcd-retry-pipeline-icon>
 
         } @else {

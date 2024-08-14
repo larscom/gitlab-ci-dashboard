@@ -44,7 +44,9 @@
           <span nz-icon nzType="eye"></span>
         </button>
 
-        <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id"></gcd-retry-pipeline-icon>
+        <gcd-create-pipeline-icon [projectId]="data.project.id" [branch]="data.project.default_branch" />
+
+        <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
 
         <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
 

@@ -1,4 +1,5 @@
 import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
+import { CreatePipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/create-pipeline-icon/create-pipeline-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { FETCH_REFRESH_INTERVAL } from '$groups/http'
@@ -64,7 +65,8 @@ const headers: Header<ProjectPipeline>[] = [
     PipelineTableBranchComponent,
     JobsComponent,
     FavoritesIconComponent,
-    RetryPipelineIconComponent
+    RetryPipelineIconComponent,
+    CreatePipelineIconComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],
