@@ -1,6 +1,16 @@
+use actix_web::web;
+use actix_web::web::{Data, Json};
+use serde::{Deserialize, Serialize};
 use std::{fmt::Display, num::NonZeroUsize, str::FromStr, thread, time::Duration};
 
-use serde::{Deserialize, Serialize};
+pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
+    cfg.route("/config", web::get().to(get_config));
+}
+
+async fn get_config(api_config: Data<ApiConfig>) -> Json<ApiConfig> {
+    let config = api_config.as_ref();
+    Json(config.clone())
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiConfig {
@@ -28,7 +38,7 @@ pub struct Config {
     pub ttl_project_cache: Duration,
     pub ttl_branch_cache: Duration,
     pub ttl_job_cache: Duration,
-    pub ttl_latest_pipeline_cache: Duration,
+    pub ttl_pipeline_cache: Duration,
     pub ttl_schedule_cache: Duration,
 
     pub pipeline_history_days: i64,
@@ -67,7 +77,7 @@ impl Config {
                 "GITLAB_JOB_CACHE_TTL_SECONDS",
                 10,
             )),
-            ttl_latest_pipeline_cache: Duration::from_secs(from_env_or_default(
+            ttl_pipeline_cache: Duration::from_secs(from_env_or_default(
                 "GITLAB_PIPELINE_CACHE_TTL_SECONDS",
                 10,
             )),
@@ -144,7 +154,7 @@ mod tests {
         assert_eq!(config.ttl_project_cache, Duration::from_secs(600));
         assert_eq!(config.ttl_branch_cache, Duration::from_secs(120));
         assert_eq!(config.ttl_job_cache, Duration::from_secs(20));
-        assert_eq!(config.ttl_latest_pipeline_cache, Duration::from_secs(20));
+        assert_eq!(config.ttl_pipeline_cache, Duration::from_secs(20));
         assert_eq!(config.ttl_schedule_cache, Duration::from_secs(600));
         assert_eq!(config.pipeline_history_days, 10);
         assert_eq!(config.project_skip_ids, vec![1, 2, 3]);
@@ -172,7 +182,7 @@ mod tests {
         assert_eq!(config.ttl_project_cache, Duration::from_secs(300));
         assert_eq!(config.ttl_branch_cache, Duration::from_secs(60));
         assert_eq!(config.ttl_job_cache, Duration::from_secs(10));
-        assert_eq!(config.ttl_latest_pipeline_cache, Duration::from_secs(10));
+        assert_eq!(config.ttl_pipeline_cache, Duration::from_secs(10));
         assert_eq!(config.ttl_schedule_cache, Duration::from_secs(300));
         assert_eq!(config.pipeline_history_days, 5);
         assert!(config.project_skip_ids.is_empty());

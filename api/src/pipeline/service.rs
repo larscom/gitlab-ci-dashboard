@@ -1,0 +1,79 @@
+use crate::config::Config;
+use crate::error::ApiError;
+use crate::gitlab::GitlabApi;
+use crate::model::Pipeline;
+use chrono::{Duration, Utc};
+use moka::future::Cache;
+use std::sync::Arc;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct CacheKey {
+    project_id: u64,
+    branch: String,
+}
+
+impl CacheKey {
+    pub fn new(project_id: u64, branch: String) -> Self {
+        Self { project_id, branch }
+    }
+}
+
+#[derive(Clone)]
+pub struct PipelineService {
+    cache_latest: Cache<CacheKey, Option<Pipeline>>,
+    cache_all: Cache<u64, Vec<Pipeline>>,
+    client: Arc<dyn GitlabApi>,
+    config: Config,
+}
+
+impl PipelineService {
+    pub fn new(client: Arc<dyn GitlabApi>, config: Config) -> Self {
+        let cache_latest = Cache::builder()
+            .time_to_live(config.ttl_pipeline_cache)
+            .build();
+        let cache_all = Cache::builder()
+            .time_to_live(config.ttl_pipeline_cache)
+            .build();
+
+        Self {
+            cache_latest,
+            cache_all,
+            client,
+            config,
+        }
+    }
+}
+
+impl PipelineService {
+    pub async fn retry_pipeline(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+    ) -> Result<Pipeline, ApiError> {
+        self.client.retry_pipeline(project_id, pipeline_id).await
+    }
+
+    pub async fn get_latest_pipeline(
+        &self,
+        project_id: u64,
+        branch: String,
+    ) -> Result<Option<Pipeline>, ApiError> {
+        self.cache_latest
+            .try_get_with(CacheKey::new(project_id, branch.clone()), async {
+                self.client.latest_pipeline(project_id, branch).await
+            })
+            .await
+            .map_err(|error| error.as_ref().to_owned())
+    }
+
+    pub async fn get_pipelines(&self, project_id: u64) -> Result<Vec<Pipeline>, ApiError> {
+        let minus_days = self.config.pipeline_history_days;
+        let updated_after = Utc::now() + Duration::days(-minus_days);
+        self.cache_all
+            .try_get_with(project_id, async {
+                self.client.pipelines(project_id, Some(updated_after)).await
+            })
+            .await
+            .map_err(|error| error.as_ref().to_owned())
+    }
+}

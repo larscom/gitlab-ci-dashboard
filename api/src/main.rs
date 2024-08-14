@@ -1,20 +1,17 @@
 #![forbid(unsafe_code)]
 
-use actix_web::{App, HttpResponse, HttpServer, middleware::Logger, Responder, web};
+use crate::config::ApiConfig;
+use crate::gitlab::GitlabClient;
 use actix_web::dev::HttpServiceFactory;
-use actix_web::web::{Data, Json, ServiceConfig};
+use actix_web::web::{Data, ServiceConfig};
+use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use actix_web_lab::web::spa;
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
+use config::Config;
 use dotenv::dotenv;
 use serde_querystring_actix::{ParseMode, QueryStringConfig};
+use std::sync::Arc;
 use web::scope;
-
-use config::Config;
-
-use crate::config::ApiConfig;
-use crate::group::GroupService;
-use crate::job::JobService;
-use crate::pipeline::PipelineService;
 
 mod branch;
 mod config;
@@ -27,15 +24,6 @@ mod pipeline;
 mod project;
 mod schedule;
 
-async fn api_config_handler(api_config: Data<ApiConfig>) -> Json<ApiConfig> {
-    let config = api_config.as_ref();
-    Json(config.clone())
-}
-
-async fn health_handler() -> impl Responder {
-    HttpResponse::Ok().finish()
-}
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -43,38 +31,54 @@ async fn main() -> std::io::Result<()> {
 
     let gcd_config = Config::new();
     let api_config = ApiConfig::new();
-    log::info!(
-        "Gitlab CI Dashboard :: {} ::",
-        api_config.api_version.clone()
-    );
+
+    let api_version = api_config.api_version.clone();
+    log::info!("Gitlab CI Dashboard :: {} ::", api_version);
 
     let api_config = Data::new(api_config);
     let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
-    let p_metrics = setup_prometheus();
 
-    let gitlab_client = gitlab::new_client(&gcd_config);
+    let gitlab_client = Arc::new(GitlabClient::new(
+        gcd_config.gitlab_url.clone(),
+        gcd_config.gitlab_token.clone(),
+    ));
 
-    let group_service = Data::new(group::new_service(gitlab_client.clone(), &gcd_config));
-    let pipeline_service = Data::new(pipeline::new_service(gitlab_client.clone(), &gcd_config));
-    let project_service = Data::new(project::new_service(gitlab_client.clone(), &gcd_config));
-    let job_service = Data::new(job::new_service(gitlab_client.clone(), &gcd_config));
-    let project_aggr = Data::new(project::new_aggregator(&project_service, &pipeline_service));
-    let branch_aggr = Data::new(branch::new_aggregator(
+    let group_service = Data::new(group::GroupService::new(
         gitlab_client.clone(),
-        &pipeline_service,
-        &gcd_config,
+        gcd_config.clone(),
     ));
-    let schedule_aggr = Data::new(schedule::new_aggregator(
+    let pipeline_service = Data::new(pipeline::PipelineService::new(
         gitlab_client.clone(),
-        &project_service,
-        &pipeline_service,
-        &gcd_config,
+        gcd_config.clone(),
     ));
+    let project_service = Data::new(project::ProjectService::new(
+        gitlab_client.clone(),
+        gcd_config.clone(),
+    ));
+    let job_service = Data::new(job::JobService::new(
+        gitlab_client.clone(),
+        gcd_config.clone(),
+    ));
+    let project_aggr = Data::new(project::PipelineAggregator::new(
+        project_service.get_ref().clone(),
+        pipeline_service.get_ref().clone(),
+    ));
+    let branch_aggr = Data::new(branch::PipelineAggregator::new(
+        branch::BranchService::new(gitlab_client.clone(), gcd_config.clone()),
+        pipeline_service.get_ref().clone(),
+    ));
+    let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
+        schedule::ScheduleService::new(gitlab_client.clone(), gcd_config.clone()),
+        project_service.get_ref().clone(),
+        pipeline_service.get_ref().clone(),
+    ));
+
+    let prom = setup_prometheus();
 
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
-            .wrap(p_metrics.clone())
+            .wrap(prom.clone())
             .configure(configure_app(
                 api_config.clone(),
                 qs_config.clone(),
@@ -96,12 +100,12 @@ async fn main() -> std::io::Result<()> {
 fn configure_app(
     api_config: Data<ApiConfig>,
     qs_config: QueryStringConfig,
-    group_service: Data<GroupService>,
-    project_aggr: Data<project::pipeline::Aggregator>,
-    branch_aggr: Data<branch::pipeline::Aggregator>,
-    schedule_aggr: Data<schedule::pipeline::Aggregator>,
-    job_service: Data<JobService>,
-    pipeline_service: Data<PipelineService>,
+    group_service: Data<group::GroupService>,
+    project_aggr: Data<project::PipelineAggregator>,
+    branch_aggr: Data<branch::PipelineAggregator>,
+    schedule_aggr: Data<schedule::PipelineAggregator>,
+    job_service: Data<job::JobService>,
+    pipeline_service: Data<pipeline::PipelineService>,
 ) -> impl FnOnce(&mut ServiceConfig) {
     move |config| {
         config
@@ -116,7 +120,7 @@ fn configure_app(
             .route("/health", web::get().to(health_handler))
             .service(
                 scope("/api")
-                    .route("/config", web::get().to(api_config_handler))
+                    .configure(config::setup_handlers)
                     .configure(group::setup_handlers)
                     .configure(project::setup_handlers)
                     .configure(pipeline::setup_handlers)
@@ -126,6 +130,10 @@ fn configure_app(
             )
             .service(setup_spa());
     }
+}
+
+async fn health_handler() -> impl Responder {
+    HttpResponse::Ok().finish()
 }
 
 fn setup_prometheus() -> PrometheusMetrics {
@@ -150,7 +158,6 @@ fn setup_spa() -> impl HttpServiceFactory {
 #[cfg(test)]
 mod tests {
     use std::env;
-    use std::sync::Arc;
 
     use actix_web::body::to_bytes;
     use actix_web::test;
@@ -178,27 +185,37 @@ mod tests {
             let gcd_config = Config::new();
             let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
 
-            let gitlab_client = new_test_client();
+            let gitlab_client = Arc::new(GitlabClientTest {});
 
             let api_config = Data::new(ApiConfig::new());
-            let group_service = Data::new(group::new_service(gitlab_client.clone(), &gcd_config));
-            let pipeline_service =
-                Data::new(pipeline::new_service(gitlab_client.clone(), &gcd_config));
-            let project_service =
-                Data::new(project::new_service(gitlab_client.clone(), &gcd_config));
-            let job_service = Data::new(job::new_service(gitlab_client.clone(), &gcd_config));
-            let project_aggr =
-                Data::new(project::new_aggregator(&project_service, &pipeline_service));
-            let branch_aggr = Data::new(branch::new_aggregator(
+            let group_service = Data::new(group::GroupService::new(
                 gitlab_client.clone(),
-                &pipeline_service,
-                &gcd_config,
+                gcd_config.clone(),
             ));
-            let schedule_aggr = Data::new(schedule::new_aggregator(
+            let pipeline_service = Data::new(pipeline::PipelineService::new(
                 gitlab_client.clone(),
-                &project_service,
-                &pipeline_service,
-                &gcd_config,
+                gcd_config.clone(),
+            ));
+            let project_service = Data::new(project::ProjectService::new(
+                gitlab_client.clone(),
+                gcd_config.clone(),
+            ));
+            let job_service = Data::new(job::JobService::new(
+                gitlab_client.clone(),
+                gcd_config.clone(),
+            ));
+            let project_aggr = Data::new(project::PipelineAggregator::new(
+                project_service.get_ref().clone(),
+                pipeline_service.get_ref().clone(),
+            ));
+            let branch_aggr = Data::new(branch::PipelineAggregator::new(
+                branch::BranchService::new(gitlab_client.clone(), gcd_config.clone()),
+                pipeline_service.get_ref().clone(),
+            ));
+            let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
+                schedule::ScheduleService::new(gitlab_client.clone(), gcd_config.clone()),
+                project_service.get_ref().clone(),
+                pipeline_service.get_ref().clone(),
             ));
 
             test::init_service(App::new().configure(configure_app(
@@ -271,10 +288,6 @@ mod tests {
         ) -> Result<Vec<Job>, ApiError> {
             Ok(vec![model::test::new_job()])
         }
-    }
-
-    fn new_test_client() -> Arc<dyn GitlabApi> {
-        Arc::new(GitlabClientTest {})
     }
 
     fn to_str(value: &[u8]) -> &str {

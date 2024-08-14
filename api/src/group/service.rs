@@ -1,34 +1,9 @@
-use std::sync::Arc;
-use std::time::Duration;
-
-use actix_web::{HttpRequest, web};
-use moka::future::Cache;
-use web::{Data, Json};
-
 use crate::config::Config;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::Group;
-
-pub fn new_service(gitlab_client: Arc<dyn GitlabApi>, config: &Config) -> GroupService {
-    GroupService::new(
-        gitlab_client,
-        new_cache(config.ttl_group_cache),
-        config.clone(),
-    )
-}
-
-pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
-    cfg.route("/groups", web::get().to(get_groups));
-}
-
-pub async fn get_groups(
-    req: HttpRequest,
-    group_service: Data<GroupService>,
-) -> Result<Json<Vec<Group>>, ApiError> {
-    let result = group_service.get_groups(req.path()).await?;
-    Ok(Json(result))
-}
+use moka::future::Cache;
+use std::sync::Arc;
 
 pub struct GroupService {
     cache: Cache<String, Vec<Group>>,
@@ -37,18 +12,20 @@ pub struct GroupService {
 }
 
 impl GroupService {
-    pub fn new(
-        client: Arc<dyn GitlabApi>,
-        cache: Cache<String, Vec<Group>>,
-        config: Config,
-    ) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, config: Config) -> Self {
+        let cache = Cache::builder()
+            .time_to_live(config.ttl_group_cache)
+            .build();
+
         Self {
             cache,
             client,
             config,
         }
     }
+}
 
+impl GroupService {
     pub async fn get_groups(&self, cache_key: &str) -> Result<Vec<Group>, ApiError> {
         let only_ids = &self.config.group_only_ids;
         let skip_groups = &self.config.group_skip_ids;
@@ -70,8 +47,4 @@ impl GroupService {
             .await
             .map_err(|error| error.as_ref().to_owned())
     }
-}
-
-fn new_cache(ttl: Duration) -> Cache<String, Vec<Group>> {
-    Cache::builder().time_to_live(ttl).build()
 }

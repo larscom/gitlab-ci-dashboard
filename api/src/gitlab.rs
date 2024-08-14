@@ -1,25 +1,14 @@
-use std::sync::Arc;
-
+use crate::error::ApiError;
+use crate::model::Project;
+use crate::model::Schedule;
+use crate::model::{Branch, Group, Job};
+use crate::model::{JobStatus, Pipeline};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
 use serde::de::DeserializeOwned;
 use tokio::sync::mpsc;
-
-use crate::config::Config;
-use crate::error::ApiError;
-use crate::model::Project;
-use crate::model::Schedule;
-use crate::model::{Branch, Group, Job};
-use crate::model::{JobStatus, Pipeline};
-
-pub fn new_client(config: &Config) -> Arc<dyn GitlabApi> {
-    Arc::new(GitlabClient::new(
-        config.gitlab_url.clone(),
-        config.gitlab_token.clone(),
-    ))
-}
 
 #[async_trait]
 pub trait GitlabApi: Send + Sync {
@@ -78,7 +67,9 @@ impl GitlabClient {
             http_client,
         }
     }
+}
 
+impl GitlabClient {
     async fn do_post(&self, path: String) -> Result<reqwest::Response, reqwest::Error> {
         let url = Url::parse(format!("{}{}", self.base_url, path).as_str())
             .expect("failed to parse url with params");

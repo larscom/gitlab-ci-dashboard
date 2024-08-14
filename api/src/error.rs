@@ -1,11 +1,10 @@
-use std::error::Error;
-use std::fmt::{Display, Formatter};
-
 use actix_web::{
     http::{header::ContentType, StatusCode},
     HttpResponse, ResponseError,
 };
 use serde::Serialize;
+use std::error::Error;
+use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug, Serialize)]
 pub struct ApiError {
@@ -21,17 +20,19 @@ impl ApiError {
         }
     }
 
-    pub fn default() -> Self {
-        Self {
-            status_code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-            message: String::from("an internal server error occured"),
-        }
-    }
-
     pub fn server_error(message: String) -> Self {
         Self {
             status_code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
             message,
+        }
+    }
+}
+
+impl Default for ApiError {
+    fn default() -> Self {
+        Self {
+            status_code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+            message: String::from("an internal server error occured"),
         }
     }
 }
