@@ -1,16 +1,20 @@
 <div>
   @if (loading()) {
-  <nz-spin nzSize="small" />
-  } @else if (tags().length) { @for (tag of tags(); track trackById($index, tag.job)) {
-  <nz-tag
-    class="pointer"
-    (click)="onActionClick($event, tag.job)"
-    [nzColor]="getStatus(tag.job) | statusColor"
-    nz-tooltip
-    [nzTooltipTitle]="'Show job (' + tag.job.name + ')'"
-  >
-    <span nz-icon [nzType]="tag.icon" [nzSpin]="tag.spin"></span>
-    <span>{{ tag.job.name | maxLength : 12 }}</span>
-  </nz-tag>
-  } } @else { - }
+    <nz-spin nzSize="small" />
+  } @else if (tags().length) {
+    @for (tag of tags(); track trackById($index, tag.job)) {
+      <nz-tag
+        class="pointer"
+        (click)="onActionClick($event, tag.job)"
+        [nzColor]="getStatus(tag.job) | statusColor"
+        nz-tooltip
+        [nzTooltipTitle]="'Show job (' + tag.job.name + ')'"
+      >
+        <span nz-icon [nzType]="tag.icon" [nzSpin]="tag.spin"></span>
+        <span>{{ tag.job.name | maxLength: 12 }}</span>
+      </nz-tag>
+    }
+  } @else {
+    -
+  }
 </div>

@@ -22,11 +22,13 @@
       <gcd-status-filter [filterStatuses]="filterStatuses()" (filterStatusesChange)="onFilterStatusesChanged($event)" />
     </div>
   </div>
-  @if (loading()) { <nz-spin /> } @else {
-  <gcd-pipeline-table
-    [projectPipelines]="filteredProjectPipelines()"
-    [pinnedPipelines]="pinnedPipelines()"
-    (pinnedPipelinesChange)="onPinnedPipelinesChanged($event)"
-  />
+  @if (loading()) {
+    <nz-spin />
+  } @else {
+    <gcd-pipeline-table
+      [projectPipelines]="filteredProjectPipelines()"
+      [pinnedPipelines]="pinnedPipelines()"
+      (pinnedPipelinesChange)="onPinnedPipelinesChanged($event)"
+    />
   }
 </div>

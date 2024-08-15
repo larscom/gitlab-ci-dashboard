@@ -11,14 +11,14 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, retry } from 'rxjs'
 
 @Component({
-  selector: 'gcd-create-pipeline-icon',
+  selector: 'gcd-start-pipeline-icon',
   standalone: true,
   imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule],
-  templateUrl: './create-pipeline-icon.component.html',
-  styleUrls: ['./create-pipeline-icon.component.scss'],
+  templateUrl: './start-pipeline-icon.component.html',
+  styleUrls: ['./start-pipeline-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreatePipelineIconComponent {
+export class StartPipelineIconComponent {
   private http = inject(HttpClient)
   private config = inject(ConfigService)
   private notification = inject(NzNotificationService)
@@ -40,10 +40,10 @@ export class CreatePipelineIconComponent {
       return ''
     }
 
-    return 'Create a new pipeline'
+    return 'Start a new pipeline'
   })
 
-  create(e: Event): void {
+  start(e: Event): void {
     e.stopPropagation()
 
     const body = { project_id: this.projectId(), branch: this.branch(), env_vars: this.vars() }
@@ -51,7 +51,7 @@ export class CreatePipelineIconComponent {
     this.loading.set(true)
 
     this.http
-      .post('/api/pipelines/create', body)
+      .post('/api/pipelines/start', body)
       .pipe(
         retry(retryConfig),
         finalize(() => {
@@ -64,12 +64,12 @@ export class CreatePipelineIconComponent {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error(
               'Forbidden',
-              'Failed to create a new pipeline, a read/write access token is required.'
+              'Failed to start a new pipeline, a read/write access token is required.'
             )
           } else {
             this.notification.error(
               `Error ${status}: ${statusText}`,
-              error ? error.message : 'Failed to create a new pipeline'
+              error ? error.message : 'Failed to start a new pipeline'
             )
           }
         }

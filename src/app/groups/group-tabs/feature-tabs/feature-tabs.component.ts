@@ -56,7 +56,10 @@ export class FeatureTabsComponent {
     map((featureId) => this.tabs.findIndex(({ id }) => id === featureId))
   )
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(),

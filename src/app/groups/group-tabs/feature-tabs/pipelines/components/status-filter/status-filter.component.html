@@ -7,9 +7,7 @@
       [nzChecked]="filterStatuses().includes(status)"
       (nzCheckedChange)="onChange($event, status)"
     >
-      <span [style.color]="filterStatuses().includes(status) ? 'inherit' : (status | statusColor)">{{
-        status
-      }}</span>
+      <span [style.color]="filterStatuses().includes(status) ? 'inherit' : (status | statusColor)">{{ status }}</span>
     </nz-tag>
   }
 </div>

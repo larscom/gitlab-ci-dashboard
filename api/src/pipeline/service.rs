@@ -54,14 +54,14 @@ impl PipelineService {
         self.client.retry_pipeline(project_id, pipeline_id).await
     }
 
-    pub async fn create_pipeline(
+    pub async fn start_pipeline(
         &self,
         project_id: u64,
         branch: String,
         env_vars: Option<HashMap<String, String>>,
     ) -> Result<Pipeline, ApiError> {
         self.client
-            .create_pipeline(project_id, branch, env_vars)
+            .start_pipeline(project_id, branch, env_vars)
             .await
     }
 

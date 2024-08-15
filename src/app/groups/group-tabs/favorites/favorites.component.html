@@ -1,19 +1,19 @@
 <ng-template #title>
-  @if(hasFavorites()){
-  <div class="flex justify-end">
-    <button
-      nz-button
-      nzType="default"
-      nzDanger
-      nz-popconfirm
-      nzPopconfirmTitle="Are you sure you want to remove all your favorite projects?"
-      (nzOnConfirm)="onConfirm()"
-      nzPopconfirmPlacement="left"
-      nz-button
-    >
-      Remove all
-    </button>
-  </div>
+  @if (hasFavorites()) {
+    <div class="flex justify-end">
+      <button
+        nz-button
+        nzType="default"
+        nzDanger
+        nz-popconfirm
+        nzPopconfirmTitle="Are you sure you want to remove all your favorite projects?"
+        (nzOnConfirm)="onConfirm()"
+        nzPopconfirmPlacement="left"
+        nz-button
+      >
+        Remove all
+      </button>
+    </div>
   }
 </ng-template>
 
@@ -26,20 +26,20 @@
   (nzOnClose)="close.emit()"
 >
   <ng-container *nzDrawerContent>
-    @if(hasFavorites()) {
-    <gcd-feature-tabs [disableRouting]="true" [groupMap]="favorites()"></gcd-feature-tabs>
-    }@else {
-    <nz-empty [nzNotFoundContent]="content" [nzNotFoundFooter]="footer">
-      <ng-template #content>
-        <div>
-          No favorites yet, start adding favorites by clicking on the
-          <span nz-icon nzType="star"></span> next to a project.
-        </div>
-      </ng-template>
-      <ng-template #footer>
-        <button nz-button nzType="primary" (click)="close.emit()">Close</button>
-      </ng-template>
-    </nz-empty>
+    @if (hasFavorites()) {
+      <gcd-feature-tabs [disableRouting]="true" [groupMap]="favorites()"></gcd-feature-tabs>
+    } @else {
+      <nz-empty [nzNotFoundContent]="content" [nzNotFoundFooter]="footer">
+        <ng-template #content>
+          <div>
+            No favorites yet, start adding favorites by clicking on the
+            <span nz-icon nzType="star"></span> next to a project.
+          </div>
+        </ng-template>
+        <ng-template #footer>
+          <button nz-button nzType="primary" (click)="close.emit()">Close</button>
+        </ng-template>
+      </nz-empty>
     }
   </ng-container>
 </nz-drawer>

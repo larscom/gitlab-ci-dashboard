@@ -50,7 +50,10 @@ export class GroupTabsComponent {
     return groups.findIndex(({ id }) => id === selectedGroupId)
   })
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.loading.set(true)
     this.groupService.getGroups().subscribe((groups) => {
       this.loading.set(false)

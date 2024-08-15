@@ -16,8 +16,8 @@
     </div>
   </div>
   @if (loading()) {
-  <nz-spin />
+    <nz-spin />
   } @else {
-  <gcd-schedule-table [schedulePipelines]="filteredSchedulePipelines()" />
+    <gcd-schedule-table [schedulePipelines]="filteredSchedulePipelines()" />
   }
 </div>

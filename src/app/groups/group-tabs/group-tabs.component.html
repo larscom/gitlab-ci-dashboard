@@ -1,51 +1,57 @@
 @if (loading()) {
-<div class="spinner">
-  <nz-spin />
-</div>
-} @else { @if (groups().length > 0) {
-<nz-tabset
-  [nzTabBarExtraContent]="favorites"
-  nzSize="small"
-  nzType="card"
-  [nzSelectedIndex]="selectedIndex()"
-  (nzSelectChange)="onChange($event)"
->
-  @for (group of groups(); track trackById($index, group)) {
-  <nz-tab [nzTitle]="title">
-    <ng-template #title>
-      <span
-        class="pointer"
-        [attr.data-group-id]="group.id"
-        nz-tooltip
-        [nzTooltipTitle]="group.name"
-        [nzTooltipMouseEnterDelay]="1"
-        >{{ group.name | maxLength : 25 }}</span
-      >
+  <div class="spinner">
+    <nz-spin />
+  </div>
+} @else {
+  @if (groups().length > 0) {
+    <nz-tabset
+      [nzTabBarExtraContent]="favorites"
+      nzSize="small"
+      nzType="card"
+      [nzSelectedIndex]="selectedIndex()"
+      (nzSelectChange)="onChange($event)"
+    >
+      @for (group of groups(); track trackById($index, group)) {
+        <nz-tab [nzTitle]="title">
+          <ng-template #title>
+            <span
+              class="pointer"
+              [attr.data-group-id]="group.id"
+              nz-tooltip
+              [nzTooltipTitle]="group.name"
+              [nzTooltipMouseEnterDelay]="1"
+              >{{ group.name | maxLength: 25 }}</span
+            >
+          </ng-template>
+          <ng-template nz-tab>
+            @if (selectedGroupId() == group.id) {
+              <gcd-feature-tabs [groupMap]="getGroupMap(group)" />
+            }
+          </ng-template>
+        </nz-tab>
+      }
+    </nz-tabset>
+    <ng-template #favorites>
+      <button nz-button nzType="text" (click)="toggleFavorites()">
+        <span nz-icon nzType="star" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#FFD700"></span>
+        Favorites
+      </button>
+      @if (showFavorites()) {
+        <gcd-favorites (close)="toggleFavorites()"></gcd-favorites>
+      }
     </ng-template>
-    <ng-template nz-tab>
-      @if (selectedGroupId() == group.id) { <gcd-feature-tabs [groupMap]="getGroupMap(group)" /> }
-    </ng-template>
-  </nz-tab>
+  } @else {
+    <div class="alert">
+      <nz-alert
+        [nzAction]="action"
+        nzType="warning"
+        nzMessage="Warning"
+        nzDescription="Received 0 groups from API, maybe unauthorized?"
+        nzShowIcon
+      />
+      <ng-template #action>
+        <button nz-button nzSize="small" nzType="primary" nzGhost (click)="onReload()">Refresh</button>
+      </ng-template>
+    </div>
   }
-</nz-tabset>
-<ng-template #favorites>
-  <button nz-button nzType="text" (click)="toggleFavorites()">
-    <span nz-icon nzType="star" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#FFD700"></span>
-    Favorites
-  </button>
-  @if(showFavorites()) {<gcd-favorites (close)="toggleFavorites()"></gcd-favorites>}
-</ng-template>
-}@else {
-<div class="alert">
-  <nz-alert
-    [nzAction]="action"
-    nzType="warning"
-    nzMessage="Warning"
-    nzDescription="Received 0 groups from API, maybe unauthorized?"
-    nzShowIcon
-  />
-  <ng-template #action>
-    <button nz-button nzSize="small" nzType="primary" nzGhost (click)="onReload()">Refresh</button>
-  </ng-template>
-</div>
-} }
+}

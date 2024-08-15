@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
     cfg.route("/pipelines/retry", web::post().to(retry_pipeline))
-        .route("/pipelines/create", web::post().to(create_pipeline));
+        .route("/pipelines/start", web::post().to(start_pipeline));
 }
 
 #[derive(Deserialize)]
@@ -47,7 +47,7 @@ struct B {
     env_vars: Option<HashMap<String, String>>,
 }
 
-async fn create_pipeline(
+async fn start_pipeline(
     Json(B {
         project_id,
         branch,
@@ -58,12 +58,12 @@ async fn create_pipeline(
 ) -> Result<Json<Pipeline>, ApiError> {
     if api_config.read_only {
         return Err(ApiError::bad_request(
-            "can't create pipeline when in 'read only' mode".into(),
+            "can't start a new pipeline when in 'read only' mode".into(),
         ));
     }
 
     let pipeline = pipeline_service
-        .create_pipeline(project_id, branch, env_vars)
+        .start_pipeline(project_id, branch, env_vars)
         .await?;
 
     Ok(Json(pipeline))

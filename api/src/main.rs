@@ -164,6 +164,7 @@ mod tests {
     use actix_web::test;
     use async_trait::async_trait;
     use chrono::{DateTime, Utc};
+    use serde_json::json;
 
     use crate::error::ApiError;
     use crate::gitlab::GitlabApi;
@@ -182,6 +183,7 @@ mod tests {
 
             env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
             env::set_var("GITLAB_API_TOKEN", "token123");
+            env::set_var("API_READ_ONLY", "false");
 
             let gcd_config = Config::new();
             let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
@@ -273,7 +275,7 @@ mod tests {
             Ok(model::test::new_pipeline())
         }
 
-        async fn create_pipeline(
+        async fn start_pipeline(
             &self,
             _project_id: u64,
             _branch: String,
@@ -456,5 +458,45 @@ mod tests {
         assert_eq!(jobs.len(), 1);
 
         assert_eq!(jobs[0].id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_retry_pipeline_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::post()
+            .uri("/api/pipelines/retry?project_id=456&pipeline_id=1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let pipeline = serde_json::from_str::<Pipeline>(to_str(&body)).unwrap();
+        assert_eq!(pipeline.id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_start_pipeline_endpoint() {
+        let app = setup_app!();
+        let body = json!({
+            "project_id": 1,
+            "branch": "main",
+            "env_vars": {
+                "key1": "value1"
+            }
+        });
+        let req = test::TestRequest::post()
+            .uri("/api/pipelines/start")
+            .set_json(body)
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let pipeline = serde_json::from_str::<Pipeline>(to_str(&body)).unwrap();
+        assert_eq!(pipeline.id, 1);
     }
 }

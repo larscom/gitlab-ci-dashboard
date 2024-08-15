@@ -33,7 +33,7 @@ pub trait GitlabApi: Send + Sync {
     async fn retry_pipeline(&self, project_id: u64, pipeline_id: u64)
         -> Result<Pipeline, ApiError>;
 
-    async fn create_pipeline(
+    async fn start_pipeline(
         &self,
         project_id: u64,
         branch: String,
@@ -279,7 +279,7 @@ impl GitlabApi for GitlabClient {
             .map_err(|e| e.into())
     }
 
-    async fn create_pipeline(
+    async fn start_pipeline(
         &self,
         project_id: u64,
         branch: String,

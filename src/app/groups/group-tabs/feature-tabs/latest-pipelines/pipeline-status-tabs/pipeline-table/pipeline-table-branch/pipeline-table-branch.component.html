@@ -17,9 +17,9 @@
     <thead>
       <tr>
         @for (header of headers; track header) {
-        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-          {{ header.title }}
-        </th>
+          <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+            {{ header.title }}
+          </th>
         }
         <th>Jobs</th>
         <th>Action</th>
@@ -27,43 +27,55 @@
     </thead>
     <tbody>
       @for (data of nzTable.data; track trackByBranchName($index, data)) {
-      <tr>
-        <td>{{ data.branch.name }}</td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-          <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
-          } @else { - }
-        </td>
-        <td>{{ data.pipeline?.source || '-' }}</td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-          {{ pipeline.updated_at | date : 'medium' : timeZone : locale }}
-          }@else {-}
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-          <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
-          } @else { - }
-        </td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-          <button
-            (click)="onActionClick($event, pipeline)"
-            nzType="text"
-            nz-tooltip
-            [nzTooltipTitle]="'Show pipeline (' + data.branch.name + ')'"
-            nz-button
-            nzShape="circle"
-          >
-            <span nz-icon nzType="eye"></span>
-          </button>
+        <tr>
+          <td>{{ data.branch.name }}</td>
+          <td>
+            @if (data.pipeline; as pipeline) {
+              <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+            } @else {
+              -
+            }
+          </td>
+          <td>{{ data.pipeline?.source || '-' }}</td>
+          <td>
+            @if (data.pipeline; as pipeline) {
+              {{ pipeline.updated_at | date: 'medium' : timeZone : locale }}
+            } @else {
+              -
+            }
+          </td>
+          <td>
+            @if (data.pipeline; as pipeline) {
+              <gcd-jobs
+                [projectId]="pipeline.project_id"
+                [pipelineId]="pipeline.id"
+                [scope]="getScope(pipeline.status)"
+              />
+            } @else {
+              -
+            }
+          </td>
+          <td>
+            @if (data.pipeline; as pipeline) {
+              <button
+                (click)="onActionClick($event, pipeline)"
+                nzType="text"
+                nz-tooltip
+                [nzTooltipTitle]="'Show pipeline (' + data.branch.name + ')'"
+                nz-button
+                nzShape="circle"
+              >
+                <span nz-icon nzType="eye"></span>
+              </button>
 
-          <gcd-create-pipeline-icon [projectId]="pipeline.project_id" [branch]="data.branch.name" />
+              <gcd-start-pipeline-icon [projectId]="pipeline.project_id" [branch]="data.branch.name" />
 
-          <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
-          } @else { - }
-        </td>
-      </tr>
+              <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+            } @else {
+              -
+            }
+          </td>
+        </tr>
       }
     </tbody>
   </nz-table>

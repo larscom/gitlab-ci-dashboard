@@ -1,13 +1,13 @@
 <gcd-header />
 @if (error(); as error) {
-<div class="alert">
-  <nz-alert nzShowIcon nzType="error" [nzMessage]="title()" [nzDescription]="message()" [nzAction]="action" />
-  <ng-template #action>
-    <button nz-button nzSize="small" nzType="default" (click)="onClick()" nzDanger>Refresh</button>
-  </ng-template>
-</div>
+  <div class="alert">
+    <nz-alert nzShowIcon nzType="error" [nzMessage]="title()" [nzDescription]="message()" [nzAction]="action" />
+    <ng-template #action>
+      <button nz-button nzSize="small" nzType="default" (click)="onClick()" nzDanger>Refresh</button>
+    </ng-template>
+  </div>
 } @else {
-<main class="container">
-  <router-outlet></router-outlet>
-</main>
+  <main class="container">
+    <router-outlet></router-outlet>
+  </main>
 }
