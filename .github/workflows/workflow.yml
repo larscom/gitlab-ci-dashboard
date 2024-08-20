@@ -69,7 +69,7 @@ jobs:
           push: true
           tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
-      - uses: aquasecurity/trivy-action@0.20.0
+      - uses: aquasecurity/trivy-action@0.24.0
         if: startsWith(github.ref, 'refs/heads/')    
         with:
           image-ref: '${{ github.repository }}:${{ env.CLEANED_REF_NAME }}'
