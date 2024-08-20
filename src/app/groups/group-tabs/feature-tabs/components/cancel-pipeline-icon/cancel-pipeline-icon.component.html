@@ -1,0 +1,18 @@
+<button
+  (click)="$event.stopPropagation()"
+  nz-popconfirm
+  nzPopconfirmTitle="Are you sure?"
+  [nzOkDanger]="true"
+  nzCancelText="No"
+  nzOkText="Yes"
+  (nzOnConfirm)="cancel()"
+  [nzLoading]="loading()"
+  [disabled]="read_only() || loading()"
+  nz-tooltip
+  [nzTooltipTitle]="tooltipTitle()"
+  nzType="text"
+  nz-button
+  nzShape="circle"
+>
+  <span nz-icon nzType="stop"></span>
+</button>

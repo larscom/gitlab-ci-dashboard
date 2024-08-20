@@ -65,6 +65,14 @@ impl PipelineService {
             .await
     }
 
+    pub async fn cancel_pipeline(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+    ) -> Result<Pipeline, ApiError> {
+        self.client.cancel_pipeline(project_id, pipeline_id).await
+    }
+
     pub async fn get_latest_pipeline(
         &self,
         project_id: u64,

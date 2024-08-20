@@ -61,14 +61,16 @@
                 (click)="onActionClick($event, pipeline)"
                 nzType="text"
                 nz-tooltip
-                [nzTooltipTitle]="'Show pipeline (' + data.branch.name + ')'"
+                nzTooltipTitle="Open in Gitlab"
                 nz-button
                 nzShape="circle"
               >
-                <span nz-icon nzType="eye"></span>
+                <span nz-icon nzType="gitlab"></span>
               </button>
 
               <gcd-start-pipeline-icon [projectId]="pipeline.project_id" [branch]="data.branch.name" />
+
+              <gcd-cancel-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
 
               <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
             } @else {

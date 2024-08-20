@@ -13,7 +13,7 @@ export class LatestPipelineService {
   private errorService = inject(ErrorService)
 
   getProjectsWithLatestPipeline(groupId: GroupId, projectIds?: Set<ProjectId>): Observable<ProjectPipeline[]> {
-    const url = `${location.origin}/api/projects/latest-pipelines`
+    const url = '/api/projects/latest-pipelines'
     const params = createParams(groupId, projectIds)
 
     return this.http.get<ProjectPipeline[]>(url, { params }).pipe(
@@ -31,9 +31,9 @@ export class LatestPipelineService {
   }
 
   getBranchesWithLatestPipeline(projectId: ProjectId): Observable<BranchPipeline[]> {
-    const url = `${location.origin}/api/branches/latest-pipelines`
-
+    const url = '/api/branches/latest-pipelines'
     const params = { project_id: projectId }
+
     return this.http.get<BranchPipeline[]>(url, { params }).pipe(
       map((branches) => branches.filter(({ branch }) => !branch.default)),
       retry(retryConfig),

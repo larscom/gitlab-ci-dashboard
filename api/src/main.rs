@@ -59,12 +59,17 @@ async fn main() -> std::io::Result<()> {
         gitlab_client.clone(),
         gcd_config.clone(),
     ));
+    let branch_service = Data::new(branch::BranchService::new(
+        gitlab_client.clone(),
+        gcd_config.clone(),
+    ));
+
     let project_aggr = Data::new(project::PipelineAggregator::new(
         project_service.get_ref().clone(),
         pipeline_service.get_ref().clone(),
     ));
     let branch_aggr = Data::new(branch::PipelineAggregator::new(
-        branch::BranchService::new(gitlab_client.clone(), gcd_config.clone()),
+        branch_service.get_ref().clone(),
         pipeline_service.get_ref().clone(),
     ));
     let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
@@ -88,6 +93,7 @@ async fn main() -> std::io::Result<()> {
                 schedule_aggr.clone(),
                 job_service.clone(),
                 pipeline_service.clone(),
+                branch_service.clone(),
             ))
     })
     .bind((gcd_config.server_ip, gcd_config.server_port))?
@@ -106,6 +112,7 @@ fn configure_app(
     schedule_aggr: Data<schedule::PipelineAggregator>,
     job_service: Data<job::JobService>,
     pipeline_service: Data<pipeline::PipelineService>,
+    branch_service: Data<branch::BranchService>,
 ) -> impl FnOnce(&mut ServiceConfig) {
     move |config| {
         config
@@ -117,6 +124,7 @@ fn configure_app(
             .app_data(schedule_aggr)
             .app_data(job_service)
             .app_data(pipeline_service)
+            .app_data(branch_service)
             .route("/health", web::get().to(health_handler))
             .service(
                 scope("/api")
@@ -140,7 +148,7 @@ fn setup_prometheus() -> PrometheusMetrics {
     PrometheusMetricsBuilder::new(String::default().as_str())
         .endpoint("/metrics/prometheus")
         .build()
-        .expect("failed to create prometheus endpoint")
+        .expect("prometheus endpoint to be created")
 }
 
 fn setup_spa() -> impl HttpServiceFactory {
@@ -191,6 +199,7 @@ mod tests {
             let gitlab_client = Arc::new(GitlabClientTest {});
 
             let api_config = Data::new(ApiConfig::new());
+
             let group_service = Data::new(group::GroupService::new(
                 gitlab_client.clone(),
                 gcd_config.clone(),
@@ -207,12 +216,17 @@ mod tests {
                 gitlab_client.clone(),
                 gcd_config.clone(),
             ));
+            let branch_service = Data::new(branch::BranchService::new(
+                gitlab_client.clone(),
+                gcd_config.clone(),
+            ));
+
             let project_aggr = Data::new(project::PipelineAggregator::new(
                 project_service.get_ref().clone(),
                 pipeline_service.get_ref().clone(),
             ));
             let branch_aggr = Data::new(branch::PipelineAggregator::new(
-                branch::BranchService::new(gitlab_client.clone(), gcd_config.clone()),
+                branch_service.get_ref().clone(),
                 pipeline_service.get_ref().clone(),
             ));
             let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
@@ -230,6 +244,7 @@ mod tests {
                 schedule_aggr,
                 job_service,
                 pipeline_service,
+                branch_service,
             )))
             .await
         }};
@@ -284,6 +299,14 @@ mod tests {
             Ok(model::test::new_pipeline())
         }
 
+        async fn cancel_pipeline(
+            &self,
+            _project_id: u64,
+            _pipeline_id: u64,
+        ) -> Result<Pipeline, ApiError> {
+            Ok(model::test::new_pipeline())
+        }
+
         async fn branches(&self, _project_id: u64) -> Result<Vec<Branch>, ApiError> {
             Ok(vec![model::test::new_branch()])
         }
@@ -303,7 +326,7 @@ mod tests {
     }
 
     fn to_str(value: &[u8]) -> &str {
-        std::str::from_utf8(value).expect("failed to read bytes")
+        std::str::from_utf8(value).expect("str to be created from bytes")
     }
 
     #[actix_web::test]
@@ -417,6 +440,24 @@ mod tests {
     }
 
     #[actix_web::test]
+    async fn test_branches_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/branches?project_id=456")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let branches = serde_json::from_str::<Vec<Branch>>(to_str(&body)).unwrap();
+
+        assert_eq!(branches.len(), 1);
+        assert_eq!(branches[0].name, "branch-1");
+    }
+
+    #[actix_web::test]
     async fn test_schedules_with_latest_pipelines_endpoint() {
         let app = setup_app!();
         let req = test::TestRequest::get()
@@ -465,6 +506,22 @@ mod tests {
         let app = setup_app!();
         let req = test::TestRequest::post()
             .uri("/api/pipelines/retry?project_id=456&pipeline_id=1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let pipeline = serde_json::from_str::<Pipeline>(to_str(&body)).unwrap();
+        assert_eq!(pipeline.id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_cancel_pipeline_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::post()
+            .uri("/api/pipelines/cancel?project_id=456&pipeline_id=1")
             .to_request();
         let resp = test::call_service(&app, req).await;
 

@@ -22,12 +22,12 @@ const tabs: Tab[] = [
   {
     id: 'latest-pipelines',
     title: 'Pipelines (latest)',
-    icon: 'swap-right'
+    icon: 'to-top'
   },
   {
     id: 'pipelines',
     title: 'Pipelines',
-    icon: 'retweet'
+    icon: 'unordered-list'
   },
   {
     id: 'schedules',

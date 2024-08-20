@@ -43,14 +43,16 @@
               (click)="onActionClick($event, pipeline)"
               nzType="text"
               nz-tooltip
-              [nzTooltipTitle]="'Show pipeline (' + pipeline.ref + ')'"
+              nzTooltipTitle="Open in Gitlab"
               nz-button
               nzShape="circle"
             >
-              <span nz-icon nzType="eye"></span>
+              <span nz-icon nzType="gitlab"></span>
             </button>
 
             <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.project.default_branch" />
+
+            <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
 
             <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
 
@@ -60,11 +62,7 @@
               nzType="text"
               nz-tooltip
               [nzTooltipMouseEnterDelay]="0.5"
-              [nzTooltipTitle]="
-                pinnedPipelines().includes(pipeline.id)
-                  ? 'Unpin pipeline (' + data.project.name + ')'
-                  : 'Pin pipeline (' + data.project.name + ')'
-              "
+              [nzTooltipTitle]="pinnedPipelines().includes(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
               nz-button
               nzShape="circle"
               (click)="onPinClick($event, pipeline)"

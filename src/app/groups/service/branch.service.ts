@@ -1,28 +1,25 @@
-import { createParams, retryConfig } from '$groups/http'
-import { GroupId } from '$groups/model/group'
-import { ProjectId, ProjectPipelines } from '$groups/model/project'
+import { retryConfig } from '$groups/http'
+import { Branch } from '$groups/model/branch'
+import { ProjectId } from '$groups/model/project'
 import { ErrorService } from '$service/error.service'
 import { HttpClient, HttpErrorResponse } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
 import { Observable, catchError, of, retry } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
-export class PipelinesService {
+export class BranchService {
   private http = inject(HttpClient)
   private errorService = inject(ErrorService)
 
-  getProjectsWithPipelines(groupId: GroupId, projectIds?: Set<ProjectId>): Observable<ProjectPipelines[]> {
-    const url = '/api/projects/pipelines'
-    const params = createParams(groupId, projectIds)
-
-    return this.http.get<ProjectPipelines[]>(url, { params }).pipe(
+  getBranches(projectId: ProjectId): Observable<Branch[]> {
+    const params = { project_id: projectId }
+    return this.http.get<Branch[]>('/api/branches', { params }).pipe(
       retry(retryConfig),
       catchError(({ status, statusText, error }: HttpErrorResponse) => {
         this.errorService.setError({
-          message: error.message,
           statusCode: status,
-          statusText,
-          groupId
+          statusText: statusText,
+          message: error.message
         })
         return of([])
       })

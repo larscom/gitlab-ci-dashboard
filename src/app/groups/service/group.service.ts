@@ -11,7 +11,7 @@ export class GroupService {
   private errorService = inject(ErrorService)
 
   getGroups(): Observable<Group[]> {
-    return this.http.get<Group[]>(`${location.origin}/api/groups`).pipe(
+    return this.http.get<Group[]>('/api/groups').pipe(
       retry(retryConfig),
       catchError(({ status, statusText, error }: HttpErrorResponse) => {
         this.errorService.setError({

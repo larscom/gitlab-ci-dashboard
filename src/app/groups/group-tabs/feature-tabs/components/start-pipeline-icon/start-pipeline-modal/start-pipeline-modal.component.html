@@ -1,0 +1,35 @@
+<div class="flex">
+  <div class="flex flex-col">
+    <nz-space nzDirection="vertical">
+      <ng-container *nzSpaceItem>
+        <div>
+          <div class="font-bold">Branch</div>
+          <nz-select
+            class="width-275"
+            nzShowSearch
+            [nzDisabled]="branchesLoading()"
+            [nzLoading]="branchesLoading()"
+            [(ngModel)]="selectedBranch"
+          >
+            <nz-option [nzLabel]="defaultBranch" [nzValue]="defaultBranch"></nz-option>
+            @for (branch of branches(); track branch.name) {
+            <nz-option [nzLabel]="branch.name" [nzValue]="branch.name"></nz-option>
+            }
+          </nz-select>
+        </div>
+      </ng-container>
+
+      <ng-container *nzSpaceItem>
+        <div>
+          <div class="font-bold">Variables</div>
+          <gcd-variables-form (onChange)="variables.set($event)" />
+        </div>
+      </ng-container>
+    </nz-space>
+  </div>
+</div>
+
+<ng-container *nzModalFooter>
+  <button nz-button nzType="default" (click)="close()">Cancel</button>
+  <button nz-button nzType="primary" [disabled]="branchesLoading()" (click)="start()">Start</button>
+</ng-container>

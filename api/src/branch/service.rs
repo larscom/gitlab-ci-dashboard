@@ -5,6 +5,7 @@ use crate::model::Branch;
 use moka::future::Cache;
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct BranchService {
     cache: Cache<u64, Vec<Branch>>,
     client: Arc<dyn GitlabApi>,

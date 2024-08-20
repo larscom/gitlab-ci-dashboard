@@ -1,34 +1,29 @@
-import { retryConfig } from '$groups/http'
 import { ProjectId } from '$groups/model/project'
 import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
-import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification'
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { finalize, retry } from 'rxjs'
+import { ModalData, StartPipelineModalComponent } from './start-pipeline-modal/start-pipeline-modal.component'
 
 @Component({
   selector: 'gcd-start-pipeline-icon',
   standalone: true,
-  imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule],
+  imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzModalModule],
   templateUrl: './start-pipeline-icon.component.html',
   styleUrls: ['./start-pipeline-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StartPipelineIconComponent {
-  private http = inject(HttpClient)
   private config = inject(ConfigService)
-  private notification = inject(NzNotificationService)
+  private modal = inject(NzModalService)
 
   projectId = input.required<ProjectId>()
   branch = input.required<string>()
 
   loading = signal(false)
-  vars = signal<Record<string, string>>({})
-
   read_only = this.config.read_only
 
   tooltipTitle = computed(() => {
@@ -46,33 +41,13 @@ export class StartPipelineIconComponent {
   start(e: Event): void {
     e.stopPropagation()
 
-    const body = { project_id: this.projectId(), branch: this.branch(), env_vars: this.vars() }
+    const nzData: ModalData = { projectId: this.projectId(), branch: this.branch(), loadingIcon: this.loading }
 
-    this.loading.set(true)
-
-    this.http
-      .post('/api/pipelines/start', body)
-      .pipe(
-        retry(retryConfig),
-        finalize(() => {
-          this.loading.set(false)
-        })
-      )
-      .subscribe({
-        complete: () => this.notification.success('Success', 'Started new pipeline.'),
-        error: ({ status, statusText, error }: HttpErrorResponse) => {
-          if (status === HttpStatusCode.Forbidden) {
-            this.notification.error(
-              'Forbidden',
-              'Failed to start a new pipeline, a read/write access token is required.'
-            )
-          } else {
-            this.notification.error(
-              `Error ${status}: ${statusText}`,
-              error ? error.message : 'Failed to start a new pipeline'
-            )
-          }
-        }
-      })
+    this.modal.create({
+      nzTitle: 'Start a new pipeline',
+      nzWidth: '30vw',
+      nzContent: StartPipelineModalComponent,
+      nzData
+    })
   }
 }

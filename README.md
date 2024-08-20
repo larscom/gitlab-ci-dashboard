@@ -26,25 +26,28 @@ projects to manage, potentially resulting in undetected failed pipelines.
 - You won't get rate limited by the Gitlab API, due to server-side caching
 - Communication to the Gitlab API happens only server side
 - Only 1 `read only` token is needed to serve a whole team
-    - Optionally use a `read/write` token to perform actions like restarting a failed pipeline
+  - Optionally use a `read/write` token to perform actions like restarting failed pipelines, create new pipelines or cancel pipelines.
 
-## 📒 Checklist
+## 📒 Features
 
 - [x] Overview of all latest pipeline statuses within a group
-    - [x] Navigate to Gitlab
-    - [x] Add to favorites
-    - [x] Restart failed pipelines from within the dashboard
-    - [ ] Start a new pipeline
+  - [x] Navigate to Gitlab
+  - [x] Add to favorites
+  - [x] Restart failed pipelines
+  - [x] Start a new pipeline
+  - [x] Cancel pipeline
 - [x] Overview of all pipeline statuses within a group
-    - [x] Navigate to Gitlab
-    - [x] Add to favorites
-    - [x] Restart failed pipelines from within the dashboard
-    - [ ] Start a new pipeline
+  - [x] Navigate to Gitlab
+  - [x] Add to favorites
+  - [x] Restart failed pipelines
+  - [x] Start a new pipeline
+  - [x] Cancel pipeline
 - [x] Overview of all schedules within a group
-    - [x] Navigate to Gitlab
-    - [x] Add to favorites
-    - [x] Restart failed pipelines from within the dashboard
-    - [ ] Start a new pipeline
+  - [x] Navigate to Gitlab
+  - [x] Add to favorites
+  - [x] Restart failed pipelines
+  - [x] Start a new pipeline
+  - [x] Cancel pipeline
 - [ ] Overview of all artifacts within a group
 - [ ] ...
 
@@ -70,15 +73,20 @@ docker run -p 8080:8080 -e GITLAB_BASE_URL=https://gitlab.com -e GITLAB_API_TOKE
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
    projects
 
+## 👉 Create/Cancel/Retry Pipelines
+
+You are able to perform write operations like creating,canceling,retrying pipelines, but you need to set the environment variable: `API_READ_ONLY` to `false` and provide a valid `read/write` access token.
+
 ## ⏰ Prometheus
 
 Prometheus metrics are exposed on the following endpoint
+
 > http://localhost:8080/metrics/prometheus
 
 ## 🔌 Environment variables
 
 | Variable                          | Type   | Description                                                                                            | Required | Default      |
-|-----------------------------------|--------|--------------------------------------------------------------------------------------------------------|----------|--------------|
+| --------------------------------- | ------ | ------------------------------------------------------------------------------------------------------ | -------- | ------------ |
 | GITLAB_BASE_URL                   | string | The base url to the Gitlab server (e.g: https://gitlab.com)                                            | yes      |              |
 | GITLAB_API_TOKEN                  | string | A readonly access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens) | yes      |              |
 | GITLAB_GROUP_ONLY_IDS             | string | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)          | no       |              |

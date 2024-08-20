@@ -40,6 +40,12 @@ pub trait GitlabApi: Send + Sync {
         env_vars: Option<HashMap<String, String>>,
     ) -> Result<Pipeline, ApiError>;
 
+    async fn cancel_pipeline(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+    ) -> Result<Pipeline, ApiError>;
+
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError>;
 
     async fn schedules(&self, project_id: u64) -> Result<Vec<Schedule>, ApiError>;
@@ -70,7 +76,7 @@ impl GitlabClient {
         let http_client = Client::builder()
             .default_headers(create_http_headers(&gitlab_token))
             .build()
-            .expect("failed to build http client");
+            .expect("http client to be build");
         Self {
             base_url: format!("{}/api/v4", gitlab_url),
             http_client,
@@ -86,7 +92,7 @@ impl GitlabClient {
         body_json: Option<Value>,
     ) -> Result<reqwest::Response, reqwest::Error> {
         let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
-            .expect("failed to parse url with params");
+            .expect("url to be parsed with params");
 
         log::debug!("HTTP (post) {} body: {:?}", url, body_json);
         let builder = self.http_client.post(url);
@@ -112,7 +118,7 @@ impl GitlabClient {
         params: Vec<(String, String)>,
     ) -> Result<reqwest::Response, reqwest::Error> {
         let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
-            .expect("failed to parse url with params");
+            .expect("url to be parsed with params");
 
         log::debug!("HTTP (get) {}", url);
 
@@ -217,6 +223,7 @@ impl GitlabApi for GitlabClient {
                     .join(","),
             ))
         }
+
         let path = "/groups";
         self.get_all_pages(path.to_string(), params).await
     }
@@ -224,6 +231,7 @@ impl GitlabApi for GitlabClient {
     async fn projects(&self, group_id: u64) -> Result<Vec<Project>, ApiError> {
         let params = [("archived".to_string(), "false".to_string())];
         let path = format!("/groups/{}/projects", group_id);
+
         self.get_all_pages(path, params.to_vec()).await
     }
 
@@ -308,6 +316,19 @@ impl GitlabApi for GitlabClient {
             .map_err(|e| e.into())
     }
 
+    async fn cancel_pipeline(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+    ) -> Result<Pipeline, ApiError> {
+        let params = [];
+        let path = format!("/projects/{}/pipelines/{}/cancel", project_id, pipeline_id);
+
+        self.do_post_parsed(path, params.to_vec(), None)
+            .await
+            .map_err(|e| e.into())
+    }
+
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError> {
         let params = [];
         let path = format!("/projects/{}/repository/branches", project_id);
@@ -350,7 +371,7 @@ fn create_http_headers(gitlab_token: &str) -> HeaderMap {
     http_headers.append("Content-Type", HeaderValue::from_static("application/json"));
     http_headers.append(
         "PRIVATE-TOKEN",
-        HeaderValue::from_str(gitlab_token).expect("failed to create private token header"),
+        HeaderValue::from_str(gitlab_token).expect("private token header to be set"),
     );
     http_headers
 }

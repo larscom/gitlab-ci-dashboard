@@ -13,8 +13,7 @@ export class ScheduleService {
   private errorService = inject(ErrorService)
 
   getSchedules(groupId: GroupId, projectIds?: Set<ProjectId>): Observable<ScheduleProjectPipeline[]> {
-    const url = `${location.origin}/api/schedules/latest-pipelines`
-
+    const url = '/api/schedules/latest-pipelines'
     const params = createParams(groupId, projectIds)
 
     return this.http.get<ScheduleProjectPipeline[]>(url, { params }).pipe(

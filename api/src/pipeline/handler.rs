@@ -9,8 +9,9 @@ use serde_querystring_actix::QueryString;
 use std::collections::HashMap;
 
 pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
-    cfg.route("/pipelines/retry", web::post().to(retry_pipeline))
-        .route("/pipelines/start", web::post().to(start_pipeline));
+    cfg.route("/pipelines/start", web::post().to(start_pipeline));
+    cfg.route("/pipelines/retry", web::post().to(retry_pipeline));
+    cfg.route("/pipelines/cancel", web::post().to(cancel_pipeline));
 }
 
 #[derive(Deserialize)]
@@ -35,6 +36,27 @@ async fn retry_pipeline(
 
     let pipeline = pipeline_service
         .retry_pipeline(project_id, pipeline_id)
+        .await?;
+
+    Ok(Json(pipeline))
+}
+
+async fn cancel_pipeline(
+    QueryString(Q {
+        project_id,
+        pipeline_id,
+    }): QueryString<Q>,
+    pipeline_service: Data<PipelineService>,
+    api_config: Data<ApiConfig>,
+) -> Result<Json<Pipeline>, ApiError> {
+    if api_config.read_only {
+        return Err(ApiError::bad_request(
+            "can't cancel pipeline when in 'read only' mode".into(),
+        ));
+    }
+
+    let pipeline = pipeline_service
+        .cancel_pipeline(project_id, pipeline_id)
         .await?;
 
     Ok(Json(pipeline))

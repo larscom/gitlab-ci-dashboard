@@ -10,8 +10,8 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/projects/latest-pipelines",
         web::get().to(get_with_latest_pipeline),
-    )
-    .route("/projects/pipelines", web::get().to(get_with_pipelines));
+    );
+    cfg.route("/projects/pipelines", web::get().to(get_with_pipelines));
 }
 
 #[derive(Deserialize)]

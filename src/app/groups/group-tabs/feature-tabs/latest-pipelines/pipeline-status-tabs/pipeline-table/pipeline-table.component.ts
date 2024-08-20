@@ -1,4 +1,5 @@
 import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
+import { CancelPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/cancel-pipeline-icon/cancel-pipeline-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { StartPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/start-pipeline-icon/start-pipeline-icon.component'
@@ -66,6 +67,7 @@ const headers: Header<ProjectPipeline>[] = [
     JobsComponent,
     FavoritesIconComponent,
     RetryPipelineIconComponent,
+    CancelPipelineIconComponent,
     StartPipelineIconComponent
   ],
   templateUrl: './pipeline-table.component.html',

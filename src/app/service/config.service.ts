@@ -9,7 +9,7 @@ export interface ApiConfig {
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
-  private readonly config = toSignal(inject(HttpClient).get<ApiConfig>(`${location.origin}/api/config`))
+  private readonly config = toSignal(inject(HttpClient).get<ApiConfig>('/api/config'))
 
   readonly version = computed(() => {
     const version = this.config()?.api_version ?? ''
