@@ -1,24 +1,25 @@
 <form nz-form [formGroup]="formGroup">
   <ng-container [formArrayName]="formArray">
     @for (control of variables.controls; track $index) {
-    <nz-form-item [formGroupName]="$index">
-      <nz-form-control>
-        <div class="flex gap-025 items-center">
-          <input nz-input placeholder="key" formControlName="key" />
-          <input nz-input placeholder="value" formControlName="value" />
-          <span nz-icon nzType="minus-circle-o" (click)="removeVariables($index, $event)"></span>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    } @if (canAddVariables) {
-    <nz-form-item>
-      <nz-form-control>
-        <button nz-button nzType="dashed" (click)="addVariables($event)">
-          <span nz-icon nzType="plus"></span>
-          Add variables
-        </button>
-      </nz-form-control>
-    </nz-form-item>
+      <nz-form-item [formGroupName]="$index">
+        <nz-form-control>
+          <div class="flex gap-025 items-center">
+            <input nz-input placeholder="key" formControlName="key" />
+            <input nz-input placeholder="value" formControlName="value" />
+            <span nz-icon nzType="minus-circle-o" (click)="removeVariables($index, $event)"></span>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+    }
+    @if (canAddVariables) {
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="dashed" (click)="addVariables($event)">
+            <span nz-icon nzType="plus"></span>
+            Add variables
+          </button>
+        </nz-form-control>
+      </nz-form-item>
     }
   </ng-container>
 </form>

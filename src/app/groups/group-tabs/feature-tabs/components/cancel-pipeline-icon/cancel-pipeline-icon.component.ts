@@ -58,14 +58,11 @@ export class CancelPipelineIconComponent {
       )
       .subscribe({
         complete: () => this.notification.success('Success', 'Canceled jobs for pipeline.'),
-        error: ({ status, statusText, error }: HttpErrorResponse) => {
+        error: ({ status, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error('Forbidden', 'Failed to cancel pipeline, a read/write access token is required.')
           } else {
-            this.notification.error(
-              `Error ${status}: ${statusText}`,
-              error ? error.message : 'Failed to cancel pipeline'
-            )
+            this.notification.error(`Error ${status}`, error ? error.message : 'Failed to cancel pipeline')
           }
         }
       })

@@ -24,8 +24,8 @@ export class AppComponent {
       const error = this.error()
       if (!error) return ''
 
-      const { statusCode, statusText } = error
-      return `Error ${statusCode}: ${statusText}`
+      const { statusCode } = error
+      return `Error ${statusCode}`
     })
   }
 

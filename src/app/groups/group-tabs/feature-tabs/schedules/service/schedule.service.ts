@@ -18,11 +18,10 @@ export class ScheduleService {
 
     return this.http.get<ScheduleProjectPipeline[]>(url, { params }).pipe(
       retry(retryConfig),
-      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+      catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({
           message: error.message,
           statusCode: status,
-          statusText,
           groupId
         })
         return of([])

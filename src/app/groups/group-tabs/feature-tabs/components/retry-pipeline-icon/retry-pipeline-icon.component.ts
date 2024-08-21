@@ -59,14 +59,11 @@ export class RetryPipelineIconComponent {
       )
       .subscribe({
         complete: () => this.notification.success('Success', 'Restarted jobs for pipeline.'),
-        error: ({ status, statusText, error }: HttpErrorResponse) => {
+        error: ({ status, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error('Forbidden', 'Failed to retry pipeline, a read/write access token is required.')
           } else {
-            this.notification.error(
-              `Error ${status}: ${statusText}`,
-              error ? error.message : 'Failed to retry pipeline'
-            )
+            this.notification.error(`Error ${status}`, error ? error.message : 'Failed to retry pipeline')
           }
         }
       })

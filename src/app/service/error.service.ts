@@ -4,7 +4,6 @@ import { Injectable, signal } from '@angular/core'
 export interface ErrorContext {
   message: string
   statusCode: number
-  statusText: string
   groupId?: GroupId
 }
 

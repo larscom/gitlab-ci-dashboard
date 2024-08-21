@@ -18,11 +18,10 @@ export class LatestPipelineService {
 
     return this.http.get<ProjectPipeline[]>(url, { params }).pipe(
       retry(retryConfig),
-      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+      catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({
           message: error.message,
           statusCode: status,
-          statusText,
           groupId
         })
         return of([])
@@ -37,10 +36,9 @@ export class LatestPipelineService {
     return this.http.get<BranchPipeline[]>(url, { params }).pipe(
       map((branches) => branches.filter(({ branch }) => !branch.default)),
       retry(retryConfig),
-      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+      catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({
           statusCode: status,
-          statusText: statusText,
           message: error.message
         })
         return of([])

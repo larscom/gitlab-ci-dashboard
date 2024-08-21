@@ -17,11 +17,10 @@ export class PipelinesService {
 
     return this.http.get<ProjectPipelines[]>(url, { params }).pipe(
       retry(retryConfig),
-      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+      catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({
           message: error.message,
           statusCode: status,
-          statusText,
           groupId
         })
         return of([])

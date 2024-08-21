@@ -88,17 +88,14 @@ export class StartPipelineModalComponent {
           this.notification.success('Success', 'Started new pipeline.')
           this.close()
         },
-        error: ({ status, statusText, error }: HttpErrorResponse) => {
+        error: ({ status, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error(
               'Forbidden',
               'Failed to start a new pipeline, a read/write access token is required.'
             )
           } else {
-            this.notification.error(
-              `Error ${status}: ${statusText}`,
-              error ? error.message : 'Failed to start a new pipeline'
-            )
+            this.notification.error(`Error ${status}`, error ? error.message : 'Failed to start a new pipeline')
           }
         }
       })

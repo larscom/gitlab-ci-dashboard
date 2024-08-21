@@ -15,10 +15,9 @@ export class BranchService {
     const params = { project_id: projectId }
     return this.http.get<Branch[]>('/api/branches', { params }).pipe(
       retry(retryConfig),
-      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+      catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({
           statusCode: status,
-          statusText: statusText,
           message: error.message
         })
         return of([])

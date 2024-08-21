@@ -13,10 +13,9 @@ export class GroupService {
   getGroups(): Observable<Group[]> {
     return this.http.get<Group[]>('/api/groups').pipe(
       retry(retryConfig),
-      catchError(({ status, statusText, error }: HttpErrorResponse) => {
+      catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({
           statusCode: status,
-          statusText: statusText,
           message: error.message
         })
         return of([])
