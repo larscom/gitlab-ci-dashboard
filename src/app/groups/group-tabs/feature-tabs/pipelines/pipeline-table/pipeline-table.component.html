@@ -50,7 +50,7 @@
               <span nz-icon nzType="gitlab"></span>
             </button>
 
-            <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.project.default_branch" />
+            <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
 
             <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
 
