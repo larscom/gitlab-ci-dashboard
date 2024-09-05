@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
-use crate::model::Pipeline;
+use crate::model::{Pipeline, PipelineSource};
 use chrono::{Duration, Utc};
 use moka::future::Cache;
 use std::collections::HashMap;
@@ -86,14 +86,29 @@ impl PipelineService {
             .map_err(|error| error.as_ref().to_owned())
     }
 
-    pub async fn get_pipelines(&self, project_id: u64) -> Result<Vec<Pipeline>, ApiError> {
+    pub async fn get_pipelines(
+        &self,
+        project_id: u64,
+        source: Option<PipelineSource>,
+    ) -> Result<Vec<Pipeline>, ApiError> {
         let minus_days = self.config.pipeline_history_days;
         let updated_after = Utc::now() + Duration::days(-minus_days);
-        self.cache_all
+        let all_pipelines = self
+            .cache_all
             .try_get_with(project_id, async {
                 self.client.pipelines(project_id, Some(updated_after)).await
             })
             .await
-            .map_err(|error| error.as_ref().to_owned())
+            .map_err(|error| error.as_ref().to_owned());
+
+        match source {
+            None => all_pipelines,
+            Some(source) => all_pipelines.map(|pipelines| {
+                pipelines
+                    .into_iter()
+                    .filter(|p| p.source == source)
+                    .collect()
+            }),
+        }
     }
 }

@@ -10,8 +10,9 @@ import { Project, ProjectId, ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
+import { Header } from '$groups/util/table'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnDestroy, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -19,15 +20,9 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { Subscription, interval, switchMap } from 'rxjs'
+import { finalize, interval, Subscription, switchMap } from 'rxjs'
 import { LatestPipelineService } from '../../service/latest-pipeline.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
-
-interface Header<T> {
-  title: string
-  sortable: boolean
-  compare: ((a: T, b: T) => number) | null
-}
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -74,7 +69,7 @@ const headers: Header<ProjectPipeline>[] = [
   styleUrls: ['./pipeline-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PipelineTableComponent {
+export class PipelineTableComponent implements OnDestroy {
   private i18n = inject(NzI18nService)
   private latestPipelineService = inject(LatestPipelineService)
   private destroyRef = inject(DestroyRef)
@@ -89,6 +84,10 @@ export class PipelineTableComponent {
   headers: Header<ProjectPipeline>[] = headers
   branchPipelines = signal<BranchPipeline[]>([])
   branchesLoading = signal(false)
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe()
+  }
 
   get locale(): string {
     const { locale } = this.i18n.getLocale()
@@ -119,10 +118,10 @@ export class PipelineTableComponent {
       this.selectedProjectId.set(projectId)
 
       this.branchesLoading.set(true)
-      this.latestPipelineService.getBranchesWithLatestPipeline(projectId).subscribe((branchPipelines) => {
-        this.branchesLoading.set(false)
-        this.branchPipelines.set(branchPipelines)
-      })
+      this.latestPipelineService
+        .getBranchesWithLatestPipeline(projectId)
+        .pipe(finalize(() => this.branchesLoading.set(false)))
+        .subscribe((branchPipelines) => this.branchPipelines.set(branchPipelines))
 
       this.refreshSubscription = interval(FETCH_REFRESH_INTERVAL)
         .pipe(
@@ -133,7 +132,7 @@ export class PipelineTableComponent {
     }
   }
 
-  trackByProjectId(_: number, { project: { id } }: ProjectPipeline): ProjectId {
+  trackByProjectId({ project: { id } }: ProjectPipeline): ProjectId {
     return id
   }
 }

@@ -16,7 +16,7 @@
   >
     <thead>
       <tr>
-        @for (header of headers; track header) {
+        @for (header of headers; track header.title) {
           <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
             {{ header.title }}
           </th>
@@ -26,8 +26,8 @@
       </tr>
     </thead>
     <tbody>
-      @for (data of nzTable.data; track trackByBranchName($index, data)) {
-        <tr>
+      @for (data of nzTable.data; track trackByBranchName(data)) {
+        <tr [attr.data-pipeline-id]="data.pipeline?.id">
           <td>{{ data.branch.name }}</td>
           <td>
             @if (data.pipeline; as pipeline) {

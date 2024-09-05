@@ -1,7 +1,7 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedulePipelines()" [nzPageSize]="12">
+<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="schedulePipelines()" [nzPageSize]="10">
   <thead>
     <tr>
-      @for (header of headers; track header) {
+      @for (header of headers; track header.title) {
         <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
           {{ header.title }}
         </th>
@@ -11,13 +11,15 @@
     </tr>
   </thead>
   <tbody>
-    @for (data of nzTable.data; track trackByScheduleId($index, data)) {
+    @for (data of nzTable.data; track trackByScheduleId(data)) {
       <tr
+        class="pointer"
         nz-tooltip
         [nzTooltipTitle]="data.schedule.active ? '' : 'Schedule is not active'"
         [ngStyle]="{ opacity: data.schedule.active ? '1' : '0.3' }"
         [attr.data-project-id]="data.project.id"
         [attr.data-pipeline-id]="data.pipeline?.id"
+        (click)="onRowClick(data.project)"
       >
         <td>{{ data.project.name }}</td>
         <td class="lowercase">{{ data.schedule.description }}</td>
@@ -29,12 +31,17 @@
           >
         </td>
         <td>
+          <span nz-tooltip [nzTooltipTitle]="'owner: ' + data.schedule.owner.username">
+            {{ data.pipeline?.source || '' }}
+          </span>
+        </td>
+        <td>
+          {{ data.pipeline?.updated_at | date: 'medium' : timeZone : locale }}
+        </td>
+        <td>
           <span nz-tooltip [nzTooltipTitle]="data.schedule.next_run_at | date: 'medium' : timeZone : locale">{{
             data.schedule.next_run_at | nextRunAt
           }}</span>
-        </td>
-        <td>
-          <span nz-tooltip [nzTooltipTitle]="data.schedule.owner.name">{{ data.schedule.owner.username }}</span>
         </td>
         <td>
           @if (data.pipeline; as pipeline) {
@@ -91,6 +98,11 @@
             <span nz-icon nzType="schedule"></span>
           </button>
         </td>
+      </tr>
+      <tr [nzExpand]="data.project.id === selectedProjectId()">
+        @if (data.project.id === selectedProjectId()) {
+          <gcd-schedule-pipeline-table [pipelines]="pipelines()" [loading]="loading()" />
+        }
       </tr>
     }
   </tbody>

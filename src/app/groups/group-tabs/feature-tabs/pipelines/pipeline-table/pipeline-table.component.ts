@@ -18,12 +18,7 @@ import { JobsComponent } from '../../components/jobs/jobs.component'
 import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { StartPipelineIconComponent } from '../../components/start-pipeline-icon/start-pipeline-icon.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
-
-interface Header<T> {
-  title: string
-  sortable: boolean
-  compare: ((a: T, b: T) => number) | null
-}
+import { Header } from '$groups/util/table'
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },

@@ -502,6 +502,24 @@ mod tests {
     }
 
     #[actix_web::test]
+    async fn test_pipelines_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/pipelines?project_id=456&source=web")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        let pipelines = serde_json::from_str::<Vec<Pipeline>>(to_str(&body)).unwrap();
+        assert_eq!(pipelines.len(), 1);
+
+        assert_eq!(pipelines[0].id, 1);
+    }
+
+    #[actix_web::test]
     async fn test_retry_pipeline_endpoint() {
         let app = setup_app!();
         let req = test::TestRequest::post()

@@ -17,12 +17,12 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 }
 
 #[derive(Deserialize)]
-struct Q {
+struct GetQuery {
     project_id: u64,
 }
 
 async fn get_branches(
-    QueryString(Q { project_id }): QueryString<Q>,
+    QueryString(GetQuery { project_id }): QueryString<GetQuery>,
     branch_service: Data<BranchService>,
 ) -> Result<Json<Vec<Branch>>, ApiError> {
     let result = branch_service.get_branches(project_id).await?;
@@ -30,7 +30,7 @@ async fn get_branches(
 }
 
 async fn get_with_latest_pipeline(
-    QueryString(Q { project_id }): QueryString<Q>,
+    QueryString(GetQuery { project_id }): QueryString<GetQuery>,
     aggregator: Data<PipelineAggregator>,
 ) -> Result<Json<Vec<BranchPipeline>>, ApiError> {
     let result = aggregator

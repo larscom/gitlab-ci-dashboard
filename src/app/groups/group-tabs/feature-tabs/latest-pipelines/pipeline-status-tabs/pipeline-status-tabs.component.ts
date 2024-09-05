@@ -43,7 +43,7 @@ export class PipelineStatusTabsComponent {
       .sort((a, b) => a.status.localeCompare(b.status))
   })
 
-  trackByStatus(_: number, { status }: Tab): Status {
+  trackByStatus({ status }: Tab): Status {
     return status
   }
 }

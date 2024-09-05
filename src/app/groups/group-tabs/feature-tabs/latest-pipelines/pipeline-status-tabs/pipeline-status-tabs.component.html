@@ -1,6 +1,6 @@
 @if (tabs().length) {
   <nz-tabset nzType="card">
-    @for (tab of tabs(); track trackByStatus($index, tab)) {
+    @for (tab of tabs(); track trackByStatus(tab)) {
       <nz-tab [nzTitle]="title">
         <ng-template #title>
           <div class="flex gap-025">

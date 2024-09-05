@@ -53,9 +53,7 @@ export class RetryPipelineIconComponent {
       .post('/api/pipelines/retry', null, { params })
       .pipe(
         retry(retryConfig),
-        finalize(() => {
-          this.loading.set(false)
-        })
+        finalize(() => this.loading.set(false))
       )
       .subscribe({
         complete: () => this.notification.success('Success', 'Restarted jobs for pipeline.'),

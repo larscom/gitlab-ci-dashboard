@@ -1,7 +1,7 @@
 <nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projectPipelines()" [nzPageSize]="12">
   <thead>
     <tr>
-      @for (header of headers; track header) {
+      @for (header of headers; track header.title) {
         <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
           {{ header.title }}
         </th>

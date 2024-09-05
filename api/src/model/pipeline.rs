@@ -46,7 +46,7 @@ pub enum PipelineStatus {
     WaitingForResource,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum PipelineSource {
     /// A pipeline crated by pushing to a repository.

@@ -52,9 +52,7 @@ export class CancelPipelineIconComponent {
       .post('/api/pipelines/cancel', null, { params })
       .pipe(
         retry(retryConfig),
-        finalize(() => {
-          this.loading.set(false)
-        })
+        finalize(() => this.loading.set(false))
       )
       .subscribe({
         complete: () => this.notification.success('Success', 'Canceled jobs for pipeline.'),

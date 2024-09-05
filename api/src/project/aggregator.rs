@@ -90,7 +90,10 @@ impl PipelineAggregator {
         let buffer = projects.len();
         iter(projects.iter())
             .map(|project| async {
-                let pipelines = self.pipeline_service.get_pipelines(project.id).await?;
+                let pipelines = self
+                    .pipeline_service
+                    .get_pipelines(project.id, None)
+                    .await?;
                 let project = project.clone();
                 Ok(ProjectPipelines {
                     group_id,

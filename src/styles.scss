@@ -10,6 +10,10 @@ body {
   font-size: var(--font-size-base);
 }
 
+.ant-table.ant-table-small .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
+  margin: 0;
+}
+
 .lowercase {
   text-transform: lowercase;
 }

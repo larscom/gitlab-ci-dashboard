@@ -11,7 +11,7 @@
       [nzSelectedIndex]="selectedIndex()"
       (nzSelectChange)="onChange($event)"
     >
-      @for (group of groups(); track trackById($index, group)) {
+      @for (group of groups(); track trackById(group)) {
         <nz-tab [nzTitle]="title">
           <ng-template #title>
             <span

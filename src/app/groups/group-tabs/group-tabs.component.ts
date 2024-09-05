@@ -11,7 +11,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { map } from 'rxjs'
+import { finalize, map } from 'rxjs'
 import { FavoritesComponent } from './favorites/favorites.component'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
 import { MaxLengthPipe } from './feature-tabs/pipes/max-length.pipe'
@@ -55,10 +55,10 @@ export class GroupTabsComponent {
     private router: Router
   ) {
     this.loading.set(true)
-    this.groupService.getGroups().subscribe((groups) => {
-      this.loading.set(false)
-      this.groups.set(groups)
-    })
+    this.groupService
+      .getGroups()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe((groups) => this.groups.set(groups))
 
     effect(() => {
       if (this.selectedIndex() === -1) {
@@ -107,7 +107,7 @@ export class GroupTabsComponent {
     }
   }
 
-  trackById(_: number, { id }: Group): GroupId {
+  trackById({ id }: Group): GroupId {
     return id
   }
 

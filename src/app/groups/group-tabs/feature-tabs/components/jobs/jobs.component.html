@@ -2,7 +2,7 @@
   @if (loading()) {
     <nz-spin nzSize="small" />
   } @else if (tags().length) {
-    @for (tag of tags(); track trackById($index, tag.job)) {
+    @for (tag of tags(); track trackById(tag.job)) {
       <nz-tag
         class="pointer"
         (click)="onActionClick($event, tag.job)"

@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { interval, switchMap } from 'rxjs'
+import { finalize, interval, switchMap } from 'rxjs'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { StatusFilterComponent } from '../pipelines/components/status-filter/status-filter.component'
@@ -62,12 +62,9 @@ export class SchedulesComponent implements OnInit {
   ngOnInit(): void {
     this.loading.set(true)
 
-    forkJoinFlatten(this.groupMap(), this.scheduleService.getSchedules.bind(this.scheduleService)).subscribe(
-      (schedulePipelines) => {
-        this.loading.set(false)
-        this.schedulePipelines.set(schedulePipelines)
-      }
-    )
+    forkJoinFlatten(this.groupMap(), this.scheduleService.getSchedules.bind(this.scheduleService))
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe((schedulePipelines) => this.schedulePipelines.set(schedulePipelines))
 
     interval(FETCH_REFRESH_INTERVAL)
       .pipe(

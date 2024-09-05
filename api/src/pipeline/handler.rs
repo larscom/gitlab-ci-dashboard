@@ -1,6 +1,6 @@
 use crate::config::ApiConfig;
 use crate::error::ApiError;
-use crate::model::Pipeline;
+use crate::model::{Pipeline, PipelineSource};
 use crate::pipeline::PipelineService;
 use actix_web::web;
 use actix_web::web::{Data, Json};
@@ -9,22 +9,37 @@ use serde_querystring_actix::QueryString;
 use std::collections::HashMap;
 
 pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
+    cfg.route("/pipelines", web::get().to(get_pipelines));
     cfg.route("/pipelines/start", web::post().to(start_pipeline));
     cfg.route("/pipelines/retry", web::post().to(retry_pipeline));
     cfg.route("/pipelines/cancel", web::post().to(cancel_pipeline));
 }
 
 #[derive(Deserialize)]
-struct Q {
+struct GetQuery {
+    project_id: u64,
+    source: Option<PipelineSource>,
+}
+
+async fn get_pipelines(
+    QueryString(GetQuery { project_id, source }): QueryString<GetQuery>,
+    pipeline_service: Data<PipelineService>,
+) -> Result<Json<Vec<Pipeline>>, ApiError> {
+    let pipelines = pipeline_service.get_pipelines(project_id, source).await?;
+    Ok(Json(pipelines))
+}
+
+#[derive(Deserialize)]
+struct PostQuery {
     project_id: u64,
     pipeline_id: u64,
 }
 
 async fn retry_pipeline(
-    QueryString(Q {
+    QueryString(PostQuery {
         project_id,
         pipeline_id,
-    }): QueryString<Q>,
+    }): QueryString<PostQuery>,
     pipeline_service: Data<PipelineService>,
     api_config: Data<ApiConfig>,
 ) -> Result<Json<Pipeline>, ApiError> {
@@ -42,10 +57,10 @@ async fn retry_pipeline(
 }
 
 async fn cancel_pipeline(
-    QueryString(Q {
+    QueryString(PostQuery {
         project_id,
         pipeline_id,
-    }): QueryString<Q>,
+    }): QueryString<PostQuery>,
     pipeline_service: Data<PipelineService>,
     api_config: Data<ApiConfig>,
 ) -> Result<Json<Pipeline>, ApiError> {
@@ -63,18 +78,18 @@ async fn cancel_pipeline(
 }
 
 #[derive(Deserialize, Serialize)]
-struct B {
+struct PostBody {
     project_id: u64,
     branch: String,
     env_vars: Option<HashMap<String, String>>,
 }
 
 async fn start_pipeline(
-    Json(B {
+    Json(PostBody {
         project_id,
         branch,
         env_vars,
-    }): Json<B>,
+    }): Json<PostBody>,
     pipeline_service: Data<PipelineService>,
     api_config: Data<ApiConfig>,
 ) -> Result<Json<Pipeline>, ApiError> {

@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { interval, switchMap } from 'rxjs'
+import { finalize, interval, switchMap } from 'rxjs'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { PipelineStatusTabsComponent } from './pipeline-status-tabs/pipeline-status-tabs.component'
@@ -43,10 +43,9 @@ export class LatestPipelinesComponent implements OnInit {
     forkJoinFlatten(
       this.groupMap(),
       this.latestPipelineService.getProjectsWithLatestPipeline.bind(this.latestPipelineService)
-    ).subscribe((projectPipelines) => {
-      this.loading.set(false)
-      this.projectPipelines.set(projectPipelines)
-    })
+    )
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe((projectPipelines) => this.projectPipelines.set(projectPipelines))
 
     interval(FETCH_REFRESH_INTERVAL)
       .pipe(

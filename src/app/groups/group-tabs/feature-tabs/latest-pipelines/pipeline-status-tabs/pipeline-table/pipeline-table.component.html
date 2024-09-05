@@ -1,7 +1,7 @@
 <nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects()" [nzPageSize]="10">
   <thead>
     <tr>
-      @for (header of headers; track header) {
+      @for (header of headers; track header.title) {
         <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
           {{ header.title }}
         </th>
@@ -11,7 +11,7 @@
     </tr>
   </thead>
   <tbody>
-    @for (data of nzTable.data; track trackByProjectId($index, data)) {
+    @for (data of nzTable.data; track trackByProjectId(data)) {
       <tr
         class="pointer"
         [attr.data-project-id]="data.project.id"
