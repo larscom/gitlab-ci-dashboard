@@ -21,7 +21,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
-import { Subscription, finalize, identity, map, repeat, retry, tap } from 'rxjs'
+import { Subscription, identity, map, repeat, retry, tap } from 'rxjs'
 import { MaxLengthPipe } from '../../pipes/max-length.pipe'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
@@ -101,14 +101,14 @@ export class JobsComponent implements OnChanges, OnDestroy {
       .pipe(
         retry(retryConfig),
         this.withRepeat() ? repeat({ delay: FETCH_REFRESH_INTERVAL }) : identity,
+        tap(() => this.loading.set(false)),
         map((jobs) => {
           return jobs.slice(0, MAX_JOB_COUNT).map((job) => {
             const icon = this.getTagIcon(job)
             const spin = RUNNABLE_STATUSES.includes(job.status)
             return { job, icon, spin }
           })
-        }),
-        finalize(() => this.loading.set(false))
+        })
       )
       .subscribe((tags) => this.tags.set(tags))
   }
