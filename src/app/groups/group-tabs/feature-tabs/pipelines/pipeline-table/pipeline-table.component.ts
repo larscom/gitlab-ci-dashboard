@@ -19,6 +19,7 @@ import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon
 import { StartPipelineIconComponent } from '../../components/start-pipeline-icon/start-pipeline-icon.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 import { Header } from '$groups/util/table'
+import { NzTagModule } from 'ng-zorro-antd/tag'
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -44,6 +45,9 @@ const headers: Header<ProjectPipeline>[] = [
   }
 ]
 
+const semverRegex =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
+
 @Component({
   selector: 'gcd-pipeline-table',
   standalone: true,
@@ -55,6 +59,7 @@ const headers: Header<ProjectPipeline>[] = [
     NzBadgeModule,
     NzIconModule,
     NzSpinModule,
+    NzTagModule,
     StatusColorPipe,
     JobsComponent,
     RetryPipelineIconComponent,
@@ -82,6 +87,10 @@ export class PipelineTableComponent {
   get timeZone(): string {
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
     return timeZone
+  }
+
+  isTag(ref: string): boolean {
+    return semverRegex.test(ref)
   }
 
   getScope(status?: Status): Status[] {

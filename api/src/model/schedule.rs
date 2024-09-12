@@ -1,14 +1,15 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{Pipeline, Project};
 use crate::model::user::User;
+use crate::model::{Pipeline, Project};
+use crate::util::deserialize::from_ref;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Schedule {
     pub id: u64,
     pub description: String,
-    #[serde(rename = "ref")]
+    #[serde(rename = "ref", deserialize_with = "from_ref")]
     pub branch: String,
     pub cron: String,
     pub cron_timezone: String,
@@ -32,7 +33,7 @@ pub struct ScheduleProjectPipeline {
 mod tests {
     use serde_json::json;
 
-    use crate::model::{Schedule, ScheduleProjectPipeline, test};
+    use crate::model::{test, Schedule, ScheduleProjectPipeline};
 
     #[test]
     fn schedule_deserialize() {

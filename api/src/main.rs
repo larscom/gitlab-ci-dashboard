@@ -23,6 +23,7 @@ mod model;
 mod pipeline;
 mod project;
 mod schedule;
+mod util;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
