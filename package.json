@@ -18,7 +18,7 @@
     "@angular/platform-browser": "18.2.4",
     "@angular/platform-browser-dynamic": "18.2.4",
     "@angular/router": "18.2.4",
-    "@fontsource/roboto": "5.0.15",
+    "@fontsource/roboto": "5.1.0",
     "ng-zorro-antd": "^16.2.2",
     "normalize.css": "8.0.1",
     "rxjs": "7.8.1",
