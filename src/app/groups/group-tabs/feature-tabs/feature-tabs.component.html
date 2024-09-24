@@ -1,30 +1,26 @@
 <nz-tabset
-  [nzSelectedIndex]="selectedIndex$ | async"
+  [nzSelectedIndex]="selectedIndex()"
   (nzSelectChange)="onChange($event)"
   nzTabPosition="left"
   nzSize="small"
   nzType="card"
 >
   @for (tab of tabs; track tab) {
-    <nz-tab [nzTitle]="title">
-      <ng-template #title>
-        <span nz-icon [nzType]="tab.icon"></span><span class="pointer">{{ tab.title }}</span>
-      </ng-template>
-      <ng-template nz-tab>
-        <div class="tab-content">
-          @switch (tab.id) {
-            @case ('latest-pipelines') {
-              <gcd-latest-pipelines [groupMap]="groupMap()" />
-            }
-            @case ('pipelines') {
-              <gcd-pipelines [groupMap]="groupMap()" />
-            }
-            @case ('schedules') {
-              <gcd-schedules [groupMap]="groupMap()" />
-            }
-          }
-        </div>
-      </ng-template>
-    </nz-tab>
+  <nz-tab [nzTitle]="title">
+    <ng-template #title>
+      <span nz-icon [nzType]="tab.icon"></span><span class="pointer">{{ tab.title }}</span>
+    </ng-template>
+    <ng-template nz-tab>
+      <div class="tab-content">
+        @switch (tab.id) { @case ('latest-pipelines') { @if(selectedFeature() === tab.id) {
+        <gcd-latest-pipelines [groupMap]="groupMap()" />
+        } } @case ('pipelines') { @if(selectedFeature() === tab.id) {
+        <gcd-pipelines [groupMap]="groupMap()" />
+        } } @case ('schedules') { @if(selectedFeature() === tab.id) {
+        <gcd-schedules [groupMap]="groupMap()" />
+        } } }
+      </div>
+    </ng-template>
+  </nz-tab>
   }
 </nz-tabset>

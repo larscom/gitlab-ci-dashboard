@@ -1,7 +1,7 @@
 import { filterNotNull } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, input } from '@angular/core'
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core'
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
@@ -50,16 +50,18 @@ export class FeatureTabsComponent {
 
   tabs: Tab[] = tabs
 
-  selectedIndex$ = this.route.paramMap.pipe(
-    map((map) => map.get('featureId')),
-    filterNotNull,
-    map((featureId) => this.tabs.findIndex(({ id }) => id === featureId))
+  selectedIndex = toSignal(
+    this.route.paramMap.pipe(
+      map((map) => map.get('featureId')),
+      filterNotNull,
+      map((featureId) => this.tabs.findIndex(({ id }) => id === featureId))
+    ),
+    { initialValue: 0 }
   )
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {
+  selectedFeature = signal(tabs[this.selectedIndex()].id)
+
+  constructor(private route: ActivatedRoute, private router: Router) {
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(),
@@ -73,9 +75,12 @@ export class FeatureTabsComponent {
   }
 
   onChange({ index }: NzTabChangeEvent): void {
+    const { id } = this.tabs[index!]
+
+    this.selectedFeature.set(id)
+
     if (this.disableRouting()) return
 
-    const { id } = this.tabs[index!]
     const currentSegments = this.route.snapshot.url.map(({ path }) => path)
     this.router.navigate([...currentSegments.slice(0, -1), id])
   }
