@@ -12,13 +12,13 @@ env_logger = "0.11.5"
 log = "0.4.22"
 moka = { version = "0.12.8", features = ["future"] }
 reqwest = { version = "0.12.7", features = ["json"] }
-serde = { version = "1.0.209", features = ["derive"] }
+serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tokio = { version = "1.40.0", features = ["sync"] }
-async-trait = "0.1.82"
+async-trait = "0.1.83"
 futures = "0.3.30"
 serde-querystring-actix = "0.2.0"
-actix-web-prom = { version = "0.8.0", features = ["process"] }
+actix-web-prom = { version = "0.9.0", features = ["process"] }
 
 [dev-dependencies]
 serial_test = "3.1.1"

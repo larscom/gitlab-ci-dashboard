@@ -53,21 +53,22 @@ export class FavoriteService {
 
   removeProject(groupId: GroupId, projectId: ProjectId) {
     const map = new Map(this._favorites())
-
     if (!map.has(groupId)) return
 
     const projectIds = map.get(groupId)!
     projectIds.delete(projectId)
-    map.set(groupId, new Set(projectIds))
 
-    this._favorites.set(map)
-
-    this.saveToStorage(map)
+    if (projectIds.size > 0) {
+      map.set(groupId, new Set(projectIds))
+      this._favorites.set(map)
+      this.saveToStorage(map)
+    } else {
+      this.removeGroup(groupId)
+    }
   }
 
   removeGroup(groupId: GroupId) {
     const map = new Map(this._favorites())
-
     if (!map.has(groupId)) return
 
     map.delete(groupId)
