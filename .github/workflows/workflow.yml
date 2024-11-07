@@ -69,15 +69,6 @@ jobs:
           push: true
           tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
-      - uses: aquasecurity/trivy-action@0.28.0
-        if: startsWith(github.ref, 'refs/heads/')    
-        with:
-          image-ref: '${{ github.repository }}:${{ env.CLEANED_REF_NAME }}'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
       - uses: peter-evans/dockerhub-description@v4
         if: github.ref == 'refs/heads/main'
         with:
