@@ -5,8 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test",
-    "preversion": "(cd ./api && cargo audit)"
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
