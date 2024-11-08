@@ -1,4 +1,5 @@
 <nz-tabset
+  [nzDestroyInactiveTabPane]="true"
   [nzSelectedIndex]="selectedIndex$ | async"
   (nzSelectChange)="onChange($event)"
   nzTabPosition="left"
