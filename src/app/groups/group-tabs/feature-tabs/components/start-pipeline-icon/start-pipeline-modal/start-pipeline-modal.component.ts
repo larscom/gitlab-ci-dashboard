@@ -68,7 +68,7 @@ export class StartPipelineModalComponent {
   }
 
   start() {
-    const { projectId, branch, loadingIcon } = this.modalData
+    const { projectId, loadingIcon } = this.modalData
     loadingIcon.set(true)
 
     const variables = this.variables()
@@ -76,7 +76,7 @@ export class StartPipelineModalComponent {
     this.http
       .post('/api/pipelines/start', {
         project_id: projectId,
-        branch,
+        branch: this.selectedBranch,
         env_vars: Object.keys(variables).length > 0 ? variables : undefined
       })
       .pipe(
