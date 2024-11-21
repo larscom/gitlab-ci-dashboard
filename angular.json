@@ -91,7 +91,7 @@
             "tsConfig": "tsconfig.spec.json",
             "polyfills": ["zone.js", "zone.js/testing"],
             "include": ["src/**/*.spec.ts"],
-            "coverage": true
+            "coverage": false
           }
         }
       }
