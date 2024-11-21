@@ -14,7 +14,6 @@ import { LatestPipelineService } from './service/latest-pipeline.service'
 
 @Component({
   selector: 'gcd-latest-pipelines',
-  standalone: true,
   imports: [CommonModule, NzSpinModule, PipelineStatusTabsComponent, ProjectFilterComponent, TopicFilterComponent],
   templateUrl: './latest-pipelines.component.html',
   styleUrls: ['./latest-pipelines.component.scss'],

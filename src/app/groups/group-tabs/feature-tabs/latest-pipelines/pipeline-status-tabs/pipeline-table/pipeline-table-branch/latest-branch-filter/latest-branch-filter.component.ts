@@ -8,7 +8,6 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 
 @Component({
   selector: 'gcd-latest-branch-filter',
-  standalone: true,
   imports: [NzIconModule, NzInputModule, NzButtonModule, NzToolTipModule, FormsModule],
   templateUrl: './latest-branch-filter.component.html',
   styleUrls: ['./latest-branch-filter.component.scss'],

@@ -10,7 +10,6 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty'
 
 @Component({
   selector: 'gcd-favorites',
-  standalone: true,
   imports: [
     CommonModule,
     NzDrawerModule,

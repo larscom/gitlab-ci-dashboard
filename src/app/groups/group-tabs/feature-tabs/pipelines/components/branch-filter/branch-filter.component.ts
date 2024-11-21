@@ -9,7 +9,6 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 
 @Component({
   selector: 'gcd-branch-filter',
-  standalone: true,
   imports: [NzIconModule, NzInputModule, NzButtonModule, NzToolTipModule, NzSpinModule, FormsModule],
   templateUrl: './branch-filter.component.html',
   styleUrls: ['./branch-filter.component.scss'],

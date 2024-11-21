@@ -58,7 +58,6 @@ const headers: Header<ScheduleProjectPipeline>[] = [
 
 @Component({
   selector: 'gcd-schedule-table',
-  standalone: true,
   imports: [
     CommonModule,
     NzTableModule,

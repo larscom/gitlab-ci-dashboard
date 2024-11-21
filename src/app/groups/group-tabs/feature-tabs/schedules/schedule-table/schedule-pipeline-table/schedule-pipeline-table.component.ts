@@ -43,7 +43,6 @@ const headers: Header<Pipeline>[] = [
 
 @Component({
   selector: 'gcd-schedule-pipeline-table',
-  standalone: true,
   imports: [
     CommonModule,
     NzTableModule,
@@ -55,8 +54,7 @@ const headers: Header<Pipeline>[] = [
     JobsComponent,
     RetryPipelineIconComponent,
     CancelPipelineIconComponent,
-    StartPipelineIconComponent,
-    FavoritesIconComponent
+    StartPipelineIconComponent
   ],
   templateUrl: './schedule-pipeline-table.component.html',
   styleUrls: ['./schedule-pipeline-table.component.scss'],

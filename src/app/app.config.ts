@@ -1,14 +1,17 @@
+import { GroupTabsComponent } from '$groups/group-tabs/group-tabs.component'
 import { registerLocaleData } from '@angular/common'
 import { provideHttpClient } from '@angular/common/http'
-import { APP_INITIALIZER, ApplicationConfig, Provider, provideExperimentalZonelessChangeDetection } from '@angular/core'
-import { provideNoopAnimations } from '@angular/platform-browser/animations'
-
-import { NzI18nService, en_US, nl_NL } from 'ng-zorro-antd/i18n'
-
-import { GroupTabsComponent } from '$groups/group-tabs/group-tabs.component'
 import en from '@angular/common/locales/en'
 import nl from '@angular/common/locales/nl'
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideExperimentalZonelessChangeDetection
+} from '@angular/core'
+import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { Route, provideRouter, withHashLocation } from '@angular/router'
+import { NzI18nService, en_US, nl_NL } from 'ng-zorro-antd/i18n'
 
 registerLocaleData(en)
 registerLocaleData(nl)
@@ -30,19 +33,13 @@ export const appConfig: ApplicationConfig = {
   ]
 }
 
-function provideI18n(): Provider {
-  return {
-    provide: APP_INITIALIZER,
-    multi: true,
-    useFactory: (i18n: NzI18nService) => {
-      return () => {
-        if (navigator.languages.includes('nl')) {
-          i18n.setLocale(nl_NL)
-        } else {
-          i18n.setLocale(en_US)
-        }
-      }
-    },
-    deps: [NzI18nService]
-  }
+function provideI18n() {
+  return provideAppInitializer(() => {
+    const i18n = inject(NzI18nService)
+    if (navigator.languages.includes('nl')) {
+      i18n.setLocale(nl_NL)
+    } else {
+      i18n.setLocale(en_US)
+    }
+  })
 }

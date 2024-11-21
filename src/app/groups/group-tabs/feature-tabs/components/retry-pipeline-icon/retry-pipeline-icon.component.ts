@@ -13,7 +13,6 @@ import { finalize, retry } from 'rxjs'
 
 @Component({
   selector: 'gcd-retry-pipeline-icon',
-  standalone: true,
   imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule],
   templateUrl: './retry-pipeline-icon.component.html',
   styleUrls: ['./retry-pipeline-icon.component.scss'],

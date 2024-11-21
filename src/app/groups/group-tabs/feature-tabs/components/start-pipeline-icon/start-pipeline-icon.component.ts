@@ -10,7 +10,6 @@ import { ModalData, StartPipelineModalComponent } from './start-pipeline-modal/s
 
 @Component({
   selector: 'gcd-start-pipeline-icon',
-  standalone: true,
   imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzModalModule],
   templateUrl: './start-pipeline-icon.component.html',
   styleUrls: ['./start-pipeline-icon.component.scss'],

@@ -8,7 +8,6 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 
 @Component({
   selector: 'gcd-status-filter',
-  standalone: true,
   imports: [FormsModule, NzTagModule, NzSelectModule, StatusColorPipe],
   templateUrl: './status-filter.component.html',
   styleUrls: ['./status-filter.component.scss'],

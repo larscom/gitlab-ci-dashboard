@@ -11,7 +11,6 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 
 @Component({
   selector: 'gcd-project-filter',
-  standalone: true,
   imports: [NzIconModule, NzInputModule, NzTagModule, NzButtonModule, NzToolTipModule, NzSpinModule, FormsModule],
   templateUrl: './project-filter.component.html',
   styleUrls: ['./project-filter.component.scss'],

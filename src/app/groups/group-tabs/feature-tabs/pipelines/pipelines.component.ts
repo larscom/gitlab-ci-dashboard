@@ -21,7 +21,6 @@ const STORAGE_KEY = 'pinned_pipelines'
 
 @Component({
   selector: 'gcd-pipelines',
-  standalone: true,
   imports: [
     CommonModule,
     NzSpinModule,

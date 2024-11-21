@@ -8,7 +8,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 
 @Component({
   selector: 'gcd-header',
-  standalone: true,
   imports: [CommonModule, NzIconModule, NzButtonModule, NzToolTipModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']

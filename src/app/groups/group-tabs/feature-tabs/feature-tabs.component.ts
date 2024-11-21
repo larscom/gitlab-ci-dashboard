@@ -38,7 +38,6 @@ const tabs: Tab[] = [
 
 @Component({
   selector: 'gcd-feature-tabs',
-  standalone: true,
   imports: [CommonModule, NzTabsModule, NzIconModule, LatestPipelinesComponent, PipelinesComponent, SchedulesComponent],
   templateUrl: './feature-tabs.component.html',
   styleUrls: ['./feature-tabs.component.scss'],

@@ -50,7 +50,6 @@ const headers: Header<ProjectPipeline>[] = [
 
 @Component({
   selector: 'gcd-pipeline-table',
-  standalone: true,
   imports: [
     CommonModule,
     NzTableModule,

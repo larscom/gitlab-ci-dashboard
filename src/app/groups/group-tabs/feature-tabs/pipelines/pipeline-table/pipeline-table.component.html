@@ -2,9 +2,9 @@
   <thead>
     <tr>
       @for (header of headers; track header.title) {
-      <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-        {{ header.title }}
-      </th>
+        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+          {{ header.title }}
+        </th>
       }
       <th>Jobs</th>
       <th>Action</th>
@@ -12,73 +12,81 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackBy($index, data)) {
-    <tr [attr.data-project-id]="data.project.id" [attr.data-pipeline-id]="data.pipeline?.id">
-      <td>{{ data.project.name }}</td>
-      <td>
-        @let ref = data.pipeline?.ref || '';
-        @if (isTag(ref)) {
-        <nz-tag nzColor="green">
-          <span>{{ ref }}</span>
-        </nz-tag>
-        } @else {
-         <td>{{ ref }}</td>
-        }
-      </td>
-      <td>{{ data.pipeline?.source || '' }}</td>
-      <td>
-        @if (data.pipeline; as pipeline) {
-        {{ pipeline.updated_at | date : 'medium' : timeZone : locale }}
-        } @else { - }
-      </td>
-      <td>
-        @if (data.pipeline; as pipeline) {
-        <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
-        } @else { - }
-      </td>
-      <td>
-        @if (data.pipeline; as pipeline) {
-        <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
-        } @else { - }
-      </td>
-      <td>
-        @if (data.pipeline; as pipeline) {
-        <button
-          (click)="onActionClick($event, pipeline)"
-          nzType="text"
-          nz-tooltip
-          nzTooltipTitle="Open in Gitlab"
-          nz-button
-          nzShape="circle"
-        >
-          <span nz-icon nzType="gitlab"></span>
-        </button>
-
-        <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
-
-        <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
-
-        <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
-
-        <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
-
-        <button
-          nzType="text"
-          nz-tooltip
-          [nzTooltipMouseEnterDelay]="0.5"
-          [nzTooltipTitle]="pinnedPipelines().includes(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
-          nz-button
-          nzShape="circle"
-          (click)="onPinClick($event, pipeline)"
-        >
-          @if (pinnedPipelines().includes(pipeline.id)) {
-          <span nz-icon nzType="pushpin" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#096DD9"></span>
+      <tr [attr.data-project-id]="data.project.id" [attr.data-pipeline-id]="data.pipeline?.id">
+        <td>{{ data.project.name }}</td>
+        <td>
+          @let ref = data.pipeline?.ref || '';
+          @if (isTag(ref)) {
+            <nz-tag nzColor="green">
+              <span>{{ ref }}</span>
+            </nz-tag>
           } @else {
-          <span nz-icon nzType="pushpin"></span>
+            <td>{{ ref }}</td>
           }
-        </button>
-        } @else { - }
-      </td>
-    </tr>
+        </td>
+        <td>{{ data.pipeline?.source || '' }}</td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+            {{ pipeline.updated_at | date: 'medium' : timeZone : locale }}
+          } @else {
+            -
+          }
+        </td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+            <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
+          } @else {
+            -
+          }
+        </td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+            <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
+          } @else {
+            -
+          }
+        </td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+            <button
+              (click)="onActionClick($event, pipeline)"
+              nzType="text"
+              nz-tooltip
+              nzTooltipTitle="Open in Gitlab"
+              nz-button
+              nzShape="circle"
+            >
+              <span nz-icon nzType="gitlab"></span>
+            </button>
+
+            <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
+
+            <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+
+            <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+
+            <button
+              nzType="text"
+              nz-tooltip
+              [nzTooltipMouseEnterDelay]="0.5"
+              [nzTooltipTitle]="pinnedPipelines().includes(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
+              nz-button
+              nzShape="circle"
+              (click)="onPinClick($event, pipeline)"
+            >
+              @if (pinnedPipelines().includes(pipeline.id)) {
+                <span nz-icon nzType="pushpin" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#096DD9"></span>
+              } @else {
+                <span nz-icon nzType="pushpin"></span>
+              }
+            </button>
+          } @else {
+            -
+          }
+        </td>
+      </tr>
     }
   </tbody>
 </nz-table>

@@ -6,7 +6,6 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 
 @Component({
   selector: 'gcd-topic-filter',
-  standalone: true,
   imports: [CommonModule, NzTagModule, NzSpinModule],
   templateUrl: './topic-filter.component.html',
   styleUrls: ['./topic-filter.component.scss'],

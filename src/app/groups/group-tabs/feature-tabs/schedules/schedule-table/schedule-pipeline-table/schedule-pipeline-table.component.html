@@ -9,9 +9,9 @@
   <thead>
     <tr>
       @for (header of headers; track header.title) {
-      <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-        {{ header.title }}
-      </th>
+        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+          {{ header.title }}
+        </th>
       }
       <th>Jobs</th>
       <th>Action</th>
@@ -19,33 +19,33 @@
   </thead>
   <tbody>
     @for (pipeline of nzTable.data; track trackById(pipeline)) {
-    <tr [attr.data-pipeline-id]="pipeline.id">
-      <td>{{ pipeline.ref || '' }}</td>
-      <td>{{ pipeline.source || '' }}</td>
-      <td>{{ pipeline.updated_at | date : 'medium' : timeZone : locale }}</td>
-      <td><nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge></td>
-      <td>
-        <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
-      </td>
-      <td>
-        <button
-          (click)="onClick($event, pipeline)"
-          nzType="text"
-          nz-tooltip
-          nzTooltipTitle="Open in Gitlab"
-          nz-button
-          nzShape="circle"
-        >
-          <span nz-icon nzType="gitlab"></span>
-        </button>
+      <tr [attr.data-pipeline-id]="pipeline.id">
+        <td>{{ pipeline.ref || '' }}</td>
+        <td>{{ pipeline.source || '' }}</td>
+        <td>{{ pipeline.updated_at | date: 'medium' : timeZone : locale }}</td>
+        <td><nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge></td>
+        <td>
+          <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
+        </td>
+        <td>
+          <button
+            (click)="onClick($event, pipeline)"
+            nzType="text"
+            nz-tooltip
+            nzTooltipTitle="Open in Gitlab"
+            nz-button
+            nzShape="circle"
+          >
+            <span nz-icon nzType="gitlab"></span>
+          </button>
 
-        <gcd-start-pipeline-icon [projectId]="pipeline.project_id" [branch]="pipeline.ref" />
+          <gcd-start-pipeline-icon [projectId]="pipeline.project_id" [branch]="pipeline.ref" />
 
-        <gcd-cancel-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+          <gcd-cancel-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
 
-        <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
-      </td>
-    </tr>
+          <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+        </td>
+      </tr>
     }
   </tbody>
 </nz-table>

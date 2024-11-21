@@ -13,7 +13,6 @@ type Variable = { key: string; value: string }
 
 @Component({
   selector: 'gcd-variables-form',
-  standalone: true,
   imports: [CommonModule, NzButtonModule, NzIconModule, NzFormModule, ReactiveFormsModule],
   templateUrl: './variables-form.component.html',
   styleUrls: ['./variables-form.component.scss']

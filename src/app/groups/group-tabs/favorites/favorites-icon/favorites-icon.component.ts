@@ -9,7 +9,6 @@ import { FavoriteService } from '../favorite.service'
 
 @Component({
   selector: 'gcd-favorites-icon',
-  standalone: true,
   imports: [CommonModule, NzToolTipModule, NzIconModule, NzButtonModule],
   templateUrl: './favorites-icon.component.html',
   styleUrls: ['./favorites-icon.component.scss']

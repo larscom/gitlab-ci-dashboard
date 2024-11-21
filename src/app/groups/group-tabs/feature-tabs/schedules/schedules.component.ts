@@ -18,7 +18,6 @@ import { ScheduleService } from './service/schedule.service'
 
 @Component({
   selector: 'gcd-schedules',
-  standalone: true,
   imports: [
     CommonModule,
     NzSpinModule,

@@ -50,7 +50,6 @@ const semverRegex =
 
 @Component({
   selector: 'gcd-pipeline-table',
-  standalone: true,
   imports: [
     CommonModule,
     NzTableModule,

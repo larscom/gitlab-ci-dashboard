@@ -14,7 +14,6 @@ import { finalize, retry } from 'rxjs'
 
 @Component({
   selector: 'gcd-cancel-pipeline-icon',
-  standalone: true,
   imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule, NzPopconfirmModule],
   templateUrl: './cancel-pipeline-icon.component.html',
   styleUrls: ['./cancel-pipeline-icon.component.scss'],

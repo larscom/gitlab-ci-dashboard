@@ -44,7 +44,6 @@ const RUNNABLE_STATUSES = [
 
 @Component({
   selector: 'gcd-jobs',
-  standalone: true,
   imports: [CommonModule, NzTagModule, NzIconModule, NzSpinModule, NzToolTipModule, StatusColorPipe, MaxLengthPipe],
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss'],

@@ -24,12 +24,9 @@ export interface ModalData {
 
 @Component({
   selector: 'gcd-start-pipeline-modal',
-  standalone: true,
   imports: [
     CommonModule,
-
     VariablesFormComponent,
-
     NzButtonModule,
     NzModalModule,
     NzNotificationModule,
@@ -37,7 +34,6 @@ export interface ModalData {
     NzIconModule,
     NzSpaceModule,
     NzFormModule,
-
     FormsModule
   ],
   templateUrl: './start-pipeline-modal.component.html',

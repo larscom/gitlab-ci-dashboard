@@ -19,7 +19,6 @@ import { ProjectId } from '$groups/model/project'
 
 @Component({
   selector: 'gcd-group-tabs',
-  standalone: true,
   imports: [
     CommonModule,
     NzAlertModule,

@@ -41,7 +41,6 @@ const headers: Header<BranchPipeline>[] = [
 
 @Component({
   selector: 'gcd-pipeline-table-branch',
-  standalone: true,
   imports: [
     CommonModule,
     LatestBranchFilterComponent,
