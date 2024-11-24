@@ -3,7 +3,7 @@ use crate::error::ApiError;
 use crate::model::{Branch, BranchPipeline};
 use crate::pipeline;
 use crate::pipeline::PipelineService;
-use futures::stream::{iter, StreamExt, TryStreamExt};
+use crate::util::iter::try_collect_with_buffer;
 use pipeline::sort_by_updated_date;
 
 pub struct PipelineAggregator {
@@ -40,22 +40,13 @@ impl PipelineAggregator {
         project_id: u64,
         branches: Vec<Branch>,
     ) -> Result<Vec<BranchPipeline>, ApiError> {
-        if branches.is_empty() {
-            return Ok(vec![]);
-        }
-
-        let buffer = branches.len();
-        iter(branches.iter())
-            .map(|branch| async {
-                let pipeline = self
-                    .pipeline_service
-                    .get_latest_pipeline(project_id, branch.name.clone())
-                    .await?;
-                let branch = branch.clone();
-                Ok(BranchPipeline { branch, pipeline })
-            })
-            .buffered(buffer)
-            .try_collect()
-            .await
+        try_collect_with_buffer(branches, |branch| async move {
+            let pipeline = self
+                .pipeline_service
+                .get_latest_pipeline(project_id, branch.name.clone())
+                .await?;
+            Ok(BranchPipeline { branch, pipeline })
+        })
+        .await
     }
 }

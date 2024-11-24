@@ -3,7 +3,7 @@ use crate::model::{Project, Schedule, ScheduleProjectPipeline};
 use crate::pipeline::PipelineService;
 use crate::project::ProjectService;
 use crate::schedule::ScheduleService;
-use futures::stream::{iter, StreamExt, TryStreamExt};
+use crate::util::iter::try_collect_with_buffer;
 
 pub struct PipelineAggregator {
     schedule_service: ScheduleService,
@@ -48,25 +48,17 @@ impl PipelineAggregator {
         group_id: u64,
         projects: Vec<Project>,
     ) -> Result<Vec<ScheduleProjectPipeline>, ApiError> {
-        if projects.is_empty() {
-            return Ok(vec![]);
-        }
-
-        let buffer = projects.len();
-        let result = iter(projects.iter())
-            .map(|project| async {
-                let schedules = self.schedule_service.get_schedules(project.id).await?;
-                let result = self
-                    .with_latest_pipeline(group_id, project, schedules)
-                    .await?;
-                Ok::<Vec<ScheduleProjectPipeline>, ApiError>(result)
-            })
-            .buffered(buffer)
-            .try_collect::<Vec<Vec<ScheduleProjectPipeline>>>()
-            .await?
-            .into_iter()
-            .flatten()
-            .collect();
+        let result = try_collect_with_buffer(projects, |project| async move {
+            let schedules = self.schedule_service.get_schedules(project.id).await?;
+            let result = self
+                .with_latest_pipeline(group_id, &project, schedules)
+                .await?;
+            Ok::<Vec<ScheduleProjectPipeline>, ApiError>(result)
+        })
+        .await?
+        .into_iter()
+        .flatten()
+        .collect();
 
         Ok(result)
     }
@@ -77,28 +69,20 @@ impl PipelineAggregator {
         project: &Project,
         schedules: Vec<Schedule>,
     ) -> Result<Vec<ScheduleProjectPipeline>, ApiError> {
-        if schedules.is_empty() {
-            return Ok(vec![]);
-        }
-
-        let buffer = schedules.len();
-        iter(schedules.iter())
-            .map(|schedule| async {
-                let project = project.clone();
-                let pipeline = self
-                    .pipeline_service
-                    .get_latest_pipeline(project.id, schedule.branch.clone())
-                    .await?;
-                let schedule = schedule.clone();
-                Ok(ScheduleProjectPipeline {
-                    group_id,
-                    schedule,
-                    pipeline,
-                    project,
-                })
+        try_collect_with_buffer(schedules, |schedule| async move {
+            let project = project.clone();
+            let pipeline = self
+                .pipeline_service
+                .get_latest_pipeline(project.id, schedule.branch.clone())
+                .await?;
+            let schedule = schedule.clone();
+            Ok(ScheduleProjectPipeline {
+                group_id,
+                schedule,
+                pipeline,
+                project,
             })
-            .buffered(buffer)
-            .try_collect()
-            .await
+        })
+        .await
     }
 }

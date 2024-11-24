@@ -2,7 +2,7 @@ use crate::error::ApiError;
 use crate::model::{Project, ProjectPipeline, ProjectPipelines};
 use crate::pipeline::{sort_by_updated_date, PipelineService};
 use crate::project::ProjectService;
-use futures::stream::{iter, StreamExt, TryStreamExt};
+use crate::util::iter::try_collect_with_buffer;
 
 pub struct PipelineAggregator {
     project_service: ProjectService,
@@ -43,27 +43,18 @@ impl PipelineAggregator {
         group_id: u64,
         projects: Vec<Project>,
     ) -> Result<Vec<ProjectPipeline>, ApiError> {
-        if projects.is_empty() {
-            return Ok(vec![]);
-        }
-
-        let buffer = projects.len();
-        iter(projects.iter())
-            .map(|project| async {
-                let pipeline = self
-                    .pipeline_service
-                    .get_latest_pipeline(project.id, project.default_branch.clone())
-                    .await?;
-                let project = project.clone();
-                Ok(ProjectPipeline {
-                    group_id,
-                    project,
-                    pipeline,
-                })
+        try_collect_with_buffer(projects, |project| async move {
+            let pipeline = self
+                .pipeline_service
+                .get_latest_pipeline(project.id, project.default_branch.clone())
+                .await?;
+            Ok(ProjectPipeline {
+                group_id,
+                project,
+                pipeline,
             })
-            .buffered(buffer)
-            .try_collect()
-            .await
+        })
+        .await
     }
 
     pub async fn get_projects_with_pipelines(
@@ -83,26 +74,17 @@ impl PipelineAggregator {
         group_id: u64,
         projects: Vec<Project>,
     ) -> Result<Vec<ProjectPipelines>, ApiError> {
-        if projects.is_empty() {
-            return Ok(vec![]);
-        }
-
-        let buffer = projects.len();
-        iter(projects.iter())
-            .map(|project| async {
-                let pipelines = self
-                    .pipeline_service
-                    .get_pipelines(project.id, None)
-                    .await?;
-                let project = project.clone();
-                Ok(ProjectPipelines {
-                    group_id,
-                    project,
-                    pipelines,
-                })
+        try_collect_with_buffer(projects, |project| async move {
+            let pipelines = self
+                .pipeline_service
+                .get_pipelines(project.id, None)
+                .await?;
+            Ok(ProjectPipelines {
+                group_id,
+                project,
+                pipelines,
             })
-            .buffered(buffer)
-            .try_collect()
-            .await
+        })
+        .await
     }
 }
