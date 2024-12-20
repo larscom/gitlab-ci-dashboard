@@ -14,15 +14,12 @@ export class FavoriteService {
   readonly favorites = this._favorites.asReadonly()
 
   constructor() {
-    effect(
-      () => {
-        const error = this.errorService.error()
-        if (error) {
-          this.removeGroupWhen404(error)
-        }
-      },
-      { allowSignalWrites: true }
-    )
+    effect(() => {
+      const error = this.errorService.error()
+      if (error) {
+        this.removeGroupWhen404(error)
+      }
+    })
   }
 
   anyProject(groupId: GroupId, projectId: ProjectId): Signal<boolean> {

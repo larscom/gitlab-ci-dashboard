@@ -20,6 +20,7 @@ import { StartPipelineIconComponent } from '../../components/start-pipeline-icon
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 import { Header } from '$groups/util/table'
 import { NzTagModule } from 'ng-zorro-antd/tag'
+import { DownloadArtifactsIconComponent } from '../../components/download-artifacts-icon/download-artifacts-icon.component'
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -64,7 +65,8 @@ const semverRegex =
     RetryPipelineIconComponent,
     CancelPipelineIconComponent,
     StartPipelineIconComponent,
-    FavoritesIconComponent
+    FavoritesIconComponent,
+    DownloadArtifactsIconComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],

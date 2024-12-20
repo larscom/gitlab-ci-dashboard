@@ -49,10 +49,7 @@ export class GroupTabsComponent {
     return groups.findIndex(({ id }) => id === selectedGroupId)
   })
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {
+  constructor(private route: ActivatedRoute, private router: Router) {
     this.loading.set(true)
     this.groupService
       .getGroups()
@@ -74,20 +71,17 @@ export class GroupTabsComponent {
       )
     )
 
-    effect(
-      () => {
-        const groups = this.groups()
-        const gid = groupId()
-        if (gid) {
-          if (groups.length > 0 && !groups.map(({ id }) => id).includes(gid)) {
-            this.nagivate(groups[0].id)
-          } else {
-            this.selectedGroupId.set(gid)
-          }
+    effect(() => {
+      const groups = this.groups()
+      const gid = groupId()
+      if (gid) {
+        if (groups.length > 0 && !groups.map(({ id }) => id).includes(gid)) {
+          this.nagivate(groups[0].id)
+        } else {
+          this.selectedGroupId.set(gid)
         }
-      },
-      { allowSignalWrites: true }
-    )
+      }
+    })
   }
 
   toggleFavorites(): void {

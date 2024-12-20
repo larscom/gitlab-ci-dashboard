@@ -7,14 +7,14 @@ import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/h
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification'
+import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, retry } from 'rxjs'
 
 @Component({
   selector: 'gcd-cancel-pipeline-icon',
-  imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule, NzPopconfirmModule],
+  imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzPopconfirmModule],
   templateUrl: './cancel-pipeline-icon.component.html',
   styleUrls: ['./cancel-pipeline-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

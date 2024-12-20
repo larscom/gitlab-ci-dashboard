@@ -1,0 +1,24 @@
+<button
+  nz-button
+  nz-tooltip
+  nzTooltipTitle="Download artifacts"
+  nz-dropdown
+  nzTrigger="click"
+  [nzClickHide]="false"
+  [nzDropdownMenu]="menu"
+>
+  <nz-icon nzType="download" />
+</button>
+<nz-dropdown-menu #menu>
+  <ul nz-menu>
+    <li nz-menu-item>
+      <a>Test: {{ jobs() | json }}</a>
+    </li>
+    <li nz-menu-item>
+      <a>2nd item</a>
+    </li>
+    <li nz-menu-item>
+      <a>3rd item</a>
+    </li>
+  </ul>
+</nz-dropdown-menu>

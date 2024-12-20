@@ -10,7 +10,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification'
+import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { finalize, map, retry } from 'rxjs'
@@ -29,7 +29,6 @@ export interface ModalData {
     VariablesFormComponent,
     NzButtonModule,
     NzModalModule,
-    NzNotificationModule,
     NzSelectModule,
     NzIconModule,
     NzSpaceModule,

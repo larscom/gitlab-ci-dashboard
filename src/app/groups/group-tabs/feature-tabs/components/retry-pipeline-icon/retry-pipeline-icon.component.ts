@@ -7,13 +7,13 @@ import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/h
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification'
+import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, retry } from 'rxjs'
 
 @Component({
   selector: 'gcd-retry-pipeline-icon',
-  imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule, NzNotificationModule],
+  imports: [CommonModule, NzIconModule, NzToolTipModule, NzButtonModule],
   templateUrl: './retry-pipeline-icon.component.html',
   styleUrls: ['./retry-pipeline-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

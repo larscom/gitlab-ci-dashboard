@@ -50,14 +50,16 @@
           @if (data.pipeline; as pipeline) {
             <button
               (click)="onActionClick($event, pipeline)"
-              nzType="text"
               nz-tooltip
               nzTooltipTitle="Open in Gitlab"
               nz-button
-              nzShape="circle"
             >
               <span nz-icon nzType="gitlab"></span>
             </button>
+
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+
+            <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />        
 
             <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
 
@@ -65,15 +67,11 @@
 
             <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
 
-            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
-
             <button
-              nzType="text"
               nz-tooltip
               [nzTooltipMouseEnterDelay]="0.5"
               [nzTooltipTitle]="pinnedPipelines().includes(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
               nz-button
-              nzShape="circle"
               (click)="onPinClick($event, pipeline)"
             >
               @if (pinnedPipelines().includes(pipeline.id)) {
