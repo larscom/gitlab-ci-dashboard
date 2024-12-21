@@ -3,7 +3,7 @@ import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
 import { HttpClient } from '@angular/common/http'
-import { ChangeDetectionStrategy, Component, inject, Injector, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, Injector, input, signal } from '@angular/core'
 import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown'
@@ -12,6 +12,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { combineLatest, switchMap } from 'rxjs'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
+import FileSaver from 'file-saver'
 
 @Component({
   selector: 'gcd-download-artifacts-icon',
@@ -35,6 +36,8 @@ export class DownloadArtifactsIconComponent {
   projectId = input.required<ProjectId>()
   pipelineId = input.required<PipelineId>()
 
+  loading = signal(false)
+
   jobs = toSignal(
     combineLatest([
       toObservable(this.projectId, { injector: this.injector }),
@@ -53,7 +56,23 @@ export class DownloadArtifactsIconComponent {
     { initialValue: [] }
   )
 
-  download(id: JobId) {
-    
+  download({ id, name }: Job) {
+    const params = {
+      project_id: this.projectId(),
+      job_id: id
+    }
+
+    this.loading.set(true)
+
+    this.http.get('/api/artifacts', { params, responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        this.loading.set(false)
+        FileSaver.saveAs(blob, `${name}_${id}.zip`)
+      },
+      error: (e) => {
+        this.loading.set(false)
+        console.error('error download file', e)
+      }
+    })
   }
 }
