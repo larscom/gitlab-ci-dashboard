@@ -3,6 +3,7 @@ use crate::model::Project;
 use crate::model::Schedule;
 use crate::model::{Branch, Group, Job};
 use crate::model::{JobStatus, Pipeline};
+use actix_web::web::Bytes;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use reqwest::header::{HeaderMap, HeaderValue};
@@ -56,6 +57,8 @@ pub trait GitlabApi: Send + Sync {
         pipeline_id: u64,
         scope: &[JobStatus],
     ) -> Result<Vec<Job>, ApiError>;
+
+    async fn artifact(&self, project_id: u64, job_id: u64) -> Result<Bytes, ApiError>;
 }
 
 #[derive(Clone)]
@@ -354,6 +357,12 @@ impl GitlabApi for GitlabClient {
 
         let path = format!("/projects/{}/pipelines/{}/jobs", project_id, pipeline_id);
         self.get_all_pages(path, params).await
+    }
+
+    async fn artifact(&self, project_id: u64, job_id: u64) -> Result<Bytes, ApiError> {
+        let params = [];
+        let path = format!("/projects/{}/jobs/{}/artifacts", project_id, job_id);
+        Ok(self.do_get(path, params.to_vec()).await?.bytes().await?)
     }
 }
 

@@ -14,7 +14,7 @@
   <ul nz-menu>
     @for (job of jobs(); track job.id) {
     <li nz-menu-item>
-      <button [style.color]="job.status | statusColor" nz-button nzType="link" nzSize="small">
+      <button (click)="download(job.id)" [style.color]="job.status | statusColor" nz-button nzType="link" nzSize="small">
         <nz-icon nzType="download" />
         {{ job.name }}
       </button>

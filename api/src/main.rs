@@ -25,6 +25,8 @@ mod project;
 mod schedule;
 mod util;
 
+mod artifact;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -135,7 +137,8 @@ fn configure_app(
                     .configure(pipeline::setup_handlers)
                     .configure(branch::setup_handlers)
                     .configure(schedule::setup_handlers)
-                    .configure(job::setup_handlers),
+                    .configure(job::setup_handlers)
+                    .configure(artifact::setup_handlers),
             )
             .service(setup_spa());
     }

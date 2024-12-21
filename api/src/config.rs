@@ -16,6 +16,7 @@ async fn get_config(api_config: Data<ApiConfig>) -> Json<ApiConfig> {
 pub struct ApiConfig {
     pub api_version: String,
     pub read_only: bool,
+    pub hide_write_actions: bool,
 }
 
 impl ApiConfig {
@@ -23,6 +24,7 @@ impl ApiConfig {
         Self {
             api_version: from_env_or_default("VERSION", "dev".into()),
             read_only: from_env_or_default("API_READ_ONLY", true),
+            hide_write_actions: from_env_or_default("UI_HIDE_WRITE_ACTIONS", false),
         }
     }
 }

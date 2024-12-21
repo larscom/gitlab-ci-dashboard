@@ -1,4 +1,4 @@
-import { Job } from '$groups/model/job'
+import { Job, JobId } from '$groups/model/job'
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
@@ -52,4 +52,8 @@ export class DownloadArtifactsIconComponent {
     ),
     { initialValue: [] }
   )
+
+  download(id: JobId) {
+    
+  }
 }
