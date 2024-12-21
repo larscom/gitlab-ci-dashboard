@@ -1,7 +1,7 @@
-mod aggregator;
-mod handler;
-mod service;
+mod pipeline_aggregator;
+mod schedule_handler;
+mod schedule_service;
 
-pub use aggregator::*;
-pub use handler::*;
-pub use service::*;
+pub use pipeline_aggregator::*;
+pub use schedule_handler::*;
+pub use schedule_service::*;

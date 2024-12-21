@@ -23,10 +23,11 @@ export class StartPipelineIconComponent {
   branch = input.required<string>()
 
   loading = signal(false)
-  read_only = this.config.read_only
+  readOnly = this.config.readOnly
+  hideWriteActions = this.config.hideWriteActions
 
   tooltipTitle = computed(() => {
-    if (this.read_only()) {
+    if (this.readOnly()) {
       return 'Read-only mode is enabled'
     }
 

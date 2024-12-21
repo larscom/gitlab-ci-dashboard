@@ -1,5 +1,5 @@
-mod handler;
-mod service;
+mod artifact_handler;
+mod artifact_service;
 
-pub use handler::*;
-pub use service::*;
+pub use artifact_handler::*;
+pub use artifact_service::*;

@@ -1,4 +1,4 @@
-use crate::branch::service::BranchService;
+use crate::branch::branch_service::BranchService;
 use crate::error::ApiError;
 use crate::model::{Branch, BranchPipeline};
 use crate::pipeline;

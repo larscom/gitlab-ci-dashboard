@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop'
 export interface ApiConfig {
   api_version: string
   read_only: boolean
+  hide_write_actions: boolean
 }
 
 @Injectable({ providedIn: 'root' })
@@ -17,5 +18,7 @@ export class ConfigService {
     return parts.length > 1 ? `${parts[0].slice(0, 7)}@${parts[1]}` : version
   })
 
-  readonly read_only = computed(() => this.config()?.read_only)
+  readonly readOnly = computed(() => this.config()?.read_only)
+
+  readonly hideWriteActions = computed(() => this.readOnly() && this.config()?.hide_write_actions)
 }

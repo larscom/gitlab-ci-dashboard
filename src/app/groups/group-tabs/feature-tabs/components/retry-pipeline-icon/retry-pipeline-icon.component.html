@@ -1,10 +1,12 @@
+@if(!hideWriteActions()){
 <button
   (click)="retry($event)"
   [nzLoading]="loading()"
-  [disabled]="read_only() || loading()"
+  [disabled]="readOnly() || loading()"
   nz-tooltip
   [nzTooltipTitle]="tooltipTitle()"
   nz-button
 >
   <span nz-icon nzType="reload"></span>
 </button>
+}

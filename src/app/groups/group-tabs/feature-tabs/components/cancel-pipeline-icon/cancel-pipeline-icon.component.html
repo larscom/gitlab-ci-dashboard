@@ -1,3 +1,4 @@
+@if(!hideWriteActions()) {
 <button
   (click)="$event.stopPropagation()"
   nz-popconfirm
@@ -7,10 +8,11 @@
   nzOkText="Yes"
   (nzOnConfirm)="cancel()"
   [nzLoading]="loading()"
-  [disabled]="read_only() || loading()"
+  [disabled]="readOnly() || loading()"
   nz-tooltip
   [nzTooltipTitle]="tooltipTitle()"
   nz-button
 >
   <span nz-icon nzType="stop"></span>
 </button>
+}
