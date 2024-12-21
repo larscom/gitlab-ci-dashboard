@@ -12,7 +12,7 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackBy($index, data)) {
-      <tr [attr.data-project-id]="data.project.id" [attr.data-pipeline-id]="data.pipeline?.id">
+      <tr [attr.data-project-id]="data.project.id" [attr.data-pipeline-id]="data.pipeline?.id" [class.blue-bg]="isPinned(data.pipeline?.id)">
         <td>{{ data.project.name }}</td>
         <td>
           @let ref = data.pipeline?.ref || '';
@@ -70,11 +70,11 @@
             <button
               nz-tooltip
               [nzTooltipMouseEnterDelay]="0.5"
-              [nzTooltipTitle]="pinnedPipelines().includes(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
+              [nzTooltipTitle]="isPinned(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
               nz-button
               (click)="onPinClick($event, pipeline)"
             >
-              @if (pinnedPipelines().includes(pipeline.id)) {
+              @if (isPinned(pipeline.id)) {
                 <span nz-icon nzType="pushpin" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#096DD9"></span>
               } @else {
                 <span nz-icon nzType="pushpin"></span>

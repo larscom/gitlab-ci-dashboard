@@ -4,6 +4,7 @@ import { ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
+import { Header } from '$groups/util/table'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject, input, model } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
@@ -12,15 +13,14 @@ import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
+import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { CancelPipelineIconComponent } from '../../components/cancel-pipeline-icon/cancel-pipeline-icon.component'
+import { DownloadArtifactsIconComponent } from '../../components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '../../components/jobs/jobs.component'
 import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon/retry-pipeline-icon.component'
 import { StartPipelineIconComponent } from '../../components/start-pipeline-icon/start-pipeline-icon.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
-import { Header } from '$groups/util/table'
-import { NzTagModule } from 'ng-zorro-antd/tag'
-import { DownloadArtifactsIconComponent } from '../../components/download-artifacts-icon/download-artifacts-icon.component'
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -88,6 +88,10 @@ export class PipelineTableComponent {
   get timeZone(): string {
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
     return timeZone
+  }
+
+  isPinned(id?: PipelineId): boolean {
+    return id ? this.pinnedPipelines().includes(id) : false
   }
 
   isTag(ref: string): boolean {
