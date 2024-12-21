@@ -1,6 +1,7 @@
+use crate::artifact::ArtifactService;
 use crate::error::ApiError;
-use actix_web::body::BoxBody;
-use actix_web::{web, HttpResponse};
+use actix_web::web;
+use actix_web::web::{Bytes, Data};
 use serde::Deserialize;
 use serde_querystring_actix::QueryString;
 
@@ -12,15 +13,11 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 struct GetQuery {
     project_id: u64,
     job_id: u64,
-    job_name: String,
 }
 
 async fn get_artifact(
-    QueryString(GetQuery {
-        project_id,
-        job_id,
-        job_name,
-    }): QueryString<GetQuery>,
-) -> Result<HttpResponse, ApiError> {
-    Ok(HttpResponse::Ok().body(BoxBody::new(vec![])))
+    QueryString(GetQuery { project_id, job_id }): QueryString<GetQuery>,
+    artifact_service: Data<ArtifactService>,
+) -> Result<Bytes, ApiError> {
+    artifact_service.get_artifact(project_id, job_id).await
 }

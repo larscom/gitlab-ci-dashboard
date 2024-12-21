@@ -66,6 +66,10 @@ async fn main() -> std::io::Result<()> {
         gitlab_client.clone(),
         gcd_config.clone(),
     ));
+    let artifact_service = Data::new(artifact::ArtifactService::new(
+        gitlab_client.clone(),
+        gcd_config.clone(),
+    ));
 
     let project_aggr = Data::new(project::PipelineAggregator::new(
         project_service.get_ref().clone(),
@@ -97,6 +101,7 @@ async fn main() -> std::io::Result<()> {
                 job_service.clone(),
                 pipeline_service.clone(),
                 branch_service.clone(),
+                artifact_service.clone(),
             ))
     })
     .bind((gcd_config.server_ip, gcd_config.server_port))?
@@ -116,6 +121,7 @@ fn configure_app(
     job_service: Data<job::JobService>,
     pipeline_service: Data<pipeline::PipelineService>,
     branch_service: Data<branch::BranchService>,
+    artifact_service: Data<artifact::ArtifactService>,
 ) -> impl FnOnce(&mut ServiceConfig) {
     move |config| {
         config
@@ -128,6 +134,7 @@ fn configure_app(
             .app_data(job_service)
             .app_data(pipeline_service)
             .app_data(branch_service)
+            .app_data(artifact_service)
             .route("/health", web::get().to(health_handler))
             .service(
                 scope("/api")
@@ -174,6 +181,7 @@ mod tests {
 
     use actix_web::body::to_bytes;
     use actix_web::test;
+    use actix_web::web::Bytes;
     use async_trait::async_trait;
     use chrono::{DateTime, Utc};
     use serde_json::json;
@@ -224,6 +232,10 @@ mod tests {
                 gitlab_client.clone(),
                 gcd_config.clone(),
             ));
+            let artifact_service = Data::new(artifact::ArtifactService::new(
+                gitlab_client.clone(),
+                gcd_config.clone(),
+            ));
 
             let project_aggr = Data::new(project::PipelineAggregator::new(
                 project_service.get_ref().clone(),
@@ -249,6 +261,7 @@ mod tests {
                 job_service,
                 pipeline_service,
                 branch_service,
+                artifact_service,
             )))
             .await
         }};
@@ -326,6 +339,10 @@ mod tests {
             _scope: &[JobStatus],
         ) -> Result<Vec<Job>, ApiError> {
             Ok(vec![model::test::new_job()])
+        }
+
+        async fn artifact(&self, _project_id: u64, _job_id: u64) -> Result<Bytes, ApiError> {
+            Ok(Bytes::from("hello".to_string()))
         }
     }
 

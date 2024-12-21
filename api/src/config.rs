@@ -44,6 +44,7 @@ pub struct Config {
     pub ttl_job_cache: Duration,
     pub ttl_pipeline_cache: Duration,
     pub ttl_schedule_cache: Duration,
+    pub ttl_artifact_cache: Duration,
 
     pub pipeline_history_days: i64,
 
@@ -88,6 +89,10 @@ impl Config {
             ttl_schedule_cache: Duration::from_secs(from_env_or_default(
                 "GITLAB_SCHEDULE_CACHE_TTL_SECONDS",
                 300,
+            )),
+            ttl_artifact_cache: Duration::from_secs(from_env_or_default(
+                "GITLAB_ARTIFACT_CACHE_TTL_SECONDS",
+                600,
             )),
             pipeline_history_days: from_env_or_default("GITLAB_PIPELINE_HISTORY_DAYS", 5),
             project_skip_ids: split_into(from_env_or_default(
