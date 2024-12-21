@@ -92,7 +92,7 @@ impl Config {
             )),
             ttl_artifact_cache: Duration::from_secs(from_env_or_default(
                 "GITLAB_ARTIFACT_CACHE_TTL_SECONDS",
-                600,
+                1800,
             )),
             pipeline_history_days: from_env_or_default("GITLAB_PIPELINE_HISTORY_DAYS", 5),
             project_skip_ids: split_into(from_env_or_default(
