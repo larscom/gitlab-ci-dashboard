@@ -1,0 +1,31 @@
+<button
+  nz-button
+  nz-tooltip
+  nzTooltipTitle="Download artifacts"
+  nz-dropdown
+  nzTrigger="click"
+  [nzClickHide]="false"
+  [nzDropdownMenu]="menu"
+  nzPlacement="bottomCenter"
+>
+  <nz-icon nzType="download" />
+</button>
+<nz-dropdown-menu #menu>
+  <ul nz-menu>
+    @for (job of jobs(); track job.id) {
+      <li nz-menu-item>
+        <button
+          [nzLoading]="isLoading(job.id)"
+          (click)="download($event, job)"
+          [style.color]="job.status | statusColor"
+          nz-button
+          nzType="link"
+          nzSize="small"
+        >
+          <nz-icon nzType="file-zip" />
+          {{ job.name }}
+        </button>
+      </li>
+    }
+  </ul>
+</nz-dropdown-menu>

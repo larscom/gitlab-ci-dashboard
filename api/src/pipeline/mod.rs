@@ -1,7 +1,7 @@
-mod handler;
-mod service;
+mod pipeline_handler;
+mod pipeline_service;
 mod util;
 
-pub use handler::*;
-pub use service::*;
+pub use pipeline_handler::*;
+pub use pipeline_service::*;
 pub use util::*;

@@ -74,20 +74,17 @@ export class GroupTabsComponent {
       )
     )
 
-    effect(
-      () => {
-        const groups = this.groups()
-        const gid = groupId()
-        if (gid) {
-          if (groups.length > 0 && !groups.map(({ id }) => id).includes(gid)) {
-            this.nagivate(groups[0].id)
-          } else {
-            this.selectedGroupId.set(gid)
-          }
+    effect(() => {
+      const groups = this.groups()
+      const gid = groupId()
+      if (gid) {
+        if (groups.length > 0 && !groups.map(({ id }) => id).includes(gid)) {
+          this.nagivate(groups[0].id)
+        } else {
+          this.selectedGroupId.set(gid)
         }
-      },
-      { allowSignalWrites: true }
-    )
+      }
+    })
   }
 
   toggleFavorites(): void {

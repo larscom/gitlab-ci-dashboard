@@ -38,24 +38,19 @@
         </td>
         <td>
           @if (data.pipeline; as pipeline) {
-            <button
-              (click)="onActionClick($event, pipeline)"
-              nzType="text"
-              nz-tooltip
-              nzTooltipTitle="Open in Gitlab"
-              nz-button
-              nzShape="circle"
-            >
-              <span nz-icon nzType="gitlab"></span>
-            </button>
+            @if (showWriteActions()) {
+              <gcd-write-actions-icon
+                [projectId]="data.project.id"
+                [pipelineId]="pipeline.id"
+                [branch]="pipeline.ref"
+              />
+            }
 
-            <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
-
-            <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
-
-            <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+            <gcd-open-gitlab-icon [url]="pipeline.web_url" />
 
             <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+
+            <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
           } @else {
             -
           }

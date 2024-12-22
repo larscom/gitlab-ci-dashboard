@@ -1,10 +1,8 @@
 <button
-  nzType="text"
   nz-tooltip
   [nzTooltipMouseEnterDelay]="0.5"
   [nzTooltipTitle]="tooltipTitle()"
   nz-button
-  nzShape="circle"
   (click)="hasFavorite() ? remove($event) : add($event)"
 >
   @if (hasFavorite()) {

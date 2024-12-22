@@ -1,5 +1,5 @@
 use crate::error::ApiError;
-use crate::group::service::GroupService;
+use crate::group::group_service::GroupService;
 use crate::model::Group;
 use actix_web::web::{Data, Json};
 use actix_web::{web, HttpRequest};

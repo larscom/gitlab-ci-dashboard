@@ -1,0 +1,20 @@
+<button
+  nz-button
+  nz-tooltip
+  nz-dropdown
+  nzTrigger="click"
+  nzPlacement="bottomCenter"
+  [nzClickHide]="true"
+  [nzDropdownMenu]="menu"
+  [nzTooltipTitle]="tooltipTitle()"
+  [disabled]="readOnly()"
+>
+  <nz-icon nzType="ellipsis" />
+</button>
+<nz-dropdown-menu #menu>
+  <ul nz-menu>
+    <li nz-menu-item><gcd-start-pipeline-action [projectId]="projectId()" [branch]="branch()" /></li>
+    <li nz-menu-item><gcd-retry-pipeline-action [projectId]="projectId()" [pipelineId]="pipelineId()" /></li>
+    <li nz-menu-item><gcd-cancel-pipeline-action [projectId]="projectId()" [pipelineId]="pipelineId()" /></li>
+  </ul>
+</nz-dropdown-menu>

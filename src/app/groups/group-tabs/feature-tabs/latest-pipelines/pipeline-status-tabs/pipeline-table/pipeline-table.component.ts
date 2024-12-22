@@ -1,18 +1,27 @@
 import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
-import { CancelPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/cancel-pipeline-icon/cancel-pipeline-icon.component'
+import { DownloadArtifactsIconComponent } from '$groups/group-tabs/feature-tabs/components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
-import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
-import { StartPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/start-pipeline-icon/start-pipeline-icon.component'
+import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
 import { FETCH_REFRESH_INTERVAL } from '$groups/http'
 import { BranchPipeline } from '$groups/model/branch'
-import { Pipeline } from '$groups/model/pipeline'
 import { Project, ProjectId, ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
+import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnDestroy, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  OnDestroy,
+  Signal,
+  signal
+} from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -21,6 +30,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, interval, Subscription, switchMap } from 'rxjs'
+import { OpenGitlabIconComponent } from '../../../components/open-gitlab-icon/open-gitlab-icon.component'
 import { LatestPipelineService } from '../../service/latest-pipeline.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
 
@@ -60,9 +70,9 @@ const headers: Header<ProjectPipeline>[] = [
     PipelineTableBranchComponent,
     JobsComponent,
     FavoritesIconComponent,
-    RetryPipelineIconComponent,
-    CancelPipelineIconComponent,
-    StartPipelineIconComponent
+    WriteActionsIconComponent,
+    DownloadArtifactsIconComponent,
+    OpenGitlabIconComponent
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],
@@ -72,6 +82,7 @@ export class PipelineTableComponent implements OnDestroy {
   private i18n = inject(NzI18nService)
   private latestPipelineService = inject(LatestPipelineService)
   private destroyRef = inject(DestroyRef)
+  private config = inject(ConfigService)
 
   private refreshSubscription?: Subscription
 
@@ -88,6 +99,10 @@ export class PipelineTableComponent implements OnDestroy {
     this.refreshSubscription?.unsubscribe()
   }
 
+  get showWriteActions(): Signal<boolean> {
+    return computed(() => !this.config.hideWriteActions())
+  }
+
   get locale(): string {
     const { locale } = this.i18n.getLocale()
     return locale
@@ -100,11 +115,6 @@ export class PipelineTableComponent implements OnDestroy {
   get timeZone(): string {
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
     return timeZone
-  }
-
-  onActionClick(e: Event, { web_url }: Pipeline): void {
-    e.stopPropagation()
-    window.open(web_url, '_blank')
   }
 
   onRowClick({ id: projectId }: Project) {

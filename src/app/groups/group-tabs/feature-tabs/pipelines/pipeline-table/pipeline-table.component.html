@@ -12,7 +12,11 @@
   </thead>
   <tbody>
     @for (data of nzTable.data; track trackBy($index, data)) {
-      <tr [attr.data-project-id]="data.project.id" [attr.data-pipeline-id]="data.pipeline?.id">
+      <tr
+        [attr.data-project-id]="data.project.id"
+        [attr.data-pipeline-id]="data.pipeline?.id"
+        [class.blue-bg]="isPinned(data.pipeline?.id)"
+      >
         <td>{{ data.project.name }}</td>
         <td>
           @let ref = data.pipeline?.ref || '';
@@ -48,35 +52,28 @@
         </td>
         <td>
           @if (data.pipeline; as pipeline) {
-            <button
-              (click)="onActionClick($event, pipeline)"
-              nzType="text"
-              nz-tooltip
-              nzTooltipTitle="Open in Gitlab"
-              nz-button
-              nzShape="circle"
-            >
-              <span nz-icon nzType="gitlab"></span>
-            </button>
+            @if (showWriteActions()) {
+              <gcd-write-actions-icon
+                [projectId]="data.project.id"
+                [pipelineId]="pipeline.id"
+                [branch]="data.pipeline.ref"
+              />
+            }
 
-            <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
-
-            <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
-
-            <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+            <gcd-open-gitlab-icon [url]="pipeline.web_url" />
 
             <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
 
+            <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+
             <button
-              nzType="text"
               nz-tooltip
               [nzTooltipMouseEnterDelay]="0.5"
-              [nzTooltipTitle]="pinnedPipelines().includes(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
+              [nzTooltipTitle]="isPinned(pipeline.id) ? 'Unpin pipeline' : 'Pin pipeline'"
               nz-button
-              nzShape="circle"
               (click)="onPinClick($event, pipeline)"
             >
-              @if (pinnedPipelines().includes(pipeline.id)) {
+              @if (isPinned(pipeline.id)) {
                 <span nz-icon nzType="pushpin" nzTheme="fill" nzTheme="twotone" nzTwotoneColor="#096DD9"></span>
               } @else {
                 <span nz-icon nzType="pushpin"></span>

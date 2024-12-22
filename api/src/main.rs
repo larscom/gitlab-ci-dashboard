@@ -25,6 +25,8 @@ mod project;
 mod schedule;
 mod util;
 
+mod artifact;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -64,6 +66,10 @@ async fn main() -> std::io::Result<()> {
         gitlab_client.clone(),
         gcd_config.clone(),
     ));
+    let artifact_service = Data::new(artifact::ArtifactService::new(
+        gitlab_client.clone(),
+        gcd_config.clone(),
+    ));
 
     let project_aggr = Data::new(project::PipelineAggregator::new(
         project_service.get_ref().clone(),
@@ -95,6 +101,7 @@ async fn main() -> std::io::Result<()> {
                 job_service.clone(),
                 pipeline_service.clone(),
                 branch_service.clone(),
+                artifact_service.clone(),
             ))
     })
     .bind((gcd_config.server_ip, gcd_config.server_port))?
@@ -114,6 +121,7 @@ fn configure_app(
     job_service: Data<job::JobService>,
     pipeline_service: Data<pipeline::PipelineService>,
     branch_service: Data<branch::BranchService>,
+    artifact_service: Data<artifact::ArtifactService>,
 ) -> impl FnOnce(&mut ServiceConfig) {
     move |config| {
         config
@@ -126,6 +134,7 @@ fn configure_app(
             .app_data(job_service)
             .app_data(pipeline_service)
             .app_data(branch_service)
+            .app_data(artifact_service)
             .route("/health", web::get().to(health_handler))
             .service(
                 scope("/api")
@@ -135,7 +144,8 @@ fn configure_app(
                     .configure(pipeline::setup_handlers)
                     .configure(branch::setup_handlers)
                     .configure(schedule::setup_handlers)
-                    .configure(job::setup_handlers),
+                    .configure(job::setup_handlers)
+                    .configure(artifact::setup_handlers),
             )
             .service(setup_spa());
     }
@@ -168,9 +178,10 @@ fn setup_spa() -> impl HttpServiceFactory {
 mod tests {
     use std::collections::HashMap;
     use std::env;
-
+    use std::ops::Deref;
     use actix_web::body::to_bytes;
     use actix_web::test;
+    use actix_web::web::Bytes;
     use async_trait::async_trait;
     use chrono::{DateTime, Utc};
     use serde_json::json;
@@ -221,6 +232,10 @@ mod tests {
                 gitlab_client.clone(),
                 gcd_config.clone(),
             ));
+            let artifact_service = Data::new(artifact::ArtifactService::new(
+                gitlab_client.clone(),
+                gcd_config.clone(),
+            ));
 
             let project_aggr = Data::new(project::PipelineAggregator::new(
                 project_service.get_ref().clone(),
@@ -246,6 +261,7 @@ mod tests {
                 job_service,
                 pipeline_service,
                 branch_service,
+                artifact_service,
             )))
             .await
         }};
@@ -323,6 +339,10 @@ mod tests {
             _scope: &[JobStatus],
         ) -> Result<Vec<Job>, ApiError> {
             Ok(vec![model::test::new_job()])
+        }
+
+        async fn artifact(&self, _project_id: u64, _job_id: u64) -> Result<Bytes, ApiError> {
+            Ok(Bytes::from("hello".to_string()))
         }
     }
 
@@ -574,5 +594,21 @@ mod tests {
         let body = to_bytes(resp.into_body()).await.unwrap();
         let pipeline = serde_json::from_str::<Pipeline>(to_str(&body)).unwrap();
         assert_eq!(pipeline.id, 1);
+    }
+
+    #[actix_web::test]
+    async fn test_artifact_endpoint() {
+        let app = setup_app!();
+        let req = test::TestRequest::get()
+            .uri("/api/artifacts?project_id=456&job_id=1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+
+        let status = resp.status();
+        assert!(status.is_success());
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+
+        assert_eq!(String::from_utf8_lossy(body.deref()), "hello");
     }
 }

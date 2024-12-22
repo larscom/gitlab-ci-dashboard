@@ -1,16 +1,16 @@
-import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-icon/favorites-icon.component'
-import { CancelPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/cancel-pipeline-icon/cancel-pipeline-icon.component'
+import { DownloadArtifactsIconComponent } from '$groups/group-tabs/feature-tabs/components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
-import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
-import { StartPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/start-pipeline-icon/start-pipeline-icon.component'
+import { OpenGitlabIconComponent } from '$groups/group-tabs/feature-tabs/components/open-gitlab-icon/open-gitlab-icon.component'
+import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { Pipeline, PipelineId } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
+import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input, Signal } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -52,9 +52,9 @@ const headers: Header<Pipeline>[] = [
     NzBadgeModule,
     StatusColorPipe,
     JobsComponent,
-    RetryPipelineIconComponent,
-    CancelPipelineIconComponent,
-    StartPipelineIconComponent
+    WriteActionsIconComponent,
+    DownloadArtifactsIconComponent,
+    OpenGitlabIconComponent
   ],
   templateUrl: './schedule-pipeline-table.component.html',
   styleUrls: ['./schedule-pipeline-table.component.scss'],
@@ -62,11 +62,16 @@ const headers: Header<Pipeline>[] = [
 })
 export class SchedulePipelineTableComponent {
   private i18n = inject(NzI18nService)
+  private config = inject(ConfigService)
 
   pipelines = input.required<Pipeline[]>()
   loading = input.required<boolean>()
 
   headers: Header<Pipeline>[] = headers
+
+  get showWriteActions(): Signal<boolean> {
+    return computed(() => !this.config.hideWriteActions())
+  }
 
   get locale(): string {
     const { locale } = this.i18n.getLocale()
@@ -80,11 +85,6 @@ export class SchedulePipelineTableComponent {
 
   getScope(status?: Status): Status[] {
     return statusToScope(status)
-  }
-
-  onClick(e: Event, { web_url }: Pipeline): void {
-    e.stopPropagation()
-    window.open(web_url, '_blank')
   }
 
   trackById({ id }: Pipeline): PipelineId {

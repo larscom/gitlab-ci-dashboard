@@ -64,36 +64,32 @@
         </td>
         <td>
           @if (data.pipeline; as pipeline) {
-            <button
-              (click)="onPipelineClick($event, pipeline)"
-              nzType="text"
-              nz-tooltip
-              nzTooltipTitle="Open in Gitlab"
-              nz-button
-              nzShape="circle"
-            >
-              <span nz-icon nzType="gitlab"></span>
-            </button>
+            @if (showWriteActions()) {
+              <gcd-write-actions-icon
+                [projectId]="data.project.id"
+                [pipelineId]="pipeline.id"
+                [branch]="pipeline.ref"
+              />
+            }
 
-            <gcd-start-pipeline-icon [projectId]="data.project.id" [branch]="data.pipeline.ref" />
+            <gcd-open-gitlab-icon [url]="pipeline.web_url" />
 
-            <gcd-cancel-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
 
-            <gcd-retry-pipeline-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+            <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
           } @else {
             <button nzType="text" nz-button nzShape="circle" disabled>
               <span nz-icon nzType="gitlab"></span>
             </button>
+
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
           }
 
-          <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
           <button
             (click)="onScheduleClick($event, data.project)"
-            nzType="text"
             nz-tooltip
             [nzTooltipTitle]="'Show schedules (' + data.project.name + ')'"
             nz-button
-            nzShape="circle"
           >
             <span nz-icon nzType="schedule"></span>
           </button>

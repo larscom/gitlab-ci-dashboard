@@ -1,16 +1,16 @@
-import { CancelPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/cancel-pipeline-icon/cancel-pipeline-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
-import { RetryPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/retry-pipeline-icon/retry-pipeline-icon.component'
-import { StartPipelineIconComponent } from '$groups/group-tabs/feature-tabs/components/start-pipeline-icon/start-pipeline-icon.component'
+import { OpenGitlabIconComponent } from '$groups/group-tabs/feature-tabs/components/open-gitlab-icon/open-gitlab-icon.component'
+import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { BranchPipeline } from '$groups/model/branch'
-import { Pipeline } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { filterString } from '$groups/util/filter'
 import { statusToScope } from '$groups/util/status-scope'
+import { Header } from '$groups/util/table'
+import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input, Signal, signal } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
@@ -18,7 +18,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { LatestBranchFilterComponent } from './latest-branch-filter/latest-branch-filter.component'
-import { Header } from '$groups/util/table'
 
 const headers: Header<BranchPipeline>[] = [
   { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
@@ -51,9 +50,8 @@ const headers: Header<BranchPipeline>[] = [
     NzButtonModule,
     NzIconModule,
     NzBadgeModule,
-    RetryPipelineIconComponent,
-    CancelPipelineIconComponent,
-    StartPipelineIconComponent
+    WriteActionsIconComponent,
+    OpenGitlabIconComponent
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],
@@ -61,6 +59,7 @@ const headers: Header<BranchPipeline>[] = [
 })
 export class PipelineTableBranchComponent {
   private i18n = inject(NzI18nService)
+  private config = inject(ConfigService)
 
   branchPipelines = input.required<BranchPipeline[]>()
   loading = input.required<boolean>()
@@ -73,6 +72,10 @@ export class PipelineTableBranchComponent {
   branchCount = computed(() => this.branchPipelines().length)
 
   headers: Header<BranchPipeline>[] = headers
+
+  get showWriteActions(): Signal<boolean> {
+    return computed(() => !this.config.hideWriteActions())
+  }
 
   get locale(): string {
     const { locale } = this.i18n.getLocale()
@@ -90,11 +93,6 @@ export class PipelineTableBranchComponent {
 
   getScope(status?: Status): Status[] {
     return statusToScope(status)
-  }
-
-  onActionClick(e: Event, { web_url }: Pipeline): void {
-    e.stopPropagation()
-    window.open(web_url, '_blank')
   }
 
   trackByBranchName({ branch: { name } }: BranchPipeline): string {

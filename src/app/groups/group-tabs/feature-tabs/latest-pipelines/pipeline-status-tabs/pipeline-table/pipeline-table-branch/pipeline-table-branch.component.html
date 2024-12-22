@@ -57,22 +57,14 @@
           </td>
           <td>
             @if (data.pipeline; as pipeline) {
-              <button
-                (click)="onActionClick($event, pipeline)"
-                nzType="text"
-                nz-tooltip
-                nzTooltipTitle="Open in Gitlab"
-                nz-button
-                nzShape="circle"
-              >
-                <span nz-icon nzType="gitlab"></span>
-              </button>
-
-              <gcd-start-pipeline-icon [projectId]="pipeline.project_id" [branch]="data.branch.name" />
-
-              <gcd-cancel-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
-
-              <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+              @if (showWriteActions()) {
+                <gcd-write-actions-icon
+                  [projectId]="pipeline.project_id"
+                  [pipelineId]="pipeline.id"
+                  [branch]="data.branch.name"
+                />
+              }
+              <gcd-open-gitlab-icon [url]="pipeline.web_url" />
             } @else {
               -
             }

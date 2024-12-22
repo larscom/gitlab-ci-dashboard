@@ -10,7 +10,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification'
+import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { finalize, map, retry } from 'rxjs'
@@ -29,7 +29,6 @@ export interface ModalData {
     VariablesFormComponent,
     NzButtonModule,
     NzModalModule,
-    NzNotificationModule,
     NzSelectModule,
     NzIconModule,
     NzSpaceModule,
@@ -88,10 +87,10 @@ export class StartPipelineModalComponent {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error(
               'Forbidden',
-              'Failed to start a new pipeline, a read/write access token is required.'
+              'Failed to start new pipeline, a read/write access token is required.'
             )
           } else {
-            this.notification.error(`Error ${status}`, error ? error.message : 'Failed to start a new pipeline')
+            this.notification.error(`Error ${status}`, error ? error.message : 'Failed to start new pipeline')
           }
         }
       })

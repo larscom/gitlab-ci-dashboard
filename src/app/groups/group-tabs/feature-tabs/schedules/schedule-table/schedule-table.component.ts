@@ -8,8 +8,19 @@ import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
+import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnDestroy, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  OnDestroy,
+  Signal,
+  signal
+} from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -18,13 +29,13 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, interval, map, Subscription, switchMap } from 'rxjs'
-import { CancelPipelineIconComponent } from '../../components/cancel-pipeline-icon/cancel-pipeline-icon.component'
+import { DownloadArtifactsIconComponent } from '../../components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '../../components/jobs/jobs.component'
-import { RetryPipelineIconComponent } from '../../components/retry-pipeline-icon/retry-pipeline-icon.component'
-import { StartPipelineIconComponent } from '../../components/start-pipeline-icon/start-pipeline-icon.component'
+import { WriteActionsIconComponent } from '../../components/write-actions-icon/write-actions-icon.component'
 import { PipelinesService } from '../../pipelines/service/pipelines.service'
 import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 import { SchedulePipelineTableComponent } from './schedule-pipeline-table/schedule-pipeline-table.component'
+import { OpenGitlabIconComponent } from '../../components/open-gitlab-icon/open-gitlab-icon.component'
 
 const headers: Header<ScheduleProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -68,11 +79,11 @@ const headers: Header<ScheduleProjectPipeline>[] = [
     NextRunAtPipe,
     StatusColorPipe,
     JobsComponent,
-    RetryPipelineIconComponent,
-    CancelPipelineIconComponent,
-    StartPipelineIconComponent,
     FavoritesIconComponent,
-    SchedulePipelineTableComponent
+    SchedulePipelineTableComponent,
+    WriteActionsIconComponent,
+    DownloadArtifactsIconComponent,
+    OpenGitlabIconComponent
   ],
   templateUrl: './schedule-table.component.html',
   styleUrls: ['./schedule-table.component.scss'],
@@ -82,6 +93,7 @@ export class ScheduleTableComponent implements OnDestroy {
   private i18n = inject(NzI18nService)
   private pipelinesService = inject(PipelinesService)
   private destroyRef = inject(DestroyRef)
+  private config = inject(ConfigService)
 
   private refreshSubscription?: Subscription
 
@@ -97,6 +109,10 @@ export class ScheduleTableComponent implements OnDestroy {
     this.refreshSubscription?.unsubscribe()
   }
 
+  get showWriteActions(): Signal<boolean> {
+    return computed(() => !this.config.hideWriteActions())
+  }
+
   get locale(): string {
     const { locale } = this.i18n.getLocale()
     return locale
@@ -109,11 +125,6 @@ export class ScheduleTableComponent implements OnDestroy {
 
   getScope(status?: Status): Status[] {
     return statusToScope(status)
-  }
-
-  onPipelineClick(e: Event, { web_url }: Pipeline): void {
-    e.stopPropagation()
-    window.open(web_url, '_blank')
   }
 
   onScheduleClick(e: Event, { web_url }: Project): void {

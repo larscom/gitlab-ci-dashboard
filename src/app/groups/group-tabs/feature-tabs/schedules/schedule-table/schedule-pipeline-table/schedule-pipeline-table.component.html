@@ -28,22 +28,15 @@
           <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
         </td>
         <td>
-          <button
-            (click)="onClick($event, pipeline)"
-            nzType="text"
-            nz-tooltip
-            nzTooltipTitle="Open in Gitlab"
-            nz-button
-            nzShape="circle"
-          >
-            <span nz-icon nzType="gitlab"></span>
-          </button>
-
-          <gcd-start-pipeline-icon [projectId]="pipeline.project_id" [branch]="pipeline.ref" />
-
-          <gcd-cancel-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
-
-          <gcd-retry-pipeline-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+          @if (showWriteActions()) {
+            <gcd-write-actions-icon
+              [projectId]="pipeline.project_id"
+              [pipelineId]="pipeline.id"
+              [branch]="pipeline.ref"
+            />
+          }
+          <gcd-open-gitlab-icon [url]="pipeline.web_url" />
+          <gcd-download-artifacts-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
         </td>
       </tr>
     }
