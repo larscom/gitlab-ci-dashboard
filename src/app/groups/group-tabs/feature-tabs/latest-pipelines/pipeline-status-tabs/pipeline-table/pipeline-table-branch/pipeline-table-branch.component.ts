@@ -1,3 +1,4 @@
+import { DownloadArtifactsIconComponent } from '$groups/group-tabs/feature-tabs/components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { OpenGitlabIconComponent } from '$groups/group-tabs/feature-tabs/components/open-gitlab-icon/open-gitlab-icon.component'
 import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
@@ -51,7 +52,8 @@ const headers: Header<BranchPipeline>[] = [
     NzIconModule,
     NzBadgeModule,
     WriteActionsIconComponent,
-    OpenGitlabIconComponent
+    OpenGitlabIconComponent,
+    DownloadArtifactsIconComponent
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],
