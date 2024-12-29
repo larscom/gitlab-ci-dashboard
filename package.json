@@ -17,7 +17,7 @@
     "@angular/platform-browser": "19.0.5",
     "@angular/platform-browser-dynamic": "19.0.5",
     "@angular/router": "19.0.5",
-    "@fontsource/roboto": "5.1.0",
+    "@fontsource/roboto": "5.1.1",
     "file-saver": "2.0.5",
     "ng-zorro-antd": "19.0.0",
     "normalize.css": "8.0.1",
