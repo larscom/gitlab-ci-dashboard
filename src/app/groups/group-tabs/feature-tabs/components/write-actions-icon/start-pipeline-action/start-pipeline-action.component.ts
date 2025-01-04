@@ -1,6 +1,6 @@
 import { ProjectId } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal'
@@ -19,11 +19,10 @@ export class StartPipelineActionComponent {
   projectId = input.required<ProjectId>()
   branch = input.required<string>()
 
+
   loading = signal(false)
 
-  start(e: MouseEvent) {
-    e.stopPropagation()
-
+  start() {
     const nzData: ModalData = { projectId: this.projectId(), branch: this.branch(), loadingIcon: this.loading }
 
     this.modal.create({

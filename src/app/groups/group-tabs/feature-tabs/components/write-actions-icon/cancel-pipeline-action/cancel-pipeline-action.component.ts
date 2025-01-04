@@ -25,9 +25,7 @@ export class CancelPipelineActionComponent {
 
   loading = signal(false)
 
-  cancel(e: MouseEvent): void {
-    e.stopPropagation()
-
+  cancel(): void {
     const params = { project_id: this.projectId(), pipeline_id: this.pipelineId() }
 
     this.loading.set(true)

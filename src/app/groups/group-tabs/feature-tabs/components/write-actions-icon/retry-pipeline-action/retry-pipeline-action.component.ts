@@ -25,9 +25,7 @@ export class RetryPipelineActionComponent {
 
   loading = signal(false)
 
-  retry(e: MouseEvent) {
-    e.stopPropagation()
-
+  retry() {
     const params = { project_id: this.projectId(), pipeline_id: this.pipelineId() }
 
     this.loading.set(true)
@@ -39,7 +37,7 @@ export class RetryPipelineActionComponent {
         finalize(() => this.loading.set(false))
       )
       .subscribe({
-        complete: () => this.notification.success('Success', 'Restarted jobs.'),
+        complete: () => this.notification.success('Success', 'Restarted pipeline.'),
         error: ({ status, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
             this.notification.error('Forbidden', 'Failed to retry pipeline, a read/write access token is required.')
