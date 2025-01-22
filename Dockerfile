@@ -1,4 +1,4 @@
-FROM node:22.13.0-alpine AS fe
+FROM node:22.13.1-alpine AS fe
 WORKDIR /builder
 COPY . .
 RUN npm ci --legacy-peer-deps --ignore-scripts && npm run build
