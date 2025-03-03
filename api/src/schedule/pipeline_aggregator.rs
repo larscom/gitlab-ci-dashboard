@@ -49,7 +49,11 @@ impl PipelineAggregator {
         projects: Vec<Project>,
     ) -> Result<Vec<ScheduleProjectPipeline>, ApiError> {
         let result = try_collect_with_buffer(projects, |project| async move {
-            let schedules = self.schedule_service.get_schedules(project.id).await?;
+            let schedules = if project.default_branch.is_some() {
+                self.schedule_service.get_schedules(project.id).await?
+            } else {
+                Vec::default()
+            };
             let result = self
                 .with_latest_pipeline(group_id, &project, schedules)
                 .await?;
