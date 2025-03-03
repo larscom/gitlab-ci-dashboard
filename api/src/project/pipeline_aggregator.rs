@@ -44,7 +44,8 @@ impl PipelineAggregator {
         projects: Vec<Project>,
     ) -> Result<Vec<ProjectPipeline>, ApiError> {
         try_collect_with_buffer(projects, |project| async move {
-            let pipeline = if let Some(default_branch) = project.clone().default_branch {
+            let default_branch = project.default_branch.clone();
+            let pipeline = if let Some(default_branch) = default_branch {
                 self.pipeline_service
                     .get_latest_pipeline(project.id, default_branch)
                     .await?
