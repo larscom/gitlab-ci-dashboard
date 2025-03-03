@@ -7,7 +7,7 @@ pub struct Project {
     pub id: u64,
     pub name: String,
     pub web_url: String,
-    pub default_branch: String,
+    pub default_branch: Option<String>,
     pub topics: Vec<String>,
 }
 

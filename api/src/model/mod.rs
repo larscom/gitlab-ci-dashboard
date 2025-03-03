@@ -99,7 +99,7 @@ pub mod test {
             id: 456,
             name: "name".to_string(),
             web_url: "web_url".to_string(),
-            default_branch: "default_branch".to_string(),
+            default_branch: Some("default_branch".to_string()),
             topics: vec!["topic".to_string()],
         }
     }

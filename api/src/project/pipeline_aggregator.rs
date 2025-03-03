@@ -44,10 +44,15 @@ impl PipelineAggregator {
         projects: Vec<Project>,
     ) -> Result<Vec<ProjectPipeline>, ApiError> {
         try_collect_with_buffer(projects, |project| async move {
-            let pipeline = self
-                .pipeline_service
-                .get_latest_pipeline(project.id, project.default_branch.clone())
-                .await?;
+            let default_branch = project.default_branch.clone();
+            let pipeline = if let Some(default_branch) = default_branch {
+                self.pipeline_service
+                    .get_latest_pipeline(project.id, default_branch)
+                    .await?
+            } else {
+                None
+            };
+
             Ok(ProjectPipeline {
                 group_id,
                 project,
@@ -75,10 +80,13 @@ impl PipelineAggregator {
         projects: Vec<Project>,
     ) -> Result<Vec<ProjectPipelines>, ApiError> {
         try_collect_with_buffer(projects, |project| async move {
-            let pipelines = self
-                .pipeline_service
-                .get_pipelines(project.id, None)
-                .await?;
+            let pipelines = if project.default_branch.is_some() {
+                self.pipeline_service
+                    .get_pipelines(project.id, None)
+                    .await?
+            } else {
+                Vec::default()
+            };
             Ok(ProjectPipelines {
                 group_id,
                 project,
