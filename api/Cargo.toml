@@ -4,21 +4,21 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.9.0"
+actix-web = "4.10.2"
 actix-web-lab = { version = "0.23.0", features = ["spa"] }
-chrono = { version = "0.4.38", features = ["serde"] }
+chrono = { version = "0.4.40", features = ["serde"] }
 dotenv = "0.15.0"
-env_logger = "0.11.5"
-log = "0.4.22"
-moka = { version = "0.12.8", features = ["future"] }
-reqwest = { version = "0.12.8", features = ["json"] }
-serde = { version = "1.0.210", features = ["derive"] }
-serde_json = "1.0.128"
-tokio = { version = "1.40.0", features = ["sync"] }
-async-trait = "0.1.83"
-futures = "0.3.30"
+env_logger = "0.11.6"
+log = "0.4.27"
+moka = { version = "0.12.10", features = ["future"] }
+reqwest = { version = "0.12.15", features = ["json"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+tokio = { version = "1.44.2", features = ["sync"] }
+async-trait = "0.1.88"
+futures = "0.3.31"
 serde-querystring-actix = "0.3.0"
 actix-web-prom = { version = "0.9.0", features = ["process"] }
 
 [dev-dependencies]
-serial_test = "3.1.1"
+serial_test = "3.2.0"
