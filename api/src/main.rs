@@ -2,10 +2,10 @@
 
 use crate::config::ApiConfig;
 use crate::gitlab::GitlabClient;
+use crate::spa::Spa;
 use actix_web::dev::HttpServiceFactory;
 use actix_web::web::{Data, ServiceConfig};
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
-use actix_web_lab::web::spa;
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
 use config::Config;
 use dotenv::dotenv;
@@ -13,6 +13,7 @@ use serde_querystring_actix::{ParseMode, QueryStringConfig};
 use std::sync::Arc;
 use web::scope;
 
+mod artifact;
 mod branch;
 mod config;
 mod error;
@@ -23,9 +24,8 @@ mod model;
 mod pipeline;
 mod project;
 mod schedule;
+mod spa;
 mod util;
-
-mod artifact;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -164,27 +164,23 @@ fn setup_prometheus() -> PrometheusMetrics {
 
 fn setup_spa() -> impl HttpServiceFactory {
     if cfg!(debug_assertions) {
-        spa().finish()
+        Spa::default().finish()
     } else {
-        spa()
-            .index_file("./spa/index.html")
-            .static_resources_mount("/")
-            .static_resources_location("./spa")
-            .finish()
+        Spa::new("./spa/index.html", "/", "./spa").finish()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-    use std::env;
-    use std::ops::Deref;
     use actix_web::body::to_bytes;
     use actix_web::test;
     use actix_web::web::Bytes;
     use async_trait::async_trait;
     use chrono::{DateTime, Utc};
     use serde_json::json;
+    use std::collections::HashMap;
+    use std::env;
+    use std::ops::Deref;
 
     use crate::error::ApiError;
     use crate::gitlab::GitlabApi;
