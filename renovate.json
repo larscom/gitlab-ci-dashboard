@@ -6,8 +6,17 @@
   "packageRules": [
     {
       "description": "Automerge non-major updates",
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Use bump strategy for Cargo",
+      "matchManagers": [
+        "cargo"
+      ],
       "rangeStrategy": "bump"
     }
   ]
