@@ -7,7 +7,8 @@
     {
       "description": "Automerge non-major updates",
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
+      "automerge": true,
+      "rangeStrategy": "bump"
     }
   ]
 }
