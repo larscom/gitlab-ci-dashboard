@@ -19,7 +19,7 @@ tokio = { version = "1.45.0", features = ["sync"] }
 async-trait = "0.1.88"
 futures = "0.3.31"
 serde-querystring-actix = "0.3.0"
-actix-web-prom = { version = "0.9.0", features = ["process"] }
+actix-web-prom = { version = "0.10.0", features = ["process"] }
 
 [dev-dependencies]
 serial_test = "3.2.0"
