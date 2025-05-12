@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.10.2"
+actix-web = "4.11.0"
 actix-files = { version = "0.6.6" }
 actix-service = { version = "2.0.3" }
 chrono = { version = "0.4.41", features = ["serde"] }
