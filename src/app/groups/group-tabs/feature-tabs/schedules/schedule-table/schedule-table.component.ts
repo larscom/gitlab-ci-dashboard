@@ -39,6 +39,11 @@ import { OpenGitlabIconComponent } from '../../components/open-gitlab-icon/open-
 
 const headers: Header<ScheduleProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
+   {
+    title: 'Group',
+    sortable: true,
+    compare: (a, b) => compareString(a.project.namespace.name, b.project.namespace.name)
+  },
   {
     title: 'Description',
     sortable: true,

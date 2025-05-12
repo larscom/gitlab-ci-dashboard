@@ -19,6 +19,7 @@
         (click)="onRowClick(data.project)"
       >
         <td>{{ data.project.name }}</td>
+        <td>{{ data.project.namespace.name }}</td>
         <td>{{ data.project.default_branch }}</td>
         <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
         <td>{{ data.pipeline?.source || '-' }}</td>

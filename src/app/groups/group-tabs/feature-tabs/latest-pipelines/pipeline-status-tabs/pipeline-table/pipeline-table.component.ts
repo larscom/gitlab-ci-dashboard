@@ -37,6 +37,11 @@ import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-t
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
   {
+    title: 'Group',
+    sortable: true,
+    compare: (a, b) => compareString(a.project.namespace.name, b.project.namespace.name)
+  },
+  {
     title: 'Branch',
     sortable: true,
     compare: (a, b) => compareString(a.project.default_branch, b.project.default_branch)

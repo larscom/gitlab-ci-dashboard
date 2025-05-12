@@ -17,8 +17,9 @@
         [attr.data-pipeline-id]="data.pipeline?.id"
         [class.blue-bg]="isPinned(data.pipeline?.id)"
       >
-        <td>{{ data.project.name }}</td>
-        <td>
+      <td>{{ data.project.name }}</td>
+      <td>{{ data.project.namespace.name }}</td>
+      <td>
           @let ref = data.pipeline?.ref || '';
           @if (isTag(ref)) {
             <nz-tag nzColor="green">

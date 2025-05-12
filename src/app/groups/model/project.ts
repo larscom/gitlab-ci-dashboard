@@ -16,6 +16,7 @@ export interface ProjectPipelines {
 export interface Namespace {
   id: number
   name: string
+  path: string
 }
 
 export type ProjectId = number
@@ -27,5 +28,5 @@ export interface Project {
   web_url: string
   topics: string[]
   description?: string
-  namespace?: Namespace
+  namespace: Namespace
 }

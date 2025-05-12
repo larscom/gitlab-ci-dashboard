@@ -17,7 +17,7 @@ use tokio::sync::mpsc;
 pub trait GitlabApi: Send + Sync {
     async fn groups(&self, skip_groups: &[u64], top_level: bool) -> Result<Vec<Group>, ApiError>;
 
-    async fn projects(&self, group_id: u64) -> Result<Vec<Project>, ApiError>;
+    async fn projects(&self, group_id: u64, include_subgroups: bool) -> Result<Vec<Project>, ApiError>;
 
     async fn latest_pipeline(
         &self,
@@ -231,8 +231,11 @@ impl GitlabApi for GitlabClient {
         self.get_all_pages(path.to_string(), params).await
     }
 
-    async fn projects(&self, group_id: u64) -> Result<Vec<Project>, ApiError> {
-        let params = [("archived".to_string(), "false".to_string())];
+    async fn projects(&self, group_id: u64, include_subgroups: bool) -> Result<Vec<Project>, ApiError> {
+        let params = [
+            ("archived".to_string(), "false".to_string()),
+            ("include_subgroups".to_string(), include_subgroups.to_string()),
+        ];
         let path = format!("/groups/{}/projects", group_id);
 
         self.get_all_pages(path, params.to_vec()).await

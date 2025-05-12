@@ -275,7 +275,11 @@ mod tests {
             Ok(vec![model::test::new_group()])
         }
 
-        async fn projects(&self, _group_id: u64) -> Result<Vec<Project>, ApiError> {
+        async fn projects(
+            &self,
+            _group_id: u64,
+            _include_subgroups: bool,
+        ) -> Result<Vec<Project>, ApiError> {
             Ok(vec![model::test::new_project()])
         }
 

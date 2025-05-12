@@ -19,9 +19,7 @@ pub mod user;
 pub mod test {
     use crate::model::commit::Commit;
     use crate::model::user::User;
-    use crate::model::{
-        Branch, Group, Job, JobStatus, Pipeline, PipelineSource, PipelineStatus, Project, Schedule,
-    };
+    use crate::model::{Branch, Group, Job, JobStatus, Namespace, Pipeline, PipelineSource, PipelineStatus, Project, Schedule};
 
     pub fn new_commit() -> Commit {
         Commit {
@@ -101,6 +99,11 @@ pub mod test {
             web_url: "web_url".to_string(),
             default_branch: Some("default_branch".to_string()),
             topics: vec!["topic".to_string()],
+            namespace: Namespace {
+                id: 123,
+                name: "namespace".to_string(),
+                path: "namespace".to_string(),
+            }
         }
     }
 

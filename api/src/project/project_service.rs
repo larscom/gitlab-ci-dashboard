@@ -35,10 +35,10 @@ impl ProjectService {
         let cached_projects = self
             .cache
             .try_get_with(group_id, async {
-                let skip_projects = &self.config.project_skip_ids;
+                let skip_projects = &self.config.project_skip_ids;                
                 let projects = self
                     .client
-                    .projects(group_id)
+                    .projects(group_id, self.config.group_include_subgroups)
                     .await?
                     .into_iter()
                     .filter(|project| {

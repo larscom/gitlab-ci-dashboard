@@ -9,6 +9,14 @@ pub struct Project {
     pub web_url: String,
     pub default_branch: Option<String>,
     pub topics: Vec<String>,
+    pub namespace: Namespace
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Namespace {
+    pub id: u64,
+    pub name: String,
+    pub path: String
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -177,7 +185,8 @@ mod tests {
         let value = test::new_project();
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}";
+        let expected = "{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}}";
+
         assert_eq!(expected, json);
     }
 
@@ -190,7 +199,8 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}}}";
+
         assert_eq!(expected, json);
     }
 
@@ -203,7 +213,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
         assert_eq!(expected, json);
     }
 
@@ -216,7 +226,8 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
+
         assert_eq!(expected, json);
     }
 }

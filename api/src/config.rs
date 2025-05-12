@@ -53,6 +53,7 @@ pub struct Config {
     pub group_only_ids: Vec<u64>,
     pub group_skip_ids: Vec<u64>,
     pub group_only_top_level: bool,
+    pub group_include_subgroups: bool,
 }
 
 impl Config {
@@ -107,7 +108,8 @@ impl Config {
                 "GITLAB_GROUP_SKIP_IDS",
                 String::default(),
             )),
-            group_only_top_level: from_env_or_default("GITLAB_GROUP_ONLY_TOP_LEVEL", false),
+            group_only_top_level: from_env_or_default("GITLAB_GROUP_ONLY_TOP_LEVEL", true),
+            group_include_subgroups: from_env_or_default("GITLAB_GROUP_INCLUDE_SUBGROUPS", true),
         }
     }
 }
@@ -169,7 +171,8 @@ mod tests {
         assert_eq!(config.project_skip_ids, vec![1, 2, 3]);
         assert_eq!(config.group_only_ids, vec![4, 5, 6]);
         assert_eq!(config.group_skip_ids, vec![7, 8, 9]);
-        assert!(config.group_only_top_level);
+        assert!(!config.group_only_top_level);
+        assert!(!config.group_include_subgroups);
     }
 
     #[test]
@@ -197,7 +200,8 @@ mod tests {
         assert!(config.project_skip_ids.is_empty());
         assert!(config.group_only_ids.is_empty());
         assert!(config.group_skip_ids.is_empty());
-        assert!(!config.group_only_top_level);
+        assert!(config.group_only_top_level);
+        assert!(config.group_include_subgroups);
     }
 
     #[test]
@@ -253,6 +257,7 @@ mod tests {
         env::set_var("GITLAB_PROJECT_SKIP_IDS", "1,2,3");
         env::set_var("GITLAB_GROUP_ONLY_IDS", "4,5,6");
         env::set_var("GITLAB_GROUP_SKIP_IDS", "7,8,9");
-        env::set_var("GITLAB_GROUP_ONLY_TOP_LEVEL", "true");
+        env::set_var("GITLAB_GROUP_ONLY_TOP_LEVEL", "false");
+        env::set_var("GITLAB_GROUP_INCLUDE_SUBGROUPS", "false");
     }
 }

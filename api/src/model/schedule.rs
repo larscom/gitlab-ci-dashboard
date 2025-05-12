@@ -81,7 +81,8 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]}}";
+        let expected = "{\"group_id\":1,\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}}}";
+
         assert_eq!(expected, json);
     }
 
@@ -95,7 +96,8 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"]},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"group_id\":1,\"schedule\":{\"id\":789,\"description\":\"description\",\"ref\":\"branch\",\"cron\":\"cron\",\"cron_timezone\":\"cron_timezone\",\"next_run_at\":\"1970-01-01T00:00:00Z\",\"active\":false,\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"owner\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}},\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+
         assert_eq!(expected, json);
     }
 }

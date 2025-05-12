@@ -22,6 +22,7 @@
         (click)="onRowClick(data.project)"
       >
         <td>{{ data.project.name }}</td>
+        <td>{{ data.project.namespace.name }}</td>
         <td class="lowercase">{{ data.schedule.description }}</td>
         <td>
           <span
