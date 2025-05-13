@@ -67,6 +67,12 @@ projects, potentially resulting in undetected failed pipelines.
 docker run -p 8080:8080 -e GITLAB_BASE_URL=https://gitlab.com -e GITLAB_API_TOKEN=my_token larscom/gitlab-ci-dashboard:latest
 ```
 
+Or you can run it with a TOML configration file
+
+```bash
+docker run -p 8080:8080 -v $(pwd)/config.toml:/app/config.toml larscom/gitlab-ci-dashboard:latest
+```
+
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
    projects
 
@@ -86,7 +92,22 @@ Prometheus metrics are exposed on the following endpoint
 
 > http://localhost:8080/metrics/prometheus
 
-## 🔌 Environment variables
+## Configration
+
+You have the option to set the configuration via environment variables or a TOML file.
+A TOML file takes precedence over environment variables, except for the `RUST_LOG` variable.
+
+### 🗄️ Load from TOML file
+
+> An example TOML file can be found inside the `./api` folder.
+
+Mount the `config.toml` inside the container.
+
+```bash
+docker run -p 8080:8080 -v $(pwd)/config.toml:/app/config.toml larscom/gitlab-ci-dashboard:latest
+```
+
+### 🔌 Environment variables
 
 | Variable                          | Type   | Description                                                                                                                        | Required | Default      |
 |-----------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------|----------|--------------|

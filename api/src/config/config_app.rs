@@ -18,16 +18,13 @@ impl ApiConfig {
         }
     }
 
-    pub fn load() -> Self {
-        match config_file::load() {
-            Ok(config) => config.into(),
-            Err(_) => Self::new(),
-        }
+    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
+        file_config.map_or_else(Self::new, |c| c.into())
     }
 }
 
-impl From<config_file::Config> for ApiConfig {
-    fn from(config: config_file::Config) -> Self {
+impl From<&config_file::FileConfig> for ApiConfig {
+    fn from(config: &config_file::FileConfig) -> Self {
         Self {
             api_version: from_env_or_default("VERSION", "dev".into()),
             read_only: config.ui.read_only,
@@ -36,7 +33,7 @@ impl From<config_file::Config> for ApiConfig {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppConfig {
     pub gitlab_url: String,
     pub gitlab_token: String,
@@ -63,12 +60,12 @@ pub struct AppConfig {
     pub group_include_subgroups: bool,
 }
 
-impl From<config_file::Config> for AppConfig {
-    fn from(config: config_file::Config) -> Self {
+impl From<&config_file::FileConfig> for AppConfig {
+    fn from(config: &config_file::FileConfig) -> Self {
         Self {
-            gitlab_url: config.gitlab.url,
-            gitlab_token: config.gitlab.token,
-            server_ip: config.server.ip,
+            gitlab_url: config.gitlab.url.clone(),
+            gitlab_token: config.gitlab.token.clone(),
+            server_ip: config.server.ip.clone(),
             server_port: config.server.port,
             server_workers: config.server.workers,
             ttl_group_cache: Duration::from_secs(config.cache.ttl_group_seconds),
@@ -79,9 +76,9 @@ impl From<config_file::Config> for AppConfig {
             ttl_schedule_cache: Duration::from_secs(config.cache.ttl_schedule_seconds),
             ttl_artifact_cache: Duration::from_secs(config.cache.ttl_artifact_seconds),
             pipeline_history_days: config.pipeline.history_days,
-            project_skip_ids: config.project.skip_ids,
-            group_only_ids: config.group.only_ids,
-            group_skip_ids: config.group.skip_ids,
+            project_skip_ids: config.project.skip_ids.clone(),
+            group_only_ids: config.group.only_ids.clone(),
+            group_skip_ids: config.group.skip_ids.clone(),
             group_only_top_level: config.group.only_top_level,
             group_include_subgroups: config.group.include_subgroups,
         }
@@ -145,30 +142,23 @@ impl AppConfig {
         }
     }
 
-    pub fn load() -> Self {
-        match config_file::load() {
-            Ok(config) => config.into(),
-            Err(_) => Self::new(),
-        }
+    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
+        file_config.map_or_else(Self::new, |c| c.into())
     }
 }
 
 fn must_from_env(key: &str) -> String {
-    let value = std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key));
-    log::debug!("{key}={value}");
-    value
+    std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key))
 }
 
 fn from_env_or_default<T>(key: &str, default: T) -> T
 where
     T: FromStr + Display,
 {
-    let value = std::env::var(key)
+    std::env::var(key)
         .ok()
         .and_then(|value| value.parse().ok())
-        .unwrap_or(default);
-    log::debug!("{key}={value}");
-    value
+        .unwrap_or(default)
 }
 
 fn split_into<T: FromStr>(value: String) -> Vec<T> {

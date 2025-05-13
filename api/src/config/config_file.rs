@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Config {
+pub struct FileConfig {
     pub gitlab: Gitlab,
     pub server: Server,
     pub cache: Cache,
@@ -10,6 +10,13 @@ pub struct Config {
     pub project: Project,
     pub group: Group,
     pub ui: Ui,
+}
+
+impl FileConfig {
+    pub fn load_from_toml() -> Result<Self, Box<dyn std::error::Error>> {
+        let toml = fs::read_to_string("config.toml")?;
+        Ok(toml::from_str(&toml)?)
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -60,18 +67,13 @@ pub struct Ui {
     pub hide_write_actions: bool,
 }
 
-pub fn load() -> Result<Config, Box<dyn std::error::Error>> {
-    let toml = fs::read_to_string("Config.toml")?;
-    Ok(toml::from_str(&toml)?)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_to_toml() {
-        let config = Config {
+    fn test_print_toml() {
+        let config = FileConfig {
             gitlab: Gitlab {
                 url: "https://gitlab.example.com".to_string(),
                 token: "your-token-here".to_string(),

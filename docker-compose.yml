@@ -5,8 +5,10 @@ services:
       context: .
       args:
         VERSION_ARG: docker
-    env_file:
-      - ./api/.env
+#    env_file:
+#      - ./api/.env
+    volumes:
+      - ./api/config.toml:/app/config.toml
     environment:
       - 'TZ=Europe/Amsterdam'
     ports:

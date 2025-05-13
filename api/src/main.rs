@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+use crate::config::config_file;
 use crate::gitlab::GitlabClient;
 use crate::spa::Spa;
 use actix_web::dev::HttpServiceFactory;
@@ -31,43 +32,46 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    let gcd_config = config_app::AppConfig::load();
-    let api_config = config_app::ApiConfig::load();
+    let file_config = config_file::FileConfig::load_from_toml().ok();
+    let app_config = config_app::AppConfig::from_file_config(file_config.as_ref());
+    let api_config = config_app::ApiConfig::from_file_config(file_config.as_ref());
 
-    let api_version = api_config.api_version.clone();
-    log::info!("Gitlab CI Dashboard :: {} ::", api_version);
+    log::info!("Gitlab CI Dashboard :: {} ::", &api_config.api_version);
+
+    log::debug!("{:?}", app_config);
+    log::debug!("{:?}", api_config);
 
     let api_config = Data::new(api_config);
     let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
 
     let gitlab_client = Arc::new(GitlabClient::new(
-        gcd_config.gitlab_url.clone(),
-        gcd_config.gitlab_token.clone(),
+        &app_config.gitlab_url,
+        &app_config.gitlab_token,
     ));
 
     let group_service = Data::new(group::GroupService::new(
         gitlab_client.clone(),
-        gcd_config.clone(),
+        app_config.clone(),
     ));
     let pipeline_service = Data::new(pipeline::PipelineService::new(
         gitlab_client.clone(),
-        gcd_config.clone(),
+        app_config.clone(),
     ));
     let project_service = Data::new(project::ProjectService::new(
         gitlab_client.clone(),
-        gcd_config.clone(),
+        app_config.clone(),
     ));
     let job_service = Data::new(job::JobService::new(
         gitlab_client.clone(),
-        gcd_config.clone(),
+        app_config.clone(),
     ));
     let branch_service = Data::new(branch::BranchService::new(
         gitlab_client.clone(),
-        gcd_config.clone(),
+        app_config.clone(),
     ));
     let artifact_service = Data::new(artifact::ArtifactService::new(
         gitlab_client.clone(),
-        gcd_config.clone(),
+        app_config.clone(),
     ));
 
     let project_aggr = Data::new(project::PipelineAggregator::new(
@@ -79,7 +83,7 @@ async fn main() -> std::io::Result<()> {
         pipeline_service.get_ref().clone(),
     ));
     let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
-        schedule::ScheduleService::new(gitlab_client.clone(), gcd_config.clone()),
+        schedule::ScheduleService::new(gitlab_client.clone(), app_config.clone()),
         project_service.get_ref().clone(),
         pipeline_service.get_ref().clone(),
     ));
@@ -103,8 +107,8 @@ async fn main() -> std::io::Result<()> {
                 artifact_service.clone(),
             ))
     })
-    .bind((gcd_config.server_ip, gcd_config.server_port))?
-    .workers(gcd_config.server_workers)
+    .bind((app_config.server_ip, app_config.server_port))?
+    .workers(app_config.server_workers)
     .run()
     .await
 }
