@@ -1,4 +1,4 @@
-use crate::config::ApiConfig;
+use crate::config::config_app::ApiConfig;
 use crate::error::ApiError;
 use crate::model::{Pipeline, PipelineSource};
 use crate::pipeline::PipelineService;

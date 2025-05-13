@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::config_app::AppConfig;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::{Pipeline, PipelineSource};
@@ -24,11 +24,11 @@ pub struct PipelineService {
     cache_latest: Cache<CacheKey, Option<Pipeline>>,
     cache_all: Cache<u64, Vec<Pipeline>>,
     client: Arc<dyn GitlabApi>,
-    config: Config,
+    config: AppConfig,
 }
 
 impl PipelineService {
-    pub fn new(client: Arc<dyn GitlabApi>, config: Config) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, config: AppConfig) -> Self {
         let cache_latest = Cache::builder()
             .time_to_live(config.ttl_pipeline_cache)
             .build();

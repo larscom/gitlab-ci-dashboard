@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::config_app::AppConfig;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::Project;
@@ -9,11 +9,11 @@ use std::sync::Arc;
 pub struct ProjectService {
     cache: Cache<u64, Vec<Project>>,
     client: Arc<dyn GitlabApi>,
-    config: Config,
+    config: AppConfig,
 }
 
 impl ProjectService {
-    pub fn new(client: Arc<dyn GitlabApi>, config: Config) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, config: AppConfig) -> Self {
         let cache = Cache::builder()
             .time_to_live(config.ttl_project_cache)
             .build();

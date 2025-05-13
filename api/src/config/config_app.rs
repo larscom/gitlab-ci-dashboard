@@ -1,16 +1,6 @@
-use actix_web::web;
-use actix_web::web::{Data, Json};
+use crate::config::config_file;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, num::NonZeroUsize, str::FromStr, thread, time::Duration};
-
-pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
-    cfg.route("/config", web::get().to(get_config));
-}
-
-async fn get_config(api_config: Data<ApiConfig>) -> Json<ApiConfig> {
-    let config = api_config.as_ref();
-    Json(config.clone())
-}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiConfig {
@@ -27,10 +17,24 @@ impl ApiConfig {
             hide_write_actions: from_env_or_default("UI_HIDE_WRITE_ACTIONS", false),
         }
     }
+
+    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
+        file_config.map_or_else(Self::new, |c| c.into())
+    }
 }
 
-#[derive(Clone)]
-pub struct Config {
+impl From<&config_file::FileConfig> for ApiConfig {
+    fn from(config: &config_file::FileConfig) -> Self {
+        Self {
+            api_version: from_env_or_default("VERSION", "dev".into()),
+            read_only: config.ui.read_only,
+            hide_write_actions: config.ui.hide_write_actions,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct AppConfig {
     pub gitlab_url: String,
     pub gitlab_token: String,
 
@@ -56,7 +60,32 @@ pub struct Config {
     pub group_include_subgroups: bool,
 }
 
-impl Config {
+impl From<&config_file::FileConfig> for AppConfig {
+    fn from(config: &config_file::FileConfig) -> Self {
+        Self {
+            gitlab_url: config.gitlab.url.clone(),
+            gitlab_token: config.gitlab.token.clone(),
+            server_ip: config.server.ip.clone(),
+            server_port: config.server.port,
+            server_workers: config.server.workers,
+            ttl_group_cache: Duration::from_secs(config.cache.ttl_group_seconds),
+            ttl_project_cache: Duration::from_secs(config.cache.ttl_project_seconds),
+            ttl_branch_cache: Duration::from_secs(config.cache.ttl_branch_seconds),
+            ttl_job_cache: Duration::from_secs(config.cache.ttl_job_seconds),
+            ttl_pipeline_cache: Duration::from_secs(config.cache.ttl_pipeline_seconds),
+            ttl_schedule_cache: Duration::from_secs(config.cache.ttl_schedule_seconds),
+            ttl_artifact_cache: Duration::from_secs(config.cache.ttl_artifact_seconds),
+            pipeline_history_days: config.pipeline.history_days,
+            project_skip_ids: config.project.skip_ids.clone(),
+            group_only_ids: config.group.only_ids.clone(),
+            group_skip_ids: config.group.skip_ids.clone(),
+            group_only_top_level: config.group.only_top_level,
+            group_include_subgroups: config.group.include_subgroups,
+        }
+    }
+}
+
+impl AppConfig {
     pub fn new() -> Self {
         Self {
             gitlab_url: must_from_env("GITLAB_BASE_URL"),
@@ -112,24 +141,24 @@ impl Config {
             group_include_subgroups: from_env_or_default("GITLAB_GROUP_INCLUDE_SUBGROUPS", true),
         }
     }
+
+    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
+        file_config.map_or_else(Self::new, |c| c.into())
+    }
 }
 
 fn must_from_env(key: &str) -> String {
-    let value = std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key));
-    log::debug!("{key}={value}");
-    value
+    std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key))
 }
 
 fn from_env_or_default<T>(key: &str, default: T) -> T
 where
     T: FromStr + Display,
 {
-    let value = std::env::var(key)
+    std::env::var(key)
         .ok()
         .and_then(|value| value.parse().ok())
-        .unwrap_or(default);
-    log::debug!("{key}={value}");
-    value
+        .unwrap_or(default)
 }
 
 fn split_into<T: FromStr>(value: String) -> Vec<T> {
@@ -154,7 +183,7 @@ mod tests {
         clear_env_vars();
         set_env_vars();
 
-        let config = Config::new();
+        let config = AppConfig::new();
 
         assert_eq!(config.gitlab_url, "https://gitlab.url");
         assert_eq!(config.gitlab_token, "token123");
@@ -183,7 +212,7 @@ mod tests {
         env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
         env::set_var("GITLAB_API_TOKEN", "token123");
 
-        let config = Config::new();
+        let config = AppConfig::new();
 
         assert_eq!(config.gitlab_url, "https://gitlab.url");
         assert_eq!(config.gitlab_token, "token123");

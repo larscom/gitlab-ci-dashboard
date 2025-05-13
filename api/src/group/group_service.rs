@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::config_app::AppConfig;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use crate::model::Group;
@@ -8,11 +8,11 @@ use std::sync::Arc;
 pub struct GroupService {
     cache: Cache<String, Vec<Group>>,
     client: Arc<dyn GitlabApi>,
-    config: Config,
+    config: AppConfig,
 }
 
 impl GroupService {
-    pub fn new(client: Arc<dyn GitlabApi>, config: Config) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, config: AppConfig) -> Self {
         let cache = Cache::builder()
             .time_to_live(config.ttl_group_cache)
             .build();

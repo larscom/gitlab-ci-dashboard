@@ -1,0 +1,33 @@
+[gitlab]
+url = "https://gitlab.com"
+token = "your-token-here"
+
+[server]
+ip = "0.0.0.0"
+port = 8080
+workers = 4
+
+[cache]
+ttl_group_seconds = 300
+ttl_project_seconds = 300
+ttl_branch_seconds = 60
+ttl_job_seconds = 5
+ttl_pipeline_seconds = 5
+ttl_schedule_seconds = 300
+ttl_artifact_seconds = 1800
+
+[pipeline]
+history_days = 5
+
+[project]
+skip_ids = []
+
+[group]
+only_ids = []
+skip_ids = []
+only_top_level = true
+include_subgroups = true
+
+[ui]
+read_only = true
+hide_write_actions = false

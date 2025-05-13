@@ -75,9 +75,9 @@ struct Page<T: DeserializeOwned> {
 }
 
 impl GitlabClient {
-    pub fn new(gitlab_url: String, gitlab_token: String) -> Self {
+    pub fn new(gitlab_url: &str, gitlab_token: &str) -> Self {
         let http_client = Client::builder()
-            .default_headers(create_http_headers(&gitlab_token))
+            .default_headers(create_http_headers(gitlab_token))
             .build()
             .expect("http client to be build");
         Self {
