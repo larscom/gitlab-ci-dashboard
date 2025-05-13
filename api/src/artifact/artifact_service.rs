@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::config_app::AppConfig;
 use crate::error::ApiError;
 use crate::gitlab::GitlabApi;
 use actix_web::web::Bytes;
@@ -23,7 +23,7 @@ pub struct ArtifactService {
 }
 
 impl ArtifactService {
-    pub fn new(client: Arc<dyn GitlabApi>, config: Config) -> Self {
+    pub fn new(client: Arc<dyn GitlabApi>, config: AppConfig) -> Self {
         let cache = Cache::builder()
             .time_to_live(config.ttl_artifact_cache)
             .build();
