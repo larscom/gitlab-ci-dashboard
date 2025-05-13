@@ -92,12 +92,12 @@ Prometheus metrics are exposed on the following endpoint
 
 > http://localhost:8080/metrics/prometheus
 
-## Configration
+## 🔌 Configration
 
 You have the option to set the configuration via environment variables or a TOML file.
 A TOML file takes precedence over environment variables, except for the `RUST_LOG` variable.
 
-### 🗄️ Load from TOML file
+### Load from TOML file
 
 > An example TOML file can be found inside the `./api` folder.
 
@@ -107,7 +107,7 @@ Mount the `config.toml` inside the container.
 docker run -p 8080:8080 -v $(pwd)/config.toml:/app/config.toml larscom/gitlab-ci-dashboard:latest
 ```
 
-### 🔌 Environment variables
+### Environment variables
 
 | Variable                          | Type   | Description                                                                                                                        | Required | Default      |
 |-----------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------|----------|--------------|
