@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 
 #[derive(Clone, Debug)]
-pub enum FileError {
+pub enum Error {
     Read,
     Deserialize(String),
 }
@@ -19,10 +19,10 @@ pub struct FileConfig {
 }
 
 impl FileConfig {
-    pub fn load_from_toml() -> Result<Self, FileError> {
-        let toml = fs::read_to_string("config.toml").map_err(|_| FileError::Read)?;
+    pub fn load_from_toml() -> Result<Self, Error> {
+        let toml = fs::read_to_string("config.toml").map_err(|_| Error::Read)?;
         toml::from_str(&toml)
-            .map_err(|e| FileError::Deserialize(format!("TOML error: {}", e.message())))
+            .map_err(|e| Error::Deserialize(format!("TOML error: {}", e.message())))
     }
 }
 

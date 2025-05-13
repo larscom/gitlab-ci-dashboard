@@ -35,7 +35,7 @@ async fn main() -> std::io::Result<()> {
     let file_config = config_file::FileConfig::load_from_toml();
     let file_config = match file_config {
         Ok(ref c) => Some(c),
-        Err(config_file::FileError::Deserialize(msg)) => panic!("{}", msg),
+        Err(config_file::Error::Deserialize(msg)) => panic!("{}", msg),
         Err(_) => None,
     };
 
