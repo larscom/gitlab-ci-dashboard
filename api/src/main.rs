@@ -32,9 +32,15 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    let file_config = config_file::FileConfig::load_from_toml().ok();
-    let app_config = config_app::AppConfig::from_file_config(file_config.as_ref());
-    let api_config = config_app::ApiConfig::from_file_config(file_config.as_ref());
+    let file_config = config_file::FileConfig::load_from_toml();
+    let file_config = match file_config {
+        Ok(ref c) => Some(c),
+        Err(config_file::FileError::Deserialize(msg)) => panic!("{}", msg),
+        Err(_) => None,
+    };
+
+    let app_config = config_app::AppConfig::from_file_config(file_config);
+    let api_config = config_app::ApiConfig::from_file_config(file_config);
 
     log::info!("Gitlab CI Dashboard :: {} ::", &api_config.api_version);
 

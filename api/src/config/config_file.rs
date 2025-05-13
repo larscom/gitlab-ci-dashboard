@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+#[derive(Clone, Debug)]
+pub enum FileError {
+    Read,
+    Deserialize(String),
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FileConfig {
     pub gitlab: Gitlab,
@@ -13,9 +19,10 @@ pub struct FileConfig {
 }
 
 impl FileConfig {
-    pub fn load_from_toml() -> Result<Self, Box<dyn std::error::Error>> {
-        let toml = fs::read_to_string("config.toml")?;
-        Ok(toml::from_str(&toml)?)
+    pub fn load_from_toml() -> Result<Self, FileError> {
+        let toml = fs::read_to_string("config.toml").map_err(|_| FileError::Read)?;
+        toml::from_str(&toml)
+            .map_err(|e| FileError::Deserialize(format!("TOML error: {}", e.message())))
     }
 }
 
