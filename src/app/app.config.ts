@@ -7,7 +7,7 @@ import {
   ApplicationConfig,
   inject,
   provideAppInitializer,
-  provideExperimentalZonelessChangeDetection
+  provideZonelessChangeDetection
 } from '@angular/core'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { Route, provideRouter, withHashLocation } from '@angular/router'
@@ -26,7 +26,7 @@ const routes: Route[] = [
 export const appConfig: ApplicationConfig = {
   providers: [
     provideNoopAnimations(),
-    provideExperimentalZonelessChangeDetection(),
+    provideZonelessChangeDetection(),
     provideHttpClient(),
     provideRouter(routes, withHashLocation()),
     provideI18n()
