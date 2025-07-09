@@ -17,7 +17,11 @@ use tokio::sync::mpsc;
 pub trait GitlabApi: Send + Sync {
     async fn groups(&self, skip_groups: &[u64], top_level: bool) -> Result<Vec<Group>, ApiError>;
 
-    async fn projects(&self, group_id: u64, include_subgroups: bool) -> Result<Vec<Project>, ApiError>;
+    async fn projects(
+        &self,
+        group_id: u64,
+        include_subgroups: bool,
+    ) -> Result<Vec<Project>, ApiError>;
 
     async fn latest_pipeline(
         &self,
@@ -81,7 +85,7 @@ impl GitlabClient {
             .build()
             .expect("http client to be build");
         Self {
-            base_url: format!("{}/api/v4", gitlab_url),
+            base_url: format!("{gitlab_url}/api/v4"),
             http_client,
         }
     }
@@ -97,7 +101,7 @@ impl GitlabClient {
         let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
             .expect("url to be parsed with params");
 
-        log::debug!("HTTP (post) {} body: {:?}", url, body_json);
+        log::debug!("HTTP (post) {url} body: {body_json:?}");
         let builder = self.http_client.post(url);
 
         match body_json {
@@ -123,7 +127,7 @@ impl GitlabClient {
         let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
             .expect("url to be parsed with params");
 
-        log::debug!("HTTP (get) {}", url);
+        log::debug!("HTTP (get) {url}");
 
         self.http_client.get(url).send().await?.error_for_status()
     }
@@ -174,7 +178,7 @@ impl GitlabClient {
             page: _,
         } = self.get_page(path.clone(), 1, params.clone()).await?;
 
-        log::debug!("fetched page 1/{} data: {:?}", total_pages, all_data);
+        log::debug!("fetched page 1/{total_pages} data: {all_data:?}");
 
         if total_pages == 1 {
             return Ok(all_data);
@@ -188,10 +192,10 @@ impl GitlabClient {
             let path = path.clone();
             let tx = tx.clone();
             tokio::spawn(async move {
-                log::debug!("fetching page {}", page);
+                log::debug!("fetching page {page}");
                 let result = self_clone.get_page(path, page, params).await;
                 if let Err(err) = tx.send(result).await {
-                    log::error!("could not send result via channel. err: {}", err);
+                    log::error!("could not send result via channel. err: {err}");
                 }
             });
         }
@@ -204,7 +208,7 @@ impl GitlabClient {
                 total_pages,
                 page,
             } = result?;
-            log::debug!("fetched page {}/{} data: {:?}", page, total_pages, data);
+            log::debug!("fetched page {page}/{total_pages} data: {data:?}");
             all_data.append(&mut data);
         }
 
@@ -231,12 +235,19 @@ impl GitlabApi for GitlabClient {
         self.get_all_pages(path.to_string(), params).await
     }
 
-    async fn projects(&self, group_id: u64, include_subgroups: bool) -> Result<Vec<Project>, ApiError> {
+    async fn projects(
+        &self,
+        group_id: u64,
+        include_subgroups: bool,
+    ) -> Result<Vec<Project>, ApiError> {
         let params = [
             ("archived".to_string(), "false".to_string()),
-            ("include_subgroups".to_string(), include_subgroups.to_string()),
+            (
+                "include_subgroups".to_string(),
+                include_subgroups.to_string(),
+            ),
         ];
-        let path = format!("/groups/{}/projects", group_id);
+        let path = format!("/groups/{group_id}/projects");
 
         self.get_all_pages(path, params.to_vec()).await
     }
@@ -247,7 +258,7 @@ impl GitlabApi for GitlabClient {
         branch: String,
     ) -> Result<Option<Pipeline>, ApiError> {
         let params = [("ref".to_string(), branch)];
-        let path = format!("/projects/{}/pipelines/latest", project_id);
+        let path = format!("/projects/{project_id}/pipelines/latest");
 
         match self.do_get_parsed::<Pipeline>(path, params.to_vec()).await {
             Ok(pipeline) => Ok(Some(pipeline)),
@@ -276,7 +287,7 @@ impl GitlabApi for GitlabClient {
             .map(|d| [("updated_after".to_string(), d.to_string())])
             .unwrap_or_default();
 
-        let path = format!("/projects/{}/pipelines", project_id);
+        let path = format!("/projects/{project_id}/pipelines");
         self.get_all_pages(path, params.to_vec()).await
     }
 
@@ -286,7 +297,7 @@ impl GitlabApi for GitlabClient {
         pipeline_id: u64,
     ) -> Result<Pipeline, ApiError> {
         let params = [];
-        let path = format!("/projects/{}/pipelines/{}/retry", project_id, pipeline_id);
+        let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/retry");
 
         self.do_post_parsed(path, params.to_vec(), None)
             .await
@@ -300,7 +311,7 @@ impl GitlabApi for GitlabClient {
         env_vars: Option<HashMap<String, String>>,
     ) -> Result<Pipeline, ApiError> {
         let params = [("ref".to_string(), branch)];
-        let path = format!("/projects/{}/pipeline", project_id);
+        let path = format!("/projects/{project_id}/pipeline");
 
         let body_json = env_vars.map(|vars| {
             let mut env_vars = Vec::new();
@@ -328,7 +339,7 @@ impl GitlabApi for GitlabClient {
         pipeline_id: u64,
     ) -> Result<Pipeline, ApiError> {
         let params = [];
-        let path = format!("/projects/{}/pipelines/{}/cancel", project_id, pipeline_id);
+        let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/cancel");
 
         self.do_post_parsed(path, params.to_vec(), None)
             .await
@@ -337,13 +348,13 @@ impl GitlabApi for GitlabClient {
 
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError> {
         let params = [];
-        let path = format!("/projects/{}/repository/branches", project_id);
+        let path = format!("/projects/{project_id}/repository/branches");
         self.get_all_pages(path, params.to_vec()).await
     }
 
     async fn schedules(&self, project_id: u64) -> Result<Vec<Schedule>, ApiError> {
         let params = [];
-        let path = format!("/projects/{}/pipeline_schedules", project_id);
+        let path = format!("/projects/{project_id}/pipeline_schedules");
         self.get_all_pages(path, params.to_vec()).await
     }
 
@@ -358,13 +369,13 @@ impl GitlabApi for GitlabClient {
             params.push(("scope[]".to_string(), scope.as_string()))
         }
 
-        let path = format!("/projects/{}/pipelines/{}/jobs", project_id, pipeline_id);
+        let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/jobs");
         self.get_all_pages(path, params).await
     }
 
     async fn artifact(&self, project_id: u64, job_id: u64) -> Result<Bytes, ApiError> {
         let params = [];
-        let path = format!("/projects/{}/jobs/{}/artifacts", project_id, job_id);
+        let path = format!("/projects/{project_id}/jobs/{job_id}/artifacts");
         Ok(self.do_get(path, params.to_vec()).await?.bytes().await?)
     }
 }

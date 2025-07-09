@@ -148,7 +148,7 @@ impl AppConfig {
 }
 
 fn must_from_env(key: &str) -> String {
-    std::env::var(key).unwrap_or_else(|_| panic!("{} must be set!", key))
+    std::env::var(key).unwrap_or_else(|_| panic!("{key} must be set!"))
 }
 
 fn from_env_or_default<T>(key: &str, default: T) -> T
