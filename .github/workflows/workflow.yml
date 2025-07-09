@@ -61,12 +61,14 @@ jobs:
       - uses: docker/build-push-action@v6
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          context: .
           push: true
           tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ github.ref_name }}
           build-args: VERSION_ARG=v${{ github.ref_name }}
       - uses: docker/build-push-action@v6
         if: startsWith(github.ref, 'refs/heads/')
         with:
+          context: .
           push: true
           tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
