@@ -17,7 +17,7 @@ env_logger = "0.11.8"
 log = "0.4.27"
 moka = { version = "0.12.10", features = ["future"] }
 reqwest = { version = "0.12.22", features = ["json"] }
-tokio = { version = "1.46.1", features = ["sync"] }
+tokio = { version = "1.47.0", features = ["sync"] }
 async-trait = "0.1.88"
 futures = "0.3.31"
 toml = "0.9.2"
