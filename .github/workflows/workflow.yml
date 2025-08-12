@@ -16,7 +16,7 @@ jobs:
     env:
       TZ: Europe/Amsterdam
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -31,7 +31,7 @@ jobs:
       run:
         working-directory: ./api
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: cargo build --verbose
       - run: cargo test --verbose
       - run: cargo clippy --verbose -- -D warnings
@@ -41,7 +41,7 @@ jobs:
     needs: [build-rs, build-ng]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           REF_NAME="${{ github.ref_name }}"          
           REF_NAME_LOWER=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]')          
