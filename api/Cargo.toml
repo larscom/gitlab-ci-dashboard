@@ -18,7 +18,7 @@ log = "0.4.27"
 moka = { version = "0.12.10", features = ["future"] }
 reqwest = { version = "0.12.23", features = ["json"] }
 tokio = { version = "1.47.1", features = ["sync"] }
-async-trait = "0.1.88"
+async-trait = "0.1.89"
 futures = "0.3.31"
 toml = "0.9.5"
 
