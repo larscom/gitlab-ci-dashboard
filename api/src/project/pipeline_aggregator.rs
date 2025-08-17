@@ -52,11 +52,13 @@ impl PipelineAggregator {
             } else {
                 None
             };
+            let jobs = Some(vec![]);
 
             Ok(ProjectPipeline {
                 group_id,
                 project,
                 pipeline,
+                jobs,
             })
         })
         .await

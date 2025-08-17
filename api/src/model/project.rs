@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::model::Pipeline;
+use crate::model::{Job, Pipeline};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Project {
@@ -9,14 +9,14 @@ pub struct Project {
     pub web_url: String,
     pub default_branch: Option<String>,
     pub topics: Vec<String>,
-    pub namespace: Namespace
+    pub namespace: Namespace,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Namespace {
     pub id: u64,
     pub name: String,
-    pub path: String
+    pub path: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -25,6 +25,8 @@ pub struct ProjectPipeline {
     pub project: Project,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub jobs: Option<Vec<Job>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,7 +38,7 @@ pub struct ProjectPipelines {
 
 #[cfg(test)]
 mod tests {
-    use crate::model::{Project, ProjectPipeline, ProjectPipelines, test};
+    use crate::model::{test, Project, ProjectPipeline, ProjectPipelines};
 
     #[test]
     fn project_deserialize() {
