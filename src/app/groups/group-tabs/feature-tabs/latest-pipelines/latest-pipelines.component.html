@@ -12,15 +12,22 @@
         [filterTopics]="filterTopics()"
         (filterTopicsChange)="onFilterTopicsChanged($event)"
       />
+      <gcd-job-filter
+        [loading]="loading()"
+        [projects]="projectsForJobFilter()"
+        [filterJobs]="filterJobs()"
+        (filterJobsChange)="onFilterJobsChanged($event)"
+      />
     </div>
   </div>
   @if (loading()) {
-    <nz-spin />
+  <nz-spin />
   } @else {
-    <gcd-pipeline-status-tabs
-      [projectPipelines]="projectPipelines()"
-      [filterText]="filterText()"
-      [filterTopics]="filterTopics()"
-    />
+  <gcd-pipeline-status-tabs
+    [projectPipelines]="projectPipelines()"
+    [filterText]="filterText()"
+    [filterTopics]="filterTopics()"
+    [filterJobs]="filterJobs()"
+  />
   }
 </div>

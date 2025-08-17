@@ -3,7 +3,7 @@ import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { CommonModule } from '@angular/common'
 import { HttpClient } from '@angular/common/http'
-import { ChangeDetectionStrategy, Component, inject, Injector, input, model } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, Injector, input, model } from '@angular/core'
 import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
@@ -22,29 +22,32 @@ export class JobFilterComponent {
   private injector = inject(Injector)
 
   projects = input.required<[ProjectId, PipelineId][]>()
-  filterJobs = model.required<string[]>()
+  filterJobs = model.required<Job[]>()
   loading = input(false)
 
-  jobNames = toSignal(
+  filterJobNames = computed(() => [...new Set(this.filterJobs().map(({ name }) => name))])
+  
+  // TODO: fix me so it only calls if projects are different
+  jobs = toSignal(
     toObservable(this.projects, { injector: this.injector }).pipe(
       mergeMap((projects) => {
         const names = projects.map(([project_id, pipeline_id]) => {
           const params = { project_id, pipeline_id, scope: '' }
-          return this.http.get<Job[]>('/api/jobs', { params }).pipe(map((jobs) => jobs.map(({ name }) => name)))
+          return this.http.get<Job[]>('/api/jobs', { params })
         })
         return forkJoin(names)
       }),
-      map((names) => [...new Set(names.flat())])
+      map((jobs) => [...new Set(jobs.flat())])
     ),
     { initialValue: [] }
   )
 
-  onJobChange(checked: boolean, job: string): void {
+  onJobChange(checked: boolean, job: Job): void {
     const selected = this.filterJobs()
     if (checked) {
       this.filterJobs.set([...selected, job])
     } else {
-      this.filterJobs.set(selected.filter((t) => t !== job))
+      this.filterJobs.set(selected.filter((j) => j.id !== job.id))
     }
   }
 }
