@@ -1,5 +1,5 @@
 @if (tabs().length) {
-  <nz-tabset nzType="card">
+  <nz-tabs nzType="card">
     @for (tab of tabs(); track trackByStatus(tab)) {
       <nz-tab [nzTitle]="title">
         <ng-template #title>
@@ -18,7 +18,7 @@
         </ng-template>
       </nz-tab>
     }
-  </nz-tabset>
+  </nz-tabs>
 } @else {
   <gcd-pipeline-table [projects]="[]" />
 }
