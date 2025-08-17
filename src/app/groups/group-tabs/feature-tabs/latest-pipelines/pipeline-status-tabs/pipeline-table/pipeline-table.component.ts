@@ -28,7 +28,7 @@ import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTableModule } from 'ng-zorro-antd/table'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, interval, Subscription, switchMap } from 'rxjs'
 import { OpenGitlabIconComponent } from '../../../components/open-gitlab-icon/open-gitlab-icon.component'
 import { LatestPipelineService } from '../../service/latest-pipeline.service'
@@ -68,7 +68,7 @@ const headers: Header<ProjectPipeline>[] = [
   imports: [
     CommonModule,
     NzTableModule,
-    NzToolTipModule,
+    NzTooltipModule,
     NzButtonModule,
     NzIconModule,
     NzSpinModule,

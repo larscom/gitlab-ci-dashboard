@@ -1,0 +1,18 @@
+@if (loading()) {
+  <nz-spin nzSimple nzSize="small" />
+} @else {
+  @if (jobNames().length > 0) {
+    <div class="flex flex-wrap gap-050 items-center">
+      <span class="font-sm font-bold">Filter by job</span>
+      @for (job of jobNames(); track job) {
+        <nz-tag
+          nzMode="checkable"
+          [nzChecked]="filterJobs().includes(job)"
+          (nzCheckedChange)="onJobChange($event, job)"
+        >
+          {{ job | lowercase }}
+        </nz-tag>
+      }
+    </div>
+  }
+}

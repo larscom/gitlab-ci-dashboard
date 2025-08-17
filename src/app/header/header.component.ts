@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 
 import { ConfigService } from '$service/config.service'
 import { Component, inject } from '@angular/core'
@@ -8,7 +8,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 
 @Component({
   selector: 'gcd-header',
-  imports: [CommonModule, NzIconModule, NzButtonModule, NzToolTipModule],
+  imports: [CommonModule, NzIconModule, NzButtonModule, NzTooltipModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

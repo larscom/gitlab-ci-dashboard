@@ -10,7 +10,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, map } from 'rxjs'
 import { FavoritesComponent } from './favorites/favorites.component'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
@@ -25,7 +25,7 @@ import { ProjectId } from '$groups/model/project'
     NzButtonModule,
     NzTabsModule,
     NzSpinModule,
-    NzToolTipModule,
+    NzTooltipModule,
     NzIconModule,
     FeatureTabsComponent,
     MaxLengthPipe,
