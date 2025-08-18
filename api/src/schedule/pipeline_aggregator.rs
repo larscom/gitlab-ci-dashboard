@@ -1,4 +1,5 @@
 use crate::error::ApiError;
+use crate::job::JobService;
 use crate::model::{Project, Schedule, ScheduleProjectPipeline};
 use crate::pipeline::PipelineService;
 use crate::project::ProjectService;
@@ -9,6 +10,7 @@ pub struct PipelineAggregator {
     schedule_service: ScheduleService,
     project_service: ProjectService,
     pipeline_service: PipelineService,
+    job_service: JobService,
 }
 
 impl PipelineAggregator {
@@ -16,11 +18,13 @@ impl PipelineAggregator {
         schedule_service: ScheduleService,
         project_service: ProjectService,
         pipeline_service: PipelineService,
+        job_service: JobService,
     ) -> Self {
         Self {
             schedule_service,
             project_service,
             pipeline_service,
+            job_service,
         }
     }
 }
@@ -75,16 +79,26 @@ impl PipelineAggregator {
     ) -> Result<Vec<ScheduleProjectPipeline>, ApiError> {
         try_collect_with_buffer(schedules, |schedule| async move {
             let project = project.clone();
+
             let pipeline = self
                 .pipeline_service
                 .get_latest_pipeline(project.id, schedule.branch.clone())
                 .await?;
+
             let schedule = schedule.clone();
+
+            let jobs = if let Some(ref p) = pipeline {
+                Some(self.job_service.get_jobs(p.project_id, p.id, &[]).await?)
+            } else {
+                None
+            };
+
             Ok(ScheduleProjectPipeline {
                 group_id,
                 schedule,
                 pipeline,
                 project,
+                jobs,
             })
         })
         .await

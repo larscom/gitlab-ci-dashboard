@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::model::user::User;
-use crate::model::{Pipeline, Project};
+use crate::model::{Job, Pipeline, Project};
 use crate::util::deserialize::from_ref;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -27,6 +27,8 @@ pub struct ScheduleProjectPipeline {
     pub project: Project,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub jobs: Option<Vec<Job>>,
 }
 
 #[cfg(test)]
@@ -78,6 +80,7 @@ mod tests {
             schedule: test::new_schedule(),
             project: test::new_project(),
             pipeline: None,
+            jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
@@ -93,6 +96,7 @@ mod tests {
             schedule: test::new_schedule(),
             project: test::new_project(),
             pipeline: Some(test::new_pipeline()),
+            jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();

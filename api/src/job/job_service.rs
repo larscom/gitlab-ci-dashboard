@@ -22,6 +22,7 @@ impl CacheKey {
     }
 }
 
+#[derive(Clone)]
 pub struct JobService {
     cache: Cache<CacheKey, Vec<Job>>,
     client: Arc<dyn GitlabApi>,

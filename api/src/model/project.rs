@@ -34,6 +34,7 @@ pub struct ProjectPipelines {
     pub group_id: u64,
     pub project: Project,
     pub pipelines: Vec<Pipeline>,
+    pub jobs: Vec<Job>,
 }
 
 #[cfg(test)]
@@ -198,6 +199,7 @@ mod tests {
             group_id: 1,
             project: test::new_project(),
             pipeline: None,
+            jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
@@ -212,6 +214,7 @@ mod tests {
             group_id: 1,
             project: test::new_project(),
             pipeline: Some(test::new_pipeline()),
+            jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
@@ -225,10 +228,11 @@ mod tests {
             group_id: 1,
             project: test::new_project(),
             pipelines: vec![test::new_pipeline()],
+            jobs: vec![],
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}],\"jobs\":[]}";
 
         assert_eq!(expected, json);
     }
