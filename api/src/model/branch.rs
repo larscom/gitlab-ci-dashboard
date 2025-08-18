@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::model::commit::Commit;
-use crate::model::Pipeline;
+use crate::model::{Job, Pipeline};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Branch {
@@ -19,6 +19,8 @@ pub struct BranchPipeline {
     pub branch: Branch,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub jobs: Option<Vec<Job>>,
 }
 
 #[cfg(test)]
@@ -77,6 +79,7 @@ mod tests {
         let value = BranchPipeline {
             branch: test::new_branch(),
             pipeline: None,
+            jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
@@ -89,6 +92,7 @@ mod tests {
         let value = BranchPipeline {
             branch: test::new_branch(),
             pipeline: Some(test::new_pipeline()),
+            jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
