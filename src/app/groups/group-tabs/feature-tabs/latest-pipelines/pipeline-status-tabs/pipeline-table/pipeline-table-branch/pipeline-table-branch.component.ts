@@ -108,7 +108,11 @@ export class PipelineTableBranchComponent {
     return statusToScope(status)
   }
 
-  trackByBranchName({ branch: { name } }: BranchPipeline): string {
-    return name
+  trackByBranchCommitId({
+    branch: {
+      commit: { id }
+    }
+  }: BranchPipeline): string {
+    return id
   }
 }

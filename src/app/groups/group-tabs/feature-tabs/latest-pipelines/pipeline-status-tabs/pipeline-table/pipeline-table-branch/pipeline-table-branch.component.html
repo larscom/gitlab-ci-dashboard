@@ -34,7 +34,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (data of nzTable.data; track trackByBranchName(data)) {
+      @for (data of nzTable.data; track trackByBranchCommitId(data)) {
       <tr [attr.data-pipeline-id]="data.pipeline?.id">
         <td>{{ data.branch.name }}</td>
         <td>
