@@ -1,4 +1,5 @@
 import { DownloadArtifactsIconComponent } from '$groups/group-tabs/feature-tabs/components/download-artifacts-icon/download-artifacts-icon.component'
+import { JobFilterComponent } from '$groups/group-tabs/feature-tabs/components/job-filter/job-filter.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { OpenGitlabIconComponent } from '$groups/group-tabs/feature-tabs/components/open-gitlab-icon/open-gitlab-icon.component'
 import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
@@ -6,7 +7,7 @@ import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-co
 import { BranchPipeline } from '$groups/model/branch'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
-import { filterString } from '$groups/util/filter'
+import { filterJobs, filterString } from '$groups/util/filter'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
 import { ConfigService } from '$service/config.service'
@@ -53,7 +54,8 @@ const headers: Header<BranchPipeline>[] = [
     NzBadgeModule,
     WriteActionsIconComponent,
     OpenGitlabIconComponent,
-    DownloadArtifactsIconComponent
+    DownloadArtifactsIconComponent,
+    JobFilterComponent
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],
@@ -67,9 +69,14 @@ export class PipelineTableBranchComponent {
   loading = input.required<boolean>()
 
   filterText = signal('')
+  filterJobs = signal<string[]>([])
+
+  jobs = computed(() => this.branchPipelines().flatMap(({ jobs }) => jobs ?? []))
 
   filteredBranches = computed(() =>
-    this.branchPipelines().filter(({ branch: { name } }) => filterString(name, this.filterText()))
+    this.branchPipelines()
+      .filter(({ branch: { name } }) => filterString(name, this.filterText()))
+      .filter(({ jobs }) => filterJobs(jobs ?? [], this.filterJobs()))
   )
   branchCount = computed(() => this.branchPipelines().length)
 
@@ -91,6 +98,10 @@ export class PipelineTableBranchComponent {
 
   onFilterTextChanged(filterText: string) {
     this.filterText.set(filterText)
+  }
+
+  onFilterJobsChanged(jobs: string[]): void {
+    this.filterJobs.set(jobs)
   }
 
   getScope(status?: Status): Status[] {

@@ -1,7 +1,7 @@
 @if (loading()) {
   <nz-spin nzSimple nzSize="small" />
 } @else {
-  @if (jobs().length > 0) {
+  @if (jobNames().length > 0) {
     <div class="flex flex-wrap gap-050 items-center">
       <span class="font-sm font-bold">Filter by failed job</span>
       @for (name of jobNames(); track name) {
