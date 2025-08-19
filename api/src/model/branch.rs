@@ -20,14 +20,14 @@ pub struct BranchPipeline {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub jobs: Option<Vec<Job>>,
+    pub failed_jobs: Option<Vec<Job>>,
 }
 
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
-    use crate::model::{Branch, BranchPipeline, test};
+    use crate::model::{test, Branch, BranchPipeline};
 
     #[test]
     fn branch_deserialize() {
@@ -79,7 +79,7 @@ mod tests {
         let value = BranchPipeline {
             branch: test::new_branch(),
             pipeline: None,
-            jobs: None,
+            failed_jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
@@ -92,7 +92,7 @@ mod tests {
         let value = BranchPipeline {
             branch: test::new_branch(),
             pipeline: Some(test::new_pipeline()),
-            jobs: None,
+            failed_jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();

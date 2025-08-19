@@ -9,7 +9,7 @@ export interface ScheduleProjectPipeline {
   schedule: Schedule
   project: Project
   pipeline?: Pipeline
-  jobs?: Job[]
+  failed_jobs?: Job[]
 }
 
 export type ScheduleId = number

@@ -1,6 +1,6 @@
 use crate::error::ApiError;
 use crate::job::JobService;
-use crate::model::{Project, ProjectPipeline, ProjectPipelines};
+use crate::model::{JobStatus, PipelineStatus, Project, ProjectPipeline, ProjectPipelines};
 use crate::pipeline::{sort_by_updated_date, PipelineService};
 use crate::project::ProjectService;
 use crate::util::iter::try_collect_with_buffer;
@@ -60,17 +60,20 @@ impl PipelineAggregator {
                 None
             };
 
-            let jobs = if let Some(ref p) = pipeline {
-                Some(self.job_service.get_jobs(p.project_id, p.id, &[]).await?)
-            } else {
-                None
+            let failed_jobs = match pipeline {
+                Some(ref p) if p.status == PipelineStatus::Failed => Some(
+                    self.job_service
+                        .get_jobs(p.project_id, p.id, &[JobStatus::Failed])
+                        .await?,
+                ),
+                _ => None,
             };
 
             Ok(ProjectPipeline {
                 group_id,
                 project,
                 pipeline,
-                jobs,
+                failed_jobs,
             })
         })
         .await

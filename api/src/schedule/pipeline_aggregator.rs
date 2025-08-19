@@ -1,6 +1,6 @@
 use crate::error::ApiError;
 use crate::job::JobService;
-use crate::model::{Project, Schedule, ScheduleProjectPipeline};
+use crate::model::{JobStatus, PipelineStatus, Project, Schedule, ScheduleProjectPipeline};
 use crate::pipeline::PipelineService;
 use crate::project::ProjectService;
 use crate::schedule::ScheduleService;
@@ -87,10 +87,13 @@ impl PipelineAggregator {
 
             let schedule = schedule.clone();
 
-            let jobs = if let Some(ref p) = pipeline {
-                Some(self.job_service.get_jobs(p.project_id, p.id, &[]).await?)
-            } else {
-                None
+            let failed_jobs = match pipeline {
+                Some(ref p) if p.status == PipelineStatus::Failed => Some(
+                    self.job_service
+                        .get_jobs(p.project_id, p.id, &[JobStatus::Failed])
+                        .await?,
+                ),
+                _ => None,
             };
 
             Ok(ScheduleProjectPipeline {
@@ -98,7 +101,7 @@ impl PipelineAggregator {
                 schedule,
                 pipeline,
                 project,
-                jobs,
+                failed_jobs,
             })
         })
         .await

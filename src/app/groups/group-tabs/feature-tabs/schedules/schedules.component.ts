@@ -46,7 +46,7 @@ export class SchedulesComponent implements OnInit {
   schedulePipelines = signal<ScheduleProjectPipeline[]>([])
   loading = signal(false)
 
-  jobs = computed(() => this.schedulePipelines().flatMap(({ jobs }) => jobs ?? []))
+  jobs = computed(() => this.schedulePipelines().flatMap(({ failed_jobs: jobs }) => jobs ?? []))
 
   filteredSchedulePipelines = computed(() => {
     return this.schedulePipelines()
@@ -57,7 +57,7 @@ export class SchedulesComponent implements OnInit {
         }
         return filter
       })
-      .filter(({ jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
+      .filter(({ failed_jobs: jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
   })
 
   projects = computed(() => {

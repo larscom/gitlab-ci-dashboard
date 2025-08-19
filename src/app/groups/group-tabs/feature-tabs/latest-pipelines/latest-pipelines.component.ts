@@ -49,7 +49,7 @@ export class LatestPipelinesComponent implements OnInit {
 
   jobs = computed(() =>
     this.projectPipelines()
-      .flatMap(({ jobs }) => jobs ?? [])
+      .flatMap(({ failed_jobs: jobs }) => jobs ?? [])
   )
 
   ngOnInit(): void {

@@ -71,12 +71,12 @@ export class PipelineTableBranchComponent {
   filterText = signal('')
   filterJobs = signal<string[]>([])
 
-  jobs = computed(() => this.branchPipelines().flatMap(({ jobs }) => jobs ?? []))
+  jobs = computed(() => this.branchPipelines().flatMap(({ failed_jobs: jobs }) => jobs ?? []))
 
   filteredBranches = computed(() =>
     this.branchPipelines()
       .filter(({ branch: { name } }) => filterString(name, this.filterText()))
-      .filter(({ jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
+      .filter(({ failed_jobs: jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
   )
   branchCount = computed(() => this.branchPipelines().length)
 

@@ -16,7 +16,7 @@ pub struct Pipeline {
     pub web_url: String,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum PipelineStatus {
     /// Currently running.

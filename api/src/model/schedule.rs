@@ -28,7 +28,7 @@ pub struct ScheduleProjectPipeline {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub jobs: Option<Vec<Job>>,
+    pub failed_jobs: Option<Vec<Job>>,
 }
 
 #[cfg(test)]
@@ -80,7 +80,7 @@ mod tests {
             schedule: test::new_schedule(),
             project: test::new_project(),
             pipeline: None,
-            jobs: None,
+            failed_jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
@@ -96,7 +96,7 @@ mod tests {
             schedule: test::new_schedule(),
             project: test::new_project(),
             pipeline: Some(test::new_pipeline()),
-            jobs: None,
+            failed_jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();

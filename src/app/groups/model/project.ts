@@ -6,7 +6,7 @@ export interface ProjectPipeline {
   group_id: GroupId
   project: Project
   pipeline?: Pipeline
-  jobs?: Job[]
+  failed_jobs?: Job[]
 }
 
 export interface ProjectPipelines {

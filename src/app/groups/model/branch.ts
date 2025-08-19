@@ -4,7 +4,7 @@ import { Pipeline } from './pipeline'
 export interface BranchPipeline {
   branch: Branch
   pipeline?: Pipeline
-  jobs?: Job[]
+  failed_jobs?: Job[]
 }
 
 export interface Branch {

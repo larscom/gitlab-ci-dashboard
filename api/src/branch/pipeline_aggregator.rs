@@ -1,7 +1,7 @@
 use crate::branch::branch_service::BranchService;
 use crate::error::ApiError;
 use crate::job::JobService;
-use crate::model::{Branch, BranchPipeline};
+use crate::model::{Branch, BranchPipeline, JobStatus, PipelineStatus};
 use crate::pipeline;
 use crate::pipeline::PipelineService;
 use crate::util::iter::try_collect_with_buffer;
@@ -53,16 +53,19 @@ impl PipelineAggregator {
                 .get_latest_pipeline(project_id, branch.name.clone())
                 .await?;
 
-            let jobs = if let Some(ref p) = pipeline {
-                Some(self.job_service.get_jobs(p.project_id, p.id, &[]).await?)
-            } else {
-                None
+            let failed_jobs = match pipeline {
+                Some(ref p) if p.status == PipelineStatus::Failed => Some(
+                    self.job_service
+                        .get_jobs(p.project_id, p.id, &[JobStatus::Failed])
+                        .await?,
+                ),
+                _ => None,
             };
 
             Ok(BranchPipeline {
                 branch,
                 pipeline,
-                jobs,
+                failed_jobs,
             })
         })
         .await

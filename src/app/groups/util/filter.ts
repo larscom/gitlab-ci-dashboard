@@ -8,12 +8,8 @@ export function filterString(value: string, filterText: string): boolean {
   return value.toLocaleLowerCase().includes(filterText.toLocaleLowerCase())
 }
 
-export function filterFailedJobs(jobs: Job[], filterJobs: string[]): boolean {
-  return (
-    jobs.length === 0 ||
-    filterJobs.length === 0 ||
-    jobs.filter(({ status }) => status === Status.FAILED).some(({ name }) => filterJobs.includes(name))
-  )
+export function filterFailedJobs(failedJobs: Job[], filterJobs: string[]): boolean {
+  return filterJobs.length === 0 || failedJobs.some(({ name }) => filterJobs.includes(name))
 }
 
 export function filterProject({ name, topics }: Project, filterText: string, filterTopics: string[]): boolean {

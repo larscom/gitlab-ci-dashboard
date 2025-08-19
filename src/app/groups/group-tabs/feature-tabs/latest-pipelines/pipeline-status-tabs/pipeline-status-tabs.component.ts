@@ -32,7 +32,7 @@ export class PipelineStatusTabsComponent {
       this.projectPipelines()
         .filter(({ project }) => filterProject(project, this.filterText(), this.filterTopics()))
         .filter(({ pipeline }) => pipeline != null)
-        .filter(({ jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
+        .filter(({ failed_jobs: jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
         .reduce((current, { group_id, pipeline, project }) => {
           const { status } = pipeline!
           const projects = current.get(status)
