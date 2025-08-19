@@ -1,8 +1,10 @@
+import { Job } from './job'
 import { Pipeline } from './pipeline'
 
 export interface BranchPipeline {
   branch: Branch
   pipeline?: Pipeline
+  failed_jobs?: Job[]
 }
 
 export interface Branch {

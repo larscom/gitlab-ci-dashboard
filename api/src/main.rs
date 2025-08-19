@@ -83,15 +83,18 @@ async fn main() -> std::io::Result<()> {
     let project_aggr = Data::new(project::PipelineAggregator::new(
         project_service.get_ref().clone(),
         pipeline_service.get_ref().clone(),
+        job_service.get_ref().clone(),
     ));
     let branch_aggr = Data::new(branch::PipelineAggregator::new(
         branch_service.get_ref().clone(),
         pipeline_service.get_ref().clone(),
+        job_service.get_ref().clone(),
     ));
     let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
         schedule::ScheduleService::new(gitlab_client.clone(), app_config.clone()),
         project_service.get_ref().clone(),
         pipeline_service.get_ref().clone(),
+        job_service.get_ref().clone(),
     ));
 
     let prom = setup_prometheus();
@@ -245,15 +248,18 @@ mod tests {
             let project_aggr = Data::new(project::PipelineAggregator::new(
                 project_service.get_ref().clone(),
                 pipeline_service.get_ref().clone(),
+                job_service.get_ref().clone(),
             ));
             let branch_aggr = Data::new(branch::PipelineAggregator::new(
                 branch_service.get_ref().clone(),
                 pipeline_service.get_ref().clone(),
+                job_service.get_ref().clone(),
             ));
             let schedule_aggr = Data::new(schedule::PipelineAggregator::new(
                 schedule::ScheduleService::new(gitlab_client.clone(), gcd_config.clone()),
                 project_service.get_ref().clone(),
                 pipeline_service.get_ref().clone(),
+                job_service.get_ref().clone(),
             ));
 
             test::init_service(App::new().configure(configure_app(

@@ -1,5 +1,6 @@
 use crate::error::ApiError;
-use crate::model::{Project, ProjectPipeline, ProjectPipelines};
+use crate::job::JobService;
+use crate::model::{JobStatus, PipelineStatus, Project, ProjectPipeline, ProjectPipelines};
 use crate::pipeline::{sort_by_updated_date, PipelineService};
 use crate::project::ProjectService;
 use crate::util::iter::try_collect_with_buffer;
@@ -7,13 +8,19 @@ use crate::util::iter::try_collect_with_buffer;
 pub struct PipelineAggregator {
     project_service: ProjectService,
     pipeline_service: PipelineService,
+    job_service: JobService,
 }
 
 impl PipelineAggregator {
-    pub fn new(project_service: ProjectService, pipeline_service: PipelineService) -> Self {
+    pub fn new(
+        project_service: ProjectService,
+        pipeline_service: PipelineService,
+        job_service: JobService,
+    ) -> Self {
         Self {
             project_service,
             pipeline_service,
+            job_service,
         }
     }
 }
@@ -53,10 +60,20 @@ impl PipelineAggregator {
                 None
             };
 
+            let failed_jobs = match pipeline {
+                Some(ref p) if p.status == PipelineStatus::Failed => Some(
+                    self.job_service
+                        .get_jobs(p.project_id, p.id, &[JobStatus::Failed])
+                        .await?,
+                ),
+                _ => None,
+            };
+
             Ok(ProjectPipeline {
                 group_id,
                 project,
                 pipeline,
+                failed_jobs,
             })
         })
         .await
@@ -87,6 +104,7 @@ impl PipelineAggregator {
             } else {
                 Vec::default()
             };
+
             Ok(ProjectPipelines {
                 group_id,
                 project,

@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, computed, HostListener, inject, inp
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { CancelPipelineActionComponent } from './cancel-pipeline-action/cancel-pipeline-action.component'
 import { RetryPipelineActionComponent } from './retry-pipeline-action/retry-pipeline-action.component'
 import { StartPipelineActionComponent } from './start-pipeline-action/start-pipeline-action.component'
@@ -18,7 +18,7 @@ import { StartPipelineActionComponent } from './start-pipeline-action/start-pipe
     NzButtonModule,
     NzIconModule,
     NzDropDownModule,
-    NzToolTipModule,
+    NzTooltipModule,
     StartPipelineActionComponent,
     CancelPipelineActionComponent,
     RetryPipelineActionComponent

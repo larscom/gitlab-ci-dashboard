@@ -1,3 +1,4 @@
+import { Job } from '$groups/model/job'
 import { Pipeline } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
 import { Status } from '$groups/model/status'
@@ -5,6 +6,10 @@ import { Observable, filter } from 'rxjs'
 
 export function filterString(value: string, filterText: string): boolean {
   return value.toLocaleLowerCase().includes(filterText.toLocaleLowerCase())
+}
+
+export function filterFailedJobs(failedJobs: Job[], filterJobs: string[]): boolean {
+  return filterJobs.length === 0 || failedJobs.some(({ name }) => filterJobs.includes(name))
 }
 
 export function filterProject({ name, topics }: Project, filterText: string, filterTopics: string[]): boolean {

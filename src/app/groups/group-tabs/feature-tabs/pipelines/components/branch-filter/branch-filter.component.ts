@@ -5,11 +5,11 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 
 @Component({
   selector: 'gcd-branch-filter',
-  imports: [NzIconModule, NzInputModule, NzButtonModule, NzToolTipModule, NzSpinModule, FormsModule],
+  imports: [NzIconModule, NzInputModule, NzButtonModule, NzTooltipModule, NzSpinModule, FormsModule],
   templateUrl: './branch-filter.component.html',
   styleUrls: ['./branch-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

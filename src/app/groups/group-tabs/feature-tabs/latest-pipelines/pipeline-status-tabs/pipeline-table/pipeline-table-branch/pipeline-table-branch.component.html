@@ -1,10 +1,18 @@
 <div class="flex flex-col gap-050">
   <div class="flex justify-between">
-    <gcd-latest-branch-filter
-      [branchCount]="branchCount()"
-      [filterText]="filterText()"
-      (filterTextChange)="onFilterTextChanged($event)"
-    />
+    <div class="flex flex-col gap-050">
+      <gcd-latest-branch-filter
+        [branchCount]="branchCount()"
+        [filterText]="filterText()"
+        (filterTextChange)="onFilterTextChanged($event)"
+      />
+      <gcd-job-filter
+        [loading]="loading()"
+        [jobs]="jobs()"
+        [filterJobs]="filterJobs()"
+        (filterJobsChange)="onFilterJobsChanged($event)"
+      />
+    </div>
   </div>
   <nz-table
     #nzTable
@@ -26,7 +34,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (data of nzTable.data; track trackByBranchName(data)) {
+      @for (data of nzTable.data; track trackByBranchCommitId(data)) {
       <tr [attr.data-pipeline-id]="data.pipeline?.id">
         <td>{{ data.branch.name }}</td>
         <td>

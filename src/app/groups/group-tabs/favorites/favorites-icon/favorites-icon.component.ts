@@ -4,12 +4,12 @@ import { CommonModule } from '@angular/common'
 import { Component, computed, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { FavoriteService } from '../favorite.service'
 
 @Component({
   selector: 'gcd-favorites-icon',
-  imports: [CommonModule, NzToolTipModule, NzIconModule, NzButtonModule],
+  imports: [CommonModule, NzTooltipModule, NzIconModule, NzButtonModule],
   templateUrl: './favorites-icon.component.html',
   styleUrls: ['./favorites-icon.component.scss']
 })

@@ -20,7 +20,7 @@ import {
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { Subscription, identity, map, repeat, retry, tap } from 'rxjs'
 import { MaxLengthPipe } from '../../pipes/max-length.pipe'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
@@ -44,7 +44,7 @@ const RUNNABLE_STATUSES = [
 
 @Component({
   selector: 'gcd-jobs',
-  imports: [CommonModule, NzTagModule, NzIconModule, NzSpinModule, NzToolTipModule, StatusColorPipe, MaxLengthPipe],
+  imports: [CommonModule, NzTagModule, NzIconModule, NzSpinModule, NzTooltipModule, StatusColorPipe, MaxLengthPipe],
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

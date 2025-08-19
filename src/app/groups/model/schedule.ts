@@ -1,4 +1,5 @@
 import { GroupId } from './group'
+import { Job } from './job'
 import { Pipeline } from './pipeline'
 import { Project } from './project'
 import { User } from './user'
@@ -8,6 +9,7 @@ export interface ScheduleProjectPipeline {
   schedule: Schedule
   project: Project
   pipeline?: Pipeline
+  failed_jobs?: Job[]
 }
 
 export type ScheduleId = number

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::model::commit::Commit;
-use crate::model::Pipeline;
+use crate::model::{Job, Pipeline};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Branch {
@@ -19,13 +19,15 @@ pub struct BranchPipeline {
     pub branch: Branch,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<Pipeline>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failed_jobs: Option<Vec<Job>>,
 }
 
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
-    use crate::model::{Branch, BranchPipeline, test};
+    use crate::model::{test, Branch, BranchPipeline};
 
     #[test]
     fn branch_deserialize() {
@@ -69,6 +71,7 @@ mod tests {
 
         let json = serde_json::to_string(&value).unwrap();
         let expected = "{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}}";
+
         assert_eq!(expected, json);
     }
 
@@ -77,10 +80,12 @@ mod tests {
         let value = BranchPipeline {
             branch: test::new_branch(),
             pipeline: None,
+            failed_jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
         let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}}}";
+
         assert_eq!(expected, json);
     }
 
@@ -89,10 +94,26 @@ mod tests {
         let value = BranchPipeline {
             branch: test::new_branch(),
             pipeline: Some(test::new_pipeline()),
+            failed_jobs: None,
         };
 
         let json = serde_json::to_string(&value).unwrap();
         let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+
+        assert_eq!(expected, json);
+    }
+
+    #[test]
+    fn branch_pipeline_serialize_some_failed_jobs() {
+        let value = BranchPipeline {
+            branch: test::new_branch(),
+            pipeline: None,
+            failed_jobs: Some(vec![test::new_job()]),
+        };
+
+        let json = serde_json::to_string(&value).unwrap();
+        let expected = "{\"branch\":{\"name\":\"branch-1\",\"merged\":false,\"protected\":false,\"default\":false,\"can_push\":false,\"web_url\":\"web_url\",\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"}},\"failed_jobs\":[{\"id\":1,\"created_at\":\"1970-01-01T00:00:00Z\",\"allow_failure\":false,\"name\":\"name\",\"ref\":\"branch\",\"stage\":\"stage\",\"status\":\"success\",\"web_url\":\"web_url\",\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"},\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"},\"user\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}}]}";
+
         assert_eq!(expected, json);
     }
 }
