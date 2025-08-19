@@ -1,7 +1,7 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
-import { filterJobs, filterProject } from '$groups/util/filter'
+import { filterFailedJobs, filterProject } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, Signal, computed, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
@@ -32,7 +32,7 @@ export class PipelineStatusTabsComponent {
       this.projectPipelines()
         .filter(({ project }) => filterProject(project, this.filterText(), this.filterTopics()))
         .filter(({ pipeline }) => pipeline != null)
-        .filter(({ jobs }) => filterJobs(jobs ?? [], this.filterJobs()))
+        .filter(({ jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
         .reduce((current, { group_id, pipeline, project }) => {
           const { status } = pipeline!
           const projects = current.get(status)

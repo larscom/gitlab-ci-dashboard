@@ -7,7 +7,7 @@ import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-co
 import { BranchPipeline } from '$groups/model/branch'
 import { Status } from '$groups/model/status'
 import { compareString, compareStringDate } from '$groups/util/compare'
-import { filterJobs, filterString } from '$groups/util/filter'
+import { filterFailedJobs, filterString } from '$groups/util/filter'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
 import { ConfigService } from '$service/config.service'
@@ -76,7 +76,7 @@ export class PipelineTableBranchComponent {
   filteredBranches = computed(() =>
     this.branchPipelines()
       .filter(({ branch: { name } }) => filterString(name, this.filterText()))
-      .filter(({ jobs }) => filterJobs(jobs ?? [], this.filterJobs()))
+      .filter(({ jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
   )
   branchCount = computed(() => this.branchPipelines().length)
 

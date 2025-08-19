@@ -3,7 +3,7 @@ import { GroupId } from '$groups/model/group'
 import { ProjectId } from '$groups/model/project'
 import { ScheduleProjectPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
-import { filterJobs, filterPipeline, filterProject } from '$groups/util/filter'
+import { filterFailedJobs, filterPipeline, filterProject } from '$groups/util/filter'
 import { forkJoinFlatten } from '$groups/util/fork'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
@@ -57,7 +57,7 @@ export class SchedulesComponent implements OnInit {
         }
         return filter
       })
-      .filter(({ jobs }) => filterJobs(jobs ?? [], this.filterJobs()))
+      .filter(({ jobs }) => filterFailedJobs(jobs ?? [], this.filterJobs()))
   })
 
   projects = computed(() => {
