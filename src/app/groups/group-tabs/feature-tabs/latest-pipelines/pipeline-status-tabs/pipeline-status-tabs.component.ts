@@ -1,15 +1,13 @@
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
-import { filterProject } from '$groups/util/filter'
+import { filterJobs, filterProject } from '$groups/util/filter'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, Signal, computed, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzEmptyModule } from 'ng-zorro-antd/empty'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
 import { PipelineTableComponent } from './pipeline-table/pipeline-table.component'
-import { Job } from '$groups/model/job'
-import { Pipeline } from '$groups/model/pipeline'
 
 interface Tab {
   status: Status
@@ -27,14 +25,14 @@ export class PipelineStatusTabsComponent {
   projectPipelines = input.required<ProjectPipeline[]>()
   filterText = input.required<string>()
   filterTopics = input.required<string[]>()
-  filterJobs = input.required<Job[]>()
+  filterJobs = input.required<string[]>()
 
   tabs: Signal<Tab[]> = computed(() => {
     return Array.from(
       this.projectPipelines()
         .filter(({ project }) => filterProject(project, this.filterText(), this.filterTopics()))
         .filter(({ pipeline }) => pipeline != null)
-        .filter(({ pipeline }) => this.filterJob(pipeline!, this.filterJobs()))
+        .filter(({ jobs }) => filterJobs(jobs ?? [], this.filterJobs()))
         .reduce((current, { group_id, pipeline, project }) => {
           const { status } = pipeline!
           const projects = current.get(status)
@@ -48,9 +46,5 @@ export class PipelineStatusTabsComponent {
 
   trackByStatus({ status }: Tab): Status {
     return status
-  }
-
-  filterJob(pipeline: Pipeline, jobs: Job[]) {
-    return jobs.length === 0 || jobs.some((job) => job.pipeline.id === pipeline.id)
   }
 }

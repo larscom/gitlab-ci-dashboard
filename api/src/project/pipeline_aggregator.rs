@@ -102,19 +102,10 @@ impl PipelineAggregator {
                 Vec::default()
             };
 
-            let jobs = try_collect_with_buffer(pipelines.clone(), |p| async move {
-                self.job_service.get_jobs(p.project_id, p.id, &[]).await
-            })
-            .await?
-            .into_iter()
-            .flatten()
-            .collect::<Vec<_>>();
-
             Ok(ProjectPipelines {
                 group_id,
                 project,
                 pipelines,
-                jobs,
             })
         })
         .await

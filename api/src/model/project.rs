@@ -34,7 +34,6 @@ pub struct ProjectPipelines {
     pub group_id: u64,
     pub project: Project,
     pub pipelines: Vec<Pipeline>,
-    pub jobs: Vec<Job>,
 }
 
 #[cfg(test)]
@@ -228,7 +227,6 @@ mod tests {
             group_id: 1,
             project: test::new_project(),
             pipelines: vec![test::new_pipeline()],
-            jobs: vec![],
         };
 
         let json = serde_json::to_string(&value).unwrap();

@@ -1,10 +1,12 @@
 import { GroupId } from './group'
+import { Job } from './job'
 import { Pipeline } from './pipeline'
 
 export interface ProjectPipeline {
   group_id: GroupId
   project: Project
   pipeline?: Pipeline
+  jobs?: Job[]
 }
 
 export interface ProjectPipelines {

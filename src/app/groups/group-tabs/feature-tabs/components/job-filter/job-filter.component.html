@@ -3,14 +3,14 @@
 } @else {
   @if (jobs().length > 0) {
     <div class="flex flex-wrap gap-050 items-center">
-      <span class="font-sm font-bold">Filter by job</span>
-      @for (job of jobs(); track job.id) {
+      <span class="font-sm font-bold">Filter by failed job</span>
+      @for (name of jobNames(); track name) {
         <nz-tag
           nzMode="checkable"
-          [nzChecked]="filterJobNames().includes(job.name)"
-          (nzCheckedChange)="onJobChange($event, job)"
+          [nzChecked]="filterJobs().includes(name)"
+          (nzCheckedChange)="onJobChange($event, name)"
         >
-          {{ job.name | lowercase }}
+          {{ name | lowercase }}
         </nz-tag>
       }
     </div>

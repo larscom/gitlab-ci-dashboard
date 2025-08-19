@@ -1,14 +1,9 @@
 import { Job } from '$groups/model/job'
-import { PipelineId } from '$groups/model/pipeline'
-import { ProjectId } from '$groups/model/project'
+import { Status } from '$groups/model/status'
 import { CommonModule } from '@angular/common'
-import { HttpClient } from '@angular/common/http'
-import { ChangeDetectionStrategy, Component, computed, inject, Injector, input, model } from '@angular/core'
-import { toObservable, toSignal } from '@angular/core/rxjs-interop'
+import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
-import { forkJoin } from 'rxjs'
-import { map, mergeMap } from 'rxjs/operators'
 
 @Component({
   selector: 'gcd-job-filter',
@@ -18,36 +13,24 @@ import { map, mergeMap } from 'rxjs/operators'
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JobFilterComponent {
-  private http = inject(HttpClient)
-  private injector = inject(Injector)
-
-  projects = input.required<[ProjectId, PipelineId][]>()
-  filterJobs = model.required<Job[]>()
+  jobs = input.required<Job[]>()
+  filterJobs = model.required<string[]>()
   loading = input(false)
 
-  filterJobNames = computed(() => [...new Set(this.filterJobs().map(({ name }) => name))])
-  
-  // TODO: fix me so it only calls if projects are different
-  jobs = toSignal(
-    toObservable(this.projects, { injector: this.injector }).pipe(
-      mergeMap((projects) => {
-        const names = projects.map(([project_id, pipeline_id]) => {
-          const params = { project_id, pipeline_id, scope: '' }
-          return this.http.get<Job[]>('/api/jobs', { params })
-        })
-        return forkJoin(names)
-      }),
-      map((jobs) => [...new Set(jobs.flat())])
-    ),
-    { initialValue: [] }
-  )
+  jobNames = computed(() => [
+    ...new Set(
+      this.jobs()
+        .filter(({ status }) => status === Status.FAILED)
+        .map(({ name }) => name)
+    )
+  ])
 
-  onJobChange(checked: boolean, job: Job): void {
+  onJobChange(checked: boolean, job: string): void {
     const selected = this.filterJobs()
     if (checked) {
       this.filterJobs.set([...selected, job])
     } else {
-      this.filterJobs.set(selected.filter((j) => j.id !== job.id))
+      this.filterJobs.set(selected.filter((j) => j !== job))
     }
   }
 }

@@ -14,7 +14,7 @@
       />
       <gcd-job-filter
         [loading]="loading()"
-        [projects]="projectsForJobFilter()"
+        [jobs]="jobs()"
         [filterJobs]="filterJobs()"
         (filterJobsChange)="onFilterJobsChanged($event)"
       />

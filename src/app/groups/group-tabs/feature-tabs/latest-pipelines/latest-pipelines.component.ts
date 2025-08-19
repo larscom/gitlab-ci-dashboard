@@ -37,7 +37,7 @@ export class LatestPipelinesComponent implements OnInit {
 
   filterText = signal('')
   filterTopics = signal<string[]>([])
-  filterJobs = signal<Job[]>([])
+  filterJobs = signal<string[]>([])
   projectPipelines = signal<ProjectPipeline[]>([])
   loading = signal(false)
 
@@ -47,12 +47,10 @@ export class LatestPipelinesComponent implements OnInit {
       .map(({ project }) => project)
   })
 
-  projectsForJobFilter = computed(() => {
-    const result: [ProjectId, PipelineId][] = this.projectPipelines()
-      .filter(({ pipeline }) => pipeline != null)
-      .map(({ project, pipeline }) => [project.id, pipeline!.id])
-    return result
-  })
+  jobs = computed(() =>
+    this.projectPipelines()
+      .flatMap(({ jobs }) => jobs ?? [])
+  )
 
   ngOnInit(): void {
     this.loading.set(true)
@@ -81,8 +79,7 @@ export class LatestPipelinesComponent implements OnInit {
     this.filterTopics.set(topics)
   }
 
-  onFilterJobsChanged(jobs: Job[]): void {
-    console.log({jobs})
+  onFilterJobsChanged(jobs: string[]): void {
     this.filterJobs.set(jobs)
   }
 
