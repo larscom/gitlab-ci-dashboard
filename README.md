@@ -37,7 +37,9 @@ projects, potentially resulting in undetected failed pipelines.
 - [x] Shows jobs and their status per pipeline
 - [x] Download artifacts from jobs directly
 - [x] Search for projects within a group
-- [x] Filter pipelines by status and projects by topic
+- [x] Filter pipelines by status
+- [x] Filter pipelines by projects and topic
+- [x] Filter pipelines by failed jobs
 - [x] Add projects to favorites
 - [x] Start a new pipeline (requires read/write API token)
 - [x] Restart failed pipelines (requires read/write API token)
