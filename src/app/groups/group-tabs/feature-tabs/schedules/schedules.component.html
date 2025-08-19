@@ -13,11 +13,17 @@
         (filterTopicsChange)="onFilterTopicsChanged($event)"
       />
       <gcd-status-filter [filterStatuses]="filterStatuses()" (filterStatusesChange)="onFilterStatusesChanged($event)" />
+      <gcd-job-filter
+        [loading]="loading()"
+        [jobs]="jobs()"
+        [filterJobs]="filterJobs()"
+        (filterJobsChange)="onFilterJobsChanged($event)"
+      />
     </div>
   </div>
   @if (loading()) {
-    <nz-spin />
+  <nz-spin />
   } @else {
-    <gcd-schedule-table [schedulePipelines]="filteredSchedulePipelines()" />
+  <gcd-schedule-table [schedulePipelines]="filteredSchedulePipelines()" />
   }
 </div>

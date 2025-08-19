@@ -3,13 +3,14 @@ import { GroupId } from '$groups/model/group'
 import { ProjectId } from '$groups/model/project'
 import { ScheduleProjectPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
-import { filterPipeline, filterProject } from '$groups/util/filter'
+import { filterJobs, filterPipeline, filterProject } from '$groups/util/filter'
 import { forkJoinFlatten } from '$groups/util/fork'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { finalize, interval, switchMap } from 'rxjs'
+import { JobFilterComponent } from '../components/job-filter/job-filter.component'
 import { ProjectFilterComponent } from '../components/project-filter/project-filter.component'
 import { TopicFilterComponent } from '../components/topic-filter/topic-filter.component'
 import { StatusFilterComponent } from '../pipelines/components/status-filter/status-filter.component'
@@ -24,7 +25,8 @@ import { ScheduleService } from './service/schedule.service'
     ScheduleTableComponent,
     ProjectFilterComponent,
     TopicFilterComponent,
-    StatusFilterComponent
+    StatusFilterComponent,
+    JobFilterComponent
   ],
   templateUrl: './schedules.component.html',
   styleUrls: ['./schedules.component.scss'],
@@ -39,18 +41,23 @@ export class SchedulesComponent implements OnInit {
   filterText = signal('')
   filterTopics = signal<string[]>([])
   filterStatuses = signal<Status[]>([])
+  filterJobs = signal<string[]>([])
 
   schedulePipelines = signal<ScheduleProjectPipeline[]>([])
   loading = signal(false)
 
+  jobs = computed(() => this.schedulePipelines().flatMap(({ jobs }) => jobs ?? []))
+
   filteredSchedulePipelines = computed(() => {
-    return this.schedulePipelines().filter(({ project, pipeline }) => {
-      const filter = filterProject(project, this.filterText(), this.filterTopics())
-      if (pipeline) {
-        return filter && filterPipeline(pipeline, '', this.filterStatuses())
-      }
-      return filter
-    })
+    return this.schedulePipelines()
+      .filter(({ project, pipeline }) => {
+        const filter = filterProject(project, this.filterText(), this.filterTopics())
+        if (pipeline) {
+          return filter && filterPipeline(pipeline, '', this.filterStatuses())
+        }
+        return filter
+      })
+      .filter(({ jobs }) => filterJobs(jobs ?? [], this.filterJobs()))
   })
 
   projects = computed(() => {
@@ -83,5 +90,9 @@ export class SchedulesComponent implements OnInit {
 
   onFilterStatusesChanged(statuses: Status[]) {
     this.filterStatuses.set(statuses)
+  }
+
+  onFilterJobsChanged(jobs: string[]): void {
+    this.filterJobs.set(jobs)
   }
 }
