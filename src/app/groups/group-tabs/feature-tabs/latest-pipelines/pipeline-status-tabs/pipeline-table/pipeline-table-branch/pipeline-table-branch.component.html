@@ -37,15 +37,18 @@
       @for (data of nzTable.data; track trackByBranchCommitId(data)) {
       <tr [attr.data-pipeline-id]="data.pipeline?.id">
         <td>{{ data.branch.name }}</td>
-        <td>
-          @if (data.pipeline; as pipeline) {
-          <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
-          } @else { - }
+        <td [style.color]="data.pipeline?.coverage | coverageColor">
+          {{ data.pipeline?.coverage ? data.pipeline?.coverage + '%' : '-' }}
         </td>
         <td>{{ data.pipeline?.source || '-' }}</td>
         <td>
           @if (data.pipeline; as pipeline) {
           {{ pipeline.updated_at | date : 'medium' : timeZone : locale }}
+          } @else { - }
+        </td>
+        <td>
+          @if (data.pipeline; as pipeline) {
+          <nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge>
           } @else { - }
         </td>
         <td>

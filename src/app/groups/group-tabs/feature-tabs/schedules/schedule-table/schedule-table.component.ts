@@ -5,7 +5,7 @@ import { Pipeline, Source } from '$groups/model/pipeline'
 import { Project } from '$groups/model/project'
 import { ScheduleId, ScheduleProjectPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
-import { compareString, compareStringDate } from '$groups/util/compare'
+import { compareNumber, compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
 import { ConfigService } from '$service/config.service'
@@ -31,15 +31,16 @@ import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, interval, map, Subscription, switchMap } from 'rxjs'
 import { DownloadArtifactsIconComponent } from '../../components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '../../components/jobs/jobs.component'
+import { OpenGitlabIconComponent } from '../../components/open-gitlab-icon/open-gitlab-icon.component'
 import { WriteActionsIconComponent } from '../../components/write-actions-icon/write-actions-icon.component'
 import { PipelinesService } from '../../pipelines/service/pipelines.service'
+import { CoverageColorPipe } from '../../pipes/coverage-color.pipe'
 import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 import { SchedulePipelineTableComponent } from './schedule-pipeline-table/schedule-pipeline-table.component'
-import { OpenGitlabIconComponent } from '../../components/open-gitlab-icon/open-gitlab-icon.component'
 
 const headers: Header<ScheduleProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
-   {
+  {
     title: 'Group',
     sortable: true,
     compare: (a, b) => compareString(a.project.namespace.name, b.project.namespace.name)
@@ -50,6 +51,11 @@ const headers: Header<ScheduleProjectPipeline>[] = [
     compare: (a, b) => compareString(a.schedule.description, b.schedule.description)
   },
   { title: 'Branch', sortable: false, compare: null },
+  {
+    title: 'Coverage',
+    sortable: true,
+    compare: (a, b) => compareNumber(a.pipeline?.coverage, b.pipeline?.coverage)
+  },
   {
     title: 'Trigger',
     sortable: true,
@@ -88,7 +94,8 @@ const headers: Header<ScheduleProjectPipeline>[] = [
     SchedulePipelineTableComponent,
     WriteActionsIconComponent,
     DownloadArtifactsIconComponent,
-    OpenGitlabIconComponent
+    OpenGitlabIconComponent,
+    CoverageColorPipe
   ],
   templateUrl: './schedule-table.component.html',
   styleUrls: ['./schedule-table.component.scss'],

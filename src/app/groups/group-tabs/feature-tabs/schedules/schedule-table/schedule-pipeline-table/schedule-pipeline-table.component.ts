@@ -5,7 +5,7 @@ import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/compo
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { Pipeline, PipelineId } from '$groups/model/pipeline'
 import { Status } from '$groups/model/status'
-import { compareString, compareStringDate } from '$groups/util/compare'
+import { compareNumber, compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
 import { ConfigService } from '$service/config.service'
@@ -17,12 +17,18 @@ import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
+import { CoverageColorPipe } from '../../../pipes/coverage-color.pipe'
 
 const headers: Header<Pipeline>[] = [
   {
     title: 'Branch',
     sortable: true,
     compare: (a, b) => compareString(a.ref, b.ref)
+  },
+  {
+    title: 'Coverage',
+    sortable: true,
+    compare: (a, b) => compareNumber(a.coverage, b.coverage)
   },
   {
     title: 'Trigger',
@@ -54,7 +60,8 @@ const headers: Header<Pipeline>[] = [
     JobsComponent,
     WriteActionsIconComponent,
     DownloadArtifactsIconComponent,
-    OpenGitlabIconComponent
+    OpenGitlabIconComponent,
+    CoverageColorPipe
   ],
   templateUrl: './schedule-pipeline-table.component.html',
   styleUrls: ['./schedule-pipeline-table.component.scss'],

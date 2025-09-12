@@ -9,9 +9,9 @@
   <thead>
     <tr>
       @for (header of headers; track header.title) {
-        <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
-          {{ header.title }}
-        </th>
+      <th [nzSortFn]="header.compare" [nzShowSort]="header.sortable">
+        {{ header.title }}
+      </th>
       }
       <th>Jobs</th>
       <th>Action</th>
@@ -19,26 +19,25 @@
   </thead>
   <tbody>
     @for (pipeline of nzTable.data; track trackById(pipeline)) {
-      <tr [attr.data-pipeline-id]="pipeline.id">
-        <td>{{ pipeline.ref || '' }}</td>
-        <td>{{ pipeline.source || '' }}</td>
-        <td>{{ pipeline.updated_at | date: 'medium' : timeZone : locale }}</td>
-        <td><nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge></td>
-        <td>
-          <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
-        </td>
-        <td>
-          @if (showWriteActions()) {
-            <gcd-write-actions-icon
-              [projectId]="pipeline.project_id"
-              [pipelineId]="pipeline.id"
-              [branch]="pipeline.ref"
-            />
-          }
-          <gcd-open-gitlab-icon [url]="pipeline.web_url" />
-          <gcd-download-artifacts-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
-        </td>
-      </tr>
+    <tr [attr.data-pipeline-id]="pipeline.id">
+      <td>{{ pipeline.ref || '' }}</td>
+      <td [style.color]="pipeline?.coverage | coverageColor">
+        {{ pipeline?.coverage ? pipeline?.coverage + '%' : '-' }}
+      </td>
+      <td>{{ pipeline.source || '' }}</td>
+      <td>{{ pipeline.updated_at | date : 'medium' : timeZone : locale }}</td>
+      <td><nz-badge [nzColor]="pipeline.status | statusColor" [nzText]="pipeline.status"></nz-badge></td>
+      <td>
+        <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
+      </td>
+      <td>
+        @if (showWriteActions()) {
+        <gcd-write-actions-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [branch]="pipeline.ref" />
+        }
+        <gcd-open-gitlab-icon [url]="pipeline.web_url" />
+        <gcd-download-artifacts-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+      </td>
+    </tr>
     }
   </tbody>
 </nz-table>

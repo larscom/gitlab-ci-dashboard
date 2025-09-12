@@ -78,14 +78,12 @@ impl PipelineAggregator {
         schedules: Vec<Schedule>,
     ) -> Result<Vec<ScheduleProjectPipeline>, ApiError> {
         try_collect_with_buffer(schedules, |schedule| async move {
-            let project = project.clone();
+            let project = project.to_owned();
 
             let pipeline = self
                 .pipeline_service
                 .get_latest_pipeline(project.id, schedule.branch.clone())
                 .await?;
-
-            let schedule = schedule.clone();
 
             let failed_jobs = match pipeline {
                 Some(ref p) if p.status == PipelineStatus::Failed => Some(

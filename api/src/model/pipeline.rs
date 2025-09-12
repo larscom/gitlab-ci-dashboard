@@ -1,3 +1,4 @@
+use crate::util::deserialize::into_opt_f64;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -6,6 +7,12 @@ pub struct Pipeline {
     pub id: u64,
     pub iid: u64,
     pub project_id: u64,
+    #[serde(
+        default,
+        deserialize_with = "into_opt_f64",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub coverage: Option<f64>,
     pub sha: String,
     #[serde(rename = "ref")]
     pub branch: String,
