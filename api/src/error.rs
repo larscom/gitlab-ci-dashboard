@@ -13,11 +13,19 @@ pub struct ApiError {
 }
 
 impl ApiError {
-    pub fn new(status_code: StatusCode, message: String) -> Self {
+    pub fn new(status_code: StatusCode, message: impl Into<String>) -> Self {
         Self {
             status_code: status_code.as_u16(),
-            message,
+            message: message.into(),
         }
+    }
+
+    pub fn server_error(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, message)
+    }
+
+    pub fn bad_request(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::BAD_REQUEST, message)
     }
 
     pub fn with_u16_code(status_code: u16, message: String) -> Self {
@@ -27,12 +35,10 @@ impl ApiError {
         }
     }
 
-    pub fn server_error(message: String) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, message)
-    }
-
-    pub fn bad_request(message: String) -> Self {
-        Self::new(StatusCode::BAD_REQUEST, message)
+    pub fn is_forbidden(&self) -> bool {
+        StatusCode::from_u16(self.status_code)
+            .map(|s| s == StatusCode::FORBIDDEN)
+            .unwrap_or(false)
     }
 }
 
@@ -40,7 +46,7 @@ impl Default for ApiError {
     fn default() -> Self {
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "an internal server error occured".into(),
+            "an internal server error occured",
         )
     }
 }

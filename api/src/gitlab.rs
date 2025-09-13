@@ -101,7 +101,7 @@ impl GitlabClient {
         let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
             .expect("url to be parsed with params");
 
-        log::debug!("HTTP (post) {url} body: {body_json:?}");
+        log::debug!("request (post) {url} body: {body_json:?}");
         let builder = self.http_client.post(url);
 
         match body_json {
@@ -115,8 +115,16 @@ impl GitlabClient {
         path: String,
         params: Vec<(String, String)>,
         body_json: Option<Value>,
-    ) -> Result<T, reqwest::Error> {
-        self.do_post(path, params, body_json).await?.json().await
+    ) -> Result<T, ApiError> {
+        let response = self.do_post(path.clone(), params, body_json).await?;
+        let json = response.text().await?;
+
+        log::debug!("path: {}, JSON response: {}", &path, &json);
+
+        let data =
+            serde_json::from_str(&json).map_err(|e| ApiError::server_error(e.to_string()))?;
+
+        Ok(data)
     }
 
     async fn do_get(
@@ -127,7 +135,7 @@ impl GitlabClient {
         let url = Url::parse_with_params(format!("{}{}", self.base_url, path).as_str(), params)
             .expect("url to be parsed with params");
 
-        log::debug!("HTTP (get) {url}");
+        log::debug!("request (get) {url}");
 
         self.http_client.get(url).send().await?.error_for_status()
     }
@@ -136,8 +144,15 @@ impl GitlabClient {
         &self,
         path: String,
         params: Vec<(String, String)>,
-    ) -> Result<T, reqwest::Error> {
-        self.do_get(path, params).await?.json().await
+    ) -> Result<T, ApiError> {
+        let response = self.do_get(path.clone(), params).await?;
+        let json = response.text().await?;
+
+        log::debug!("path: {}, JSON response: {}", &path, &json);
+
+        let data =
+            serde_json::from_str(&json).map_err(|e| ApiError::server_error(e.to_string()))?;
+        Ok(data)
     }
 
     async fn get_page<T: DeserializeOwned>(
@@ -145,14 +160,18 @@ impl GitlabClient {
         path: String,
         page: usize,
         params: Vec<(String, String)>,
-    ) -> Result<Page<T>, reqwest::Error> {
+    ) -> Result<Page<T>, ApiError> {
         let mut params = params;
         params.push(("page".to_string(), page.to_string()));
         params.push(("per_page".to_string(), "100".to_string()));
 
-        let response = self.do_get(path, params).await?;
+        let response = self.do_get(path.clone(), params).await?;
         let total_pages = get_total_pages(response.headers());
-        let data = response.json().await?;
+        let json = response.text().await?;
+
+        log::debug!("page: {}, path: {}, JSON response: {}", page, &path, &json);
+        let data =
+            serde_json::from_str(&json).map_err(|e| ApiError::server_error(e.to_string()))?;
 
         Ok(Page {
             data,
@@ -170,7 +189,7 @@ impl GitlabClient {
         T: DeserializeOwned + Send + 'static,
         T: std::fmt::Debug,
     {
-        log::debug!("fetching page 1");
+        log::debug!("fetching page 1, path: {}", &path);
 
         let Page {
             data: mut all_data,
@@ -178,7 +197,7 @@ impl GitlabClient {
             page: _,
         } = self.get_page(path.clone(), 1, params.clone()).await?;
 
-        log::debug!("fetched page 1/{total_pages} data: {all_data:?}");
+        log::debug!("fetched page 1/{total_pages}, path: {}", &path);
 
         if total_pages == 1 {
             return Ok(all_data);
@@ -192,7 +211,7 @@ impl GitlabClient {
             let path = path.clone();
             let tx = tx.clone();
             tokio::spawn(async move {
-                log::debug!("fetching page {page}");
+                log::debug!("fetching page {page}, path: {}", &path);
                 let result = self_clone.get_page(path, page, params).await;
                 if let Err(err) = tx.send(result).await {
                     log::error!("could not send result via channel. err: {err}");
@@ -208,7 +227,7 @@ impl GitlabClient {
                 total_pages,
                 page,
             } = result?;
-            log::debug!("fetched page {page}/{total_pages} data: {data:?}");
+            log::debug!("fetched page {page}/{total_pages}");
             all_data.append(&mut data);
         }
 
@@ -263,17 +282,11 @@ impl GitlabApi for GitlabClient {
         match self.do_get_parsed::<Pipeline>(path, params.to_vec()).await {
             Ok(pipeline) => Ok(Some(pipeline)),
             Err(error) => {
-                let status = error.status();
-                status.map_or_else(
-                    || Ok(None),
-                    |code| {
-                        if code == reqwest::StatusCode::FORBIDDEN {
-                            Ok(None)
-                        } else {
-                            Err(error.into())
-                        }
-                    },
-                )
+                if error.is_forbidden() {
+                    Ok(None)
+                } else {
+                    Err(error)
+                }
             }
         }
     }
@@ -299,9 +312,7 @@ impl GitlabApi for GitlabClient {
         let params = [];
         let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/retry");
 
-        self.do_post_parsed(path, params.to_vec(), None)
-            .await
-            .map_err(|e| e.into())
+        self.do_post_parsed(path, params.to_vec(), None).await
     }
 
     async fn start_pipeline(
@@ -328,9 +339,7 @@ impl GitlabApi for GitlabClient {
             Value::Object(o)
         });
 
-        self.do_post_parsed(path, params.to_vec(), body_json)
-            .await
-            .map_err(|e| e.into())
+        self.do_post_parsed(path, params.to_vec(), body_json).await
     }
 
     async fn cancel_pipeline(
@@ -341,9 +350,7 @@ impl GitlabApi for GitlabClient {
         let params = [];
         let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/cancel");
 
-        self.do_post_parsed(path, params.to_vec(), None)
-            .await
-            .map_err(|e| e.into())
+        self.do_post_parsed(path, params.to_vec(), None).await
     }
 
     async fn branches(&self, project_id: u64) -> Result<Vec<Branch>, ApiError> {
