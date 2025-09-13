@@ -9,7 +9,7 @@ const colorMap = new Map<Status | string, Color>([
   [Status.PREPARING, '#4C6EF5'],
   [Status.PENDING, '#15AABF'],
   [Status.RUNNING, '#228BE6'],
-  [Status.SUCCESS, '#087f5b'],
+  [Status.SUCCESS, '#087F5B'],
   [Status.FAILED, '#FA5252'],
   [Status.CANCELED, '#FF8787'],
   [Status.SKIPPED, '#FD7E14'],

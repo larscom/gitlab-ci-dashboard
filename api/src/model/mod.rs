@@ -19,7 +19,10 @@ pub mod user;
 pub mod test {
     use crate::model::commit::Commit;
     use crate::model::user::User;
-    use crate::model::{Branch, Group, Job, JobStatus, Namespace, Pipeline, PipelineSource, PipelineStatus, Project, Schedule};
+    use crate::model::{
+        Branch, Group, Job, JobStatus, Namespace, Pipeline, PipelineSource, PipelineStatus,
+        Project, Schedule,
+    };
 
     pub fn new_commit() -> Commit {
         Commit {
@@ -49,6 +52,7 @@ pub mod test {
             id: 1,
             iid: 2,
             project_id: 3,
+            coverage: None,
             sha: "sha".to_string(),
             branch: "branch".to_string(),
             status: PipelineStatus::Running,
@@ -103,7 +107,7 @@ pub mod test {
                 id: 123,
                 name: "namespace".to_string(),
                 path: "namespace".to_string(),
-            }
+            },
         }
     }
 

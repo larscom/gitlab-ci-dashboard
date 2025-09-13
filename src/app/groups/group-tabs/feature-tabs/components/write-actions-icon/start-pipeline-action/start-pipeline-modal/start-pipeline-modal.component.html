@@ -12,7 +12,7 @@
             [(ngModel)]="selectedBranch"
           >
             <nz-option [nzLabel]="defaultBranch" [nzValue]="defaultBranch"></nz-option>
-            @for (branch of branches(); track branch.name) {
+            @for (branch of branches(); track branch.commit.id) {
               <nz-option [nzLabel]="branch.name" [nzValue]="branch.name"></nz-option>
             }
           </nz-select>

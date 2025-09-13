@@ -3,10 +3,11 @@ import { JobFilterComponent } from '$groups/group-tabs/feature-tabs/components/j
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { OpenGitlabIconComponent } from '$groups/group-tabs/feature-tabs/components/open-gitlab-icon/open-gitlab-icon.component'
 import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
+import { CoverageColorPipe } from '$groups/group-tabs/feature-tabs/pipes/coverage-color.pipe'
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { BranchPipeline } from '$groups/model/branch'
 import { Status } from '$groups/model/status'
-import { compareString, compareStringDate } from '$groups/util/compare'
+import { compareNumber, compareString, compareStringDate } from '$groups/util/compare'
 import { filterFailedJobs, filterString } from '$groups/util/filter'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
@@ -24,9 +25,9 @@ import { LatestBranchFilterComponent } from './latest-branch-filter/latest-branc
 const headers: Header<BranchPipeline>[] = [
   { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
   {
-    title: 'Status',
+    title: 'Coverage',
     sortable: true,
-    compare: (a, b) => compareString(a.pipeline?.status, b.pipeline?.status)
+    compare: (a, b) => compareNumber(a.pipeline?.coverage, b.pipeline?.coverage)
   },
   {
     title: 'Trigger',
@@ -37,6 +38,11 @@ const headers: Header<BranchPipeline>[] = [
     title: 'Last Run',
     sortable: true,
     compare: (a, b) => compareStringDate(a.pipeline?.updated_at, b.pipeline?.updated_at)
+  },
+  {
+    title: 'Status',
+    sortable: true,
+    compare: (a, b) => compareString(a.pipeline?.status, b.pipeline?.status)
   }
 ]
 
@@ -55,7 +61,8 @@ const headers: Header<BranchPipeline>[] = [
     WriteActionsIconComponent,
     OpenGitlabIconComponent,
     DownloadArtifactsIconComponent,
-    JobFilterComponent
+    JobFilterComponent,
+    CoverageColorPipe
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],

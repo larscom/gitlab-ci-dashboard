@@ -2,11 +2,12 @@ import { FavoritesIconComponent } from '$groups/group-tabs/favorites/favorites-i
 import { DownloadArtifactsIconComponent } from '$groups/group-tabs/feature-tabs/components/download-artifacts-icon/download-artifacts-icon.component'
 import { JobsComponent } from '$groups/group-tabs/feature-tabs/components/jobs/jobs.component'
 import { WriteActionsIconComponent } from '$groups/group-tabs/feature-tabs/components/write-actions-icon/write-actions-icon.component'
+import { CoverageColorPipe } from '$groups/group-tabs/feature-tabs/pipes/coverage-color.pipe'
 import { FETCH_REFRESH_INTERVAL } from '$groups/http'
 import { BranchPipeline } from '$groups/model/branch'
 import { Project, ProjectId, ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
-import { compareString, compareStringDate } from '$groups/util/compare'
+import { compareNumber, compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
 import { ConfigService } from '$service/config.service'
@@ -52,6 +53,11 @@ const headers: Header<ProjectPipeline>[] = [
     compare: (a, b) => compareString(a.project.topics.join(','), b.project.topics.join(','))
   },
   {
+    title: 'Coverage',
+    sortable: true,
+    compare: (a, b) => compareNumber(a.pipeline?.coverage, b.pipeline?.coverage)
+  },
+  {
     title: 'Trigger',
     sortable: true,
     compare: (a, b) => compareString(a.pipeline?.source, b.pipeline?.source)
@@ -77,7 +83,8 @@ const headers: Header<ProjectPipeline>[] = [
     FavoritesIconComponent,
     WriteActionsIconComponent,
     DownloadArtifactsIconComponent,
-    OpenGitlabIconComponent
+    OpenGitlabIconComponent,
+    CoverageColorPipe
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],

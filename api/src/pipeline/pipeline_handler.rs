@@ -45,7 +45,7 @@ async fn retry_pipeline(
 ) -> Result<Json<Pipeline>, ApiError> {
     if api_config.read_only {
         return Err(ApiError::bad_request(
-            "can't retry pipeline when in 'read only' mode".into(),
+            "can't retry pipeline when in 'read only' mode",
         ));
     }
 
@@ -66,7 +66,7 @@ async fn cancel_pipeline(
 ) -> Result<Json<Pipeline>, ApiError> {
     if api_config.read_only {
         return Err(ApiError::bad_request(
-            "can't cancel pipeline when in 'read only' mode".into(),
+            "can't cancel pipeline when in 'read only' mode",
         ));
     }
 
@@ -95,7 +95,7 @@ async fn start_pipeline(
 ) -> Result<Json<Pipeline>, ApiError> {
     if api_config.read_only {
         return Err(ApiError::bad_request(
-            "can't start a new pipeline when in 'read only' mode".into(),
+            "can't start a new pipeline when in 'read only' mode",
         ));
     }
 

@@ -6,7 +6,7 @@
   nzSize="small"
   nzType="card"
 >
-  @for (tab of tabs; track tab) {
+  @for (tab of tabs; track tab.id) {
     <nz-tab [nzTitle]="title">
       <ng-template #title>
         <span nz-icon [nzType]="tab.icon"></span><span class="pointer">{{ tab.title }}</span>

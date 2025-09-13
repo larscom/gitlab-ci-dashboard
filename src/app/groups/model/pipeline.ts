@@ -22,6 +22,7 @@ export type PipelineId = number
 export interface Pipeline {
   id: PipelineId
   project_id: ProjectId
+  coverage?: number
   status: Status
   source: Source
   ref: string
