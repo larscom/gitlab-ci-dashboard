@@ -15,7 +15,7 @@ chrono = { version = "0.4.42", features = ["serde"] }
 dotenv = "0.15.0"
 env_logger = "0.11.8"
 log = "0.4.28"
-moka = { version = "0.12.10", features = ["future"] }
+moka = { version = "0.12.11", features = ["future"] }
 reqwest = { version = "0.12.23", features = ["json"] }
 tokio = { version = "1.47.1", features = ["sync"] }
 async-trait = "0.1.89"
