@@ -1,2 +1,3 @@
 .env
 config.toml
+certs/

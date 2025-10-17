@@ -14,7 +14,7 @@ The default functionality of Gitlab is limited at the project level. This can be
 of
 projects, potentially resulting in undetected failed pipelines.
 
-## 👉 [Demo (main branch)](https://gitlab-ci-dashboard.larscom.nl)
+## 👉 [Demo](https://gitlab-ci-dashboard.larscom.nl)
 
 <br />
 
@@ -66,13 +66,22 @@ projects, potentially resulting in undetected failed pipelines.
 2. Run docker with the required environment variables (GITLAB_BASE_URL, GITLAB_API_TOKEN)
 
 ```bash
-docker run -p 8080:8080 -e GITLAB_BASE_URL=https://gitlab.com -e GITLAB_API_TOKEN=my_token larscom/gitlab-ci-dashboard:latest
+docker run \
+  -p 8080:8080 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e GITLAB_API_TOKEN=my_token \
+  larscom/gitlab-ci-dashboard:latest
 ```
 
 Or you can run it with a TOML configration file
 
 ```bash
-docker run -p 8080:8080 -v $(pwd)/config.toml:/app/config.toml larscom/gitlab-ci-dashboard:latest
+docker run \
+  -p 8080:8080 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e GITLAB_API_TOKEN=my_token \
+  -v ./config.toml:/app/config.toml \
+  larscom/gitlab-ci-dashboard:latest
 ```
 
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
@@ -103,13 +112,39 @@ A TOML file takes precedence over environment variables, except for the `RUST_LO
 
 > An example TOML file can be found inside the `./api` folder.
 
-Mount the `config.toml` inside the container.
+Mount the `config.toml` inside the container (`/app/config.toml`)
 
 ```bash
-docker run -p 8080:8080 -v $(pwd)/config.toml:/app/config.toml larscom/gitlab-ci-dashboard:latest
+docker run \
+  -p 8080:8080 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e GITLAB_API_TOKEN=my_token \
+  -v ./config.toml:/app/config.toml \
+  larscom/gitlab-ci-dashboard:latest
 ```
 
-### Environment variables
+## 📜 Custom CA certificate
+If you are running a gitlab instance that is using a TLS certificate signed with a private CA you are able to provide that CA as mount (PEM encoded)
+
+This is needed when the dashboard backend is unable to make a connection to the gitlab API over HTTPS.
+
+Mount the `ca.crt` inside the container (`/app/certs/ca.crt`)
+
+```bash
+docker run \
+  -p 8080:8080 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e GITLAB_API_TOKEN=my_token \
+  -v ./ca.crt:/app/certs/ca.crt \
+  larscom/gitlab-ci-dashboard:latest
+```
+
+### Troubleshooting
+If you are still unable to connect with a custom CA cert, be sure that the gitlab server certificate contains a valid SAN (Subject Alternative Name)
+
+If there is a mismatch the HTTP client is still unable to make a proper connection.
+
+## 🌍 Environment variables
 
 | Variable                          | Type   | Description                                                                                                                        | Required | Default      |
 |-----------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------|----------|--------------|

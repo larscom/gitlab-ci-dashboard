@@ -7,8 +7,9 @@ services:
         VERSION_ARG: docker
     env_file:
       - ./api/.env
-#    volumes:
-#      - ./api/config.toml:/app/config.toml
+    # volumes:
+    #  - ./api/config.toml:/app/config.toml
+    #  - ./api/certs/ca.crt:/app/certs/ca.crt
     environment:
       - 'TZ=Europe/Amsterdam'
     ports:
