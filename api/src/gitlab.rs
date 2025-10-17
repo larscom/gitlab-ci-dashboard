@@ -11,6 +11,7 @@ use reqwest::{Client, Url};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::fs;
 use tokio::sync::mpsc;
 
 #[async_trait]
@@ -79,14 +80,29 @@ struct Page<T: DeserializeOwned> {
 }
 
 impl GitlabClient {
+    fn get_ca_cert() -> Option<reqwest::Certificate> {
+        match fs::read("./certs/ca.crt") {
+            Ok(cert) => {
+                let ca = String::from_utf8_lossy(&cert);
+                log::debug!("Found custom CA cert:\n{ca}");
+                Some(reqwest::Certificate::from_pem(&cert).expect("invalid cert"))
+            }
+            Err(_) => None,
+        }
+    }
+
     pub fn new(gitlab_url: &str, gitlab_token: &str) -> Self {
-        let http_client = Client::builder()
-            .default_headers(create_http_headers(gitlab_token))
-            .build()
-            .expect("http client to be build");
+        let mut client_builder = Client::builder()
+            .use_rustls_tls()
+            .default_headers(create_http_headers(gitlab_token));
+
+        if let Some(ca) = Self::get_ca_cert() {
+            client_builder = client_builder.add_root_certificate(ca);
+        }
+
         Self {
             base_url: format!("{gitlab_url}/api/v4"),
-            http_client,
+            http_client: client_builder.build().expect("invalid client"),
         }
     }
 }
