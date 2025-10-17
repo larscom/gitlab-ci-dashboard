@@ -78,8 +78,6 @@ Or you can run it with a TOML configration file
 ```bash
 docker run \
   -p 8080:8080 \
-  -e GITLAB_BASE_URL=https://gitlab.com \
-  -e GITLAB_API_TOKEN=my_token \
   -v ./config.toml:/app/config.toml \
   larscom/gitlab-ci-dashboard:latest
 ```
@@ -117,8 +115,6 @@ Mount the `config.toml` inside the container (`/app/config.toml`)
 ```bash
 docker run \
   -p 8080:8080 \
-  -e GITLAB_BASE_URL=https://gitlab.com \
-  -e GITLAB_API_TOKEN=my_token \
   -v ./config.toml:/app/config.toml \
   larscom/gitlab-ci-dashboard:latest
 ```
