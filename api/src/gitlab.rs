@@ -83,10 +83,9 @@ impl GitlabClient {
     fn get_ca_cert() -> Option<reqwest::Certificate> {
         match fs::read("./certs/ca.crt") {
             Ok(cert) => {
-                let ca_str = String::from_utf8_lossy(&cert);
-                log::debug!("Found custom CA cert:\n{ca_str}");
-                let ca = reqwest::Certificate::from_pem(&cert).expect("invalid cert");
-                Some(ca)
+                let ca = String::from_utf8_lossy(&cert);
+                log::debug!("Found custom CA cert:\n{ca}");
+                Some(reqwest::Certificate::from_pem(&cert).expect("invalid cert"))
             }
             Err(_) => {
                 log::debug!("No custom CA cert was found, which is not necessarily an issue");
