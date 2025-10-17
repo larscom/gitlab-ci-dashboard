@@ -87,10 +87,7 @@ impl GitlabClient {
                 log::debug!("Found custom CA cert:\n{ca}");
                 Some(reqwest::Certificate::from_pem(&cert).expect("invalid cert"))
             }
-            Err(_) => {
-                log::debug!("No custom CA cert was found, which is not necessarily an issue");
-                None
-            }
+            Err(_) => None,
         }
     }
 
