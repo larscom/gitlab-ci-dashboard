@@ -4,7 +4,7 @@
 [![workflow](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml/badge.svg)](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-![Preview](https://github.com/larscom/gitlab-ci-dashboard/blob/main/.github/img/preview.png)
+![Preview](.github/img/preview.png)
 
 <br />
 
@@ -61,7 +61,7 @@ projects, potentially resulting in undetected failed pipelines.
 1. Generate a `read_api` or `api` access token in Gitlab, depending on your requirements (
    e.g: https://gitlab.com/-/profile/personal_access_tokens)
 
-![Access Token](https://github.com/larscom/gitlab-ci-dashboard/blob/main/.github/img/access_token.png)
+![Access Token](.github/img/access_token.png)
 
 2. Run docker with the required environment variables (GITLAB_BASE_URL, GITLAB_API_TOKEN)
 
