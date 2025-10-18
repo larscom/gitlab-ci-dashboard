@@ -58,6 +58,13 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: peter-evans/dockerhub-description@v5
+        if: github.ref == 'refs/heads/main'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          short-description: ${{ github.event.repository.description }}      
       - uses: docker/build-push-action@v6
         if: startsWith(github.ref, 'refs/tags/')
         with:
