@@ -6,6 +6,7 @@ on:
       - '*.*.*'
     branches:
       - '**'
+  merge_group:
   pull_request:
     branches:
       - main
