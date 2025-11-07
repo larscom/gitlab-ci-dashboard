@@ -97,7 +97,7 @@ impl PipelineAggregator {
         projects: Vec<Project>,
     ) -> Result<Vec<ProjectPipelines>, ApiError> {
         try_collect_with_buffer(projects, |project| async move {
-            let pipelines = if project.default_branch.is_some() {
+            let pipelines = if project.default_branch.is_some() && project.jobs_enabled {
                 self.pipeline_service
                     .get_pipelines(project.id, None)
                     .await?

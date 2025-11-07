@@ -99,6 +99,7 @@ pub mod test {
     pub fn new_project() -> Project {
         Project {
             id: 456,
+            jobs_enabled: true,
             name: "name".to_string(),
             web_url: "web_url".to_string(),
             default_branch: Some("default_branch".to_string()),

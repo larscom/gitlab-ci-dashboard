@@ -9,7 +9,7 @@
               nzStandalone
               nzSize="small"
               [nzCount]="tab.projects.length"
-              [nzColor]="tab.status | statusColor"
+              [nzStyle]="{ backgroundColor: tab.status | statusColor }"
             ></nz-badge>
           </div>
         </ng-template>

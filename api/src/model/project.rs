@@ -10,6 +10,7 @@ pub struct Project {
     pub default_branch: Option<String>,
     pub topics: Vec<String>,
     pub namespace: Namespace,
+    pub jobs_enabled: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -187,7 +188,7 @@ mod tests {
         let value = test::new_project();
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}}";
+        let expected = "{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"},\"jobs_enabled\":true}";
 
         assert_eq!(expected, json);
     }
@@ -202,7 +203,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}}}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"},\"jobs_enabled\":true}}";
 
         assert_eq!(expected, json);
     }
@@ -217,7 +218,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"},\"jobs_enabled\":true},\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}}";
 
         assert_eq!(expected, json);
     }
@@ -232,7 +233,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"failed_jobs\":[{\"id\":1,\"created_at\":\"1970-01-01T00:00:00Z\",\"allow_failure\":false,\"name\":\"name\",\"ref\":\"branch\",\"stage\":\"stage\",\"status\":\"success\",\"web_url\":\"web_url\",\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"},\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"},\"user\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}}]}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"},\"jobs_enabled\":true},\"failed_jobs\":[{\"id\":1,\"created_at\":\"1970-01-01T00:00:00Z\",\"allow_failure\":false,\"name\":\"name\",\"ref\":\"branch\",\"stage\":\"stage\",\"status\":\"success\",\"web_url\":\"web_url\",\"pipeline\":{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"},\"commit\":{\"id\":\"id\",\"author_name\":\"author_name\",\"committer_name\":\"committer_name\",\"committed_date\":\"1970-01-01T00:00:00Z\",\"title\":\"title\",\"message\":\"message\"},\"user\":{\"id\":123,\"username\":\"username\",\"name\":\"name\",\"state\":\"state\",\"is_admin\":false}}]}";
 
         assert_eq!(expected, json);
     }
@@ -246,7 +247,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"}},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
+        let expected = "{\"group_id\":1,\"project\":{\"id\":456,\"name\":\"name\",\"web_url\":\"web_url\",\"default_branch\":\"default_branch\",\"topics\":[\"topic\"],\"namespace\":{\"id\":123,\"name\":\"namespace\",\"path\":\"namespace\"},\"jobs_enabled\":true},\"pipelines\":[{\"id\":1,\"iid\":2,\"project_id\":3,\"sha\":\"sha\",\"ref\":\"branch\",\"status\":\"running\",\"source\":\"web\",\"created_at\":\"1970-01-01T00:00:00Z\",\"updated_at\":\"1970-01-01T00:00:00Z\",\"web_url\":\"web_url\"}]}";
 
         assert_eq!(expected, json);
     }
