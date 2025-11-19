@@ -27,8 +27,8 @@
   },
   "devDependencies": {
     "@angular-builders/jest": "20.0.0",
-    "@angular/build": "20.3.10",
-    "@angular/cli": "20.3.10",
+    "@angular/build": "20.3.11",
+    "@angular/cli": "20.3.11",
     "@angular/compiler-cli": "20.3.12",
     "@types/file-saver": "2.0.7",
     "@types/jest": "30.0.0",
