@@ -71,6 +71,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ github.ref_name }}
           build-args: VERSION_ARG=v${{ github.ref_name }}
       - uses: docker/build-push-action@v6
@@ -78,6 +79,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
 
