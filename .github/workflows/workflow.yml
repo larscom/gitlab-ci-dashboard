@@ -43,20 +43,17 @@ jobs:
     strategy:
       matrix:
         include:
-          # Linux
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            arch: x86_64
-            platform: linux
-          # macOS
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            arch: x86_64
-            platform: macos
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            arch: arm64
-            platform: macos
+        # Linux x86_64
+        - os: ubuntu-latest
+          target: x86_64-unknown-linux-gnu
+          arch: x86_64
+          platform: linux
+  
+        # Linux ARM64 (cross-compile)
+        - os: ubuntu-latest
+          target: aarch64-unknown-linux-gnu
+          arch: arm64
+          platform: linux
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
