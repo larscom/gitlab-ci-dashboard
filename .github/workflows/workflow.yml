@@ -42,8 +42,22 @@ jobs:
     needs: [build-rs, build-ng]  
     strategy:
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm64]
-    runs-on: ${{ matrix.runner }}
+        include:
+          # Linux
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            arch: x86_64
+            platform: linux
+          # macOS
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            arch: x86_64
+            platform: macos
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            arch: arm64
+            platform: macos
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - run: |
