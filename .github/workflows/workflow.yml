@@ -17,7 +17,7 @@ jobs:
     env:
       TZ: Europe/Amsterdam
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -32,28 +32,17 @@ jobs:
       run:
         working-directory: ./api
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
       - run: cargo build --verbose
       - run: cargo test --verbose
       - run: cargo clippy --verbose -- -D warnings
 
   build-docker:
     if: github.event_name != 'pull_request'
-    needs: [build-rs, build-ng]  
-    strategy:
-      matrix:
-        include:
-        # AMD64 native
-        - os: ubuntu-latest
-          arch: amd64
-          platforms: linux/amd64
-        # ARM64 native
-        - os: ubuntu-latest
-          arch: arm64
-          platforms: linux/arm64
-    runs-on: ${{ matrix.os }}
+    needs: [build-rs, build-ng]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
       - run: |
           REF_NAME="${{ github.ref_name }}"          
           REF_NAME_LOWER=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]')          
@@ -63,7 +52,7 @@ jobs:
             REF_NAME_CLEAN="0$REF_NAME_CLEAN"
           fi          
           echo "CLEANED_REF_NAME=$REF_NAME_CLEAN" >> $GITHUB_ENV
-
+      - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
@@ -76,54 +65,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ github.repository }}
-          short-description: ${{ github.event.repository.description }}
-
+          short-description: ${{ github.event.repository.description }}      
       - uses: docker/build-push-action@v6
         if: startsWith(github.ref, 'refs/tags/')
         with:
           context: .
           push: true
-          platforms: ${{ matrix.platforms }}
           tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ github.ref_name }}
           build-args: VERSION_ARG=v${{ github.ref_name }}
-          cache-from: type=registry,ref=${{ github.repository }}:cache
-          cache-to: type=registry,ref=${{ github.repository }}:cache,mode=max          
-
       - uses: docker/build-push-action@v6
         if: startsWith(github.ref, 'refs/heads/')
         with:
           context: .
           push: true
-          platforms: ${{ matrix.platforms }}
           tags: ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
           build-args: VERSION_ARG=${{ github.sha }}@${{ env.CLEANED_REF_NAME }}
-          cache-from: type=registry,ref=${{ github.repository }}:cache
-          cache-to: type=registry,ref=${{ github.repository }}:cache,mode=max          
-
-  docker-manifest:
-    if: github.event_name != 'pull_request'
-    needs: build-docker
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create multi-arch manifest for tags
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          docker buildx imagetools create \
-            -t ${{ github.repository }}:latest \
-            ${{ github.repository }}:latest
-          docker buildx imagetools create \
-            -t ${{ github.repository }}:${{ github.ref_name }} \
-            ${{ github.repository }}:${{ github.ref_name }}
-
-      - name: Create multi-arch manifest for branches
-        if: startsWith(github.ref, 'refs/heads/')
-        run: |
-          docker buildx imagetools create \
-            -t ${{ github.repository }}:${{ env.CLEANED_REF_NAME }} \
-            ${{ github.repository }}:${{ env.CLEANED_REF_NAME }}
