@@ -72,6 +72,8 @@ pub struct Group {
 pub struct Ui {
     pub read_only: bool,
     pub hide_write_actions: bool,
+    pub page_size_options: Vec<usize>,
+    pub default_page_size: usize,
 }
 
 #[cfg(test)]
@@ -112,6 +114,8 @@ mod tests {
             ui: Ui {
                 read_only: false,
                 hide_write_actions: false,
+                page_size_options: vec![10, 20, 30, 40, 50],
+                default_page_size: 10,
             },
         };
 

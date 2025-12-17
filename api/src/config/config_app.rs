@@ -7,6 +7,8 @@ pub struct ApiConfig {
     pub api_version: String,
     pub read_only: bool,
     pub hide_write_actions: bool,
+    pub page_size_options: Vec<usize>,
+    pub default_page_size: usize,
 }
 
 impl ApiConfig {
@@ -15,6 +17,11 @@ impl ApiConfig {
             api_version: from_env_or_default("VERSION", "dev".into()),
             read_only: from_env_or_default("API_READ_ONLY", true),
             hide_write_actions: from_env_or_default("UI_HIDE_WRITE_ACTIONS", false),
+            page_size_options: split_into(from_env_or_default(
+                "UI_PAGE_SIZE_OPTIONS",
+                String::from("10,20,30,40,50"),
+            )),
+            default_page_size: from_env_or_default("UI_DEFAULT_PAGE_SIZE", 10),
         }
     }
 
@@ -29,6 +36,8 @@ impl From<&config_file::FileConfig> for ApiConfig {
             api_version: from_env_or_default("VERSION", "dev".into()),
             read_only: config.ui.read_only,
             hide_write_actions: config.ui.hide_write_actions,
+            page_size_options: config.ui.page_size_options.clone(),
+            default_page_size: config.ui.default_page_size,
         }
     }
 }
@@ -161,8 +170,9 @@ where
         .unwrap_or(default)
 }
 
-fn split_into<T: FromStr>(value: String) -> Vec<T> {
+fn split_into<T: FromStr>(value: impl Into<String>) -> Vec<T> {
     value
+        .into()
         .split(',')
         .filter_map(|v| v.parse::<T>().ok())
         .collect()
