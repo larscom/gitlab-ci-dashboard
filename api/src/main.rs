@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+use crate::config::config_app::{ApiConfig, AppConfig};
 use crate::config::config_file;
 use crate::gitlab::GitlabClient;
 use crate::spa::Spa;
@@ -7,7 +8,6 @@ use actix_web::dev::HttpServiceFactory;
 use actix_web::web::{Data, ServiceConfig};
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use actix_web_prom::{PrometheusMetrics, PrometheusMetricsBuilder};
-use config::config_app;
 use dotenv::dotenv;
 use serde_querystring_actix::{ParseMode, QueryStringConfig};
 use std::sync::Arc;
@@ -39,8 +39,13 @@ async fn main() -> std::io::Result<()> {
         Err(_) => None,
     };
 
-    let app_config = config_app::AppConfig::from_file_config(file_config);
-    let api_config = config_app::ApiConfig::from_file_config(file_config);
+    let mut app_config = AppConfig::new();
+    let mut api_config = ApiConfig::new();
+
+    if let Some(fc) = file_config {
+        app_config = app_config.merge_with_file_config(fc);
+        api_config = api_config.merge_with_file_config(fc);
+    };
 
     log::info!("Gitlab CI Dashboard :: {} ::", &api_config.api_version);
 
@@ -124,7 +129,7 @@ async fn main() -> std::io::Result<()> {
 
 #[allow(clippy::too_many_arguments)]
 fn configure_app(
-    api_config: Data<config_app::ApiConfig>,
+    api_config: Data<ApiConfig>,
     qs_config: QueryStringConfig,
     group_service: Data<group::GroupService>,
     project_aggr: Data<project::PipelineAggregator>,
@@ -213,12 +218,12 @@ mod tests {
             env::set_var("GITLAB_API_TOKEN", "token123");
             env::set_var("API_READ_ONLY", "false");
 
-            let gcd_config = config_app::AppConfig::new();
+            let gcd_config = AppConfig::new();
             let qs_config = QueryStringConfig::default().parse_mode(ParseMode::Delimiter(b','));
 
             let gitlab_client = Arc::new(GitlabClientTest {});
 
-            let api_config = Data::new(config_app::ApiConfig::new());
+            let api_config = Data::new(ApiConfig::new());
 
             let group_service = Data::new(group::GroupService::new(
                 gitlab_client.clone(),
@@ -377,7 +382,7 @@ mod tests {
         assert!(status.is_success());
 
         let body = to_bytes(resp.into_body()).await.unwrap();
-        let result = serde_json::from_str::<config_app::ApiConfig>(to_str(&body)).unwrap();
+        let result = serde_json::from_str::<ApiConfig>(to_str(&body)).unwrap();
 
         assert_eq!(result.api_version, "1.0.0");
     }

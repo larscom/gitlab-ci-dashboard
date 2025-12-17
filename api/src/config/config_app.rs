@@ -25,19 +25,29 @@ impl ApiConfig {
         }
     }
 
-    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
-        file_config.map_or_else(Self::new, |c| c.into())
-    }
-}
-
-impl From<&config_file::FileConfig> for ApiConfig {
-    fn from(config: &config_file::FileConfig) -> Self {
+    pub fn merge_with_file_config(self, file_config: &config_file::FileConfig) -> Self {
         Self {
-            api_version: from_env_or_default("VERSION", "dev".into()),
-            read_only: config.ui.read_only,
-            hide_write_actions: config.ui.hide_write_actions,
-            page_size_options: config.ui.page_size_options.clone(),
-            default_page_size: config.ui.default_page_size,
+            read_only: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.read_only)
+                .unwrap_or(self.read_only),
+            hide_write_actions: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.hide_write_actions)
+                .unwrap_or(self.hide_write_actions),
+            page_size_options: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.page_size_options.clone())
+                .unwrap_or(self.page_size_options),
+            default_page_size: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.default_page_size)
+                .unwrap_or(self.default_page_size),
+            ..self
         }
     }
 }
@@ -67,31 +77,6 @@ pub struct AppConfig {
     pub group_skip_ids: Vec<u64>,
     pub group_only_top_level: bool,
     pub group_include_subgroups: bool,
-}
-
-impl From<&config_file::FileConfig> for AppConfig {
-    fn from(config: &config_file::FileConfig) -> Self {
-        Self {
-            gitlab_url: config.gitlab.url.clone(),
-            gitlab_token: config.gitlab.token.clone(),
-            server_ip: config.server.ip.clone(),
-            server_port: config.server.port,
-            server_workers: config.server.workers,
-            ttl_group_cache: Duration::from_secs(config.cache.ttl_group_seconds),
-            ttl_project_cache: Duration::from_secs(config.cache.ttl_project_seconds),
-            ttl_branch_cache: Duration::from_secs(config.cache.ttl_branch_seconds),
-            ttl_job_cache: Duration::from_secs(config.cache.ttl_job_seconds),
-            ttl_pipeline_cache: Duration::from_secs(config.cache.ttl_pipeline_seconds),
-            ttl_schedule_cache: Duration::from_secs(config.cache.ttl_schedule_seconds),
-            ttl_artifact_cache: Duration::from_secs(config.cache.ttl_artifact_seconds),
-            pipeline_history_days: config.pipeline.history_days,
-            project_skip_ids: config.project.skip_ids.clone(),
-            group_only_ids: config.group.only_ids.clone(),
-            group_skip_ids: config.group.skip_ids.clone(),
-            group_only_top_level: config.group.only_top_level,
-            group_include_subgroups: config.group.include_subgroups,
-        }
-    }
 }
 
 impl AppConfig {
@@ -151,8 +136,98 @@ impl AppConfig {
         }
     }
 
-    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
-        file_config.map_or_else(Self::new, |c| c.into())
+    pub fn merge_with_file_config(self, file_config: &config_file::FileConfig) -> Self {
+        Self {
+            gitlab_url: file_config.gitlab.url.clone(),
+            gitlab_token: file_config.gitlab.token.clone(),
+            server_ip: file_config
+                .server
+                .as_ref()
+                .and_then(|s| s.ip.clone())
+                .unwrap_or(self.server_ip),
+            server_port: file_config
+                .server
+                .as_ref()
+                .and_then(|s| s.port)
+                .unwrap_or(self.server_port),
+            server_workers: file_config
+                .server
+                .as_ref()
+                .and_then(|s| s.workers)
+                .unwrap_or(self.server_workers),
+            ttl_group_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_group_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_group_cache),
+            ttl_project_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_project_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_project_cache),
+            ttl_branch_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_branch_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_branch_cache),
+            ttl_job_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_job_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_job_cache),
+            ttl_pipeline_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_pipeline_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_pipeline_cache),
+            ttl_schedule_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_schedule_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_schedule_cache),
+            ttl_artifact_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_artifact_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_artifact_cache),
+            pipeline_history_days: file_config
+                .pipeline
+                .as_ref()
+                .and_then(|p| p.history_days)
+                .unwrap_or(self.pipeline_history_days),
+            project_skip_ids: file_config
+                .project
+                .as_ref()
+                .and_then(|p| p.skip_ids.clone())
+                .unwrap_or(self.project_skip_ids),
+            group_only_ids: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.only_ids.clone())
+                .unwrap_or(self.group_only_ids),
+            group_skip_ids: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.skip_ids.clone())
+                .unwrap_or(self.group_skip_ids),
+            group_only_top_level: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.only_top_level)
+                .unwrap_or(self.group_only_top_level),
+            group_include_subgroups: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.include_subgroups)
+                .unwrap_or(self.group_include_subgroups),
+        }
     }
 }
 
