@@ -21,6 +21,7 @@ import { JobsComponent } from '../../components/jobs/jobs.component'
 import { OpenGitlabIconComponent } from '../../components/open-gitlab-icon/open-gitlab-icon.component'
 import { WriteActionsIconComponent } from '../../components/write-actions-icon/write-actions-icon.component'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
+import { TablePaginatorDirective } from '../../directives/table-paginator.directive'
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -70,7 +71,8 @@ const semverRegex =
     FavoritesIconComponent,
     DownloadArtifactsIconComponent,
     WriteActionsIconComponent,
-    OpenGitlabIconComponent
+    OpenGitlabIconComponent,
+    TablePaginatorDirective
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],

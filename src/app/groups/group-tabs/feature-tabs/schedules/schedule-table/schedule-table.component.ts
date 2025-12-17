@@ -37,6 +37,7 @@ import { PipelinesService } from '../../pipelines/service/pipelines.service'
 import { CoverageColorPipe } from '../../pipes/coverage-color.pipe'
 import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 import { SchedulePipelineTableComponent } from './schedule-pipeline-table/schedule-pipeline-table.component'
+import { TablePaginatorDirective } from '../../directives/table-paginator.directive'
 
 const headers: Header<ScheduleProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -95,7 +96,8 @@ const headers: Header<ScheduleProjectPipeline>[] = [
     WriteActionsIconComponent,
     DownloadArtifactsIconComponent,
     OpenGitlabIconComponent,
-    CoverageColorPipe
+    CoverageColorPipe,
+    TablePaginatorDirective
   ],
   templateUrl: './schedule-table.component.html',
   styleUrls: ['./schedule-table.component.scss'],

@@ -13,7 +13,7 @@ export class PipelinesService {
   private errorService = inject(ErrorService)
 
   getProjectsWithPipelines(groupId: GroupId, projectIds?: Set<ProjectId>): Observable<ProjectPipelines[]> {
-    const url = '/api/projects/pipelines'
+    const url = 'api/projects/pipelines'
     const params = createParams(groupId, projectIds)
 
     return this.http.get<ProjectPipelines[]>(url, { params }).pipe(
@@ -30,7 +30,7 @@ export class PipelinesService {
   }
 
   getPipelines(projectId: ProjectId, source?: Source): Observable<Pipeline[]> {
-    const url = '/api/pipelines'
+    const url = 'api/pipelines'
     const params = { project_id: projectId }
 
     return this.http.get<Pipeline[]>(url, { params: source ? { ...params, source } : params }).pipe(

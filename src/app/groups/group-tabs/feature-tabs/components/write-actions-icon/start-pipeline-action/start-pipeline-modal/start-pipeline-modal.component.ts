@@ -69,7 +69,7 @@ export class StartPipelineModalComponent {
     const variables = this.variables()
 
     this.http
-      .post('/api/pipelines/start', {
+      .post('api/pipelines/start', {
         project_id: projectId,
         branch: this.selectedBranch,
         env_vars: Object.keys(variables).length > 0 ? variables : undefined
@@ -85,10 +85,7 @@ export class StartPipelineModalComponent {
         },
         error: ({ status, error }: HttpErrorResponse) => {
           if (status === HttpStatusCode.Forbidden) {
-            this.notification.error(
-              'Forbidden',
-              'Failed to start new pipeline, a read/write access token is required.'
-            )
+            this.notification.error('Forbidden', 'Failed to start new pipeline, a read/write access token is required.')
           } else {
             this.notification.error(`Error ${status}`, error ? error.message : 'Failed to start new pipeline')
           }

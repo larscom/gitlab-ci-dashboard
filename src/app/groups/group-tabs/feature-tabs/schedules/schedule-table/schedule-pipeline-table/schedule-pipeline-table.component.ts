@@ -18,6 +18,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { CoverageColorPipe } from '../../../pipes/coverage-color.pipe'
+import { TablePaginatorDirective } from '$groups/group-tabs/feature-tabs/directives/table-paginator.directive'
 
 const headers: Header<Pipeline>[] = [
   {
@@ -61,7 +62,8 @@ const headers: Header<Pipeline>[] = [
     WriteActionsIconComponent,
     DownloadArtifactsIconComponent,
     OpenGitlabIconComponent,
-    CoverageColorPipe
+    CoverageColorPipe,
+    TablePaginatorDirective
   ],
   templateUrl: './schedule-pipeline-table.component.html',
   styleUrls: ['./schedule-pipeline-table.component.scss'],

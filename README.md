@@ -25,8 +25,8 @@ projects, potentially resulting in undetected failed pipelines.
 - You won't get rate limited by the Gitlab API, due to server-side caching
 - Communication to the Gitlab API happens only server side
 - Only 1 `read only` token is needed to serve a whole team
-    - Optionally use a `read/write` token to perform actions like restarting failed pipelines, create new pipelines or
-      cancel pipelines.
+  - Optionally use a `read/write` token to perform actions like restarting failed pipelines, create new pipelines or
+    cancel pipelines.
 
 ## ✅ Features (DONE)
 
@@ -120,6 +120,7 @@ docker run \
 ```
 
 ## 📜 Custom CA certificate
+
 If you are running a gitlab instance that is using a TLS certificate signed with a private CA you are able to provide that CA as mount (PEM encoded)
 
 This is needed when the dashboard backend is unable to make a connection to the gitlab API over HTTPS.
@@ -136,32 +137,49 @@ docker run \
 ```
 
 ### Troubleshooting
+
 If you are still unable to connect with a custom CA cert, be sure that the gitlab server certificate contains a valid SAN (Subject Alternative Name)
 
 If there is a mismatch the HTTP client is still unable to make a proper connection.
 
+## 🔀 Reverse proxy
+
+Below is a working config for a `Caddy` reverse proxy server to serve the dashboard on a different path. (default path for the dashboard is: `/`)
+
+```bash
+:80 {
+    handle_path /my-custom-path* {
+        reverse_proxy gitlab-ci-dashboard:8080
+    }
+}
+```
+
+The dashboard should now be available at: https://example.com/my-custom-path
+
 ## 🌍 Environment variables
 
-| Variable                          | Type   | Description                                                                                                                        | Required | Default      |
-|-----------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------|----------|--------------|
-| GITLAB_BASE_URL                   | string | The base url to the Gitlab server (e.g: https://gitlab.com)                                                                        | yes      |              |
-| GITLAB_API_TOKEN                  | string | A readonly or read/write access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens)               | yes      |              |
-| GITLAB_GROUP_ONLY_IDS             | string | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)                                      | no       |              |
-| GITLAB_GROUP_SKIP_IDS             | string | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                                             | no       |              |
-| GITLAB_GROUP_ONLY_TOP_LEVEL       | bool   | Show only top level groups, projects in sub groups will be shown inside the top level groups (see: GITLAB_GROUP_INCLUDE_SUBGROUPS) | no       | true         |
-| GITLAB_GROUP_INCLUDE_SUBGROUPS    | bool   | Whether to include subgroup projects whenever projects are fetched for a specific group                                            | no       | true         |
-| GITLAB_GROUP_CACHE_TTL_SECONDS    | int    | Expire after write time in seconds for groups (cache)                                                                              | no       | 300          |
-| GITLAB_PROJECT_SKIP_IDS           | string | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)                                           | no       |              |
-| GITLAB_PROJECT_CACHE_TTL_SECONDS  | int    | Expire after write time in seconds for projects (cache)                                                                            | no       | 300          |
-| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for pipelines (cache)                                                                           | no       | 5            |
-| GITLAB_PIPELINE_HISTORY_DAYS      | int    | How far back in time (days), it should fetch pipelines from gitlab (pipelines tab only)                                            | no       | 5            |
-| GITLAB_BRANCH_CACHE_TTL_SECONDS   | int    | Expire after write time in seconds for branches (cache)                                                                            | no       | 60           |
-| GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for schedules (cache)                                                                           | no       | 300          |
-| GITLAB_JOB_CACHE_TTL_SECONDS      | int    | Expire after write time in seconds for jobs (cache)                                                                                | no       | 5            |
-| GITLAB_ARTIFACT_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for artifacts (cache)                                                                           | no       | 1800         |
-| API_READ_ONLY                     | bool   | If true, you are not able to perform 'write' operations like retrying a pipeline                                                   | no       | true         |
-| UI_HIDE_WRITE_ACTIONS             | bool   | If true, the ellipsis action button (...) is hidden, handy if you want to use this application in read-only mode                   | no       | false        |
-| SERVER_LISTEN_IP                  | string | The IP address where the web server should listen on                                                                               | no       | 0.0.0.0      |
-| SERVER_LISTEN_PORT                | int    | The port where the web server should listen on                                                                                     | no       | 8080         |
-| SERVER_WORKER_COUNT               | int    | The amount of worker threads the web server should have                                                                            | no       | CPU specific |
-| RUST_LOG                          | string | The log level of the application, set to "debug" to enable debug logging                                                           | no       | info         |
+| Variable                          | Type   | Description                                                                                                                        | Required | Default        |
+| --------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------- |
+| GITLAB_BASE_URL                   | string | The base url to the Gitlab server (e.g: https://gitlab.com)                                                                        | yes      |                |
+| GITLAB_API_TOKEN                  | string | A readonly or read/write access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens)               | yes      |                |
+| GITLAB_GROUP_ONLY_IDS             | string | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)                                      | no       |                |
+| GITLAB_GROUP_SKIP_IDS             | string | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                                             | no       |                |
+| GITLAB_GROUP_ONLY_TOP_LEVEL       | bool   | Show only top level groups, projects in sub groups will be shown inside the top level groups (see: GITLAB_GROUP_INCLUDE_SUBGROUPS) | no       | true           |
+| GITLAB_GROUP_INCLUDE_SUBGROUPS    | bool   | Whether to include subgroup projects whenever projects are fetched for a specific group                                            | no       | true           |
+| GITLAB_GROUP_CACHE_TTL_SECONDS    | int    | Expire after write time in seconds for groups (cache)                                                                              | no       | 300            |
+| GITLAB_PROJECT_SKIP_IDS           | string | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)                                           | no       |                |
+| GITLAB_PROJECT_CACHE_TTL_SECONDS  | int    | Expire after write time in seconds for projects (cache)                                                                            | no       | 300            |
+| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for pipelines (cache)                                                                           | no       | 5              |
+| GITLAB_PIPELINE_HISTORY_DAYS      | int    | How far back in time (days), it should fetch pipelines from gitlab (pipelines tab only)                                            | no       | 5              |
+| GITLAB_BRANCH_CACHE_TTL_SECONDS   | int    | Expire after write time in seconds for branches (cache)                                                                            | no       | 60             |
+| GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for schedules (cache)                                                                           | no       | 300            |
+| GITLAB_JOB_CACHE_TTL_SECONDS      | int    | Expire after write time in seconds for jobs (cache)                                                                                | no       | 5              |
+| GITLAB_ARTIFACT_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for artifacts (cache)                                                                           | no       | 1800           |
+| API_READ_ONLY                     | bool   | If true, you are not able to perform 'write' operations like retrying a pipeline                                                   | no       | true           |
+| UI_HIDE_WRITE_ACTIONS             | bool   | If true, the ellipsis action button (...) is hidden, handy if you want to use this application in read-only mode                   | no       | false          |
+| UI_PAGE_SIZE_OPTIONS              | string | Provide a comma seperated string of page sizes. This is the dropdown of available page sizes inside the paginator of the tables    | no       | 10,20,30,40,50 |
+| UI_DEFAULT_PAGE_SIZE              | int    | The default page size which should be selected for the paginator                                                                   | no       | 10             |
+| SERVER_LISTEN_IP                  | string | The IP address where the web server should listen on                                                                               | no       | 0.0.0.0        |
+| SERVER_LISTEN_PORT                | int    | The port where the web server should listen on                                                                                     | no       | 8080           |
+| SERVER_WORKER_COUNT               | int    | The amount of worker threads the web server should have                                                                            | no       | CPU specific   |
+| RUST_LOG                          | string | The log level of the application, set to "debug" to enable debug logging                                                           | no       | info           |

@@ -1,4 +1,4 @@
-<nz-table #nzTable nzSize="small" nzTableLayout="fixed" [nzData]="projects()" [nzPageSize]="10">
+<nz-table #nzTable nzSize="small" tablePaginator="latest-pipelines" [nzData]="projects()">
   <thead>
     <tr>
       @for (header of headers; track header.title) {

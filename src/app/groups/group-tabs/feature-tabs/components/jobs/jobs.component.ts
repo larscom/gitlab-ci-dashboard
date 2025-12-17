@@ -96,7 +96,7 @@ export class JobsComponent implements OnChanges, OnDestroy {
     const params = { project_id, pipeline_id, scope }
 
     this.subscription = this.http
-      .get<Job[]>('/api/jobs', { params })
+      .get<Job[]>('api/jobs', { params })
       .pipe(
         retry(retryConfig),
         this.withRepeat() ? repeat({ delay: FETCH_REFRESH_INTERVAL }) : identity,
