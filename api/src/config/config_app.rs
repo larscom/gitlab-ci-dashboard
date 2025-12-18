@@ -264,7 +264,36 @@ mod tests {
 
     #[test]
     #[serial]
-    fn config_new() {
+    fn test_api_config_new() {
+        clear_env_vars();
+        set_env_vars();
+
+        let config = ApiConfig::new();
+
+        assert_eq!(config.api_version, "1.0.0");
+        assert!(!config.read_only);
+        assert!(config.hide_write_actions);
+        assert_eq!(config.page_size_options, vec![10, 20]);
+        assert_eq!(config.default_page_size, 20);
+    }
+
+    #[test]
+    #[serial]
+    fn test_api_config_new_with_defaults() {
+        clear_env_vars();
+
+        let config = ApiConfig::new();
+
+        assert_eq!(config.api_version, "dev");
+        assert!(config.read_only);
+        assert!(!config.hide_write_actions);
+        assert_eq!(config.page_size_options, vec![10, 20, 30, 40, 50]);
+        assert_eq!(config.default_page_size, 10);
+    }
+
+    #[test]
+    #[serial]
+    fn test_app_config_new() {
         clear_env_vars();
         set_env_vars();
 
@@ -291,7 +320,7 @@ mod tests {
 
     #[test]
     #[serial]
-    fn config_new_with_defaults() {
+    fn test_app_config_new_with_defaults() {
         clear_env_vars();
 
         env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
@@ -355,6 +384,7 @@ mod tests {
     }
 
     fn set_env_vars() {
+        // app config
         env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
         env::set_var("GITLAB_API_TOKEN", "token123");
         env::set_var("GITLAB_READONLY_MODE", "false");
@@ -373,5 +403,12 @@ mod tests {
         env::set_var("GITLAB_GROUP_SKIP_IDS", "7,8,9");
         env::set_var("GITLAB_GROUP_ONLY_TOP_LEVEL", "false");
         env::set_var("GITLAB_GROUP_INCLUDE_SUBGROUPS", "false");
+
+        // api config
+        env::set_var("VERSION", "1.0.0");
+        env::set_var("API_READ_ONLY", "false");
+        env::set_var("UI_HIDE_WRITE_ACTIONS", "true");
+        env::set_var("UI_PAGE_SIZE_OPTIONS", String::from("10,20"));
+        env::set_var("UI_DEFAULT_PAGE_SIZE", "20");
     }
 }
