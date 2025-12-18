@@ -31,7 +31,7 @@ export class CancelPipelineActionComponent {
     this.loading.set(true)
 
     this.http
-      .post('/api/pipelines/cancel', null, { params })
+      .post('api/pipelines/cancel', null, { params })
       .pipe(
         retry(retryConfig),
         finalize(() => this.loading.set(false))

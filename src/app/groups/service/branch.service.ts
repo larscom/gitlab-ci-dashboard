@@ -13,7 +13,7 @@ export class BranchService {
 
   getBranches(projectId: ProjectId): Observable<Branch[]> {
     const params = { project_id: projectId }
-    return this.http.get<Branch[]>('/api/branches', { params }).pipe(
+    return this.http.get<Branch[]>('api/branches', { params }).pipe(
       retry(retryConfig),
       catchError(({ status, error }: HttpErrorResponse) => {
         this.errorService.setError({

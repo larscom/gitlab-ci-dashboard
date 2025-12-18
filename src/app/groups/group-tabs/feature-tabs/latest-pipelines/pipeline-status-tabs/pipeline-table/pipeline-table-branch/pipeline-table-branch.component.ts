@@ -21,6 +21,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { LatestBranchFilterComponent } from './latest-branch-filter/latest-branch-filter.component'
+import { TablePaginatorDirective } from '$groups/group-tabs/feature-tabs/directives/table-paginator.directive'
 
 const headers: Header<BranchPipeline>[] = [
   { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
@@ -62,7 +63,8 @@ const headers: Header<BranchPipeline>[] = [
     OpenGitlabIconComponent,
     DownloadArtifactsIconComponent,
     JobFilterComponent,
-    CoverageColorPipe
+    CoverageColorPipe,
+    TablePaginatorDirective
   ],
   templateUrl: './pipeline-table-branch.component.html',
   styleUrls: ['./pipeline-table-branch.component.scss'],

@@ -34,6 +34,7 @@ import { finalize, interval, Subscription, switchMap } from 'rxjs'
 import { OpenGitlabIconComponent } from '../../../components/open-gitlab-icon/open-gitlab-icon.component'
 import { LatestPipelineService } from '../../service/latest-pipeline.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
+import { TablePaginatorDirective } from '$groups/group-tabs/feature-tabs/directives/table-paginator.directive'
 
 const headers: Header<ProjectPipeline>[] = [
   { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
@@ -84,7 +85,8 @@ const headers: Header<ProjectPipeline>[] = [
     WriteActionsIconComponent,
     DownloadArtifactsIconComponent,
     OpenGitlabIconComponent,
-    CoverageColorPipe
+    CoverageColorPipe,
+    TablePaginatorDirective
   ],
   templateUrl: './pipeline-table.component.html',
   styleUrls: ['./pipeline-table.component.scss'],

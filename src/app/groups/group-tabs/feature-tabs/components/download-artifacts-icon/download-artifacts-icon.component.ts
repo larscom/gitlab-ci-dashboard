@@ -42,7 +42,7 @@ export class DownloadArtifactsIconComponent {
           scope: ''
         }
 
-        return this.http.get<Job[]>('/api/jobs', { params })
+        return this.http.get<Job[]>('api/jobs', { params })
       })
     ),
     { initialValue: [] }
@@ -63,7 +63,7 @@ export class DownloadArtifactsIconComponent {
     }
 
     this.http
-      .get('/api/artifacts', { params, responseType: 'blob' })
+      .get('api/artifacts', { params, responseType: 'blob' })
       .pipe(finalize(() => this.loadingJobIds.set(this.loadingJobIds().filter((jobId) => jobId !== id))))
       .subscribe({
         next: (blob) => FileSaver.saveAs(blob, `${name}_${id}.zip`),

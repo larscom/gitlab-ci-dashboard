@@ -7,6 +7,8 @@ pub struct ApiConfig {
     pub api_version: String,
     pub read_only: bool,
     pub hide_write_actions: bool,
+    pub page_size_options: Vec<usize>,
+    pub default_page_size: usize,
 }
 
 impl ApiConfig {
@@ -15,20 +17,37 @@ impl ApiConfig {
             api_version: from_env_or_default("VERSION", "dev".into()),
             read_only: from_env_or_default("API_READ_ONLY", true),
             hide_write_actions: from_env_or_default("UI_HIDE_WRITE_ACTIONS", false),
+            page_size_options: split_into(from_env_or_default(
+                "UI_PAGE_SIZE_OPTIONS",
+                String::from("10,20,30,40,50"),
+            )),
+            default_page_size: from_env_or_default("UI_DEFAULT_PAGE_SIZE", 10),
         }
     }
 
-    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
-        file_config.map_or_else(Self::new, |c| c.into())
-    }
-}
-
-impl From<&config_file::FileConfig> for ApiConfig {
-    fn from(config: &config_file::FileConfig) -> Self {
+    pub fn merge_with_file_config(self, file_config: &config_file::FileConfig) -> Self {
         Self {
-            api_version: from_env_or_default("VERSION", "dev".into()),
-            read_only: config.ui.read_only,
-            hide_write_actions: config.ui.hide_write_actions,
+            read_only: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.read_only)
+                .unwrap_or(self.read_only),
+            hide_write_actions: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.hide_write_actions)
+                .unwrap_or(self.hide_write_actions),
+            page_size_options: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.page_size_options.clone())
+                .unwrap_or(self.page_size_options),
+            default_page_size: file_config
+                .ui
+                .as_ref()
+                .and_then(|ui| ui.default_page_size)
+                .unwrap_or(self.default_page_size),
+            ..self
         }
     }
 }
@@ -58,31 +77,6 @@ pub struct AppConfig {
     pub group_skip_ids: Vec<u64>,
     pub group_only_top_level: bool,
     pub group_include_subgroups: bool,
-}
-
-impl From<&config_file::FileConfig> for AppConfig {
-    fn from(config: &config_file::FileConfig) -> Self {
-        Self {
-            gitlab_url: config.gitlab.url.clone(),
-            gitlab_token: config.gitlab.token.clone(),
-            server_ip: config.server.ip.clone(),
-            server_port: config.server.port,
-            server_workers: config.server.workers,
-            ttl_group_cache: Duration::from_secs(config.cache.ttl_group_seconds),
-            ttl_project_cache: Duration::from_secs(config.cache.ttl_project_seconds),
-            ttl_branch_cache: Duration::from_secs(config.cache.ttl_branch_seconds),
-            ttl_job_cache: Duration::from_secs(config.cache.ttl_job_seconds),
-            ttl_pipeline_cache: Duration::from_secs(config.cache.ttl_pipeline_seconds),
-            ttl_schedule_cache: Duration::from_secs(config.cache.ttl_schedule_seconds),
-            ttl_artifact_cache: Duration::from_secs(config.cache.ttl_artifact_seconds),
-            pipeline_history_days: config.pipeline.history_days,
-            project_skip_ids: config.project.skip_ids.clone(),
-            group_only_ids: config.group.only_ids.clone(),
-            group_skip_ids: config.group.skip_ids.clone(),
-            group_only_top_level: config.group.only_top_level,
-            group_include_subgroups: config.group.include_subgroups,
-        }
-    }
 }
 
 impl AppConfig {
@@ -142,8 +136,98 @@ impl AppConfig {
         }
     }
 
-    pub fn from_file_config(file_config: Option<&config_file::FileConfig>) -> Self {
-        file_config.map_or_else(Self::new, |c| c.into())
+    pub fn merge_with_file_config(self, file_config: &config_file::FileConfig) -> Self {
+        Self {
+            gitlab_url: file_config.gitlab.url.clone(),
+            gitlab_token: file_config.gitlab.token.clone(),
+            server_ip: file_config
+                .server
+                .as_ref()
+                .and_then(|s| s.ip.clone())
+                .unwrap_or(self.server_ip),
+            server_port: file_config
+                .server
+                .as_ref()
+                .and_then(|s| s.port)
+                .unwrap_or(self.server_port),
+            server_workers: file_config
+                .server
+                .as_ref()
+                .and_then(|s| s.workers)
+                .unwrap_or(self.server_workers),
+            ttl_group_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_group_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_group_cache),
+            ttl_project_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_project_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_project_cache),
+            ttl_branch_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_branch_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_branch_cache),
+            ttl_job_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_job_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_job_cache),
+            ttl_pipeline_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_pipeline_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_pipeline_cache),
+            ttl_schedule_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_schedule_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_schedule_cache),
+            ttl_artifact_cache: file_config
+                .cache
+                .as_ref()
+                .and_then(|c| c.ttl_artifact_seconds)
+                .map(Duration::from_secs)
+                .unwrap_or(self.ttl_artifact_cache),
+            pipeline_history_days: file_config
+                .pipeline
+                .as_ref()
+                .and_then(|p| p.history_days)
+                .unwrap_or(self.pipeline_history_days),
+            project_skip_ids: file_config
+                .project
+                .as_ref()
+                .and_then(|p| p.skip_ids.clone())
+                .unwrap_or(self.project_skip_ids),
+            group_only_ids: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.only_ids.clone())
+                .unwrap_or(self.group_only_ids),
+            group_skip_ids: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.skip_ids.clone())
+                .unwrap_or(self.group_skip_ids),
+            group_only_top_level: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.only_top_level)
+                .unwrap_or(self.group_only_top_level),
+            group_include_subgroups: file_config
+                .group
+                .as_ref()
+                .and_then(|g| g.include_subgroups)
+                .unwrap_or(self.group_include_subgroups),
+        }
     }
 }
 
@@ -161,8 +245,9 @@ where
         .unwrap_or(default)
 }
 
-fn split_into<T: FromStr>(value: String) -> Vec<T> {
+fn split_into<T: FromStr>(value: impl Into<String>) -> Vec<T> {
     value
+        .into()
         .split(',')
         .filter_map(|v| v.parse::<T>().ok())
         .collect()
@@ -179,7 +264,36 @@ mod tests {
 
     #[test]
     #[serial]
-    fn config_new() {
+    fn test_api_config_new() {
+        clear_env_vars();
+        set_env_vars();
+
+        let config = ApiConfig::new();
+
+        assert_eq!(config.api_version, "1.0.0");
+        assert!(!config.read_only);
+        assert!(config.hide_write_actions);
+        assert_eq!(config.page_size_options, vec![10, 20]);
+        assert_eq!(config.default_page_size, 20);
+    }
+
+    #[test]
+    #[serial]
+    fn test_api_config_new_with_defaults() {
+        clear_env_vars();
+
+        let config = ApiConfig::new();
+
+        assert_eq!(config.api_version, "dev");
+        assert!(config.read_only);
+        assert!(!config.hide_write_actions);
+        assert_eq!(config.page_size_options, vec![10, 20, 30, 40, 50]);
+        assert_eq!(config.default_page_size, 10);
+    }
+
+    #[test]
+    #[serial]
+    fn test_app_config_new() {
         clear_env_vars();
         set_env_vars();
 
@@ -206,7 +320,7 @@ mod tests {
 
     #[test]
     #[serial]
-    fn config_new_with_defaults() {
+    fn test_app_config_new_with_defaults() {
         clear_env_vars();
 
         env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
@@ -270,6 +384,7 @@ mod tests {
     }
 
     fn set_env_vars() {
+        // app config
         env::set_var("GITLAB_BASE_URL", "https://gitlab.url");
         env::set_var("GITLAB_API_TOKEN", "token123");
         env::set_var("GITLAB_READONLY_MODE", "false");
@@ -288,5 +403,12 @@ mod tests {
         env::set_var("GITLAB_GROUP_SKIP_IDS", "7,8,9");
         env::set_var("GITLAB_GROUP_ONLY_TOP_LEVEL", "false");
         env::set_var("GITLAB_GROUP_INCLUDE_SUBGROUPS", "false");
+
+        // api config
+        env::set_var("VERSION", "1.0.0");
+        env::set_var("API_READ_ONLY", "false");
+        env::set_var("UI_HIDE_WRITE_ACTIONS", "true");
+        env::set_var("UI_PAGE_SIZE_OPTIONS", String::from("10,20"));
+        env::set_var("UI_DEFAULT_PAGE_SIZE", "20");
     }
 }

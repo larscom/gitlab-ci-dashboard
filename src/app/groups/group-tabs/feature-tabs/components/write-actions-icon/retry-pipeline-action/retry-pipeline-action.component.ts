@@ -31,7 +31,7 @@ export class RetryPipelineActionComponent {
     this.loading.set(true)
 
     this.http
-      .post('/api/pipelines/retry', null, { params })
+      .post('api/pipelines/retry', null, { params })
       .pipe(
         retry(retryConfig),
         finalize(() => this.loading.set(false))
