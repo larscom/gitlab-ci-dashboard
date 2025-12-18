@@ -28,7 +28,7 @@ projects, potentially resulting in undetected failed pipelines.
   - Optionally use a `read/write` token to perform actions like restarting failed pipelines, create new pipelines or
     cancel pipelines.
 
-## ✅ Features (DONE)
+## ✅ Features
 
 - [x] Overview of all latest pipeline statuses within a group
 - [x] Overview of all pipeline statuses within a group
@@ -144,7 +144,7 @@ If there is a mismatch the HTTP client is still unable to make a proper connecti
 
 ## 🔀 Reverse proxy
 
-Below is a working config for a `Caddy` reverse proxy server to serve the dashboard on a different path. (default path for the dashboard is: `/`)
+Below is a working config for a `Caddy` reverse proxy server to serve the dashboard on a different path.
 
 ```bash
 :80 {
