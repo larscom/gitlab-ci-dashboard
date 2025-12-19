@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzDrawerModule } from 'ng-zorro-antd/drawer'
@@ -11,14 +11,13 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty'
 @Component({
   selector: 'gcd-favorites',
   imports: [
-    CommonModule,
     NzDrawerModule,
     NzEmptyModule,
     NzPopconfirmModule,
     NzIconModule,
     NzButtonModule,
     FeatureTabsComponent
-  ],
+],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

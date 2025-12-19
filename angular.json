@@ -86,13 +86,7 @@
           }
         },
         "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "tsConfig": "tsconfig.spec.json",
-            "polyfills": ["zone.js", "zone.js/testing"],
-            "include": ["src/**/*.spec.ts"],
-            "coverage": false
-          }
+          "builder": "@angular/build:unit-test"
         }
       }
     }

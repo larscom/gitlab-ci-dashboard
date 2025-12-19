@@ -1,7 +1,7 @@
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { ConfigService } from '$service/config.service'
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, computed, HostListener, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown'
@@ -14,7 +14,6 @@ import { StartPipelineActionComponent } from './start-pipeline-action/start-pipe
 @Component({
   selector: 'gcd-write-actions-icon',
   imports: [
-    CommonModule,
     NzButtonModule,
     NzIconModule,
     NzDropDownModule,
@@ -22,7 +21,7 @@ import { StartPipelineActionComponent } from './start-pipeline-action/start-pipe
     StartPipelineActionComponent,
     CancelPipelineActionComponent,
     RetryPipelineActionComponent
-  ],
+],
   templateUrl: './write-actions-icon.component.html',
   styleUrls: ['./write-actions-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

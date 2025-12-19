@@ -1,7 +1,7 @@
 import { Group, GroupId } from '$groups/model/group'
 import { GroupService } from '$groups/service/group.service'
 import { filterNotNull } from '$groups/util/filter'
-import { CommonModule } from '@angular/common'
+
 import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core'
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -20,7 +20,6 @@ import { ProjectId } from '$groups/model/project'
 @Component({
   selector: 'gcd-group-tabs',
   imports: [
-    CommonModule,
     NzAlertModule,
     NzButtonModule,
     NzTabsModule,
@@ -30,7 +29,7 @@ import { ProjectId } from '$groups/model/project'
     FeatureTabsComponent,
     MaxLengthPipe,
     FavoritesComponent
-  ],
+],
   templateUrl: './group-tabs.component.html',
   styleUrls: ['./group-tabs.component.scss']
 })

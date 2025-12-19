@@ -1,7 +1,7 @@
 import { retryConfig } from '$groups/http'
 import { ProjectId } from '$groups/model/project'
 import { BranchService } from '$groups/service/branch.service'
-import { CommonModule } from '@angular/common'
+
 import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { Component, inject, signal, WritableSignal } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
@@ -25,7 +25,6 @@ export interface ModalData {
 @Component({
   selector: 'gcd-start-pipeline-modal',
   imports: [
-    CommonModule,
     VariablesFormComponent,
     NzButtonModule,
     NzModalModule,
@@ -34,7 +33,7 @@ export interface ModalData {
     NzSpaceModule,
     NzFormModule,
     FormsModule
-  ],
+],
   templateUrl: './start-pipeline-modal.component.html',
   styleUrls: ['./start-pipeline-modal.component.scss']
 })

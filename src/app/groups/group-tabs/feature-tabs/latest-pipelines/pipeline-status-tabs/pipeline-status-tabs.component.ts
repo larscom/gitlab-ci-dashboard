@@ -2,7 +2,7 @@ import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-co
 import { ProjectPipeline } from '$groups/model/project'
 import { Status } from '$groups/model/status'
 import { filterFailedJobs, filterProject } from '$groups/util/filter'
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, Signal, computed, input } from '@angular/core'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzEmptyModule } from 'ng-zorro-antd/empty'
@@ -16,7 +16,7 @@ interface Tab {
 
 @Component({
   selector: 'gcd-pipeline-status-tabs',
-  imports: [CommonModule, NzTabsModule, NzBadgeModule, NzEmptyModule, PipelineTableComponent, StatusColorPipe],
+  imports: [NzTabsModule, NzBadgeModule, NzEmptyModule, PipelineTableComponent, StatusColorPipe],
   templateUrl: './pipeline-status-tabs.component.html',
   styleUrls: ['./pipeline-status-tabs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

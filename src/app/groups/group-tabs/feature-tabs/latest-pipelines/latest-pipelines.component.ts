@@ -3,7 +3,7 @@ import { GroupId } from '$groups/model/group'
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId, ProjectPipeline } from '$groups/model/project'
 import { forkJoinFlatten } from '$groups/util/fork'
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
@@ -18,13 +18,12 @@ import { Job } from '$groups/model/job'
 @Component({
   selector: 'gcd-latest-pipelines',
   imports: [
-    CommonModule,
     NzSpinModule,
     PipelineStatusTabsComponent,
     ProjectFilterComponent,
     TopicFilterComponent,
     JobFilterComponent
-  ],
+],
   templateUrl: './latest-pipelines.component.html',
   styleUrls: ['./latest-pipelines.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

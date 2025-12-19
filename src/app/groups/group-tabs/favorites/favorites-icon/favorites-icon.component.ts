@@ -1,6 +1,6 @@
 import { GroupId } from '$groups/model/group'
 import { ProjectId } from '$groups/model/project'
-import { CommonModule } from '@angular/common'
+
 import { Component, computed, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -9,7 +9,7 @@ import { FavoriteService } from '../favorite.service'
 
 @Component({
   selector: 'gcd-favorites-icon',
-  imports: [CommonModule, NzTooltipModule, NzIconModule, NzButtonModule],
+  imports: [NzTooltipModule, NzIconModule, NzButtonModule],
   templateUrl: './favorites-icon.component.html',
   styleUrls: ['./favorites-icon.component.scss']
 })

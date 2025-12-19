@@ -3,13 +3,8 @@ import { registerLocaleData } from '@angular/common'
 import { provideHttpClient } from '@angular/common/http'
 import en from '@angular/common/locales/en'
 import nl from '@angular/common/locales/nl'
-import {
-  ApplicationConfig,
-  inject,
-  provideAppInitializer,
-  provideZonelessChangeDetection
-} from '@angular/core'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
+import { ApplicationConfig, inject, provideAppInitializer } from '@angular/core'
 import { Route, provideRouter, withHashLocation } from '@angular/router'
 import { NzI18nService, en_US, nl_NL } from 'ng-zorro-antd/i18n'
 
@@ -24,13 +19,7 @@ const routes: Route[] = [
 ]
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideNoopAnimations(),
-    provideZonelessChangeDetection(),
-    provideHttpClient(),
-    provideRouter(routes, withHashLocation()),
-    provideI18n()
-  ]
+  providers: [provideNoopAnimations(), provideHttpClient(), provideRouter(routes, withHashLocation()), provideI18n()]
 }
 
 function provideI18n() {

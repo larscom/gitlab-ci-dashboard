@@ -5,7 +5,7 @@ import { ScheduleProjectPipeline } from '$groups/model/schedule'
 import { Status } from '$groups/model/status'
 import { filterFailedJobs, filterPipeline, filterProject } from '$groups/util/filter'
 import { forkJoinFlatten } from '$groups/util/fork'
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
@@ -20,14 +20,13 @@ import { ScheduleService } from './service/schedule.service'
 @Component({
   selector: 'gcd-schedules',
   imports: [
-    CommonModule,
     NzSpinModule,
     ScheduleTableComponent,
     ProjectFilterComponent,
     TopicFilterComponent,
     StatusFilterComponent,
     JobFilterComponent
-  ],
+],
   templateUrl: './schedules.component.html',
   styleUrls: ['./schedules.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

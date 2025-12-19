@@ -1,7 +1,7 @@
 import { Job, JobId } from '$groups/model/job'
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
-import { CommonModule } from '@angular/common'
+
 import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { ChangeDetectionStrategy, Component, HostListener, inject, Injector, input, signal } from '@angular/core'
 import { toObservable, toSignal } from '@angular/core/rxjs-interop'
@@ -16,7 +16,7 @@ import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
 @Component({
   selector: 'gcd-download-artifacts-icon',
-  imports: [CommonModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTooltipModule, StatusColorPipe],
+  imports: [NzButtonModule, NzIconModule, NzDropDownModule, NzTooltipModule, StatusColorPipe],
   templateUrl: './download-artifacts-icon.component.html',
   styleUrls: ['./download-artifacts-icon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

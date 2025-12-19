@@ -5,7 +5,7 @@ import { ProjectId, ProjectPipeline, ProjectPipelines } from '$groups/model/proj
 import { Status } from '$groups/model/status'
 import { filterArrayNotNull, filterPipeline, filterProject } from '$groups/util/filter'
 import { forkJoinFlatten } from '$groups/util/fork'
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
@@ -22,14 +22,13 @@ const STORAGE_KEY = 'pinned_pipelines'
 @Component({
   selector: 'gcd-pipelines',
   imports: [
-    CommonModule,
     NzSpinModule,
     ProjectFilterComponent,
     TopicFilterComponent,
     BranchFilterComponent,
     StatusFilterComponent,
     PipelineTableComponent
-  ],
+],
   templateUrl: './pipelines.component.html',
   styleUrls: ['./pipelines.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

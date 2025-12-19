@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common'
+
 import { Component, DestroyRef, inject, OnInit, output } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { FormArray, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
@@ -13,7 +13,7 @@ type Variable = { key: string; value: string }
 
 @Component({
   selector: 'gcd-variables-form',
-  imports: [CommonModule, NzButtonModule, NzIconModule, NzFormModule, ReactiveFormsModule],
+  imports: [NzButtonModule, NzIconModule, NzFormModule, ReactiveFormsModule],
   templateUrl: './variables-form.component.html',
   styleUrls: ['./variables-form.component.scss']
 })

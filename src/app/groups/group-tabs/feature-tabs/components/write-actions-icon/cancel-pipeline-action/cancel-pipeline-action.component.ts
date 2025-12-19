@@ -1,7 +1,7 @@
 import { retryConfig } from '$groups/http'
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
-import { CommonModule } from '@angular/common'
+
 import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -11,7 +11,7 @@ import { finalize, retry } from 'rxjs'
 
 @Component({
   selector: 'gcd-cancel-pipeline-action',
-  imports: [CommonModule, NzIconModule, NzButtonModule],
+  imports: [NzIconModule, NzButtonModule],
   templateUrl: './cancel-pipeline-action.component.html',
   styleUrls: ['./cancel-pipeline-action.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,5 +1,5 @@
 import { ProjectId } from '$groups/model/project'
-import { CommonModule } from '@angular/common'
+
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -8,7 +8,7 @@ import { ModalData, StartPipelineModalComponent } from './start-pipeline-modal/s
 
 @Component({
   selector: 'gcd-start-pipeline-action',
-  imports: [CommonModule, NzIconModule, NzButtonModule, NzModalModule],
+  imports: [NzIconModule, NzButtonModule, NzModalModule],
   templateUrl: './start-pipeline-action.component.html',
   styleUrls: ['./start-pipeline-action.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

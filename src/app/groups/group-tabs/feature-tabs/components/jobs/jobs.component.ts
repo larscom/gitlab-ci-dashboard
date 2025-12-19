@@ -3,7 +3,7 @@ import { Job, JobId } from '$groups/model/job'
 import { PipelineId } from '$groups/model/pipeline'
 import { ProjectId } from '$groups/model/project'
 import { Status } from '$groups/model/status'
-import { CommonModule } from '@angular/common'
+
 import { HttpClient } from '@angular/common/http'
 import {
   ChangeDetectionStrategy,
@@ -44,7 +44,7 @@ const RUNNABLE_STATUSES = [
 
 @Component({
   selector: 'gcd-jobs',
-  imports: [CommonModule, NzTagModule, NzIconModule, NzSpinModule, NzTooltipModule, StatusColorPipe, MaxLengthPipe],
+  imports: [NzTagModule, NzIconModule, NzSpinModule, NzTooltipModule, StatusColorPipe, MaxLengthPipe],
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
