@@ -8,7 +8,7 @@ WORKDIR /builder
 COPY api ./
 RUN cargo build --release
 
-FROM gcr.io/distroless/cc-debian12
+FROM gcr.io/distroless/cc-debian13
 WORKDIR /app
 ARG VERSION_ARG
 ENV VERSION=$VERSION_ARG
