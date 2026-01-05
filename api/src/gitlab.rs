@@ -93,7 +93,7 @@ impl GitlabClient {
 
     pub fn new(gitlab_url: &str, gitlab_token: &str) -> Self {
         let mut client_builder = Client::builder()
-            .use_rustls_tls()
+            .tls_backend_rustls()
             .default_headers(create_http_headers(gitlab_token));
 
         if let Some(ca) = Self::get_ca_cert() {
