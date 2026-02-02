@@ -31,6 +31,6 @@
     "@types/file-saver": "2.0.7",
     "typescript": "5.9.3",
     "vitest": "^4.0.8",
-    "jsdom": "^27.3.0"    
+    "jsdom": "^28.0.0"    
   }
 }
