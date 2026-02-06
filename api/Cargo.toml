@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 actix-web = "4.12.1"
 actix-web-prom = { version = "0.10.0", features = ["process"] }
-actix-files = { version = "0.6.9" }
+actix-files = { version = "0.6.10" }
 actix-service = { version = "2.0.3" }
 actix-http = "3.11.2"
 serde = { version = "1.0.228", features = ["derive"] }
