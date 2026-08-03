@@ -1,0 +1,57 @@
+:host{display:block}.users-page{min-height:calc(100vh - 9rem);color:var(--dashboard-text)}.users-heading{display:flex;align-items:center;justify-content:space-between;padding:0 0 1rem;border-bottom:1px solid var(--dashboard-border)}.users-title{display:flex;align-items:center;gap:.8rem}.users-title-icon{padding:.7rem;color:var(--dashboard-accent);border-radius:9px;background:var(--dashboard-accent-soft);font-size:20px}.users-title h2{margin:0;font-size:21px}.users-title p{margin:.2rem 0 0;color:var(--dashboard-muted)}.role-explainer{display:grid;grid-template-columns:1fr 1fr;margin:1rem 0;gap:.75rem}.role-explainer>div{display:grid;grid-template-columns:auto 1fr;align-items:center;padding:.85rem;border:1px solid var(--dashboard-border);border-radius:9px;background:var(--dashboard-surface);gap:.25rem .7rem}.role-explainer small{grid-column:2;color:var(--dashboard-muted)}.role-pill{display:inline-flex;width:max-content;padding:.16rem .65rem;border:1px solid;border-radius:999px;font-size:11px;text-transform:capitalize}.role-pill.admin{color:#fb7185;border-color:#7f1d2d;background:#2a1117}.role-pill.editor{color:#60a5fa;border-color:#1e4f8c;background:#0d1d32}.users-table-card{overflow:hidden;border:1px solid var(--dashboard-border);border-radius:10px;background:var(--dashboard-surface)}.users-toolbar{display:flex;align-items:center;justify-content:space-between;padding:.65rem;border-bottom:1px solid var(--dashboard-border);color:var(--dashboard-muted)}.users-search{display:flex;align-items:center;width:280px;padding:.48rem .65rem;border:1px solid var(--dashboard-border);border-radius:7px;background:var(--dashboard-surface-subtle);gap:.45rem}.users-search input{width:100%;color:var(--dashboard-text);border:0;outline:0;background:transparent}.users-table-card table{width:100%;border-collapse:collapse}.users-table-card th,.users-table-card td{padding:.72rem 1rem;border-bottom:1px solid var(--dashboard-border);text-align:left}.users-table-card th{color:var(--dashboard-muted);font-size:10px}.user-cell,.user-actions,.user-status{display:flex;align-items:center}.user-cell{gap:.65rem}.user-avatar{display:grid;width:30px;height:30px;color:#fff;border-radius:8px;background:#7547d1;font-size:11px;place-items:center}.user-actions{justify-content:flex-end;gap:.15rem}.user-status{gap:.4rem}.user-status i{width:7px;height:7px;border-radius:50%;background:var(--dashboard-success)}.user-status.disabled i{background:var(--dashboard-muted)}.users-empty{padding:3rem!important;text-align:center!important;color:var(--dashboard-muted)}.users-error{margin:.75rem 0;padding:.65rem;color:#fb7185;border:1px solid #7f1d2d;border-radius:7px;background:#2a1117}.user-drawer-backdrop{position:fixed;z-index:1100;inset:0;background:rgb(0 0 0 / 60%);backdrop-filter:blur(5px)}.user-drawer{position:fixed;z-index:1101;top:0;right:0;display:flex;flex-direction:column;width:min(620px,100%);height:100vh;color:var(--dashboard-text);border-left:1px solid var(--dashboard-border);background:var(--dashboard-surface);box-shadow:-24px 0 70px rgb(0 0 0 / 45%)}.user-drawer header,.user-drawer footer{display:flex;align-items:center;justify-content:space-between;padding:1.25rem;border-bottom:1px solid var(--dashboard-border)}.user-drawer header h2{margin:0}.user-drawer header p{margin:.2rem 0 0;color:var(--dashboard-muted)}.user-drawer footer{margin-top:auto;border-top:1px solid var(--dashboard-border);border-bottom:0;gap:.65rem}.user-drawer footer button{flex:1}.user-form{display:flex;flex-direction:column;padding:1.25rem;gap:1rem;overflow:auto}.user-form label{display:flex;flex-direction:column;gap:.25rem}.user-form small,.user-form fieldset>p{color:var(--dashboard-muted);font-size:11px}.user-form input:not([type=checkbox]){padding:.65rem;color:var(--dashboard-text);border:1px solid var(--dashboard-border);border-radius:7px;outline:0;background:var(--dashboard-surface-subtle)}.user-form fieldset{display:flex;flex-direction:column;margin:0;padding:.85rem;border:1px solid var(--dashboard-border);border-radius:9px;gap:.55rem}.user-form legend{font-weight:600}.role-choice{display:flex;padding:.75rem;color:var(--dashboard-text);border:1px solid var(--dashboard-border);border-radius:8px;background:transparent;text-align:left;gap:.65rem}.role-choice.selected{border-color:var(--dashboard-accent);background:var(--dashboard-accent-soft)}.role-choice>span:last-child{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:.25rem .55rem}.role-choice small{grid-column:1/-1}.role-radio{width:14px;height:14px;margin-top:3px;border:2px solid var(--dashboard-muted);border-radius:50%}.role-choice.selected .role-radio{border:4px solid var(--dashboard-accent)}.enabled-row{flex-direction:row!important;align-items:center;gap:.5rem!important}@media(max-width:850px){.role-explainer{grid-template-columns:1fr}.users-table-card{overflow:auto}}
+
+.users-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.users-error button {
+  display: grid;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: currentColor;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  place-items: center;
+}
+
+.users-error button:hover {
+  background: rgb(251 113 133 / 14%);
+}
+
+.user-drawer header h2 {
+  color: #20242d;
+}
+
+.users-title h2 {
+  color: #20242d;
+}
+
+:host-context(.dracula-theme) .user-drawer header h2,
+:host-context(.dracula-theme) .users-title h2 {
+  color: #f4f4f5;
+}
+
+.users-table-card tr.new-user-highlight td {
+  animation: new-user-highlight 2.6s ease-out;
+}
+
+@keyframes new-user-highlight {
+  0%, 32% { background: color-mix(in srgb, var(--dashboard-accent) 28%, transparent); }
+  55% { background: color-mix(in srgb, var(--dashboard-accent) 9%, transparent); }
+  72% { background: color-mix(in srgb, var(--dashboard-accent) 22%, transparent); }
+  100% { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .users-table-card tr.new-user-highlight td { animation: none; background: var(--dashboard-accent-soft); }
+}
+
+.role-locked .role-choice:disabled{opacity:.52}
+.role-locked .role-choice.selected:disabled{opacity:.78}

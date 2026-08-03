@@ -1,9 +1,18 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Group {
     pub id: u64,
     pub name: String,
+    #[serde(default, deserialize_with = "nullable_string")]
+    pub full_path: String,
+}
+
+fn nullable_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Ok(Option::<String>::deserialize(deserializer)?.unwrap_or_default())
 }
 
 #[cfg(test)]
@@ -70,7 +79,7 @@ mod tests {
         let value = test::new_group();
 
         let json = serde_json::to_string(&value).unwrap();
-        let expected = "{\"id\":1,\"name\":\"name\"}";
+        let expected = "{\"id\":1,\"name\":\"name\",\"full_path\":\"example/name\"}";
         assert_eq!(expected, json);
     }
 }

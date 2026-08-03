@@ -26,6 +26,8 @@ impl GroupService {
 }
 
 impl GroupService {
+    pub fn invalidate(&self) { self.cache.invalidate_all(); }
+
     pub async fn get_groups(&self, cache_key: &str) -> Result<Vec<Group>, ApiError> {
         let only_ids = &self.config.group_only_ids;
         let skip_groups = &self.config.group_skip_ids;

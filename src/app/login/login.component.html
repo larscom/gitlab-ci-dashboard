@@ -1,0 +1,61 @@
+<main class="login-page">
+  <form class="login-card" (ngSubmit)="submit()">
+    <div class="login-card-header">
+      <div class="login-mark">CI</div>
+      <button
+        class="login-theme-toggle"
+        type="button"
+        nz-button
+        nzType="text"
+        nz-tooltip
+        [nzTooltipTitle]="theme.isDracula() ? 'Use light theme' : 'Use Dracula theme'"
+        (click)="theme.toggle()"
+      >
+        <span aria-hidden="true">{{ theme.isDracula() ? '☀' : '☾' }}</span>
+        {{ theme.isDracula() ? 'Light' : 'Dracula' }}
+      </button>
+    </div>
+    <h1>Welcome back</h1>
+    <p>Sign in to GitLab CI Dashboard</p>
+
+    <label for="username">Username</label>
+    <nz-input-group nzPrefixIcon="user">
+      <input
+        id="username"
+        name="username"
+        type="text"
+        autocomplete="username"
+        [(ngModel)]="username"
+        nz-input
+        autofocus
+      />
+    </nz-input-group>
+
+    <label for="password">Password</label>
+    <nz-input-group nzPrefixIcon="lock">
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        [(ngModel)]="password"
+        nz-input
+      />
+    </nz-input-group>
+
+    @if (error()) {
+      <div class="login-error" role="alert">{{ error() }}</div>
+    }
+
+    <button
+      type="submit"
+      nz-button
+      nzType="primary"
+      nzBlock
+      [nzLoading]="loading()"
+      [disabled]="!username() || !password()"
+    >
+      Sign in
+    </button>
+  </form>
+</main>

@@ -1,19 +1,8 @@
 import { Status } from '$groups/model/status'
 
-export function statusToScope(status?: Status): Status[] {
-  if (!status) {
-    return []
-  }
-
-  switch (status) {
-    case Status.SUCCESS: {
-      return [Status.FAILED]
-    }
-    case Status.RUNNING: {
-      return [Status.RUNNING, Status.PENDING]
-    }
-    default: {
-      return [status]
-    }
-  }
+export function statusToScope(_status?: Status): Status[] {
+  // Do not filter jobs by the parent pipeline status. A successful parent can
+  // still own a running downstream pipeline, and filtering would hide both its
+  // bridge and its active child jobs.
+  return []
 }

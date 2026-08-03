@@ -1,40 +1,43 @@
-# only gitlab section is mandatory
-[gitlab]
-url = "https://gitlab.com"
-token = "your-token-here"
+# Global application configuration for api/config.toml.
+# This file is required at runtime.
 
-# optional
 [server]
-ip = "0.0.0.0"
-port = 8080
-workers = 4
+listen_ip = "0.0.0.0"
+listen_port = 8080
+worker_count = 4
 
-# optional
+[security]
+environment_token_encryption_key = "your-32-byte-hex-key-here"
+
+[authentication]
+username = "admin"
+password = "password"
+secure_cookie = false
+
+[database]
+url = "postgres://gitlab_ci_dashboard:gitlab_ci_dashboard@postgres:5432/gitlab_ci_dashboard"
+max_connections = 10
+
+[analytics]
+enabled = true
+sync_interval_seconds = 300
+retention_days = 30
+
 [cache]
-ttl_group_seconds = 300
-ttl_project_seconds = 300
-ttl_branch_seconds = 60
-ttl_job_seconds = 5
-ttl_pipeline_seconds = 5
-ttl_schedule_seconds = 300
-ttl_artifact_seconds = 1800
+group_ttl_seconds = 300
+project_ttl_seconds = 300
+branch_ttl_seconds = 60
+job_ttl_seconds = 60
+pipeline_ttl_seconds = 300
+schedule_ttl_seconds = 300
+runner_ttl_seconds = 60
+runner_detail_ttl_seconds = 300
+runner_job_ttl_seconds = 15
+artifact_ttl_seconds = 1800
 
-# optional
 [pipeline]
-history_days = 5
+history_days = 30
 
-# optional
-[project]
-skip_ids = []
-
-# optional
-[group]
-only_ids = []
-skip_ids = []
-only_top_level = true
-include_subgroups = true
-
-# optional
 [ui]
 read_only = true
 hide_write_actions = false

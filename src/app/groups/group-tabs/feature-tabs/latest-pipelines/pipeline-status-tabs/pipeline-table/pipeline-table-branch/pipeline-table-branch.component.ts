@@ -14,7 +14,6 @@ import { Header } from '$groups/util/table'
 import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, computed, inject, input, Signal, signal } from '@angular/core'
-import { NzBadgeModule } from 'ng-zorro-antd/badge'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzI18nService } from 'ng-zorro-antd/i18n'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -22,6 +21,7 @@ import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { LatestBranchFilterComponent } from './latest-branch-filter/latest-branch-filter.component'
 import { TablePaginatorDirective } from '$groups/group-tabs/feature-tabs/directives/table-paginator.directive'
+import { TableActionsComponent } from '$groups/group-tabs/feature-tabs/components/table-actions/table-actions.component'
 
 const headers: Header<BranchPipeline>[] = [
   { title: 'Branch', sortable: true, compare: (a, b) => compareString(a.branch.name, b.branch.name) },
@@ -58,12 +58,12 @@ const headers: Header<BranchPipeline>[] = [
     NzTooltipModule,
     NzButtonModule,
     NzIconModule,
-    NzBadgeModule,
     WriteActionsIconComponent,
     OpenGitlabIconComponent,
     DownloadArtifactsIconComponent,
     JobFilterComponent,
     CoverageColorPipe,
+    TableActionsComponent,
     TablePaginatorDirective
   ],
   templateUrl: './pipeline-table-branch.component.html',
@@ -90,6 +90,8 @@ export class PipelineTableBranchComponent {
   branchCount = computed(() => this.branchPipelines().length)
 
   headers: Header<BranchPipeline>[] = headers
+  readonly widthConfig = ['240px', '120px', '160px', '210px', '130px', '900px', '72px']
+  readonly tableWidth = 1832
 
   get showWriteActions(): Signal<boolean> {
     return computed(() => !this.config.hideWriteActions())

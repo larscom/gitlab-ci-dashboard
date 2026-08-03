@@ -1,18 +1,25 @@
 use crate::error::ApiError;
 use crate::model::Project;
 use crate::model::Schedule;
-use crate::model::{Branch, Group, Job};
+use crate::model::{Branch, Bridge, Group, Job, Runner, RunnerJob, RunnerManager};
 use crate::model::{JobStatus, Pipeline};
 use actix_web::web::Bytes;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use reqwest::header::{HeaderMap, HeaderValue};
-use reqwest::{Client, Url};
+use reqwest::header::{HeaderMap, HeaderValue, RETRY_AFTER};
+use reqwest::{Client, StatusCode, Url};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
-use tokio::sync::mpsc;
+use std::sync::Arc;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tokio::sync::{mpsc, Mutex, Semaphore};
+use tokio::time::Instant;
+
+const MAX_CONCURRENT_GITLAB_REQUESTS: usize = 8;
+const MAX_GET_ATTEMPTS: usize = 4;
+const MIN_REQUEST_INTERVAL: Duration = Duration::from_millis(100);
 
 #[async_trait]
 pub trait GitlabApi: Send + Sync {
@@ -56,12 +63,27 @@ pub trait GitlabApi: Send + Sync {
 
     async fn schedules(&self, project_id: u64) -> Result<Vec<Schedule>, ApiError>;
 
+    async fn runners(&self, group_id: u64) -> Result<Vec<Runner>, ApiError>;
+
+    async fn runner_details(&self, runner_id: u64) -> Result<Runner, ApiError>;
+
+    async fn runner_managers(&self, runner_id: u64) -> Result<Vec<RunnerManager>, ApiError>;
+
+    async fn runner_jobs(&self, runner_id: u64) -> Result<Vec<RunnerJob>, ApiError>;
+
     async fn jobs(
         &self,
         project_id: u64,
         pipeline_id: u64,
         scope: &[JobStatus],
     ) -> Result<Vec<Job>, ApiError>;
+
+    async fn bridges(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+        scope: &[JobStatus],
+    ) -> Result<Vec<Bridge>, ApiError>;
 
     async fn artifact(&self, project_id: u64, job_id: u64) -> Result<Bytes, ApiError>;
 }
@@ -70,6 +92,8 @@ pub trait GitlabApi: Send + Sync {
 pub struct GitlabClient {
     base_url: String,
     http_client: Client,
+    request_limiter: Arc<Semaphore>,
+    next_request_at: Arc<Mutex<Instant>>,
 }
 
 #[derive(Debug)]
@@ -103,6 +127,8 @@ impl GitlabClient {
         Self {
             base_url: format!("{gitlab_url}/api/v4"),
             http_client: client_builder.build().expect("invalid client"),
+            request_limiter: Arc::new(Semaphore::new(MAX_CONCURRENT_GITLAB_REQUESTS)),
+            next_request_at: Arc::new(Mutex::new(Instant::now())),
         }
     }
 }
@@ -153,7 +179,45 @@ impl GitlabClient {
 
         log::debug!("request (get) {url}");
 
-        self.http_client.get(url).send().await?.error_for_status()
+        let _permit = self
+            .request_limiter
+            .acquire()
+            .await
+            .expect("GitLab request limiter to remain open");
+
+        for attempt in 0..MAX_GET_ATTEMPTS {
+            self.wait_for_request_slot().await;
+            let response = self.http_client.get(url.clone()).send().await?;
+
+            if response.status() != StatusCode::TOO_MANY_REQUESTS
+                || attempt + 1 == MAX_GET_ATTEMPTS
+            {
+                return response.error_for_status();
+            }
+
+            let delay = retry_delay(response.headers(), attempt);
+            log::warn!(
+                "GitLab rate limit reached for {url}; retrying in {} seconds (attempt {}/{})",
+                delay.as_secs(),
+                attempt + 2,
+                MAX_GET_ATTEMPTS
+            );
+            tokio::time::sleep(delay).await;
+        }
+
+        unreachable!("GET retry loop always returns on its final attempt")
+    }
+
+    async fn wait_for_request_slot(&self) {
+        let scheduled_at = {
+            let mut next_request_at = self.next_request_at.lock().await;
+            let now = Instant::now();
+            let scheduled_at = (*next_request_at).max(now);
+            *next_request_at = scheduled_at + MIN_REQUEST_INTERVAL;
+            scheduled_at
+        };
+
+        tokio::time::sleep_until(scheduled_at).await;
     }
 
     async fn do_get_parsed<T: DeserializeOwned>(
@@ -251,6 +315,33 @@ impl GitlabClient {
     }
 }
 
+fn retry_delay(headers: &HeaderMap, attempt: usize) -> Duration {
+    let retry_after = headers
+        .get(RETRY_AFTER)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.parse::<u64>().ok());
+
+    let rate_limit_reset = headers
+        .get("ratelimit-reset")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.parse::<u64>().ok())
+        .map(|reset| {
+            let now = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+            reset.saturating_sub(now)
+        });
+
+    let exponential_backoff = 1_u64 << attempt.min(5);
+    Duration::from_secs(
+        retry_after
+            .or(rate_limit_reset)
+            .unwrap_or(exponential_backoff)
+            .clamp(1, 60),
+    )
+}
+
 #[async_trait]
 impl GitlabApi for GitlabClient {
     async fn groups(&self, skip_groups: &[u64], top_level: bool) -> Result<Vec<Group>, ApiError> {
@@ -313,7 +404,7 @@ impl GitlabApi for GitlabClient {
         updated_after: Option<DateTime<Utc>>,
     ) -> Result<Vec<Pipeline>, ApiError> {
         let params = updated_after
-            .map(|d| [("updated_after".to_string(), d.to_string())])
+            .map(|d| [("updated_after".to_string(), d.to_rfc3339())])
             .unwrap_or_default();
 
         let path = format!("/projects/{project_id}/pipelines");
@@ -381,6 +472,67 @@ impl GitlabApi for GitlabClient {
         self.get_all_pages(path, params.to_vec()).await
     }
 
+    async fn runners(&self, group_id: u64) -> Result<Vec<Runner>, ApiError> {
+        let root = self
+            .do_get_parsed::<Group>(format!("/groups/{group_id}"), Vec::new())
+            .await?;
+        let mut groups = vec![root];
+        let descendants = self
+            .get_all_pages::<Group>(
+                format!("/groups/{group_id}/descendant_groups"),
+                Vec::new(),
+            )
+            .await?;
+        groups.extend(descendants);
+
+        // Each group endpoint includes runners inherited from its ancestors. Visit the
+        // root first and keep the first occurrence so the recorded scope is the runner's
+        // closest owning group rather than a descendant where it is merely available.
+        let mut runners_by_id = HashMap::new();
+        for group in groups {
+            let mut runners = self
+                .get_all_pages::<Runner>(
+                    format!("/groups/{}/runners", group.id),
+                    Vec::new(),
+                )
+                .await?;
+            let scope_name = if group.full_path.is_empty() {
+                group.name
+            } else {
+                group.full_path
+            };
+            for mut runner in runners.drain(..) {
+                runner.scope_name = scope_name.clone();
+                runners_by_id.entry(runner.id).or_insert(runner);
+            }
+        }
+
+        Ok(runners_by_id.into_values().collect())
+    }
+
+    async fn runner_details(&self, runner_id: u64) -> Result<Runner, ApiError> {
+        self.do_get_parsed(format!("/runners/{runner_id}"), Vec::new())
+            .await
+    }
+
+    async fn runner_managers(&self, runner_id: u64) -> Result<Vec<RunnerManager>, ApiError> {
+        self.get_all_pages(format!("/runners/{runner_id}/managers"), Vec::new())
+            .await
+    }
+
+    async fn runner_jobs(&self, runner_id: u64) -> Result<Vec<RunnerJob>, ApiError> {
+        let params = vec![
+            ("status".to_string(), "running".to_string()),
+            ("order_by".to_string(), "id".to_string()),
+            ("sort".to_string(), "desc".to_string()),
+        ];
+        let path = format!("/runners/{runner_id}/jobs");
+
+        // A runner normally handles only a small number of concurrent jobs.
+        // Reading the first 100 running jobs avoids unnecessary pagination.
+        Ok(self.get_page(path, 1, params).await?.data)
+    }
+
     async fn jobs(
         &self,
         project_id: u64,
@@ -393,6 +545,21 @@ impl GitlabApi for GitlabClient {
         }
 
         let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/jobs");
+        self.get_all_pages(path, params).await
+    }
+
+    async fn bridges(
+        &self,
+        project_id: u64,
+        pipeline_id: u64,
+        scope: &[JobStatus],
+    ) -> Result<Vec<Bridge>, ApiError> {
+        let mut params = vec![];
+        for scope in scope {
+            params.push(("scope[]".to_string(), scope.as_string()))
+        }
+
+        let path = format!("/projects/{project_id}/pipelines/{pipeline_id}/bridges");
         self.get_all_pages(path, params).await
     }
 

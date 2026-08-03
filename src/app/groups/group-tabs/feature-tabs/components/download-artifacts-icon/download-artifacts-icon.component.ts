@@ -52,13 +52,13 @@ export class DownloadArtifactsIconComponent {
     return this.loadingJobIds().includes(jobId)
   }
 
-  download(e: MouseEvent, { id, name }: Job) {
+  download(e: MouseEvent, { id, name, pipeline }: Job) {
     e.stopPropagation()
 
     this.loadingJobIds.set([...this.loadingJobIds(), id])
 
     const params = {
-      project_id: this.projectId(),
+      project_id: pipeline.project_id,
       job_id: id
     }
 

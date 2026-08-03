@@ -1,7 +1,43 @@
-<div class="flex flex-col gap-1">
-  <div class="flex justify-between">
+<div class="pipeline-page flex flex-col gap-1">
+  @if (!favoritesMode()) { <gcd-pipeline-summary [statusCounts]="statusCounts()" /> }
+  @if(!favoritesMode()){
+    <div class="workspace-status-filter"><gcd-status-filter [statusCounts]="statusCounts()" [filterStatuses]="filterStatuses()" (filterStatusesChange)="onFilterStatusesChanged($event)" /></div>
+  }
+  <section class="data-workspace">
+  <div class="workspace-toolbar flex justify-between">
+    @if (favoritesMode()) {
+      <div class="favorite-filters">
+        <div class="favorite-variable">
+          <span class="variable-label">Project</span>
+          <button nz-button nz-dropdown [nzDropdownMenu]="favoriteProjectMenu" nzTrigger="click"><strong>{{favoriteProjectLabel()}}</strong><span nz-icon nzType="down"></span></button>
+          <nz-dropdown-menu #favoriteProjectMenu="nzDropdownMenu">
+            <div class="favorite-variable-menu" (click)="$event.stopPropagation()">
+              <div class="favorite-variable-search"><span nz-icon nzType="search"></span><input [value]="favoriteProjectSearch()" (input)="favoriteProjectSearch.set($any($event.target).value)" placeholder="Search projects..." /></div>
+              <label><input type="checkbox" [checked]="favoriteProjectSelection()===null" (change)="toggleAllFavoriteProjects()" /><strong>All</strong></label>
+              @for(project of filteredFavoriteProjectOptions();track project.id){<label><input type="checkbox" [checked]="isFavoriteProjectSelected(project.id)" (change)="toggleFavoriteProject(project.id)" /><span class="favorite-option-name">{{project.name}}</span><button type="button" class="remove-favorite-project" title="Remove from Favorites" (click)="removeFavoriteProject(project.id,$event)"><span nz-icon nzType="close"></span></button></label>}@empty{<div class="favorite-variable-empty">No matching projects</div>}
+            </div>
+          </nz-dropdown-menu>
+        </div>
+        <div class="favorite-variable">
+          <span class="variable-label">Branch</span>
+          <button nz-button nz-dropdown [nzDropdownMenu]="favoriteBranchMenu" nzTrigger="click"><strong>{{favoriteBranchLabel()}}</strong><span nz-icon nzType="down"></span></button>
+          <nz-dropdown-menu #favoriteBranchMenu="nzDropdownMenu">
+            <div class="favorite-variable-menu" (click)="$event.stopPropagation()">
+              <div class="favorite-variable-search"><span nz-icon nzType="search"></span><input [value]="favoriteBranchSearch()" (input)="favoriteBranchSearch.set($any($event.target).value)" placeholder="Search branches..." /></div>
+              <label><input type="checkbox" [checked]="favoriteBranchSelection()===null" (change)="toggleAllFavoriteBranches()" /><strong>All</strong></label>
+              @for(branch of filteredFavoriteBranchOptions();track branch){<label><input type="checkbox" [checked]="isFavoriteBranchSelected(branch)" (change)="toggleFavoriteBranch(branch)" /><span>{{branch}}</span></label>}@empty{<div class="favorite-variable-empty">No matching branches</div>}
+            </div>
+          </nz-dropdown-menu>
+        </div>
+      </div>
+    } @else {
     <div class="flex flex-col gap-050">
       <div class="flex gap-050">
+        <gcd-group-filter
+          [projects]="projects()"
+          [filterText]="filterTextGroup()"
+          (filterTextChange)="onFilterTextGroupsChanged($event)"
+        />
         <gcd-project-filter
           [projects]="projects()"
           [filterText]="filterTextProject()"
@@ -19,7 +55,34 @@
         [filterTopics]="filterTopics()"
         (filterTopicsChange)="onFilterTopicsChanged($event)"
       />
-      <gcd-status-filter [filterStatuses]="filterStatuses()" (filterStatusesChange)="onFilterStatusesChanged($event)" />
+    </div>
+    }
+    <div class="pipeline-actions">
+      <div class="time-range-control">
+        <span class="range-caption">Range</span>
+        <button class="time-range-trigger" nz-button nz-dropdown [nzDropdownMenu]="rangeMenu" nzTrigger="click" title="Select pipeline history range">
+          <strong>{{ range.label() }}</strong>
+          <span nz-icon nzType="down"></span>
+        </button>
+        <nz-dropdown-menu #rangeMenu="nzDropdownMenu">
+          <ul nz-menu class="time-range-menu">
+            @for (option of range.options(); track option.hours) {
+              <li nz-menu-item [nzSelected]="option.hours === range.hours()" (click)="onRangeChange(option.hours)">{{ option.label }}</li>
+            }
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+    <button
+      class="refresh-button"
+      nz-button
+      nz-tooltip
+      nzTooltipTitle="Refresh the newest pipeline for every branch"
+      [disabled]="refreshing()"
+      (click)="onRefresh()"
+    >
+      <span nz-icon nzType="reload" [nzSpin]="refreshing()"></span>
+      Refresh
+    </button>
     </div>
   </div>
   @if (loading()) {
@@ -27,8 +90,8 @@
   } @else {
     <gcd-pipeline-table
       [projectPipelines]="filteredProjectPipelines()"
-      [pinnedPipelines]="pinnedPipelines()"
-      (pinnedPipelinesChange)="onPinnedPipelinesChanged($event)"
+      (pipelineStatusChange)="onPipelineStatusChanged($event)"
     />
   }
+  </section>
 </div>

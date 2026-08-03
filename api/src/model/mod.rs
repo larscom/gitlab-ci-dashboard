@@ -1,14 +1,18 @@
 pub use branch::*;
+pub use bridge::*;
 pub use group::*;
 pub use job::*;
 pub use pipeline::*;
 pub use project::*;
+pub use runner::*;
 pub use schedule::*;
 
 pub mod pipeline;
 pub mod project;
+pub mod runner;
 
 pub mod branch;
+pub mod bridge;
 pub mod commit;
 pub mod group;
 pub mod job;
@@ -21,7 +25,7 @@ pub mod test {
     use crate::model::user::User;
     use crate::model::{
         Branch, Group, Job, JobStatus, Namespace, Pipeline, PipelineSource, PipelineStatus,
-        Project, Schedule,
+        Project, Runner, RunnerJob, RunnerJobPipeline, Schedule,
     };
 
     pub fn new_commit() -> Commit {
@@ -67,6 +71,7 @@ pub mod test {
         Group {
             id: 1,
             name: "name".to_string(),
+            full_path: "example/name".to_string(),
         }
     }
 
@@ -101,6 +106,7 @@ pub mod test {
             id: 456,
             jobs_enabled: true,
             name: "name".to_string(),
+            path: None,
             web_url: "web_url".to_string(),
             default_branch: Some("default_branch".to_string()),
             topics: vec!["topic".to_string()],
@@ -108,6 +114,7 @@ pub mod test {
                 id: 123,
                 name: "namespace".to_string(),
                 path: "namespace".to_string(),
+                full_path: None,
             },
         }
     }
@@ -124,6 +131,42 @@ pub mod test {
             created_at: Default::default(),
             updated_at: Default::default(),
             owner: new_user(),
+        }
+    }
+
+    pub fn new_runner() -> Runner {
+        Runner {
+            id: 10,
+            description: "runner".to_string(),
+            paused: false,
+            is_shared: false,
+            online: Some(true),
+            runner_type: "group_type".to_string(),
+            status: "online".to_string(),
+            job_execution_status: "running".to_string(),
+            tag_list: vec!["docker".to_string()],
+            ip_address: "192.0.2.10".to_string(),
+            projects: Vec::new(),
+            scope_name: "example/group".to_string(),
+            contacted_at: None,
+        }
+    }
+
+    pub fn new_runner_job() -> RunnerJob {
+        RunnerJob {
+            id: 20,
+            name: "build".to_string(),
+            stage: "build".to_string(),
+            status: "running".to_string(),
+            branch: "main".to_string(),
+            web_url: "web_url".to_string(),
+            pipeline: RunnerJobPipeline {
+                id: 30,
+                project_id: 456,
+                branch: "main".to_string(),
+            },
+            started_at: None,
+            duration: Some(1.0),
         }
     }
 }

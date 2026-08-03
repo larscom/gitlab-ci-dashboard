@@ -1,6 +1,9 @@
 <nz-table
   #nzTable
-  [nzScroll]="{ y: '210px' }"
+  class="arcane-data-table detail-scrolling-table"
+  [nzWidthConfig]="widthConfig"
+  [style.--table-width]="tableWidth + 'px'"
+  [nzScroll]="{ x: tableWidth + 'px' }"
   nzSize="small"
   [nzData]="pipelines()"
   [nzLoading]="loading()"
@@ -14,7 +17,7 @@
       </th>
       }
       <th>Jobs</th>
-      <th>Action</th>
+      <th nzRight>Action</th>
     </tr>
   </thead>
   <tbody>
@@ -30,12 +33,18 @@
       <td>
         <gcd-jobs [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
       </td>
-      <td>
-        @if (showWriteActions()) {
-        <gcd-write-actions-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" [branch]="pipeline.ref" />
-        }
-        <gcd-open-gitlab-icon [url]="pipeline.web_url" />
-        <gcd-download-artifacts-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+      <td nzRight>
+        <gcd-table-actions>
+          @if (showWriteActions()) {
+            <gcd-write-actions-icon
+              [projectId]="pipeline.project_id"
+              [pipelineId]="pipeline.id"
+              [branch]="pipeline.ref"
+            />
+          }
+          <gcd-open-gitlab-icon [url]="pipeline.web_url" />
+          <gcd-download-artifacts-icon [projectId]="pipeline.project_id" [pipelineId]="pipeline.id" />
+        </gcd-table-actions>
       </td>
     </tr>
     }

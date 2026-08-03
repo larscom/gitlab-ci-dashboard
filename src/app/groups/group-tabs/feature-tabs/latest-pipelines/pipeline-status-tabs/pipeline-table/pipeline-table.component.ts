@@ -10,6 +10,7 @@ import { Status } from '$groups/model/status'
 import { compareNumber, compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
+import { projectNamespacePath } from '$groups/util/project-path'
 import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
 import {
@@ -35,14 +36,15 @@ import { OpenGitlabIconComponent } from '../../../components/open-gitlab-icon/op
 import { LatestPipelineService } from '../../service/latest-pipeline.service'
 import { PipelineTableBranchComponent } from './pipeline-table-branch/pipeline-table-branch.component'
 import { TablePaginatorDirective } from '$groups/group-tabs/feature-tabs/directives/table-paginator.directive'
+import { TableActionsComponent } from '$groups/group-tabs/feature-tabs/components/table-actions/table-actions.component'
 
 const headers: Header<ProjectPipeline>[] = [
-  { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
   {
     title: 'Group',
     sortable: true,
-    compare: (a, b) => compareString(a.project.namespace.name, b.project.namespace.name)
+    compare: (a, b) => compareString(projectNamespacePath(a.project), projectNamespacePath(b.project))
   },
+  { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
   {
     title: 'Branch',
     sortable: true,
@@ -86,6 +88,7 @@ const headers: Header<ProjectPipeline>[] = [
     DownloadArtifactsIconComponent,
     OpenGitlabIconComponent,
     CoverageColorPipe,
+    TableActionsComponent,
     TablePaginatorDirective
   ],
   templateUrl: './pipeline-table.component.html',
@@ -106,6 +109,9 @@ export class PipelineTableComponent implements OnDestroy {
   selectedProjectId = signal<number | undefined>(undefined)
 
   headers: Header<ProjectPipeline>[] = headers
+  readonly widthConfig = ['320px', '220px', '180px', '240px', '120px', '160px', '210px', '900px', '72px']
+  readonly tableWidth = 2422
+  readonly projectNamespacePath = projectNamespacePath
   branchPipelines = signal<BranchPipeline[]>([])
   branchesLoading = signal(false)
 

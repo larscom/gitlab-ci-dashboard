@@ -19,6 +19,7 @@ import { NzTableModule } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { CoverageColorPipe } from '../../../pipes/coverage-color.pipe'
 import { TablePaginatorDirective } from '$groups/group-tabs/feature-tabs/directives/table-paginator.directive'
+import { TableActionsComponent } from '$groups/group-tabs/feature-tabs/components/table-actions/table-actions.component'
 
 const headers: Header<Pipeline>[] = [
   {
@@ -63,6 +64,7 @@ const headers: Header<Pipeline>[] = [
     DownloadArtifactsIconComponent,
     OpenGitlabIconComponent,
     CoverageColorPipe,
+    TableActionsComponent,
     TablePaginatorDirective
   ],
   templateUrl: './schedule-pipeline-table.component.html',
@@ -77,6 +79,8 @@ export class SchedulePipelineTableComponent {
   loading = input.required<boolean>()
 
   headers: Header<Pipeline>[] = headers
+  readonly widthConfig = ['240px', '120px', '160px', '210px', '130px', '900px', '72px']
+  readonly tableWidth = 1832
 
   get showWriteActions(): Signal<boolean> {
     return computed(() => !this.config.hideWriteActions())

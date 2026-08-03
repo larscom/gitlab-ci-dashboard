@@ -1,0 +1,22 @@
+<button
+  class="arcane-action-trigger"
+  nz-button
+  nzType="text"
+  nzShape="circle"
+  nz-dropdown
+  nzTrigger="click"
+  nzPlacement="bottomRight"
+  nzOverlayClassName="arcane-action-dropdown"
+  [nzDropdownMenu]="actions"
+  nz-tooltip
+  nzTooltipTitle="Actions"
+  (click)="stopPropagation($event)"
+>
+  <span nz-icon nzType="ellipsis"></span>
+</button>
+
+<nz-dropdown-menu #actions>
+  <div class="arcane-action-menu" (click)="stopPropagation($event)">
+    <ng-content />
+  </div>
+</nz-dropdown-menu>

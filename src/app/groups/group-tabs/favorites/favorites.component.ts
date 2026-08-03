@@ -1,37 +1,26 @@
 
-import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core'
-import { NzButtonModule } from 'ng-zorro-antd/button'
-import { NzDrawerModule } from 'ng-zorro-antd/drawer'
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm'
-import { FeatureTabsComponent } from '../feature-tabs/feature-tabs.component'
+import { PipelinesComponent } from '../feature-tabs/pipelines/pipelines.component'
 import { FavoriteService } from './favorite.service'
-import { NzEmptyModule } from 'ng-zorro-antd/empty'
 
 @Component({
   selector: 'gcd-favorites',
-  imports: [
-    NzDrawerModule,
-    NzEmptyModule,
-    NzPopconfirmModule,
-    NzIconModule,
-    NzButtonModule,
-    FeatureTabsComponent
-],
+  imports: [NzIconModule,PipelinesComponent],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FavoritesComponent {
   private favoriteService = inject(FavoriteService)
+  groupId = input<number>()
 
-  close = output()
-
-  favorites = this.favoriteService.favorites
+  favorites = computed(() => {
+    const groupId = this.groupId()
+    if (groupId === undefined) return new Map()
+    const projects = this.favoriteService.favorites().get(groupId)
+    return projects ? new Map([[groupId, projects]]) : new Map()
+  })
 
   hasFavorites = computed(() => Array.from(this.favorites().values()).some((ids) => ids.size > 0))
-
-  onConfirm() {
-    this.favoriteService.removeAll()
-  }
 }

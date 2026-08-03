@@ -1,33 +1,196 @@
-<div class="flex flex-col gap-1">
-  <div class="flex justify-between">
-    <div class="flex flex-col gap-050">
-      <gcd-project-filter
-        [projects]="projects()"
-        [filterText]="filterText()"
-        (filterTextChange)="onFilterTextChanged($event)"
-      />
-      <gcd-topic-filter
-        [loading]="loading()"
-        [projects]="projects()"
-        [filterTopics]="filterTopics()"
-        (filterTopicsChange)="onFilterTopicsChanged($event)"
-      />
-      <gcd-job-filter
-        [loading]="loading()"
-        [jobs]="jobs()"
-        [filterJobs]="filterJobs()"
-        (filterJobsChange)="onFilterJobsChanged($event)"
-      />
+@if (analytics(); as summary) {
+<div class="dashboard-grid">
+  <section class="dashboard-toolbar panel-span-full">
+    <div>
+      <span class="eyebrow">Pipeline observability</span>
+      <h1>CI/CD analytics overview</h1>
+      <p>Historical performance and delivery health for the selected GitLab group.</p>
     </div>
-  </div>
-  @if (loading()) {
-  <nz-spin />
-  } @else {
-  <gcd-pipeline-status-tabs
-    [projectPipelines]="projectPipelines()"
-    [filterText]="filterText()"
-    [filterTopics]="filterTopics()"
-    [filterJobs]="filterJobs()"
-  />
-  }
+    <div class="toolbar-meta">
+      <div class="time-range-control">
+        <span class="range-caption">Range</span>
+        <button class="time-range-trigger" nz-button nz-dropdown [nzDropdownMenu]="rangeMenu" nzTrigger="click" title="Select pipeline history range">
+          <strong>{{ range.label() }}</strong>
+          <span nz-icon nzType="down"></span>
+        </button>
+        <nz-dropdown-menu #rangeMenu="nzDropdownMenu">
+          <ul nz-menu class="time-range-menu">
+            @for (option of range.options(); track option.hours) {
+              <li nz-menu-item [nzSelected]="option.hours === range.hours()" (click)="onRangeChange(option.hours)">{{ option.label }}</li>
+            }
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+      <span class="live-indicator" title="The view refreshes every 10 seconds; GitLab collection follows the backend sync interval"><i></i> Auto refresh</span>
+    </div>
+  </section>
+
+  <article class="grafana-panel stat-panel">
+    <header><span>Pipeline runs</span><span class="panel-info" title="Persisted pipeline history">History</span></header>
+    <div class="big-stat accent">{{ summary.pipeline_count }}</div>
+    <p>Runs captured in PostgreSQL</p>
+    <div class="spark-bars history-bars" aria-label="Pipeline runs by time period">
+      @for (point of summary.history; track point.label) {
+        <i
+          [style.height.%]="historyHeight(point.pipeline_count, 'pipeline_count')"
+          [attr.data-tooltip]="point.label + ': ' + point.pipeline_count + ' pipeline runs'"
+        ></i>
+      }
+    </div>
+  </article>
+
+  <article class="grafana-panel gauge-panel success-panel">
+    <header><span>Success rate</span><span class="panel-info" title="Successful versus failed completed pipelines">Quality</span></header>
+    <div class="gauge">
+      <svg viewBox="0 0 120 68" role="img" [attr.aria-label]="summary.success_rate.toFixed(1) + '% success rate'">
+        <path class="gauge-track" pathLength="100" d="M10 59 A50 50 0 0 1 110 59" />
+        <path class="gauge-value success-stroke" pathLength="100" d="M10 59 A50 50 0 0 1 110 59" [attr.stroke-dasharray]="summary.success_rate + ' 100'" />
+      </svg>
+      <strong>{{ summary.success_rate.toFixed(1) }}%</strong>
+    </div>
+    <p>{{ summary.success_count }} successful pipelines</p>
+  </article>
+
+  <article class="grafana-panel gauge-panel failed-panel">
+    <header><span>Failure rate</span><span class="panel-info" title="Failed versus successful completed pipelines">Completed</span></header>
+    <div class="gauge">
+      <svg viewBox="0 0 120 68" role="img" [attr.aria-label]="failureRate().toFixed(1) + '% failure rate'">
+        <path class="gauge-track" pathLength="100" d="M10 59 A50 50 0 0 1 110 59" />
+        <path class="gauge-value failure-stroke" pathLength="100" d="M10 59 A50 50 0 0 1 110 59" [attr.stroke-dasharray]="failureRate() + ' 100'" />
+      </svg>
+      <strong>{{ failureRate().toFixed(1) }}%</strong>
+    </div>
+    <p>{{ summary.failed_count }} failed pipelines</p>
+  </article>
+
+  <article class="grafana-panel health-panel">
+    <header><span>Delivery activity</span><span class="panel-info" title="Most recently synchronized runner state">Live state</span></header>
+    <div class="activity-value">
+      <strong>{{ summary.active_count }}</strong>
+      <span>active now</span>
+    </div>
+    <div class="activity-row">
+      <span><i class="dot active-dot"></i> Running</span>
+      <b>{{ summary.active_count }}</b>
+    </div>
+    <div class="activity-row">
+      <span><i class="dot canceled-dot"></i> Canceled</span>
+      <b>{{ summary.canceled_count }}</b>
+    </div>
+  </article>
+
+  <article class="grafana-panel distribution-panel panel-span-two">
+    <header>
+      <div><span>Status distribution</span><small>Share of collected pipeline runs</small></div>
+      <span class="panel-info" title="Distribution within the selected time range">PostgreSQL</span>
+    </header>
+    <div class="distribution-list">
+      <div class="distribution-row">
+        <span class="status-name"><i class="dot success-dot"></i> Success</span>
+        <div class="bar-track"><i class="success-bg" [style.width.%]="percentage(summary.success_count)"></i></div>
+        <strong>{{ summary.success_count }}</strong>
+        <small>{{ percentage(summary.success_count).toFixed(1) }}%</small>
+      </div>
+      <div class="distribution-row">
+        <span class="status-name"><i class="dot manual-dot"></i> Manual</span>
+        <div class="bar-track"><i class="manual-bg" [style.width.%]="percentage(summary.manual_count)"></i></div>
+        <strong>{{ summary.manual_count }}</strong>
+        <small>{{ percentage(summary.manual_count).toFixed(1) }}%</small>
+      </div>
+      <div class="distribution-row">
+        <span class="status-name"><i class="dot failure-dot"></i> Failed</span>
+        <div class="bar-track"><i class="failure-bg" [style.width.%]="percentage(summary.failed_count)"></i></div>
+        <strong>{{ summary.failed_count }}</strong>
+        <small>{{ percentage(summary.failed_count).toFixed(1) }}%</small>
+      </div>
+      <div class="distribution-row">
+        <span class="status-name"><i class="dot active-dot"></i> Active</span>
+        <div class="bar-track"><i class="active-bg" [style.width.%]="percentage(summary.active_count)"></i></div>
+        <strong>{{ summary.active_count }}</strong>
+        <small>{{ percentage(summary.active_count).toFixed(1) }}%</small>
+      </div>
+      <div class="distribution-row">
+        <span class="status-name"><i class="dot canceled-dot"></i> Canceled</span>
+        <div class="bar-track"><i class="canceled-bg" [style.width.%]="percentage(summary.canceled_count)"></i></div>
+        <strong>{{ summary.canceled_count }}</strong>
+        <small>{{ percentage(summary.canceled_count).toFixed(1) }}%</small>
+      </div>
+    </div>
+  </article>
+
+  <article class="grafana-panel pipeline-pie-panel">
+    <header><span>Pipeline status mix</span><span class="panel-info" title="Percentage share of all pipeline statuses in the selected range">Distribution</span></header>
+    <div
+      class="pipeline-pie"
+      [style.background]="pipelineStatusGradient()"
+      role="img"
+      [attr.aria-label]="'Pipeline status distribution for ' + summary.pipeline_count + ' runs'"
+      (pointermove)="moveStatusTooltip($event)"
+      (pointerleave)="statusTooltip.set(null)"
+    >
+      <div class="pipeline-pie-center">
+        <strong>{{ summary.pipeline_count }}</strong>
+        <span>runs</span>
+      </div>
+    </div>
+    @if (statusTooltip(); as tooltip) {
+      <div class="cursor-panel-tooltip" [style.left.px]="tooltip.x" [style.top.px]="tooltip.y">{{ tooltip.text }}</div>
+    }
+    <div class="pipeline-pie-legend">
+      <span><i class="success-bg"></i>{{ percentage(summary.success_count).toFixed(1) }}% success</span>
+      <span><i class="failure-bg"></i>{{ percentage(summary.failed_count).toFixed(1) }}% failed</span>
+    </div>
+  </article>
+  <article class="grafana-panel inventory-panel">
+    <header><span>Project inventory</span><span class="panel-info" title="Projects included in analytics synchronization">Synced</span></header>
+    <div class="inventory-value">{{ summary.project_count }}</div>
+    <p>Projects tracked in this group</p>
+    <div class="project-history-bars history-bars" aria-label="Projects with pipeline activity by time period">
+      @for (point of summary.history; track point.label) {
+        <i
+          [style.height.%]="historyHeight(point.project_count, 'project_count')"
+          [attr.data-tooltip]="point.label + ': ' + point.project_count + ' active projects'"
+        ></i>
+      }
+    </div>
+    <small>Active projects per period</small>
+  </article>
+  <article class="grafana-panel runner-status-panel panel-span-three">
+    <header>
+      <div><span>Runner status</span><small>Latest synchronized runner availability</small></div>
+      <span class="panel-info" title="Runner state cached in PostgreSQL">Runner state</span>
+    </header>
+    <div class="runner-status-list">
+      <div class="runner-status-row">
+        <span class="status-name"><i class="dot runner-running"></i> Running</span>
+        <div class="bar-track"><i class="runner-running" [style.width.%]="runnerPercentage(summary.runner_running_count)"></i></div>
+        <strong>{{ summary.runner_running_count }}</strong>
+        <small>{{ runnerPercentage(summary.runner_running_count).toFixed(1) }}%</small>
+      </div>
+      <div class="runner-status-row">
+        <span class="status-name"><i class="dot runner-idle"></i> Idle</span>
+        <div class="bar-track"><i class="runner-idle" [style.width.%]="runnerPercentage(summary.runner_idle_count)"></i></div>
+        <strong>{{ summary.runner_idle_count }}</strong>
+        <small>{{ runnerPercentage(summary.runner_idle_count).toFixed(1) }}%</small>
+      </div>
+      <div class="runner-status-row">
+        <span class="status-name"><i class="dot runner-offline"></i> Offline</span>
+        <div class="bar-track"><i class="runner-offline" [style.width.%]="runnerPercentage(summary.runner_offline_count)"></i></div>
+        <strong>{{ summary.runner_offline_count }}</strong>
+        <small>{{ runnerPercentage(summary.runner_offline_count).toFixed(1) }}%</small>
+      </div>
+    </div>
+  </article>
+
+  <article class="grafana-panel runner-inventory-panel">
+    <header><span>Runner inventory</span><span class="panel-info" title="Runners included in the latest synchronization">Synced</span></header>
+    <div class="inventory-value">{{ summary.runner_count }}</div>
+    <p>Self-hosted runners in this group</p>
+    <small>{{ summary.runner_running_count + summary.runner_idle_count }} currently online</small>
+  </article></div>
+} @else {
+<div class="dashboard-loading">
+  <span></span>
+  <p>Loading pipeline analytics?</p>
 </div>
+}

@@ -1,3 +1,17 @@
 nz-spin {
   height: 25px;
 }
+
+:host{display:block}.data-workspace{display:block;padding:0;border:1px solid var(--dashboard-border);border-radius:10px;background:var(--dashboard-surface);box-shadow:var(--dashboard-shadow);overflow:hidden}.workspace-toolbar{padding:.65rem;border-bottom:1px solid var(--dashboard-border)}.workspace-status-filter{padding:.1rem 0}
+
+.pipeline-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.refresh-button {
+  align-self: flex-start;
+}
+
+.favorite-filters{display:flex;align-items:flex-start;gap:.5rem}.favorite-variable{display:flex;align-items:stretch}.variable-label{display:flex;align-items:center;padding:0 .65rem;color:var(--dashboard-muted);border:1px solid var(--dashboard-border);border-right:0;border-radius:7px 0 0 7px;background:var(--dashboard-surface-subtle);font-size:11px}.favorite-variable>button{display:flex;min-width:180px;align-items:center;justify-content:space-between;color:var(--dashboard-text);border-radius:0 7px 7px 0;background:var(--dashboard-surface);gap:1rem}.favorite-variable-menu{width:320px;max-height:340px;padding:.4rem;color:var(--dashboard-text);border:1px solid var(--dashboard-border);border-radius:8px;background:var(--dashboard-surface);box-shadow:0 16px 40px rgb(0 0 0 / 30%);overflow:auto}.favorite-variable-menu label{display:flex;align-items:center;padding:.55rem .65rem;border-radius:6px;cursor:pointer;gap:.65rem}.favorite-variable-menu label:hover{background:var(--dashboard-accent-soft)}.favorite-variable-menu input{accent-color:var(--dashboard-accent)}.favorite-variable-search{position:sticky;z-index:1;top:-.4rem;display:flex;align-items:center;margin:-.4rem -.4rem .3rem;padding:.55rem .65rem;color:var(--dashboard-muted);border-bottom:1px solid var(--dashboard-border);background:var(--dashboard-surface);gap:.45rem}.favorite-variable-search input{width:100%;min-width:0;color:var(--dashboard-text);border:0;outline:0;background:transparent}.favorite-variable-empty{padding:1rem;color:var(--dashboard-muted);text-align:center}.favorite-option-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.remove-favorite-project{display:grid;width:24px;height:24px;margin-left:auto;padding:0;color:var(--dashboard-muted);border:0;border-radius:5px;background:transparent;cursor:pointer;place-items:center}.remove-favorite-project:hover{color:#fb7185;background:rgb(251 113 133 / 12%)}

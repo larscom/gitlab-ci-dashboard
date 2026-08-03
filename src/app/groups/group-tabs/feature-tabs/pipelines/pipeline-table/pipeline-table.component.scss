@@ -2,6 +2,35 @@ th {
   font-weight: bold !important;
 }
 
+th,
+td {
+  white-space: nowrap;
+}
+
 .blue-bg {
   background-color: #f0f8ff;
+}
+
+:host ::ng-deep .nz-resizable-handle-right {
+  right: -4px;
+  width: 8px;
+  cursor: col-resize;
+  border-right: 2px solid transparent;
+  transition: border-color 120ms ease;
+}
+
+:host ::ng-deep .nz-resizable-handle-left {
+  left: -4px;
+  width: 8px;
+  cursor: col-resize;
+  border-left: 2px solid transparent;
+  transition: border-color 120ms ease;
+}
+
+:host ::ng-deep th:hover .nz-resizable-handle-right {
+  border-right-color: #bd93f9;
+}
+
+:host ::ng-deep th:hover .nz-resizable-handle-left {
+  border-left-color: #bd93f9;
 }

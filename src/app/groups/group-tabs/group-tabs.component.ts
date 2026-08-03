@@ -7,14 +7,9 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
-import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
-import { NzTabChangeEvent, NzTabsModule } from 'ng-zorro-antd/tabs'
-import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { finalize, map } from 'rxjs'
-import { FavoritesComponent } from './favorites/favorites.component'
 import { FeatureTabsComponent } from './feature-tabs/feature-tabs.component'
-import { MaxLengthPipe } from './feature-tabs/pipes/max-length.pipe'
 import { ProjectId } from '$groups/model/project'
 
 @Component({
@@ -22,14 +17,9 @@ import { ProjectId } from '$groups/model/project'
   imports: [
     NzAlertModule,
     NzButtonModule,
-    NzTabsModule,
     NzSpinModule,
-    NzTooltipModule,
-    NzIconModule,
-    FeatureTabsComponent,
-    MaxLengthPipe,
-    FavoritesComponent
-],
+    FeatureTabsComponent
+  ],
   templateUrl: './group-tabs.component.html',
   styleUrls: ['./group-tabs.component.scss']
 })
@@ -38,29 +28,30 @@ export class GroupTabsComponent {
   private destroyRef = inject(DestroyRef)
 
   groups = signal<Group[]>([])
+  readonly emptyGroupMap = new Map<GroupId, Set<ProjectId>>()
   loading = signal(false)
 
-  showFavorites = signal(false)
   selectedGroupId = signal<number | undefined>(undefined)
   selectedIndex = computed(() => {
     const selectedGroupId = this.selectedGroupId()
     const groups = this.groups()
     return groups.findIndex(({ id }) => id === selectedGroupId)
   })
+  selectedGroup = computed(() => this.groups().find(({ id }) => id === this.selectedGroupId()))
+  selectedGroupMap = computed(() => {
+    const group = this.selectedGroup()
+    return group ? new Map<GroupId, Set<ProjectId>>([[group.id, new Set()]]) : this.emptyGroupMap
+  })
 
   constructor(
     private route: ActivatedRoute,
     private router: Router
   ) {
-    this.loading.set(true)
-    this.groupService
-      .getGroups()
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe((groups) => this.groups.set(groups))
+    this.loadGroups(false)
 
     effect(() => {
       if (this.selectedIndex() === -1) {
-        this.onChange({ index: 0, tab: null })
+        this.onChange({ index: 0 })
       }
     })
 
@@ -86,32 +77,37 @@ export class GroupTabsComponent {
     })
   }
 
-  toggleFavorites(): void {
-    this.showFavorites.set(!this.showFavorites())
-  }
-
   onReload(): void {
     window.location.reload()
   }
 
-  onChange({ index }: NzTabChangeEvent): void {
+  onEnvironmentsChanged(): void {
+    this.loadGroups(true)
+  }
+
+  onChange({ index }: { index: number }): void {
     const groups = this.groups()
     if (groups.length > 0) {
-      const { id } = groups.at(index!)!
+      const { id } = groups.at(index)!
       this.nagivate(id)
     }
-  }
-
-  trackById({ id }: Group): GroupId {
-    return id
-  }
-
-  getGroupMap({ id }: Group): Map<GroupId, Set<ProjectId>> {
-    return new Map([[id, new Set()]])
   }
 
   private nagivate(groupId: GroupId): void {
     const featureId = this.route.snapshot.params['featureId'] ?? 'latest-pipelines'
     this.router.navigate([groupId, featureId])
+  }
+
+  private loadGroups(selectFirst: boolean): void {
+    this.loading.set(true)
+    this.groupService
+      .getGroups()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe((groups) => {
+        this.groups.set(groups)
+        if (selectFirst && groups.length > 0) {
+          this.nagivate(groups[0].id)
+        }
+      })
   }
 }

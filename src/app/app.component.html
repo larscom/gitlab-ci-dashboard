@@ -1,5 +1,9 @@
 <gcd-header />
-@if (error(); as error) {
+@if (auth.loading()) {
+  <div class="auth-loading"><nz-spin nzSize="large" /></div>
+} @else if (!auth.authenticated()) {
+  <gcd-login />
+} @else if (error(); as error) {
   <div class="alert">
     <nz-alert nzShowIcon nzType="error" [nzMessage]="title()" [nzDescription]="message()" [nzAction]="action" />
     <ng-template #action>
