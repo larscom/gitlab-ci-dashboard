@@ -26,9 +26,9 @@ function provideI18n() {
   return provideAppInitializer(() => {
     const i18n = inject(NzI18nService)
     if (navigator.languages.includes('nl')) {
-      i18n.setLocale(nl_NL)
+      i18n.setLocale({ ...nl_NL, Pagination: { ...nl_NL.Pagination, items_per_page: '' } })
     } else {
-      i18n.setLocale(en_US)
+      i18n.setLocale({ ...en_US, Pagination: { ...en_US.Pagination, items_per_page: '' } })
     }
   })
 }

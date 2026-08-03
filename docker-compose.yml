@@ -1,16 +1,33 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gitlab_ci_dashboard
+      POSTGRES_USER: gitlab_ci_dashboard
+      POSTGRES_PASSWORD: gitlab_ci_dashboard
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   gitlab-ci-dashboard:
     image: larscom/gitlab-ci-dashboard
     build:
       context: .
       args:
         VERSION_ARG: docker
-    env_file:
-      - ./api/.env
-    # volumes:
-    #  - ./api/config.toml:/app/config.toml
-    #  - ./api/certs/ca.crt:/app/certs/ca.crt
-    environment:
-      - 'TZ=Europe/Amsterdam'
+    volumes:
+      - ./api/config.toml:/app/config.toml:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - '8080:8080'
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

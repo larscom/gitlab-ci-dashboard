@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-1">
   <div class="flex items-center">
     <div class="max-width-275">
-      <nz-input-group [nzSuffix]="suffixIcon">
+      <nz-input-group [nzPrefix]="prefixIcon" [nzSuffix]="suffixIcon">
         <input
           type="text"
           [(ngModel)]="filterText"
@@ -9,16 +9,9 @@
           [placeholder]="branchCount() > 0 ? 'Search ' + branchCount() + ' branches...' : 'Search branches...'"
         />
       </nz-input-group>
+      <ng-template #prefixIcon><span nz-icon nzType="search"></span></ng-template>
       <ng-template #suffixIcon>
-        <span
-          class="pointer"
-          nz-icon
-          nzType="close-square"
-          nz-tooltip
-          [nzTooltipMouseEnterDelay]="1"
-          nzTooltipTitle="Clear field"
-          (click)="filterText.set('')"
-        ></span>
+        @if(filterText()){<button type="button" class="filter-clear-button" nz-tooltip nzTooltipTitle="Clear search" aria-label="Clear branch search" (click)="filterText.set('')"><span nz-icon nzType="close"></span></button>}
       </ng-template>
     </div>
   </div>

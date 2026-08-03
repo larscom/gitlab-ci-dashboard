@@ -1,4 +1,13 @@
-<nz-table #nzTable nzSize="small" tablePaginator="schedules" [nzData]="schedulePipelines()">
+<nz-table
+  #nzTable
+  class="arcane-data-table scrolling-table"
+  nzSize="small"
+  tablePaginator="schedules"
+  [nzData]="schedulePipelines()"
+  [nzWidthConfig]="widthConfig"
+  [style.--table-width]="tableWidth + 'px'"
+  [nzScroll]="{ x: tableWidth + 'px' }"
+>
   <thead>
     <tr>
       @for (header of headers; track header.title) {
@@ -7,7 +16,7 @@
       </th>
       }
       <th>Jobs</th>
-      <th>Action</th>
+      <th nzRight>Action</th>
     </tr>
   </thead>
   <tbody>
@@ -21,8 +30,8 @@
       [attr.data-pipeline-id]="data.pipeline?.id"
       (click)="onRowClick(data.project)"
     >
+      <td [title]="projectNamespacePath(data.project)">{{ projectNamespacePath(data.project) }}</td>
       <td>{{ data.project.name }}</td>
-      <td>{{ data.project.namespace.name }}</td>
       <td class="lowercase">{{ data.schedule.description }}</td>
       <td>
         <span
@@ -62,32 +71,34 @@
         <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="getScope(pipeline.status)" />
         } @else { - }
       </td>
-      <td>
-        @if (data.pipeline; as pipeline) { @if (showWriteActions()) {
-        <gcd-write-actions-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" [branch]="pipeline.ref" />
-        }
-
-        <gcd-open-gitlab-icon [url]="pipeline.web_url" />
-
-        <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
-
-        <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
-        } @else {
-        <button nzType="text" nz-button nzShape="circle" disabled>
-          <span nz-icon nzType="gitlab"></span>
-        </button>
-
-        <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
-        }
-
-        <button
-          (click)="onScheduleClick($event, data.project)"
-          nz-tooltip
-          [nzTooltipTitle]="'Show schedules (' + data.project.name + ')'"
-          nz-button
-        >
-          <span nz-icon nzType="schedule"></span>
-        </button>
+      <td nzRight>
+        <gcd-table-actions>
+          @if (data.pipeline; as pipeline) {
+            @if (showWriteActions()) {
+              <gcd-write-actions-icon
+                [projectId]="data.project.id"
+                [pipelineId]="pipeline.id"
+                [branch]="pipeline.ref"
+              />
+            }
+            <gcd-open-gitlab-icon [url]="pipeline.web_url" />
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+            <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+          } @else {
+            <button nzType="text" nz-button nzShape="circle" disabled>
+              <span nz-icon nzType="gitlab"></span>
+            </button>
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+          }
+          <button
+            (click)="onScheduleClick($event, data.project)"
+            nz-tooltip
+            [nzTooltipTitle]="'Show schedules (' + data.project.name + ')'"
+            nz-button
+          >
+            <span nz-icon nzType="schedule"></span>
+          </button>
+        </gcd-table-actions>
       </td>
     </tr>
     <tr [nzExpand]="data.project.id === selectedProjectId()">

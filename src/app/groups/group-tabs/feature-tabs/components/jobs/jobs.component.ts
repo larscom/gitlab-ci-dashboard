@@ -14,6 +14,7 @@ import {
   SimpleChanges,
   inject,
   input,
+  output,
   runInInjectionContext,
   signal
 } from '@angular/core'
@@ -21,7 +22,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
-import { Subscription, identity, map, repeat, retry, tap } from 'rxjs'
+import { EMPTY, Subscription, expand, map, retry, switchMap, tap, timer } from 'rxjs'
 import { MaxLengthPipe } from '../../pipes/max-length.pipe'
 import { StatusColorPipe } from '../../pipes/status-color.pipe'
 
@@ -29,9 +30,9 @@ interface Tag {
   job: Job
   icon: string
   spin: boolean
+  downstream: boolean
 }
 
-const MAX_JOB_COUNT = 6
 const RUNNABLE_STATUSES = [
   Status.CREATED,
   Status.WAITING_FOR_RESOURCE,
@@ -40,6 +41,14 @@ const RUNNABLE_STATUSES = [
   Status.RUNNING,
   Status.MANUAL,
   Status.SCHEDULED
+]
+
+const POLLING_STATUSES = [
+  Status.CREATED,
+  Status.WAITING_FOR_RESOURCE,
+  Status.PREPARING,
+  Status.PENDING,
+  Status.RUNNING
 ]
 
 @Component({
@@ -57,14 +66,18 @@ export class JobsComponent implements OnChanges, OnDestroy {
   projectId = input.required<ProjectId>()
   pipelineId = input.required<PipelineId>()
   scope = input<Status[]>([])
+  downstreamStatusChange = output<Status | undefined>()
 
   tags = signal<Tag[]>([])
   loading = signal(true)
 
-  ngOnChanges({ scope }: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    const scope = changes['scope']
     const current: Status[] = scope?.currentValue ?? []
     const previous: Status[] = scope?.previousValue ?? []
-    if (this.isSameArray(current, previous)) {
+    const pipelineChanged = Boolean(changes['projectId'] || changes['pipelineId'])
+
+    if (!pipelineChanged && !scope?.firstChange && this.isSameArray(current, previous)) {
       return
     }
     runInInjectionContext(this.injector, () => this.subscribeToJobs())
@@ -95,17 +108,24 @@ export class JobsComponent implements OnChanges, OnDestroy {
     const scope = this.scope().join(',')
     const params = { project_id, pipeline_id, scope }
 
-    this.subscription = this.http
-      .get<Job[]>('api/jobs', { params })
+    const request$ = this.http.get<Job[]>('api/jobs', { params })
+
+    this.subscription = request$
       .pipe(
         retry(retryConfig),
-        this.withRepeat() ? repeat({ delay: FETCH_REFRESH_INTERVAL }) : identity,
+        expand((jobs) =>
+          this.hasActiveJobs(jobs)
+            ? timer(FETCH_REFRESH_INTERVAL).pipe(switchMap(() => request$.pipe(retry(retryConfig))))
+            : EMPTY
+        ),
         tap(() => this.loading.set(false)),
         map((jobs) => {
-          return jobs.slice(0, MAX_JOB_COUNT).map((job) => {
+          this.downstreamStatusChange.emit(this.getDownstreamStatus(jobs, pipeline_id))
+          return jobs.map((job) => {
             const icon = this.getTagIcon(job)
             const spin = RUNNABLE_STATUSES.includes(job.status)
-            return { job, icon, spin }
+            const downstream = job.pipeline.id !== pipeline_id
+            return { job, icon, spin, downstream }
           })
         })
       )
@@ -119,8 +139,26 @@ export class JobsComponent implements OnChanges, OnDestroy {
     return job.status
   }
 
-  private withRepeat(): boolean {
-    return this.scope().some((scope) => RUNNABLE_STATUSES.includes(scope))
+  private hasActiveJobs(jobs: Job[]): boolean {
+    return jobs.some(({ status }) => POLLING_STATUSES.includes(status))
+  }
+
+  private getDownstreamStatus(jobs: Job[], parentPipelineId: PipelineId): Status | undefined {
+    const downstreamJobs = jobs.filter(
+      (job) => job.pipeline.id !== parentPipelineId && !(job.status === Status.FAILED && job.allow_failure)
+    )
+
+    const priority: Status[] = [
+      Status.RUNNING,
+      Status.PENDING,
+      Status.PREPARING,
+      Status.WAITING_FOR_RESOURCE,
+      Status.CREATED,
+      Status.FAILED,
+      Status.CANCELED
+    ]
+
+    return priority.find((status) => downstreamJobs.some((job) => job.status === status))
   }
 
   private getTagIcon(job: Job): string {

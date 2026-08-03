@@ -1,14 +1,4 @@
 <header class="header">
-  <div class="flex gap-050 items-center">
-    <span class="font-md font-white" nz-icon nzType="laptop"></span>
-    <h4 class="title font-white">Gitlab CI Dashboard</h4>
-  </div>
-  <div class="flex gap-050 items-center">
-    <div>
-      <span class="font-sm">{{ version() }}</span>
-    </div>
-    <button nzType="text" nz-button nz-tooltip nzTooltipTitle="View on GitHub" (click)="onClick()">
-      <span class="font-md font-white" nz-icon nzType="github"></span>
-    </button>
-  </div>
+  <div class="dashboard-brand"><span class="dashboard-mark" aria-hidden="true">@if(config.companyLogo()){<img [src]="config.companyLogo()" alt="" />}@else{<span>CI</span>}</span><span class="dashboard-copy"><strong>{{config.companyName()}}</strong><small>GitLab CI Dashboard</small></span></div>
+  @if (auth.authenticated()) { <div class="header-actions"><button nzType="text" nz-button (click)="theme.toggle()"><span nz-icon [nzType]="theme.isDracula() ? 'sun' : 'moon'"></span><span class="action-label">{{ theme.isDracula() ? 'Light' : 'Dracula' }}</span></button>@if (auth.enabled()) { <button nzType="text" nz-button (click)="auth.logout()"><span nz-icon nzType="logout"></span><span class="action-label">Sign out</span></button> }<span class="header-divider"></span><button nzType="text" nz-button (click)="onClick()"><span class="font-md font-white" nz-icon nzType="github"></span></button></div> }
 </header>

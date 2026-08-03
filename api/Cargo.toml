@@ -13,15 +13,19 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 serde-querystring-actix = "0.3.0"
 chrono = { version = "0.4.44", features = ["serde"] }
-dotenv = "0.15.0"
 env_logger = "0.11.10"
 log = "0.4.29"
 moka = { version = "0.12.15", features = ["future"] }
 reqwest = { version = "0.13.3", features = ["json"] }
-tokio = { version = "1.52.3", features = ["sync"] }
+tokio = { version = "1.52.3", features = ["sync", "time"] }
 async-trait = "0.1.89"
 futures = "0.3.32"
 toml = "1.1.2"
+rand = "0.9.2"
+aes-gcm = "0.10.3"
+argon2 = "0.5.3"
+hex = "0.4.3"
+sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "chrono", "migrate"] }
 
 [dev-dependencies]
 serial_test = "3.4.0"

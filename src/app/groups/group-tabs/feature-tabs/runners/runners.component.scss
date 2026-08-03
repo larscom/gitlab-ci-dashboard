@@ -1,0 +1,329 @@
+.runner-page {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+}
+
+.data-workspace{display:block;padding:0;border:1px solid var(--dashboard-border);border-radius:10px;background:var(--dashboard-surface);box-shadow:var(--dashboard-shadow);overflow:hidden}.runner-toolbar{padding:.65rem;border-bottom:1px solid var(--dashboard-border)}
+
+.runner-summary {
+  display: flex;
+  align-items: center;
+  min-height: 104px;
+  padding: 1rem;
+  border: 1px solid var(--dashboard-border);
+  border-radius: 10px;
+  background: var(--dashboard-surface);
+  box-shadow: var(--dashboard-shadow);
+
+  > div:first-child {
+    display: flex;
+    width: 270px;
+    flex-direction: column;
+  }
+
+  span,
+  small {
+    color: var(--dashboard-muted);
+  }
+
+  strong {
+    color: var(--dashboard-text);
+    font-size: 2rem;
+    line-height: 1.05;
+  }
+
+  small {
+    margin-top: 0.2rem;
+  }
+}
+
+.runner-counts {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-transform: lowercase;
+  }
+}
+
+.runner-overview {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.runner-distribution {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--dashboard-surface-subtle);
+
+  .status-segment {
+    min-width: 3px;
+    background: #8b9298;
+
+    &.status-running {
+      background: #22c55e;
+    }
+
+    &.status-idle {
+      background: #3b82f6;
+    }
+
+    &.status-paused {
+      background: #f59e0b;
+    }
+
+    &.status-offline {
+      background: #fb7185;
+    }
+
+    &.status-stale,
+    &.status-never_contacted {
+      background: #ef4444;
+    }
+  }
+}
+
+.status-label {
+  &.status-running {
+    color: #22c55e;
+  }
+
+  &.status-idle {
+    color: #3b82f6;
+  }
+
+  &.status-paused {
+    color: #f59e0b;
+  }
+
+  &.status-offline {
+    color: #fb7185;
+  }
+
+  &.status-stale,
+  &.status-never_contacted {
+    color: #ef4444;
+  }
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b9298;
+
+  &.status-running {
+    background: #22c55e;
+  }
+
+  &.status-idle {
+    background: #3b82f6;
+  }
+
+  &.status-paused {
+    background: #f59e0b;
+  }
+
+  &.status-offline,
+  &.status-stale,
+  &.status-never_contacted {
+    background: #ef4444;
+  }
+}
+
+.runner-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+}
+
+.runner-searches {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  input {
+    width: 250px;
+  }
+}
+
+.runner-status-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  color: var(--dashboard-text);
+  font-size: 0.75rem;
+
+  button {
+    padding: 0.2rem 0.55rem;
+    color: var(--dashboard-muted);
+    border: 1px solid var(--dashboard-border);
+    border-radius: 4px;
+    background: var(--dashboard-surface-subtle);
+    cursor: pointer;
+
+    &.active,
+    &:hover {
+      color: var(--dashboard-accent);
+      border-color: var(--dashboard-accent);
+      background: var(--dashboard-surface-hover);
+    }
+
+    &.status-running {
+      color: #22c55e;
+    }
+
+    &.status-idle {
+      color: #3b82f6;
+    }
+
+    &.status-paused {
+      color: #f59e0b;
+    }
+
+    &.status-offline {
+      color: #fb7185;
+    }
+
+    &.status-stale,
+    &.status-never_contacted {
+      color: #ef4444;
+    }
+
+    &.active {
+      box-shadow: inset 0 0 0 1px currentColor;
+    }
+  }
+}
+
+/* Let the runner distribution use the entire summary width. */
+.runner-summary {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  > div:first-child {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: baseline;
+    gap: 0.65rem;
+
+    strong {
+      font-size: 1.55rem;
+    }
+
+    small {
+      margin: 0;
+    }
+  }
+}
+
+.runner-overview {
+  width: 100%;
+}
+
+.runner-distribution {
+  height: 14px;
+}
+
+/* Grafana-style runner overview, aligned with the Pipelines summary. */
+.runner-summary {
+  align-items: center;
+  flex-direction: row;
+  gap: 1.5rem;
+
+  > div:first-child {
+    display: flex;
+    width: 190px;
+    flex: 0 0 190px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+
+    > span {
+      color: var(--dashboard-accent);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    strong { font-size: 2rem; }
+    small { margin-top: 0.15rem; }
+  }
+}
+
+.runner-distribution { height: 18px; }
+
+@media (max-width: 900px) {
+  .runner-summary {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.8rem;
+
+    > div:first-child { width: 100%; flex-basis: auto; }
+  }
+}
+
+/* Match the Pipelines summary: vertical legend left, tall distribution right. */
+.runner-summary > div:first-child {
+  width: 145px;
+  flex-basis: 145px;
+}
+
+.runner-overview {
+  align-items: center;
+  flex-direction: row;
+  gap: .7rem;
+}
+
+.runner-counts {
+  min-width: 112px;
+  align-items: flex-start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: .3rem;
+  white-space: nowrap;
+}
+
+.runner-distribution {
+  height: 78px;
+  min-height: 78px;
+  flex: 1;
+  border-radius: 7px;
+
+  .status-segment {
+    border-inline-end: 1px solid color-mix(in srgb, var(--runner-segment-color) 80%, white);
+    background: color-mix(in srgb, var(--runner-segment-color) 38%, transparent);
+    box-shadow: inset 0 0 12px color-mix(in srgb, var(--runner-segment-color) 24%, transparent);
+
+    &.status-running { --runner-segment-color: #22c55e; }
+    &.status-idle { --runner-segment-color: #3b82f6; }
+    &.status-paused { --runner-segment-color: #f59e0b; }
+    &.status-offline { --runner-segment-color: #fb7185; }
+    &.status-stale,
+    &.status-never_contacted { --runner-segment-color: #ef4444; }
+  }
+}
+
+@media (max-width: 900px) {
+  .runner-overview { align-items: stretch; flex-direction: column; }
+  .runner-counts { min-width: 0; }
+  .runner-distribution { width: 100%; height: 58px; min-height: 58px; }
+}

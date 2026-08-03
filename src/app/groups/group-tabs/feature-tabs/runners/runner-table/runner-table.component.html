@@ -1,0 +1,119 @@
+<nz-table
+  #runnerTable
+  class="arcane-data-table scrolling-table"
+  nzSize="small"
+  tablePaginator="runners"
+  [nzData]="runners()"
+  [nzPageIndex]="pageIndex()"
+  (nzPageIndexChange)="pageIndex.set($event)"
+  [nzWidthConfig]="widthConfig"
+  [style.--table-width]="tableWidth + 'px'"
+  [nzScroll]="{ x: tableWidth + 'px' }"
+>
+  <thead>
+    <tr>
+      @for (header of headers; track header.title) {
+        <th
+          nz-resizable
+          nzPreview
+          [nzMinWidth]="80"
+          [nzMaxWidth]="800"
+          [nzSortFn]="header.compare"
+          [nzShowSort]="header.sortable"
+          (nzResizeEnd)="onHeaderResize($event, header)"
+        >
+          {{ header.title }}
+          <nz-resize-handle nzDirection="right" />
+        </th>
+      }
+      <th
+        nz-resizable
+        nzPreview
+        [nzMinWidth]="120"
+        [nzMaxWidth]="1200"
+        (nzResizeEnd)="onJobsResize($event)"
+      >
+        Jobs
+        <nz-resize-handle nzDirection="right" />
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (data of runnerTable.data; track data.runner.id) {
+      <tr>
+        <td>
+          <div class="runner-tags">
+            @for (tag of data.runner.tag_list; track tag) {
+              <nz-tag>{{ tag }}</nz-tag>
+            } @empty {
+              <span class="no-job">-</span>
+            }
+          </div>
+        </td>
+        <td>
+          <span class="runner-type">{{ runnerType(data.runner.runner_type) }}</span>
+        </td>
+        <td>{{ runnerScope(data.runner) }}</td>
+        <td>
+          <span class="runner-ip" [class.unavailable]="!data.runner.ip_address">
+            {{ data.runner.ip_address || 'Unavailable' }}
+          </span>
+        </td>
+        <td>
+          <strong>{{ data.runner.description || 'Runner #' + data.runner.id }}</strong>
+          @if (data.runner.description) {
+            <small>#{{ data.runner.id }}</small>
+          }
+        </td>
+        <td>
+          <span class="runner-status" [class]="'runner-status status-' + status(data.runner)">
+            <span class="runner-status-dot" [style.background-color]="statusColor(data.runner)"></span>
+            {{ status(data.runner) }}
+          </span>
+        </td>
+        <td>
+          <div class="runner-jobs">
+            @for (job of data.jobs; track job.id) {
+              <a class="runner-job" [href]="job.web_url" target="_blank" rel="noopener noreferrer">
+                <nz-tag nzColor="processing">
+                  {{ job.name }}
+                  <span>· {{ job.stage }} · {{ job.ref }}</span>
+                </nz-tag>
+              </a>
+            } @empty {
+              <span class="no-job">{{ status(data.runner) === 'running' ? 'Job details unavailable' : '-' }}</span>
+            }
+          </div>
+        </td>
+      </tr>
+    }
+  </tbody>
+</nz-table>
+<footer class="arcane-paginator">
+  <span class="arcane-paginator-summary">
+    Showing {{ rangeStart(runners().length, runnerTable.nzPageSize) }} to
+    {{ rangeEnd(runners().length, runnerTable.nzPageSize) }} of {{ runners().length }} item(s).
+  </span>
+  <div class="arcane-paginator-controls">
+    <div class="arcane-page-size-control">
+      <span>Rows per page</span>
+      <nz-select
+        class="arcane-page-size-select"
+        nzDropdownClassName="arcane-page-size-dropdown"
+        [nzDropdownMatchSelectWidth]="true"
+        [nzOptionHeightPx]="30"
+        [nzOptionOverflowSize]="7"
+        [ngModel]="runnerTable.nzPageSize"
+        (ngModelChange)="changePageSize(runnerTable, $event)"
+      >
+        @for (size of pageSizeOptions; track size) { <nz-option [nzValue]="size" [nzLabel]="size.toString()" /> }
+        <nz-option [nzValue]="allPageSize" nzLabel="All" />
+      </nz-select>
+    </div>
+    <strong>Page {{ pageIndex() }} of {{ pageCount(runners().length, runnerTable.nzPageSize) }}</strong>
+    <button type="button" aria-label="First page" [disabled]="pageIndex() === 1" (click)="pageIndex.set(1)">«</button>
+    <button type="button" aria-label="Previous page" [disabled]="pageIndex() === 1" (click)="pageIndex.set(pageIndex() - 1)">‹</button>
+    <button type="button" aria-label="Next page" [disabled]="pageIndex() === pageCount(runners().length, runnerTable.nzPageSize)" (click)="pageIndex.set(pageIndex() + 1)">›</button>
+    <button type="button" aria-label="Last page" [disabled]="pageIndex() === pageCount(runners().length, runnerTable.nzPageSize)" (click)="pageIndex.set(pageCount(runners().length, runnerTable.nzPageSize))">»</button>
+  </div>
+</footer>

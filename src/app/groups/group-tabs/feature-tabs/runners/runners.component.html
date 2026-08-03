@@ -1,0 +1,85 @@
+<div class="runner-page">
+  <section class="runner-summary">
+    <div>
+      <span>Total runners</span>
+      <strong>{{ runners().length }}</strong>
+      <small>self-hosted runners group</small>
+    </div>
+    <div class="runner-overview">
+      <div class="runner-counts">
+        @for (entry of statusCounts() | keyvalue; track entry.key) {
+          <span [class]="'status-label status-' + entry.key">
+            <i [class]="'status-dot status-' + entry.key"></i>{{ entry.key }} {{ entry.value }}
+          </span>
+        }
+      </div>
+      <div class="runner-distribution" aria-label="Runner status distribution">
+        @for (entry of statusCounts() | keyvalue; track entry.key) {
+          <span
+            [class]="'status-segment status-' + entry.key"
+            [style.flex-grow]="entry.value"
+            [ngStyle]="runnerSegmentStyle(entry.key)"
+            (pointermove)="moveTooltip($event, entry.key + ': ' + entry.value)"
+            (pointerleave)="hoverTooltip.set(null)"
+          ></span>
+        }
+      </div>
+    </div>
+  </section>
+  @if (hoverTooltip(); as tooltip) {
+    <div class="cursor-panel-tooltip" [style.left.px]="tooltip.x" [style.top.px]="tooltip.y">{{ tooltip.text }}</div>
+  }
+
+  <div class="runner-status-filter">
+    <strong>Filter by status</strong>
+    @for (entry of statusCounts() | keyvalue; track entry.key) {
+      <button type="button" [ngClass]="['status-chip', 'status-' + entry.key, statusSelected(entry.key) ? 'active' : '']" (click)="toggleStatus(entry.key)">{{ entry.key }}: {{ entry.value }}</button>
+    }
+  </div>
+
+  <section class="data-workspace">
+  <div class="runner-toolbar workspace-toolbar">
+    <div class="runner-searches">
+      <div class="arcane-search"><span nz-icon nzType="search"></span><input
+        nz-input
+        type="search"
+        placeholder="Search groups or projects..."
+        [value]="filterTextGroup()"
+        (input)="onFilterTextGroupChanged($any($event.target).value)"
+      /></div>
+      <div class="arcane-search"><span nz-icon nzType="search"></span><input
+        nz-input
+        type="search"
+        placeholder="Search runners, IPs, or jobs..."
+        [value]="filterTextRunner()"
+        (input)="onFilterTextRunnerChanged($any($event.target).value)"
+      /></div>
+      <div class="arcane-search"><span nz-icon nzType="search"></span><input
+        nz-input
+        type="search"
+        placeholder="Search tags..."
+        [value]="filterTextTag()"
+        (input)="onFilterTextTagChanged($any($event.target).value)"
+      /></div>
+    </div>
+    <button nz-button [nzLoading]="refreshing()" (click)="refresh()">
+      <span nz-icon nzType="reload"></span>
+      Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <nz-spin />
+  } @else if (runners().length === 0) {
+    <section class="runner-empty-state">
+      <span nz-icon nzType="safety-certificate"></span>
+      <div>
+        <strong>No runner data available for this group</strong>
+        <p>The group may have no self-hosted runners, or the GitLab token may need Owner/Admin permission to read group runners. Pipeline and project data remain available.</p>
+      </div>
+    </section>
+  } @else {
+    <gcd-runner-table [runners]="filteredRunners()" />
+  }
+  </section>
+</div>

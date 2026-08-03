@@ -1,4 +1,13 @@
-<nz-table #nzTable nzSize="small" tablePaginator="latest-pipelines" [nzData]="projects()">
+<nz-table
+  #nzTable
+  class="arcane-data-table scrolling-table"
+  nzSize="small"
+  tablePaginator="latest-pipelines"
+  [nzData]="projects()"
+  [nzWidthConfig]="widthConfig"
+  [style.--table-width]="tableWidth + 'px'"
+  [nzScroll]="{ x: tableWidth + 'px' }"
+>
   <thead>
     <tr>
       @for (header of headers; track header.title) {
@@ -7,7 +16,7 @@
       </th>
       }
       <th>Jobs</th>
-      <th>Action</th>
+      <th nzRight>Action</th>
     </tr>
   </thead>
   <tbody>
@@ -18,14 +27,18 @@
       [attr.data-pipeline-id]="data.pipeline?.id"
       (click)="onRowClick(data.project)"
     >
+      <td [title]="projectNamespacePath(data.project)">{{ projectNamespacePath(data.project) }}</td>
       <td>{{ data.project.name }}</td>
-      <td>{{ data.project.namespace.name }}</td>
-      <td>{{ data.project.default_branch }}</td>
-      <td class="lowercase">{{ data.project.topics.length ? data.project.topics.join(',') : '-' }}</td>
+      <td><span class="pipeline-ref">{{ data.project.default_branch }}</span></td>
+      <td class="lowercase">
+        @if (data.project.topics.length) {
+          <span class="pipeline-topic">{{ data.project.topics.join(', ') }}</span>
+        } @else { - }
+      </td>
       <td [style.color]="data.pipeline?.coverage | coverageColor">
         {{ data.pipeline?.coverage ? data.pipeline?.coverage + '%' : '-' }}
       </td>
-      <td>{{ data.pipeline?.source || '-' }}</td>
+      <td><span class="pipeline-trigger">{{ data.pipeline?.source || '-' }}</span></td>
       <td>
         @if (data.pipeline; as pipeline) {
         {{ pipeline.updated_at | date : 'medium' : timeZone : locale }}
@@ -36,16 +49,20 @@
         <gcd-jobs [projectId]="data.project.id" [pipelineId]="pipeline.id" [scope]="scope" />
         } @else { - }
       </td>
-      <td>
-        @if (data.pipeline; as pipeline) { @if (showWriteActions()) {
-        <gcd-write-actions-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" [branch]="pipeline.ref" />
-        }
-
-        <gcd-open-gitlab-icon [url]="pipeline.web_url" />
-
-        <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
-
-        <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+      <td nzRight>
+        @if (data.pipeline; as pipeline) {
+          <gcd-table-actions>
+            @if (showWriteActions()) {
+              <gcd-write-actions-icon
+                [projectId]="data.project.id"
+                [pipelineId]="pipeline.id"
+                [branch]="pipeline.ref"
+              />
+            }
+            <gcd-open-gitlab-icon [url]="pipeline.web_url" />
+            <gcd-favorites-icon [groupId]="data.group_id" [projectId]="data.project.id" />
+            <gcd-download-artifacts-icon [projectId]="data.project.id" [pipelineId]="pipeline.id" />
+          </gcd-table-actions>
         } @else { - }
       </td>
     </tr>

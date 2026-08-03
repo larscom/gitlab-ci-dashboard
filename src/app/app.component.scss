@@ -11,3 +11,24 @@
   max-width: 500px;
   padding: 1rem;
 }
+
+.auth-loading {
+  display: grid;
+  min-height: calc(100vh - 4rem);
+  place-items: center;
+}
+:host ::ng-deep .alert .ant-alert {
+  color: #252936;
+  border-color: #e1c46b;
+  border-radius: 10px;
+  background: #f8fafc;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 8%);
+}
+:host-context(.dracula-theme) ::ng-deep .alert .ant-alert {
+  color: #f4f4f5;
+  border-color: #5d4822;
+  background: #0d1011;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 28%);
+}
+:host-context(.dracula-theme) ::ng-deep .alert .ant-alert-message,
+:host-context(.dracula-theme) ::ng-deep .alert .ant-alert-description { color: #f4f4f5; }

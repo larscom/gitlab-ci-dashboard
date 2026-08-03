@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, model } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
 
 import { StatusColorPipe } from '$groups/group-tabs/feature-tabs/pipes/status-color.pipe'
 import { Status } from '$groups/model/status'
@@ -15,6 +15,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 })
 export class StatusFilterComponent {
   filterStatuses = model.required<Status[]>()
+  statusCounts = input<ReadonlyMap<Status, number>>(new Map())
 
   statuses = Object.values(Status)
     .filter((s) => s !== Status.FAILED_ALLOW_FAILURE)

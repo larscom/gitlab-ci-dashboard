@@ -18,12 +18,14 @@ pub fn setup_handlers(cfg: &mut web::ServiceConfig) {
 struct GetQuery {
     group_id: u64,
     project_ids: Option<Vec<u64>>,
+    refresh: Option<bool>,
 }
 
 async fn get_with_latest_pipeline(
     QueryString(GetQuery {
         group_id,
         project_ids,
+        ..
     }): QueryString<GetQuery>,
     aggregator: Data<PipelineAggregator>,
 ) -> Result<Json<Vec<ProjectPipeline>>, ApiError> {
@@ -37,11 +39,12 @@ async fn get_with_pipelines(
     QueryString(GetQuery {
         group_id,
         project_ids,
+        refresh,
     }): QueryString<GetQuery>,
     aggregator: Data<PipelineAggregator>,
 ) -> Result<Json<Vec<ProjectPipelines>>, ApiError> {
     let result = aggregator
-        .get_projects_with_pipelines(group_id, project_ids)
+        .get_projects_with_pipelines(group_id, project_ids, refresh.unwrap_or(false))
         .await?;
     Ok(Json(result))
 }

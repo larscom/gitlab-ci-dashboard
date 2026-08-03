@@ -4,12 +4,15 @@
   } @else if (tags().length) {
     @for (tag of tags(); track trackById(tag.job)) {
       <nz-tag
-        class="pointer"
+        class="pointer job-badge"
         (click)="onActionClick($event, tag.job)"
-        [nzColor]="getStatus(tag.job) | statusColor"
+        [style.--job-color]="getStatus(tag.job) | statusColor"
         nz-tooltip
-        [nzTooltipTitle]="'Show job (' + tag.job.name + ')'"
+        [nzTooltipTitle]="'Show ' + (tag.downstream ? 'downstream ' : '') + 'job (' + tag.job.name + ')'"
       >
+        @if (tag.downstream) {
+          <span aria-label="Downstream job">↳</span>
+        }
         <span nz-icon [nzType]="tag.icon" [nzSpin]="tag.spin"></span>
         <span>{{ tag.job.name | maxLength: 12 }}</span>
       </nz-tag>

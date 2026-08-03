@@ -4,11 +4,23 @@
 [![workflow](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml/badge.svg)](https://github.com/larscom/gitlab-ci-dashboard/actions/workflows/workflow.yml)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-![Preview](.github/img/preview.png)
+## Preview
+
+### Pipeline dashboard
+
+![Pipeline dashboard — dark theme](.github/img/dark-01-dashboard.png)
+
+### Pipeline table
+
+![Pipeline pipeline table — dark theme](.github/img/dark-02-table.png)
+
+### Optional login
+
+![Login page — dark theme](.github/img/dark-00-login.png)
 
 <br />
 
-Gitlab CI Dashboard will provide you with a **global** overview of all pipelines, schedules, and their statuses within a
+Gitlab CI Dashboard will provide you with a **global** overview of pipelines, runners, and their statuses within a
 single group.
 The default functionality of Gitlab is limited at the project level. This can become hard to manage when you have a lot
 of
@@ -21,7 +33,7 @@ projects, potentially resulting in undetected failed pipelines.
 ## 🚀 Highlights
 
 - View all pipeline statuses per group (e.g: failed/canceled/success)
-- View all pipeline schedules per group
+- View group runners, availability, execution state, and currently running jobs
 - You won't get rate limited by the Gitlab API, due to server-side caching
 - Communication to the Gitlab API happens only server side
 - Only 1 `read only` token is needed to serve a whole team
@@ -32,7 +44,7 @@ projects, potentially resulting in undetected failed pipelines.
 
 - [x] Overview of all latest pipeline statuses within a group
 - [x] Overview of all pipeline statuses within a group
-- [x] Overview of all schedules within a group
+- [x] Read-only overview of group runners and their active jobs
 - [x] Navigate to Gitlab
 - [x] Shows jobs and their status per pipeline
 - [x] Download artifacts from jobs directly
@@ -54,6 +66,9 @@ projects, potentially resulting in undetected failed pipelines.
 
 - Gitlab server (v4 API)
 - API token (read only or read/write)
+- To use the Runners page, the token must include runner read access (`manage_runner` on GitLab versions that require
+  it), and its user must have an Owner, Auditor, or suitable custom runner-management role in the group. Active job
+  details are shown only for projects the token user can access.
 - Docker
 
 ## 💡 Getting started
@@ -61,39 +76,43 @@ projects, potentially resulting in undetected failed pipelines.
 1. Generate a `read_api` or `api` access token in Gitlab, depending on your requirements (
    e.g: https://gitlab.com/-/profile/personal_access_tokens)
 
+   The read-only Runners page requires the `manage_runner` token scope and suitable group access (Owner, Auditor, or a
+   custom role with `admin_runners`). Active jobs are shown only for projects the token user can access.
+
 ![Access Token](.github/img/access_token.png)
 
-2. Run docker with the required environment variables (GITLAB_BASE_URL, GITLAB_API_TOKEN)
+2. Run docker with a TOML configuration file. The application reads runtime configuration from `api/config.toml`.
 
 ```bash
 docker run \
   -p 8080:8080 \
-  -e GITLAB_BASE_URL=https://gitlab.com \
-  -e GITLAB_API_TOKEN=my_token \
+  -v ./api/config.toml:/app/config.toml \
   larscom/gitlab-ci-dashboard:latest
 ```
 
-Or you can run it with a TOML configration file
-
-```bash
-docker run \
-  -p 8080:8080 \
-  -v ./config.toml:/app/config.toml \
-  larscom/gitlab-ci-dashboard:latest
-```
+> The current runtime configuration is loaded from `api/config.toml`. `GLCIDBR__*` environment variables are no longer supported.
 
 3. Dashboard should be available at: http://localhost:8080/ showing (by default) all available groups and their
-   projects
+   projects.
+
+4. Sign in using the credentials from `api/config.toml` and add GitLab environments/tokens from the web UI.
+
+### Runner monitoring permissions
+
+The read-only Runners page uses GitLab's group runners and runner jobs endpoints. The token user must be an Owner or
+Auditor of the group, or have a custom role with `admin_runners`. The token must also be allowed to read runner
+information (GitLab documents the `manage_runner` scope for these endpoints). Active job details are limited to projects
+the token user can access.
 
 ## 👉 Create/Cancel/Retry Pipelines
 
-You are able to perform write operations like creating,canceling,retrying pipelines, but you need to set the environment
-variable: `API_READ_ONLY` to `false` and provide a valid `read/write` access token.
+You are able to perform write operations like creating, canceling, and retrying pipelines. Configure this in `api/config.toml` by setting `ui.read_only = false`.
+
+GitLab environments and tokens are managed from the dashboard UI after startup.
 
 ## 👉 Hide the 'write' operations button
 
-You are able to hide the ellipsis (...) when you just want to use `READ_ONLY` mode. Set the `UI_HIDE_WRITE_ACTIONS` to
-true.
+To hide the ellipsis action button (...) when using the app in read-only mode, set `ui.hide_write_actions = true` in `api/config.toml`.
 
 ## ⏰ Prometheus
 
@@ -101,21 +120,61 @@ Prometheus metrics are exposed on the following endpoint
 
 > http://localhost:8080/metrics/prometheus
 
-## 🔌 Configration
+## Analytics persistence
 
-You have the option to set the configuration via environment variables or a TOML file.
-A TOML file takes precedence over environment variables, except for the `RUST_LOG` variable.
+Docker Compose starts PostgreSQL and enables analytics persistence automatically. The backend applies embedded
+database migrations on startup, synchronizes pipeline history in the background, and retains 90 days by default.
+Existing dashboard requests also update the analytics store. The current UI remains unchanged while the stored data
+provides the foundation for analytics panels.
+
+Set `database.url` in `api/config.toml` before production deployment. Non-Compose deployments remain compatible because analytics is disabled unless `analytics.enabled = true` and `database.url` is provided.
+
+
+## 🔌 Configuration
+
+The application reads runtime configuration from `api/config.toml`.
+`api/config.example.toml` is a template that shows the supported configuration structure. Copy it to `api/config.toml`, then update the values for your deployment.
+
+### Supported config variables
+
+| Key | Type | Description | Required | Default |
+| --- | --- | --- | --- | --- |
+| `server.listen_ip` | string | Network interface address for the web server | no | `0.0.0.0` |
+| `server.listen_port` | int | Port for the web server | no | `8080` |
+| `server.worker_count` | int | Number of worker threads | no | `4` |
+| `security.environment_token_encryption_key` | string | 64 hex chars used to encrypt GitLab tokens stored in the database | yes | |
+| `authentication.username` | string | Admin username for dashboard login | yes | |
+| `authentication.password` | string | Admin password for dashboard login | yes | |
+| `authentication.secure_cookie` | bool | Use secure cookies when TLS is enabled | no | `false` |
+| `database.url` | string | PostgreSQL connection URL for analytics persistence | yes if analytics enabled | |
+| `database.max_connections` | int | Maximum database pool connections | no | `10` |
+| `analytics.enabled` | bool | Enable PostgreSQL-backed analytics persistence | no | `true` |
+| `analytics.sync_interval_seconds` | int | Background sync interval for analytics | no | `300` |
+| `analytics.retention_days` | int | Days of analytics history to keep | no | `30` |
+| `cache.group_ttl_seconds` | int | Group cache TTL | no | `300` |
+| `cache.project_ttl_seconds` | int | Project cache TTL | no | `300` |
+| `cache.branch_ttl_seconds` | int | Branch cache TTL | no | `60` |
+| `cache.job_ttl_seconds` | int | Job cache TTL | no | `60` |
+| `cache.pipeline_ttl_seconds` | int | Pipeline cache TTL | no | `300` |
+| `cache.schedule_ttl_seconds` | int | Schedule cache TTL | no | `300` |
+| `cache.runner_ttl_seconds` | int | Runner list cache TTL | no | `60` |
+| `cache.runner_detail_ttl_seconds` | int | Runner detail cache TTL | no | `300` |
+| `cache.runner_job_ttl_seconds` | int | Runner job cache TTL | no | `15` |
+| `cache.artifact_ttl_seconds` | int | Artifact cache TTL | no | `1800` |
+| `pipeline.history_days` | int | Number of days to fetch pipeline history | no | `30` |
+| `ui.read_only` | bool | Disable write operations in the dashboard | no | `true` |
+| `ui.hide_write_actions` | bool | Hide the write action button when in read-only mode | no | `false` |
+| `ui.page_size_options` | array | Available page sizes in table pagination | no | `[10, 20, 30, 40, 50]` |
+| `ui.default_page_size` | int | Default selected page size | no | `10` |
 
 ### Load from TOML file
 
-> An example TOML file can be found inside the `./api` folder.
-
-Mount the `config.toml` inside the container (`/app/config.toml`)
+Mount the runtime config inside the container (`/app/config.toml`):
 
 ```bash
 docker run \
   -p 8080:8080 \
-  -v ./config.toml:/app/config.toml \
+  -v ./api/config.toml:/app/config.toml \
   larscom/gitlab-ci-dashboard:latest
 ```
 
@@ -130,8 +189,7 @@ Mount the `ca.crt` inside the container (`/app/certs/ca.crt`)
 ```bash
 docker run \
   -p 8080:8080 \
-  -e GITLAB_BASE_URL=https://gitlab.com \
-  -e GITLAB_API_TOKEN=my_token \
+  -v ./api/config.toml:/app/config.toml \
   -v ./ca.crt:/app/certs/ca.crt \
   larscom/gitlab-ci-dashboard:latest
 ```
@@ -156,30 +214,12 @@ Below is a working config for a `Caddy` reverse proxy server to serve the dashbo
 
 The dashboard should now be available at: https://example.com/my-custom-path
 
-## 🌍 Environment variables
+## 🌍 Runtime configuration
 
-| Variable                          | Type   | Description                                                                                                                        | Required | Default        |
-| --------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------- |
-| GITLAB_BASE_URL                   | string | The base url to the Gitlab server (e.g: https://gitlab.com)                                                                        | yes      |                |
-| GITLAB_API_TOKEN                  | string | A readonly or read/write access token generated in Gitlab (see: https://gitlab.com/-/profile/personal_access_tokens)               | yes      |                |
-| GITLAB_GROUP_ONLY_IDS             | string | Provide a comma seperated string of group ids which will only be displayed (e.g: 123,789,888)                                      | no       |                |
-| GITLAB_GROUP_SKIP_IDS             | string | Provide a comma seperated string of group ids which will be ignored (e.g: 123,789,888)                                             | no       |                |
-| GITLAB_GROUP_ONLY_TOP_LEVEL       | bool   | Show only top level groups, projects in sub groups will be shown inside the top level groups (see: GITLAB_GROUP_INCLUDE_SUBGROUPS) | no       | true           |
-| GITLAB_GROUP_INCLUDE_SUBGROUPS    | bool   | Whether to include subgroup projects whenever projects are fetched for a specific group                                            | no       | true           |
-| GITLAB_GROUP_CACHE_TTL_SECONDS    | int    | Expire after write time in seconds for groups (cache)                                                                              | no       | 300            |
-| GITLAB_PROJECT_SKIP_IDS           | string | Provide a comma seperated string of project ids which will be ignored (e.g: 123,789,888)                                           | no       |                |
-| GITLAB_PROJECT_CACHE_TTL_SECONDS  | int    | Expire after write time in seconds for projects (cache)                                                                            | no       | 300            |
-| GITLAB_PIPELINE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for pipelines (cache)                                                                           | no       | 5              |
-| GITLAB_PIPELINE_HISTORY_DAYS      | int    | How far back in time (days), it should fetch pipelines from gitlab (pipelines tab only)                                            | no       | 5              |
-| GITLAB_BRANCH_CACHE_TTL_SECONDS   | int    | Expire after write time in seconds for branches (cache)                                                                            | no       | 60             |
-| GITLAB_SCHEDULE_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for schedules (cache)                                                                           | no       | 300            |
-| GITLAB_JOB_CACHE_TTL_SECONDS      | int    | Expire after write time in seconds for jobs (cache)                                                                                | no       | 5              |
-| GITLAB_ARTIFACT_CACHE_TTL_SECONDS | int    | Expire after write time in seconds for artifacts (cache)                                                                           | no       | 1800           |
-| API_READ_ONLY                     | bool   | If true, you are not able to perform 'write' operations like retrying a pipeline                                                   | no       | true           |
-| UI_HIDE_WRITE_ACTIONS             | bool   | If true, the ellipsis action button (...) is hidden, handy if you want to use this application in read-only mode                   | no       | false          |
-| UI_PAGE_SIZE_OPTIONS              | string | Provide a comma seperated string of page sizes. This is the dropdown of available page sizes inside the paginator of the tables    | no       | 10,20,30,40,50 |
-| UI_DEFAULT_PAGE_SIZE              | int    | The default page size which should be selected for the paginator                                                                   | no       | 10             |
-| SERVER_LISTEN_IP                  | string | The IP address where the web server should listen on                                                                               | no       | 0.0.0.0        |
-| SERVER_LISTEN_PORT                | int    | The port where the web server should listen on                                                                                     | no       | 8080           |
-| SERVER_WORKER_COUNT               | int    | The amount of worker threads the web server should have                                                                            | no       | CPU specific   |
-| RUST_LOG                          | string | The log level of the application, set to "debug" to enable debug logging                                                           | no       | info           |
+The application reads runtime configuration from `api/config.toml`. The current code does not support `GLCIDBR__*` runtime environment variables.
+
+See `api/config.example.toml` for the actual supported config format.
+
+### Additional environment support
+
+- `RUST_LOG`: optional. Use this to set the log level for the application, e.g. `RUST_LOG=debug`.

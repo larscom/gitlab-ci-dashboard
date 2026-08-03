@@ -6,6 +6,8 @@ use crate::model::{Job, Pipeline};
 pub struct Project {
     pub id: u64,
     pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
     pub web_url: String,
     pub default_branch: Option<String>,
     pub topics: Vec<String>,
@@ -18,6 +20,8 @@ pub struct Namespace {
     pub id: u64,
     pub name: String,
     pub path: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub full_path: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

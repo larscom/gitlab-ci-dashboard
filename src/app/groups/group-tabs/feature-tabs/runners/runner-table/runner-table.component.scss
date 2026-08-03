@@ -1,0 +1,149 @@
+td:first-child {
+  strong,
+  small {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    color: var(--dashboard-muted);
+    font-size: 0.7rem;
+  }
+}
+
+.runner-jobs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.runner-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.runner-job {
+  display: inline-flex;
+
+  span {
+    opacity: 0.8;
+  }
+}
+
+.runner-tags .ant-tag {
+  color: #4c1d95;
+  border-color: #c4b5fd;
+  background: #f3e8ff;
+}
+
+.runner-ip.unavailable,
+.no-job {
+  color: var(--dashboard-muted);
+}
+
+.runner-ip:not(.unavailable),
+.runner-type {
+  display: inline-flex;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid;
+  border-radius: 5px;
+  font-size: 0.75rem;
+}
+
+.runner-ip:not(.unavailable) {
+  color: #0891b2;
+  border-color: rgb(8 145 178 / 45%);
+  background: rgb(8 145 178 / 10%);
+}
+
+.runner-type {
+  color: #7c3aed;
+  border-color: rgb(124 58 237 / 40%);
+  background: rgb(124 58 237 / 9%);
+}
+
+.runner-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.runner-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 65%);
+}
+
+.runner-status.status-running {
+  color: #047857;
+}
+
+.runner-status.status-idle {
+  color: #1d4ed8;
+}
+
+.runner-status.status-paused {
+  color: #b45309;
+}
+
+.runner-status.status-offline,
+.runner-status.status-stale,
+.runner-status.status-never_contacted {
+  color: #dc2626;
+}
+
+:host-context(.dracula-theme) {
+  .runner-tags .ant-tag {
+    color: #e9d5ff;
+    border-color: #6d4ba0;
+    background: #2a1d3d;
+  }
+
+  .runner-ip:not(.unavailable) {
+    color: #67e8f9;
+    border-color: #155e75;
+    background: #083344;
+  }
+
+  .runner-type {
+    color: #d8b4fe;
+    border-color: #6b21a8;
+    background: #2e1065;
+  }
+
+}
+
+:host-context(.dracula-theme) .runner-status {
+  color: #d1d5db;
+}
+
+:host-context(.dracula-theme) .runner-status-dot {
+  box-shadow: 0 0 0 2px rgb(8 10 11 / 80%);
+}
+
+:host-context(.dracula-theme) .runner-status.status-running {
+  color: #4ade80;
+}
+
+:host-context(.dracula-theme) .runner-status.status-idle {
+  color: #60a5fa;
+}
+
+:host-context(.dracula-theme) .runner-status.status-paused {
+  color: #fbbf24;
+}
+
+:host-context(.dracula-theme) .runner-status.status-offline,
+:host-context(.dracula-theme) .runner-status.status-stale,
+:host-context(.dracula-theme) .runner-status.status-never_contacted {
+  color: #fb7185;
+}

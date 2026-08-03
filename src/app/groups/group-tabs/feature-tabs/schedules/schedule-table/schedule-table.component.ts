@@ -8,6 +8,7 @@ import { Status } from '$groups/model/status'
 import { compareNumber, compareString, compareStringDate } from '$groups/util/compare'
 import { statusToScope } from '$groups/util/status-scope'
 import { Header } from '$groups/util/table'
+import { projectNamespacePath } from '$groups/util/project-path'
 import { ConfigService } from '$service/config.service'
 import { CommonModule } from '@angular/common'
 import {
@@ -38,14 +39,15 @@ import { CoverageColorPipe } from '../../pipes/coverage-color.pipe'
 import { NextRunAtPipe } from './pipes/next-run-at.pipe'
 import { SchedulePipelineTableComponent } from './schedule-pipeline-table/schedule-pipeline-table.component'
 import { TablePaginatorDirective } from '../../directives/table-paginator.directive'
+import { TableActionsComponent } from '../../components/table-actions/table-actions.component'
 
 const headers: Header<ScheduleProjectPipeline>[] = [
-  { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
   {
     title: 'Group',
     sortable: true,
-    compare: (a, b) => compareString(a.project.namespace.name, b.project.namespace.name)
+    compare: (a, b) => compareString(projectNamespacePath(a.project), projectNamespacePath(b.project))
   },
+  { title: 'Project', sortable: true, compare: (a, b) => compareString(a.project.name, b.project.name) },
   {
     title: 'Description',
     sortable: true,
@@ -97,6 +99,7 @@ const headers: Header<ScheduleProjectPipeline>[] = [
     DownloadArtifactsIconComponent,
     OpenGitlabIconComponent,
     CoverageColorPipe,
+    TableActionsComponent,
     TablePaginatorDirective
   ],
   templateUrl: './schedule-table.component.html',
@@ -118,6 +121,21 @@ export class ScheduleTableComponent implements OnDestroy {
   loading = signal(false)
 
   headers: Header<ScheduleProjectPipeline>[] = headers
+  readonly widthConfig = [
+    '320px',
+    '220px',
+    '260px',
+    '200px',
+    '120px',
+    '160px',
+    '210px',
+    '180px',
+    '130px',
+    '900px',
+    '72px'
+  ]
+  readonly tableWidth = 2772
+  readonly projectNamespacePath = projectNamespacePath
 
   ngOnDestroy(): void {
     this.refreshSubscription?.unsubscribe()
